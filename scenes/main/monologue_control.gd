@@ -127,9 +127,11 @@ func load_project(path: String, new_graph: bool = false) -> void:
 			data = _to_dict()
 			save()
 		
+		var converter := NodeConverter.new()
+		
 		graph.current.clear()
 		graph.current.name = path.get_file().trim_suffix(".json")
-		graph.current.speakers = data.get("Characters")
+		graph.current.speakers = converter.convert_characters(data.get("Characters"))
 		graph.current.variables = data.get("Variables")
 		graph.current.data = data
 		

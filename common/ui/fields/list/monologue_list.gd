@@ -26,11 +26,16 @@ func post_ready() -> void:
 func append_list_item(item) -> void:
 	var panel = create_item_container()
 	var field_box = create_item_vbox(panel)
+	
 	collapsible_field.add_item(panel, true)
 	for property_name in item.get_property_names():
 		var field = item.get(property_name).show(field_box)
 		field.set_label_text(Util.to_key_name(property_name, " "))
 	var identifier = item.id.value if "id" in item else item.name.value
+	
+	if "custom_delete_button" in item and item.custom_delete_button:
+		item.custom_delete_button.connect("pressed", _on_delete_button_pressed.bind(identifier))
+		return
 	create_delete_button(field_box, identifier)
 
 

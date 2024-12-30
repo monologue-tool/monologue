@@ -32,7 +32,7 @@ func _on_text_preview(text: Variant):
 
 func _update():
 	_preview.text = sentence.value
-	speaker.callers["set_items"] = [get_graph_edit().speakers, "Reference", "ID"]
+	speaker.callers["set_items"] = [get_graph_edit().speakers, "Character/Name", "EditorIndex"]
 	super._update()
 
 

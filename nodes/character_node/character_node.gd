@@ -82,7 +82,7 @@ func _update(value: Variant = null) -> void:
 	await get_tree().process_frame
 	
 	var action: Variant = action_type.value
-	character.callers["set_items"] = [get_graph_edit().speakers, "Reference", "ID"]
+	character.callers["set_items"] = [get_graph_edit().speakers, "Character/Name", "EditorIndex"]
 	
 	display_container.visible = action != "Leave"
 	action_type_label.text = action

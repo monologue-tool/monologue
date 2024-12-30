@@ -2,8 +2,6 @@
 
 [ext_resource type="Script" path="res://common/ui/fields/toggle/monologue_toggle.gd" id="1_0u5l0"]
 
-
-
 [node name="MonologueCheckButton" type="HBoxContainer"]
 offset_right = 43.0
 offset_bottom = 29.0

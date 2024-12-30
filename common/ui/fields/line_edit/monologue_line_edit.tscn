@@ -4,9 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://dm2u0xqmmcorj" path="res://ui/assets/icons/copy.png" id="2_lbcco"]
 [ext_resource type="FontFile" uid="uid://2eq6t1lcw61" path="res://ui/assets/fonts/NotoSans-Italic.ttf" id="3_bg611"]
 
-
-
-
 [node name="MonologueLine" type="MarginContainer"]
 offset_right = 300.0
 offset_bottom = 97.0
