@@ -24,3 +24,7 @@ func _on_name_edit_focus_exited() -> void:
 
 func _on_name_edit_text_submitted(new_text: String) -> void:
 	field_updated.emit(_to_dict())
+
+
+func _on_edit_button_pressed() -> void:
+	GlobalSignal.emit("open_character_edit")

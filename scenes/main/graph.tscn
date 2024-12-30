@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bqjfdabrxujp7"]
+[gd_scene load_steps=26 format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" path="res://scenes/main/monologue_control.gd" id="1_r00lk"]
 [ext_resource type="Script" path="res://common/windows/welcome_window/welcome_window.gd" id="3_bs36t"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://bddodmw1pm42r" path="res://title_banner@0.5x.png" id="10_m5ce4"]
 [ext_resource type="Script" path="res://scenes/main/graph_edit_switcher.gd" id="11_k843q"]
 [ext_resource type="Script" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.gd" id="12_jdwju"]
+[ext_resource type="PackedScene" uid="uid://c7cf7rfwnhf77" path="res://common/layouts/character_edit/character_edit.tscn" id="13_k1v36"]
 [ext_resource type="Script" path="res://common/windows/welcome_window/recent_file_container.gd" id="14_xsog8"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="15_hn16p"]
 [ext_resource type="Texture2D" uid="uid://faci8gjgsxub" path="res://ui/assets/icons/file_plus.svg" id="16_x1vtb"]
@@ -223,6 +224,10 @@ script = ExtResource("7_eu0e0")
 [node name="SearchBar" parent="MarginContainer/MainContainer/GraphEditsArea/SearchBarContainer" instance=ExtResource("8_tvorm")]
 visible = false
 layout_mode = 2
+
+[node name="CharacterEditContainer" parent="." instance=ExtResource("13_k1v36")]
+visible = false
+layout_mode = 1
 
 [node name="ExpandedTextEditContainer" parent="." instance=ExtResource("9_v3rw4")]
 visible = false
