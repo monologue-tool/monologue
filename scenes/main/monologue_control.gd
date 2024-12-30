@@ -82,8 +82,12 @@ func _to_dict() -> Dictionary:
 	var characters = graph.current.speakers
 	if characters.size() <= 0:
 		characters.append({
-			"Reference": "_NARRATOR",
-			"ID": 0
+			"ID": IDGen.generate(5),
+			"Protected": true,
+			"Character": {
+				"Name": "_NARRATOR"
+			},
+			"EditorIndex": 0
 		})
 	
 	return {

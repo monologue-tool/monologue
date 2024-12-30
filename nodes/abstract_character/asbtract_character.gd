@@ -21,8 +21,12 @@ func _init(node: RootNode):
 	graph = node.get_parent()
 	character.connect("change", update_character)
 	character.connect("display", graph.set_selected.bind(root))
-	
-	protected.connect("change", func(): character.field.delete_button.visible = protected.value)
+	character.connect("shown", _on_character_field_shown)
+
+
+func _on_character_field_shown() -> void:
+	character.field.delete_button.visible = !protected.value
+	character.field.name_edit.editable = !protected.value
 
 
 func update_character(old_value: Variant, new_value: Variant):
@@ -46,7 +50,9 @@ func _from_dict(dict: Dictionary) -> void:
 	if dict.get("ID") is String:
 		id.value = dict.get("ID")
 		character.value = dict.get("Character")
+		protected.value = dict.get("Protected")
+		idx.value = dict.get("EditorIndex")
 
 
 func _to_dict():
-	return { "ID": id.value, "Character": character.value, "EditorIndex": idx.value }
+	return { "ID": id.value, "Protected": protected.value, "Character": character.value, "EditorIndex": idx.value }

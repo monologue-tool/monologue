@@ -61,7 +61,9 @@ func load_character(new_character_list: Array):
 	if _character_references.is_empty():
 		var narrator = add_character()
 		narrator.character.value["Name"] = "_NARRATOR"
+		narrator.protected.value = true
 		new_character_list.append(narrator._to_dict())
+	
 	characters.value = new_character_list
 	get_graph_edit().speakers = new_character_list
 
