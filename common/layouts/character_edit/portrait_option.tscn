@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c3jo73wxyv6ux"]
+[gd_scene load_steps=12 format=3 uid="uid://c3jo73wxyv6ux"]
 
 [ext_resource type="Script" path="res://common/layouts/character_edit/portrait_option.gd" id="1_0c6eg"]
 [ext_resource type="Texture2D" uid="uid://dixramdai4iq4" path="res://ui/assets/icons/pen.svg" id="2_18nk3"]
@@ -7,15 +7,25 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1kg51"]
 
-[node name="PortraitOption" type="Button"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4h5pv"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sg0f6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sqn18"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1bt6u"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ecrk5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_141h7"]
+
+[node name="PortraitOption" type="Panel"]
 custom_minimum_size = Vector2(0, 35)
 anchors_preset = -1
-anchor_right = 0.178
+anchor_right = 0.096
 anchor_bottom = 0.036
-offset_right = 0.199982
+offset_right = -0.600006
 offset_bottom = 0.439999
-mouse_filter = 1
-alignment = 0
 script = ExtResource("1_0c6eg")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -29,17 +39,29 @@ grow_vertical = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer"]
+[node name="Control" type="Control" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/Control/HBoxContainer"]
 custom_minimum_size = Vector2(18, 0)
 layout_mode = 2
 texture = ExtResource("2_d82q5")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/HBoxContainer"]
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/HBoxContainer/Control/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 1
 theme_override_colors/font_uneditable_color = Color(1, 1, 1, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_1kg51")
 text = "default"
@@ -47,6 +69,22 @@ max_length = 15
 flat = true
 caret_blink = true
 text_direction = 1
+
+[node name="Button" type="Button" parent="MarginContainer/HBoxContainer/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_styles/focus = SubResource("StyleBoxEmpty_4h5pv")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_sg0f6")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_sqn18")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_1bt6u")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ecrk5")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_141h7")
+flat = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
@@ -63,7 +101,6 @@ layout_mode = 2
 texture_normal = ExtResource("3_p62s6")
 stretch_mode = 5
 
-[connection signal="focus_exited" from="MarginContainer/HBoxContainer/LineEdit" to="." method="_on_line_edit_focus_exited"]
-[connection signal="text_changed" from="MarginContainer/HBoxContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/Control/Button" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/HBoxContainer/btnEdit" to="." method="_on_btn_edit_pressed"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/HBoxContainer/btnStar" to="." method="_on_btn_star_pressed"]

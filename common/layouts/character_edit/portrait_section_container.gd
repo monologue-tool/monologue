@@ -19,12 +19,22 @@ func _on_add_button_pressed() -> void:
 	portrait_vbox.add_child(new_portrait)
 	new_portrait.connect("pressed", _on_portrait_option_pressed.bind(new_portrait))
 	new_portrait.connect("set_to_default", _on_portrait_option_set_to_default.bind(new_portrait))
+	new_portrait.line_edit.text = "new portrait %s" % portrait_vbox.get_child_count()
 	
 	if portrait_vbox.get_child_count() <= 1:
 		new_portrait.set_default()
 
+
 func _on_portrait_option_pressed(portrait_option: CharacterEditPortraitOption) -> void:
-	pass
+	for portrait in portrait_vbox.get_children():
+		if portrait is not CharacterEditPortraitOption:
+			continue
+		
+		if portrait == portrait_option:
+			portrait.set_active()
+			continue
+		
+		portrait.release_active()
 
 
 func _on_portrait_option_set_to_default(portrait_option: CharacterEditPortraitOption) -> void:
