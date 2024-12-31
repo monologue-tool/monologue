@@ -18,10 +18,10 @@ func add_cell() -> TimelineCell:
 	return new_cell
 
 
-func remove_cell(position: int) -> void:
+func remove_cell(pos: int) -> void:
 	var cells: Array = hbox.get_children()
-	hbox.remove_child(cells[position])
-	cells[position].queue_free()
+	hbox.remove_child(cells[pos])
+	cells[pos].queue_free()
 
 
 func fill() -> void:

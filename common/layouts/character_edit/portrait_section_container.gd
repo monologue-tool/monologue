@@ -5,15 +5,6 @@ extends VBoxContainer
 @onready var portrait_vbox := %PortraitVBox
 
 
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
-
 func _on_add_button_pressed() -> void:
 	var new_portrait := portrait_option_obj.instantiate()
 	portrait_vbox.add_child(new_portrait)

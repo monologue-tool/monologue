@@ -14,11 +14,11 @@ func _update() -> void:
 	warn_label.visible = show_warn
 
 
-func _on_line_edit_text_changed(new_text: String) -> void:
+func _on_line_edit_text_changed(_new_text: String) -> void:
 	pass # Replace with function body.
 
 
-func _on_line_edit_text_submitted(new_text: String) -> void:
+func _on_line_edit_text_submitted(_new_text: String) -> void:
 	pass # Replace with function body.
 
 

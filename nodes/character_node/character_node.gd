@@ -90,7 +90,7 @@ func _update(value: Variant = null) -> void:
 	
 
 
-func _show_group(action_type: Variant) -> void:
+func _show_group(_action_type: Variant) -> void:
 	for key in _control_groups.keys():
 		for property in _control_groups.get(key):
 			property.visible = false

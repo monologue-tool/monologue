@@ -57,7 +57,7 @@ func _on_line_edit_focus_exited() -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.double_click:
 		return
-		_on_btn_edit_pressed()
+		#_on_btn_edit_pressed()
 
 
 func _on_btn_star_pressed() -> void:

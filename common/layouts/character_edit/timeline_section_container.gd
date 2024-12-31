@@ -10,7 +10,7 @@ extends VBoxContainer
 @onready var layer_timeline := preload("res://common/layouts/character_edit/layer_timeline.tscn")
 @onready var cell_number := preload("res://common/layouts/character_edit/cell_number.tscn")
 
-var cell_count: int = 6
+var cell_count: int = 1
 
 
 func _ready() -> void:
@@ -38,5 +38,20 @@ func _update_cell_number() -> void:
 		cell_number_hbox.add_child(new_cell)
 
 
+func add_cell() -> void:
+	cell_count += 1
+	_update_cell_number()
+	for t in layer_timeline_vbox.get_children():
+		t.add_cell()
+
+
 func _to_dict() -> Dictionary:
 	return {}
+
+
+func _on_btn_add_cell_pressed() -> void:
+	add_cell()
+
+
+func _on_btn_add_layer_pressed() -> void:
+	add_timeline()

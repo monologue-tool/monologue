@@ -31,7 +31,7 @@ func _on_name_edit_focus_exited() -> void:
 	_on_name_edit_text_submitted(name_edit.text)
 
 
-func _on_name_edit_text_submitted(new_text: String) -> void:
+func _on_name_edit_text_submitted(_new_text: String) -> void:
 	field_updated.emit(_to_dict())
 
 
