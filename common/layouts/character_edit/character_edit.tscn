@@ -1,19 +1,24 @@
-[gd_scene load_steps=25 format=3 uid="uid://c7cf7rfwnhf77"]
+[gd_scene load_steps=31 format=3 uid="uid://c7cf7rfwnhf77"]
 
 [ext_resource type="Script" path="res://common/layouts/character_edit/character_edit.gd" id="1_mo23b"]
-[ext_resource type="LabelSettings" uid="uid://cu53lojswyksx" path="res://common/layouts/character_edit/title_label_settings.tres" id="2_50fu3"]
+[ext_resource type="LabelSettings" uid="uid://cu53lojswyksx" path="res://common/layouts/character_edit/theme/title_label_settings.tres" id="2_50fu3"]
 [ext_resource type="PackedScene" uid="uid://dfwf55ovgwir3" path="res://common/ui/buttons/delete_button.tscn" id="3_1au8k"]
 [ext_resource type="Texture2D" uid="uid://bjra4bs2l0m6x" path="res://ui/assets/icons/cell_single.svg" id="3_p8hri"]
-[ext_resource type="LabelSettings" uid="uid://bbx22ewomxes8" path="res://common/layouts/character_edit/property_label_settings.tres" id="3_snoek"]
+[ext_resource type="LabelSettings" uid="uid://bbx22ewomxes8" path="res://common/layouts/character_edit/theme/property_label_settings.tres" id="3_snoek"]
 [ext_resource type="Texture2D" uid="uid://bu603ytypk2jb" path="res://ui/assets/icons/expand.svg" id="3_wt327"]
 [ext_resource type="Texture2D" uid="uid://t1i3wy037vsu" path="res://ui/assets/icons/folder_icon.png" id="4_fvqdm"]
 [ext_resource type="Texture2D" uid="uid://c4nngbw70jdd0" path="res://ui/assets/icons/cell_left.svg" id="4_ko5m6"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/image_picker_line_edit.gd" id="5_7ejn8"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/type_dropdown.gd" id="5_8dqmk"]
 [ext_resource type="Texture2D" uid="uid://e7nc5xoqpgmi" path="res://ui/assets/icons/cell_middle.svg" id="5_b1ycl"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/portrait_section_container.gd" id="5_mpn8l"]
 [ext_resource type="Texture2D" uid="uid://bcow4e2eus2ik" path="res://ui/assets/icons/cell_right.svg" id="6_fvhh7"]
 [ext_resource type="Texture2D" uid="uid://c7ee44ql1gv6b" path="res://ui/assets/icons/offset_cross.svg" id="6_q7cn4"]
+[ext_resource type="Script" path="res://addons/ReorderableContainer/reorderable_vbox.gd" id="6_rcm5i"]
 [ext_resource type="Texture2D" uid="uid://nnm7d2srfc40" path="res://ui/assets/icons/cell_empty.svg" id="8_2idsm"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/timeline_section_container.gd" id="9_shsbx"]
+[ext_resource type="Texture2D" uid="uid://hmjhxdsk3pwj" path="res://ui/assets/icons/trash.svg" id="10_m01ot"]
+[ext_resource type="Texture2D" uid="uid://xiahr3jughjg" path="res://ui/assets/icons/plus_min.svg" id="11_l8sbu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ng6uw"]
 content_margin_left = 5.0
@@ -54,6 +59,8 @@ bg_color = Color(0.27451, 0.27451, 0.301961, 0.25098)
 line_spacing = 0.0
 font_size = 14
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_omduo"]
+
 [node name="MarginContainer" type="MarginContainer"]
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,23 +76,27 @@ script = ExtResource("1_mo23b")
 [node name="PanelContainer" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(1500, 850)
 layout_mode = 2
+mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="HSplitContainer" type="HSplitContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 20
 
 [node name="VSplitContainer2" type="VSplitContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer"]
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2"]
 custom_minimum_size = Vector2(400, 0)
@@ -124,7 +135,8 @@ label_settings = ExtResource("3_snoek")
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/OuterVBox2/HBox/InnerVBox"]
+[node name="NicknamesLineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/OuterVBox2/HBox/InnerVBox"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 
@@ -145,7 +157,8 @@ label_settings = ExtResource("3_snoek")
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/OuterVBox/HBox/InnerVBox"]
+[node name="DisplayNameLineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/OuterVBox/HBox/InnerVBox"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 
@@ -166,7 +179,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="TextEdit" type="TextEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer"]
+[node name="DescriptionTextEdit" type="TextEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer"]
+unique_name_in_owner = true
 clip_contents = false
 custom_minimum_size = Vector2(200, 100)
 layout_mode = 2
@@ -174,7 +188,7 @@ size_flags_horizontal = 3
 wrap_mode = 1
 caret_blink = true
 
-[node name="ExpandContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit"]
+[node name="ExpandContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -186,11 +200,11 @@ offset_bottom = 20.0
 grow_horizontal = 0
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit/ExpandContainer"]
+[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit/ExpandContainer"]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit/ExpandContainer/Button"]
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit/ExpandContainer/Button"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -199,7 +213,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit/ExpandContainer/Button/CenterContainer"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit/ExpandContainer/Button/CenterContainer"]
 custom_minimum_size = Vector2(15, 15)
 layout_mode = 2
 mouse_filter = 2
@@ -207,15 +221,16 @@ texture = ExtResource("3_wt327")
 expand_mode = 4
 stretch_mode = 5
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2"]
+[node name="PortraitSectionContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2"]
 layout_mode = 2
+script = ExtResource("5_mpn8l")
 
-[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2"]
+[node name="SectionLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer"]
 layout_mode = 2
 text = "Portraits"
 label_settings = ExtResource("2_50fu3")
 
-[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2"]
+[node name="PortraitContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 10
@@ -223,41 +238,54 @@ theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 0
 
-[node name="PortraitList" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2/MarginContainer2"]
+[node name="PortraitList" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ng6uw")
 
-[node name="VboxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2/MarginContainer2/PortraitList"]
+[node name="VboxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2/MarginContainer2/PortraitList/VboxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="FieldContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2/MarginContainer2/PortraitList/VboxContainer/ScrollContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 200)
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList/VboxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="AddButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer2/MarginContainer2/PortraitList/VboxContainer"]
+[node name="PortraitVBox" type="Container" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList/VboxContainer/ScrollContainer" node_paths=PackedStringArray("scroll_container")]
 unique_name_in_owner = true
+process_mode = 1
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("6_rcm5i")
+hold_duration = 0.2
+separation = 5
+is_vertical = true
+scroll_container = NodePath("..")
+
+[node name="AddButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList/VboxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-text = "+"
+icon = ExtResource("11_l8sbu")
+icon_alignment = 1
+expand_icon = true
 
 [node name="VSplitContainer" type="VSplitContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 20
 split_offset = 550
 
 [node name="HSplitContainer" type="HSplitContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer"]
 custom_minimum_size = Vector2(350, 0)
@@ -409,6 +437,23 @@ label_settings = ExtResource("3_snoek")
 [node name="CheckButton" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/MonologueCheckButton"]
 layout_mode = 2
 
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+text = "Delete this portrait"
+icon = ExtResource("10_m01ot")
+
 [node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -434,6 +479,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_ng6uw")
 
 [node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer2/MarginContainer/PanelContainer"]
 layout_mode = 2
+expand_mode = 1
 stretch_mode = 5
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer2/MarginContainer/PanelContainer"]
@@ -449,6 +495,7 @@ stretch_mode = 5
 [node name="TimelineSectionContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+script = ExtResource("9_shsbx")
 
 [node name="SectionLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer"]
 layout_mode = 2
@@ -514,93 +561,93 @@ suffix = "fps"
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2"]
+[node name="LayerContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_2pjie")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer"]
+[node name="LayerVBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox"]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer"]
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer/HBoxContainer/PanelContainer"]
 custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2"]
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer/HBoxContainer/PanelContainer2"]
 custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_6xlvw")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer4"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer/HBoxContainer/PanelContainer4"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 label_settings = SubResource("LabelSettings_86o0e")
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox"]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer"]
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer/PanelContainer"]
 custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2"]
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer/PanelContainer2"]
 custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="DeleteButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer3" instance=ExtResource("3_1au8k")]
+[node name="DeleteButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer/PanelContainer3" instance=ExtResource("3_1au8k")]
 custom_minimum_size = Vector2(26, 16)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -608,213 +655,205 @@ size_flags_vertical = 4
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_6xlvw")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer4"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer/PanelContainer4"]
 layout_mode = 2
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_bottom = 0
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer/ScrollContainer/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer4/MarginContainer"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerContainer/ScrollContainer/LayerVBox/PanelContainer2/HBoxContainer/PanelContainer4/MarginContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Layer 1"
 label_settings = SubResource("LabelSettings_86o0e")
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2"]
+[node name="LayerTimelineContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_rv6o0")
 
-[node name="ScrollContainer2" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2"]
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2"]
+[node name="LayerTimelineVBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer"]
+[node name="FrameCountTimeline" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox"]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer"]
+[node name="HBox" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer"]
-custom_minimum_size = Vector2(27, 26)
+[node name="Frame" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="FrameNumberIndicator" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame"]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame/FrameNumberIndicator"]
 layout_mode = 2
 text = "1"
 label_settings = SubResource("LabelSettings_jbxed")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame"]
 custom_minimum_size = Vector2(27, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame/PanelContainer2"]
 layout_mode = 2
 text = "2"
 label_settings = SubResource("LabelSettings_jbxed")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame"]
 custom_minimum_size = Vector2(27, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer3"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame/PanelContainer3"]
 layout_mode = 2
 text = "3"
 label_settings = SubResource("LabelSettings_jbxed")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame"]
 custom_minimum_size = Vector2(27, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer4"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame/PanelContainer4"]
 layout_mode = 2
 text = "4"
 label_settings = SubResource("LabelSettings_jbxed")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PanelContainer5" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer5" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame"]
 custom_minimum_size = Vector2(27, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer5"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame/PanelContainer5"]
 layout_mode = 2
 text = "5"
 label_settings = SubResource("LabelSettings_jbxed")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PanelContainer6" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer6" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame"]
 custom_minimum_size = Vector2(27, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer6"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/Frame/PanelContainer6"]
 layout_mode = 2
-text = "7"
+text = "6"
 label_settings = SubResource("LabelSettings_jbxed")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer"]
+[node name="PanelContainer6" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox"]
+custom_minimum_size = Vector2(27, 26)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_omduo")
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/PanelContainer6"]
+layout_mode = 2
+texture_normal = ExtResource("11_l8sbu")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="LayerTimeline" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox"]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer"]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer"]
-custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer/MarginContainer"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer/PanelContainer"]
 layout_mode = 2
 texture = ExtResource("3_p8hri")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2"]
-custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 0
-
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/MarginContainer"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer/PanelContainer2"]
 layout_mode = 2
 texture = ExtResource("4_ko5m6")
-stretch_mode = 4
+stretch_mode = 5
 
-[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer"]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer3"]
-custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_right = 0
-
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer3/MarginContainer"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer/PanelContainer3"]
 layout_mode = 2
 texture = ExtResource("5_b1ycl")
-expand_mode = 2
-stretch_mode = 4
+stretch_mode = 5
 
-[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer4" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer"]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer4"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer/PanelContainer4"]
 custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_right = 10
-
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer4/MarginContainer"]
 layout_mode = 2
 texture = ExtResource("6_fvhh7")
 expand_mode = 1
-stretch_mode = 4
+stretch_mode = 5
 
-[node name="PanelContainer5" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer5" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer"]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer5"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer/PanelContainer5"]
 custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer5/MarginContainer"]
 layout_mode = 2
 texture = ExtResource("3_p8hri")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="PanelContainer6" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer"]
+[node name="PanelContainer6" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer"]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer6"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/LayerTimeline/HBoxContainer/PanelContainer6"]
 custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/TimelineSectionContainer/TimelineContainer/Timeline/VBoxContainer/HBoxContainer2/PanelContainer2/ScrollContainer2/VBoxContainer/PanelContainer2/HBoxContainer/PanelContainer6/MarginContainer"]
 layout_mode = 2
 texture = ExtResource("8_2idsm")
 expand_mode = 1
@@ -828,9 +867,11 @@ alignment = 1
 layout_mode = 2
 text = "Done"
 
-[connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText" method="_on_focus_exited"]
-[connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText" method="_on_text_changed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/TextEdit/ExpandContainer/Button" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText" method="_on_button_pressed"]
+[connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText" method="_on_focus_exited"]
+[connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText" method="_on_text_changed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit/ExpandContainer/Button" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/VBoxContainer/MarginContainer/VBoxContainer/MonologueText" method="_on_button_pressed"]
+[connection signal="sort_children" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList/VboxContainer/ScrollContainer/PortraitVBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList/VboxContainer/ScrollContainer/PortraitVBox" method="_on_sort_children"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer/PortraitContainer/PortraitList/VboxContainer/AddButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer2/PortraitSectionContainer" method="_on_add_button_pressed"]
 [connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/MonologueDropdown/OptionButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/MonologueDropdown" method="_on_option_button_item_selected"]
 [connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/FilePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/FilePickerLineEdit" method="_on_line_edit_focus_exited"]
 [connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/FilePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VSplitContainer/HSplitContainer/VBoxContainer/MarginContainer/VBoxContainer/FilePickerLineEdit" method="_on_line_edit_text_changed"]

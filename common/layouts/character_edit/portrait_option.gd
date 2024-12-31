@@ -1,9 +1,16 @@
-extends Button
+class_name CharacterEditPortraitOption extends Button
 
 
+signal set_to_default
 
 @onready var line_edit: LineEdit = $MarginContainer/HBoxContainer/LineEdit
+@onready var btn_star := $MarginContainer/HBoxContainer/HBoxContainer/btnStar
+
 @onready var line_edit_focus_stylebox: StyleBoxFlat = preload("res://ui/theme_default/line_edit_focus.tres")
+@onready var star_icon := preload("res://ui/assets/icons/star.svg")
+@onready var star_full_icon := preload("res://ui/assets/icons/star_full.svg")
+
+@export var is_default: bool = false
 
 var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
 
@@ -31,9 +38,33 @@ func _on_btn_edit_pressed() -> void:
 	add_theme_stylebox_override("focus", line_edit_focus_stylebox)
 
 
+func _on_btn_delete_pressed() -> void:
+	queue_free()
+
+
 func _on_line_edit_text_changed(_new_text: String) -> void:
 	pass # Replace with function body.
 
 
 func _on_line_edit_focus_exited() -> void:
 	line_edit_unfocus()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.double_click:
+		_on_btn_edit_pressed()
+
+
+func _on_btn_star_pressed() -> void:
+	set_default()
+	
+
+func set_default() -> void:
+	is_default = true
+	btn_star.texture_normal = star_full_icon
+	set_to_default.emit()
+
+
+func release_default() -> void:
+	is_default = false
+	btn_star.texture_normal = star_icon

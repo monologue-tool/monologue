@@ -1,7 +1,11 @@
 extends MarginContainer
 
 
-signal done
+@onready var nicknames_le := %NicknamesLineEdit
+@onready var display_name_le := %DisplayNameLineEdit
+@onready var description_te := %DescriptionTextEdit
+
+var current_character_field: MonologueCharacterField
 
 
 func _ready() -> void:
@@ -9,12 +13,26 @@ func _ready() -> void:
 	GlobalSignal.add_listener("open_character_edit", _on_open_character_edit)
 
 
-func _on_open_character_edit() -> void:
+func _on_open_character_edit(character_field: MonologueCharacterField) -> void:
+	current_character_field = character_field
+	_from_dict(character_field._to_dict())
 	show()
 
 
 func _on_button_pressed() -> void:
+	current_character_field.nicknames = nicknames_le.text
+	current_character_field.display_name = display_name_le.text
+	current_character_field.description = description_te.text
+	
 	hide()
+	current_character_field = null
+	
+
+
+func _from_dict(dict: Dictionary = {}) -> void:
+	nicknames_le.text = dict.get("Nicknames", "")
+	display_name_le.text = dict.get("DefaultDisplayName", "")
+	description_te.text = dict.get("EditorDescription", "")
 
 
 func _to_dict() -> Dictionary:
@@ -63,7 +81,3 @@ func _to_dict() -> Dictionary:
 			}
 		}
 	}
-
-
-func _from_dict(dict: Dictionary) -> void:
-	pass
