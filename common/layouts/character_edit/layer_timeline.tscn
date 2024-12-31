@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://hc8mgc7ndi5d"]
+
+[ext_resource type="Script" path="res://common/layouts/character_edit/layer_timeline.gd" id="1_c26rn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_38dgm"]
+bg_color = Color(0.27451, 0.27451, 0.301961, 0.25098)
+border_width_bottom = 1
+border_color = Color(0.117647, 0.117647, 0.129412, 1)
+border_blend = true
+
+[node name="LayerTimeline" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 25)
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
+script = ExtResource("1_c26rn")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0

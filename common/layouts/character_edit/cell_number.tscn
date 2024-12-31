@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3 uid="uid://c3kq4oc8yxco7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y3h2k"]
+draw_center = false
+border_width_right = 1
+border_color = Color(0.117647, 0.117647, 0.129412, 1)
+
+[sub_resource type="GDScript" id="GDScript_aiax2"]
+script/source = "extends PanelContainer
+
+
+@onready var label: Label = $Label
+
+@export var cell_number: int = 1
+
+
+func _ready() -> void:
+	label.text = str(cell_number)
+"
+
+[sub_resource type="LabelSettings" id="LabelSettings_jbxed"]
+line_spacing = 0.0
+font_size = 14
+
+[node name="CellNumber" type="PanelContainer"]
+custom_minimum_size = Vector2(27, 26)
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+script = SubResource("GDScript_aiax2")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "1"
+label_settings = SubResource("LabelSettings_jbxed")
+horizontal_alignment = 1
+vertical_alignment = 1
