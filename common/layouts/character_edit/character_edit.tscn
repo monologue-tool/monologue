@@ -90,7 +90,7 @@ bg_color = Color(0.27451, 0.27451, 0.301961, 0.25098)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_omduo"]
 
-[node name="MarginContainer" type="MarginContainer"]
+[node name="CharacterEdit" type="MarginContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -287,18 +287,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PortraitVBox" type="Container" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/ScrollContainer" node_paths=PackedStringArray("scroll_container")]
+[node name="PortraitVBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/ScrollContainer"]
 unique_name_in_owner = true
-process_mode = 1
-custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-script = ExtResource("6_rcm5i")
-hold_duration = 0.2
-separation = 5
-is_vertical = true
-scroll_container = NodePath("..")
 
 [node name="AddButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer"]
 unique_name_in_owner = true
@@ -735,7 +728,6 @@ text = "Done"
 [connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText" method="_on_focus_exited"]
 [connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText" method="_on_text_changed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit/ExpandContainer/Button" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText" method="_on_button_pressed"]
-[connection signal="sort_children" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/ScrollContainer/PortraitVBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/ScrollContainer/PortraitVBox" method="_on_sort_children"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/AddButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection" method="_on_add_button_pressed"]
 [connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/MonologueDropdown/OptionButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/MonologueDropdown" method="_on_option_button_item_selected"]
 [connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/FilePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/FilePickerLineEdit" method="_on_line_edit_focus_exited"]

@@ -52,6 +52,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/Control/HBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(18, 0)
 layout_mode = 2
 texture = ExtResource("2_d82q5")
@@ -90,6 +91,7 @@ flat = true
 layout_mode = 2
 
 [node name="btnEdit" type="TextureButton" parent="MarginContainer/HBoxContainer/HBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(16, 0)
 layout_mode = 2
 texture_normal = ExtResource("2_18nk3")
@@ -101,6 +103,10 @@ layout_mode = 2
 texture_normal = ExtResource("3_p62s6")
 stretch_mode = 5
 
+[connection signal="focus_exited" from="MarginContainer/HBoxContainer/Control/HBoxContainer/LineEdit" to="." method="_on_line_edit_focus_exited"]
+[connection signal="text_changed" from="MarginContainer/HBoxContainer/Control/HBoxContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="text_submitted" from="MarginContainer/HBoxContainer/Control/HBoxContainer/LineEdit" to="." method="_on_line_edit_text_submitted"]
+[connection signal="gui_input" from="MarginContainer/HBoxContainer/Control/Button" to="." method="_on_button_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/Control/Button" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/HBoxContainer/btnEdit" to="." method="_on_btn_edit_pressed"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/HBoxContainer/btnStar" to="." method="_on_btn_star_pressed"]

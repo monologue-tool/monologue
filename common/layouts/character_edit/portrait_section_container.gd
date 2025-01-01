@@ -3,6 +3,7 @@ extends VBoxContainer
 
 signal portrait_selected
 
+@onready var character_edit := $"../../../../../.."
 @onready var portrait_option_obj := preload("res://common/layouts/character_edit/portrait_option.tscn")
 @onready var portrait_vbox := %PortraitVBox
 

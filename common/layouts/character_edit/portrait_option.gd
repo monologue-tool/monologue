@@ -5,6 +5,7 @@ signal set_to_default
 
 @onready var line_edit: LineEdit = %LineEdit
 @onready var btn_star := $MarginContainer/HBoxContainer/HBoxContainer/btnStar
+@onready var button := $MarginContainer/HBoxContainer/Control/Button
 
 @onready var line_edit_focus_stylebox: StyleBoxFlat = preload("res://ui/theme_default/line_edit_focus.tres")
 @onready var active_stylebox: StyleBoxFlat = StyleBoxFlat.new()
@@ -13,6 +14,7 @@ signal set_to_default
 
 @export var is_default: bool = false
 
+var is_active: bool = false
 var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
 
 
@@ -30,6 +32,8 @@ func line_edit_unfocus() -> void:
 	line_edit.flat = true
 	line_edit.mouse_filter = Control.MOUSE_FILTER_PASS
 	
+	button.show()
+	
 	add_theme_stylebox_override("focus", line_edit_unfocus_stylebox)
 
 
@@ -39,11 +43,9 @@ func _on_btn_edit_pressed() -> void:
 	line_edit.flat = false
 	line_edit.mouse_filter = Control.MOUSE_FILTER_STOP
 	
+	button.hide()
+	
 	add_theme_stylebox_override("focus", line_edit_focus_stylebox)
-
-
-func _on_btn_delete_pressed() -> void:
-	queue_free()
 
 
 func _on_line_edit_text_changed(_new_text: String) -> void:
@@ -52,12 +54,6 @@ func _on_line_edit_text_changed(_new_text: String) -> void:
 
 func _on_line_edit_focus_exited() -> void:
 	line_edit_unfocus()
-
-
-func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.double_click:
-		return
-		#_on_btn_edit_pressed()
 
 
 func _on_btn_star_pressed() -> void:
@@ -76,12 +72,23 @@ func release_default() -> void:
 
 
 func set_active() -> void:
+	is_active = true
 	add_theme_stylebox_override("panel", active_stylebox)
 
 
 func release_active() -> void:
+	is_active = false
 	remove_theme_stylebox_override("panel")
 
 
 func _on_button_pressed() -> void:
 	pressed.emit()
+
+
+func _on_button_gui_input(event: InputEvent) -> void:
+	if is_active and event is InputEventMouseButton and event.is_pressed():
+		_on_btn_edit_pressed()
+
+
+func _on_line_edit_text_submitted(_new_text: String) -> void:
+	line_edit_unfocus()
