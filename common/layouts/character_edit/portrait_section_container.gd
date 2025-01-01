@@ -17,7 +17,6 @@ func _on_add_button_pressed() -> void:
 	portraits[new_portrait.id] = {
 		"Name": new_portrait.line_edit.text
 	}
-	
 
 
 func add_option(option_name: String = "") -> CharacterEditPortraitOption:
@@ -84,6 +83,7 @@ func _to_dict() -> Dictionary:
 
 
 func _from_dict(dict: Dictionary) -> void:
+	selected = -1
 	clear()
 	var data: Dictionary = dict.get("Portraits", {})
 	portraits = data

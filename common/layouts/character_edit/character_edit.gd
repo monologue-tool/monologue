@@ -56,6 +56,7 @@ func _from_dict(dict: Dictionary = {}) -> void:
 	description_te.text = dict.get("EditorDescription", "")
 	
 	portrait_list_section._from_dict(dict)
+	_update_portrait()
 
 
 func _to_dict() -> Dictionary:
