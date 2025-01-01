@@ -7,6 +7,7 @@ class_name MonologueCharacterField extends MonologueField
 var nicknames: String = ""
 var display_name: String = ""
 var description: String = ""
+var portraits: Dictionary = {}
 
 
 func propagate(value: Variant) -> void:
@@ -19,7 +20,8 @@ func _to_dict():
 		"Name": name_edit.text,
 		"Nicknames": nicknames,
 		"DefaultDisplayName": display_name,
-		"EditorDescription": description
+		"EditorDescription": description,
+		"Portraits": portraits
 	}
 
 

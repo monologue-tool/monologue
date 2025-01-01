@@ -1,6 +1,12 @@
 extends MarginContainer
 
 
+@onready var main_section := %MainSettingsSection
+@onready var portrait_list_section := %PortraitListSection
+@onready var portrait_settings_section := %PortraitSettingsSection
+@onready var preview_section := %PreviewSection
+@onready var timeline_section := %TimelineSection
+
 @onready var nicknames_le := %NicknamesLineEdit
 @onready var display_name_le := %DisplayNameLineEdit
 @onready var description_te := %DescriptionTextEdit
@@ -11,6 +17,9 @@ var current_character_field: MonologueCharacterField
 func _ready() -> void:
 	hide()
 	GlobalSignal.add_listener("open_character_edit", _on_open_character_edit)
+	
+	portrait_list_section.connect("portrait_selected", _update_portrait)
+	_update_portrait()
 
 
 func _on_open_character_edit(character_field: MonologueCharacterField) -> void:
@@ -19,20 +28,32 @@ func _on_open_character_edit(character_field: MonologueCharacterField) -> void:
 	show()
 
 
+func _update_portrait() -> void:
+	var selected_idx: int = portrait_list_section.selected
+	
+	var show_portrait_sections: bool = selected_idx >= 0
+	portrait_settings_section.visible = show_portrait_sections
+	preview_section.visible = show_portrait_sections
+	if show_portrait_sections == false:
+		timeline_section.hide()
+
+
 func _on_button_pressed() -> void:
 	current_character_field.nicknames = nicknames_le.text
 	current_character_field.display_name = display_name_le.text
 	current_character_field.description = description_te.text
+	current_character_field.portraits = portrait_list_section._to_dict()
 	
 	hide()
 	current_character_field = null
-	
 
 
 func _from_dict(dict: Dictionary = {}) -> void:
 	nicknames_le.text = dict.get("Nicknames", "")
 	display_name_le.text = dict.get("DefaultDisplayName", "")
 	description_te.text = dict.get("EditorDescription", "")
+	
+	portrait_list_section._from_dict(dict)
 
 
 func _to_dict() -> Dictionary:

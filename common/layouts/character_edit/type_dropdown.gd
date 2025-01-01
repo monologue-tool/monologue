@@ -4,7 +4,7 @@ extends HBoxContainer
 @onready var option_button := $OptionButton
 
 @onready var file_picker := $"../FilePickerLineEdit"
-@onready var timeline_section := %TimelineSectionContainer
+@onready var timeline_section := %TimelineSection
 
 
 func _ready() -> void:
