@@ -31,6 +31,13 @@ func clear() -> void:
 		portrait.queue_free()
 
 
+func get_default_portrait() -> String:
+	for portrait in portrait_vbox.get_children():
+		if portrait.is_default:
+			return portrait.line_edit.text
+	return ""
+
+
 func _on_portrait_option_pressed(portrait_option: CharacterEditPortraitOption) -> void:
 	selected = portrait_option.get_index()
 	
@@ -73,4 +80,7 @@ func _from_dict(dict: Dictionary) -> void:
 	
 	for portrait in data.keys():
 		var portrait_data: Dictionary = data[portrait]
-		add_option(portrait)
+		var portrait_node := add_option(portrait)
+	
+		if portrait == dict.get("DefaultPortrait"):
+			portrait_node.set_default()

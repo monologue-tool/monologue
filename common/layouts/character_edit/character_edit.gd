@@ -38,10 +38,12 @@ func _update_portrait() -> void:
 		timeline_section.hide()
 
 
+# Done button
 func _on_button_pressed() -> void:
 	current_character_field.nicknames = nicknames_le.text
 	current_character_field.display_name = display_name_le.text
 	current_character_field.description = description_te.text
+	current_character_field.default_portrait = portrait_list_section.get_default_portrait()
 	current_character_field.portraits = portrait_list_section._to_dict()
 	
 	hide()

@@ -7,6 +7,7 @@ class_name MonologueCharacterField extends MonologueField
 var nicknames: String = ""
 var display_name: String = ""
 var description: String = ""
+var default_portrait: String = ""
 var portraits: Dictionary = {}
 
 
@@ -21,6 +22,7 @@ func _to_dict():
 		"Nicknames": nicknames,
 		"DefaultDisplayName": display_name,
 		"EditorDescription": description,
+		"DefaultPortrait": default_portrait,
 		"Portraits": portraits
 	}
 
