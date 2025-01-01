@@ -18,6 +18,10 @@ func _ready() -> void:
 	_update_cell_number()
 
 
+func _from_dict(dict: Dictionary) -> void:
+	pass
+
+
 func add_timeline() -> void:
 	var new_layer := layer.instantiate()
 	var new_layer_timeline: LayerTimeline = layer_timeline.instantiate()

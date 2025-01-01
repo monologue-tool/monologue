@@ -2,6 +2,7 @@ class_name CharacterEditPortraitOption extends Panel
 
 signal pressed
 signal set_to_default
+signal name_submitted
 
 @onready var line_edit: LineEdit = %LineEdit
 @onready var btn_star := $MarginContainer/HBoxContainer/HBoxContainer/btnStar
@@ -16,6 +17,7 @@ signal set_to_default
 
 var is_active: bool = false
 var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
+var id: String = IDGen.generate(5)
 
 
 func _ready() -> void:
@@ -33,7 +35,6 @@ func line_edit_unfocus() -> void:
 	line_edit.mouse_filter = Control.MOUSE_FILTER_PASS
 	
 	button.show()
-	
 	add_theme_stylebox_override("focus", line_edit_unfocus_stylebox)
 
 

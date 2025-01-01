@@ -3,8 +3,21 @@ extends HBoxContainer
 
 @onready var option_button := $OptionButton
 
-@onready var file_picker := $"../FilePickerLineEdit"
+@onready var file_picker := $"../ImagePickerLineEdit"
 @onready var timeline_section := %TimelineSection
+
+var value: String : set = _set_value, get = _get_value
+
+
+func _set_value(val: String) -> void:
+	value = val
+	for idx in option_button.item_count:
+		if option_button.get_item_text(idx) == val:
+			option_button.select(idx)
+	_update()
+
+func _get_value() -> String:
+	return option_button.get_item_text(option_button.selected)
 
 
 func _ready() -> void:

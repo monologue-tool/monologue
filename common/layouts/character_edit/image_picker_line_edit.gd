@@ -4,6 +4,16 @@ extends HBoxContainer
 @onready var line_edit := $VBox/LineEdit
 @onready var warn_label := $VBox/WarnLabel
 
+var value: String : set = _set_value, get = _get_value
+
+
+func _set_value(val: String) -> void:
+	value = val
+	line_edit.text = val
+
+func _get_value() -> String:
+	return line_edit.text
+
 
 func _ready() -> void:
 	_update()
