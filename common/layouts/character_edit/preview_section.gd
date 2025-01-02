@@ -7,7 +7,8 @@ extends VBoxContainer
 
 
 func update_preview(texture: Variant = null, offset: Array = [0, 0]) -> void:
-	preview_texture.texture = texture
+	if preview_texture:
+		preview_texture.texture = texture
 
 
 func update_offset(offset: Array) -> void:

@@ -28,13 +28,12 @@ func _ready() -> void:
 
 func _update() -> void:
 	var path: String = line_edit.text
+	var texture: Texture2D = PlaceholderTexture2D.new()
 	if validate(path):
 		var img := Image.load_from_file(path)
-		if img == null:
-			return
-			
-		var texture := ImageTexture.create_from_image(img)
-		preview_section.update_preview(texture)
+		if img != null:
+			texture = ImageTexture.create_from_image(img)
+	preview_section.update_preview(texture)
 
 
 func validate(path: String) -> bool:
