@@ -9,6 +9,7 @@ var filters: Array = ["*.bmp", "*.jpg", "*.jpeg", "*.png", "*.svg", "*.webp"]
 @onready var layer_vbox := %LayerVBox
 @onready var layer_timeline_vbox := %LayerTimelineVBox
 @onready var cell_number_hbox := %CellNumberHBox
+@onready var preview_section := %PreviewSection
 
 @onready var layer := preload("res://common/layouts/character_edit/layer.tscn")
 @onready var layer_timeline := preload("res://common/layouts/character_edit/layer_timeline.tscn")
@@ -27,6 +28,7 @@ func _ready() -> void:
 func _from_dict(dict: Dictionary) -> void:
 	_clear()
 	cell_count = dict.get("FrameCount", 1)
+	selected_cell = null
 	for layer_data in dict.get("Layers", []):
 		add_timeline()
 		layer_vbox.get_children().back().timeline_label.text = layer_data.get("LayerName", "undefined")
@@ -76,7 +78,7 @@ func _to_dict() -> Dictionary:
 		"Layers": []
 	}
 	
-	for l: TimelineLayer in layer_vbox.get_children():
+	for l: Layer in layer_vbox.get_children():
 		var layer_idx: int = l.get_index()
 		var l_timeline: LayerTimeline= layer_timeline_vbox.get_child(layer_idx)
 		dict["Layers"].append({
@@ -110,3 +112,4 @@ func _on_file_selected(path: String) -> void:
 		return
 	
 	selected_cell.image_path = Path.absolute_to_relative(path, base_path)
+	selected_cell.timeline._update_preview(selected_cell.image_path)

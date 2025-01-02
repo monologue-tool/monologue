@@ -15,6 +15,7 @@ signal button_focus_exited
 @onready var texture_rect := $TextureRect
 
 var image_path: String : set = _set_image_path
+var timeline: LayerTimeline
 
 
 func _set_image_path(value: String) -> void:

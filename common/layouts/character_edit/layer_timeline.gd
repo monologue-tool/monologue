@@ -17,6 +17,7 @@ func _ready() -> void:
 func add_cell() -> TimelineCell:
 	var new_cell := timeline_cell.instantiate()
 	hbox.add_child(new_cell)
+	new_cell.timeline = self
 	new_cell.connect("button_down", _on_cell_button_down.bind(new_cell))
 	new_cell.connect("button_up", _on_cell_button_up.bind(new_cell))
 	new_cell.connect("button_focus_exited", _on_cell_focus_exited)
@@ -42,6 +43,17 @@ func _on_cell_button_up(cell: TimelineCell) -> void:
 	current_indicator.queue_free()
 	current_indicator = null
 	timeline_section.selected_cell = cell
+	
+	_update_preview(cell.image_path)
+
+
+func _update_preview(path: String) -> void:
+	var preview_texture: Texture2D = PlaceholderTexture2D.new()
+	if FileAccess.file_exists(path):
+		var img := Image.load_from_file(path)
+		if img != null:
+			preview_texture = ImageTexture.create_from_image(img)
+	timeline_section.preview_section.update_preview(preview_texture)
 
 
 func _on_cell_focus_exited() -> void:
