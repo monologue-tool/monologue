@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3 uid="uid://c7cf7rfwnhf77"]
+[gd_scene load_steps=39 format=3 uid="uid://c7cf7rfwnhf77"]
 
 [ext_resource type="Script" path="res://common/layouts/character_edit/character_edit.gd" id="1_mo23b"]
 [ext_resource type="LabelSettings" uid="uid://cu53lojswyksx" path="res://common/layouts/character_edit/theme/title_label_settings.tres" id="2_50fu3"]
@@ -18,7 +18,6 @@
 [ext_resource type="Script" path="res://common/layouts/character_edit/preview_section.gd" id="13_nmxnm"]
 [ext_resource type="PackedScene" uid="uid://c3kq4oc8yxco7" path="res://common/layouts/character_edit/cell_number.tscn" id="14_3yl0d"]
 [ext_resource type="Texture2D" uid="uid://bey5byxlx7jji" path="res://ui/assets/icons/image_down.svg" id="15_8txmn"]
-[ext_resource type="Texture2D" uid="uid://cfc0nhupnhixg" path="res://nodes/root_node/icon_min.png" id="15_an2k1"]
 [ext_resource type="Texture2D" uid="uid://fcpb4fd7uma3" path="res://ui/assets/icons/trash_min.svg" id="15_k1uba"]
 [ext_resource type="Texture2D" uid="uid://08g8utdd2kai" path="res://ui/assets/icons/media_play_backward.svg" id="16_s56o1"]
 [ext_resource type="Texture2D" uid="uid://bowdhs0emx5i2" path="res://ui/assets/icons/media_skip_backward.svg" id="17_jr3lv"]
@@ -538,7 +537,6 @@ unique_name_in_owner = true
 
 [node name="ViewportSprite" type="Sprite2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport/Viewport/2DScene"]
 unique_name_in_owner = true
-texture = ExtResource("15_an2k1")
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer"]
 layout_mode = 2
