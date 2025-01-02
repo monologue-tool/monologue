@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://dxh14t4020yrk"]
+
+[ext_resource type="Texture2D" uid="uid://mjb34j4suabp" path="res://common/layouts/character_edit/assets/triangle_pointer.svg" id="1_q2wkj"]
+
+[node name="PlacementIndicator" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -5.0
+offset_top = -3.0
+offset_right = 7.0
+offset_bottom = 2.0
+texture = ExtResource("1_q2wkj")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="TextureRect2" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -5.0
+offset_top = 24.0
+offset_right = 7.0
+offset_bottom = 29.0
+texture = ExtResource("1_q2wkj")
+expand_mode = 2
+stretch_mode = 5
+flip_v = true
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_bottom = 1.0
+offset_right = 1.0
+color = Color(0.835294, 0.317647, 0.376471, 1)
