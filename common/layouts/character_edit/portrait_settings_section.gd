@@ -46,3 +46,7 @@ func _to_dict() -> Dictionary:
 			dict["Animation"] = timeline_section._to_dict()
 	
 	return dict
+
+
+func _on_check_button_toggled(toggled_on: bool) -> void:
+	preview_section.update_mirror(toggled_on)
