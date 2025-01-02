@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://c7cf7rfwnhf77"]
+[gd_scene load_steps=40 format=3 uid="uid://c7cf7rfwnhf77"]
 
 [ext_resource type="Script" path="res://common/layouts/character_edit/character_edit.gd" id="1_mo23b"]
 [ext_resource type="LabelSettings" uid="uid://cu53lojswyksx" path="res://common/layouts/character_edit/theme/title_label_settings.tres" id="2_50fu3"]
@@ -15,8 +15,10 @@
 [ext_resource type="Texture2D" uid="uid://hmjhxdsk3pwj" path="res://ui/assets/icons/trash.svg" id="10_m01ot"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/offset_vector_field.gd" id="11_jm5lp"]
 [ext_resource type="Texture2D" uid="uid://xiahr3jughjg" path="res://ui/assets/icons/plus_min.svg" id="11_l8sbu"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/preview_section.gd" id="13_nmxnm"]
 [ext_resource type="PackedScene" uid="uid://c3kq4oc8yxco7" path="res://common/layouts/character_edit/cell_number.tscn" id="14_3yl0d"]
 [ext_resource type="Texture2D" uid="uid://bey5byxlx7jji" path="res://ui/assets/icons/image_down.svg" id="15_8txmn"]
+[ext_resource type="Texture2D" uid="uid://cfc0nhupnhixg" path="res://nodes/root_node/icon_min.png" id="15_an2k1"]
 [ext_resource type="Texture2D" uid="uid://fcpb4fd7uma3" path="res://ui/assets/icons/trash_min.svg" id="15_k1uba"]
 [ext_resource type="Texture2D" uid="uid://08g8utdd2kai" path="res://ui/assets/icons/media_play_backward.svg" id="16_s56o1"]
 [ext_resource type="Texture2D" uid="uid://bowdhs0emx5i2" path="res://ui/assets/icons/media_skip_backward.svg" id="17_jr3lv"]
@@ -98,8 +100,6 @@ font_size = 14
 bg_color = Color(0.27451, 0.27451, 0.301961, 0.25098)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_omduo"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_cabft"]
 
 [node name="CharacterEdit" type="MarginContainer"]
 anchors_preset = 15
@@ -368,6 +368,7 @@ popup/item_1/text = "Animation"
 popup/item_1/id = 1
 
 [node name="ImagePickerLineEdit" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("5_7ejn8")
 
@@ -497,6 +498,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
+script = ExtResource("13_nmxnm")
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection"]
 layout_mode = 2
@@ -516,10 +518,27 @@ theme_override_constants/margin_bottom = 0
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ng6uw")
 
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer"]
+[node name="PreviewViewport" type="SubViewportContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer"]
 layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
+stretch = true
+
+[node name="Viewport" type="SubViewport" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport"]
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(469, 446)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="2DScene" type="Node2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport/Viewport"]
+scale = Vector2(0.5, 0.5)
+
+[node name="ViewportCamera" type="Camera2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport/Viewport/2DScene"]
+unique_name_in_owner = true
+
+[node name="ViewportSprite" type="Sprite2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport/Viewport/2DScene"]
+unique_name_in_owner = true
+texture = ExtResource("15_an2k1")
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer"]
 layout_mode = 2
@@ -530,6 +549,27 @@ layout_mode = 2
 texture = ExtResource("6_q7cn4")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Zoom"
+
+[node name="HSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.1
+max_value = 5.0
+step = 0.01
+value = 1.0
+exp_edit = true
 
 [node name="TimelineSection" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer"]
 unique_name_in_owner = true
@@ -767,9 +807,6 @@ alignment = 1
 layout_mode = 2
 text = "Done"
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-sprite_frames = SubResource("SpriteFrames_cabft")
-
 [connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText" method="_on_focus_exited"]
 [connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText" method="_on_text_changed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText/HBoxContainer/DescriptionTextEdit/ExpandContainer/Button" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/VBoxContainer/MonologueText" method="_on_button_pressed"]
@@ -779,8 +816,9 @@ sprite_frames = SubResource("SpriteFrames_cabft")
 [connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/ImagePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/ImagePickerLineEdit" method="_on_line_edit_text_changed"]
 [connection signal="text_submitted" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/ImagePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/ImagePickerLineEdit" method="_on_line_edit_text_submitted"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/ImagePickerLineEdit/VBox/LineEdit/HBoxContainer/FilePickerButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/ImagePickerLineEdit" method="_on_file_picker_button_pressed"]
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField/HBoxContainer/HBoxContainer/SpinBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField" method="_on_value_changed"]
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField/HBoxContainer/HBoxContainer2/SpinBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField" method="_on_value_changed"]
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField/HBoxContainer/HBoxContainer/SpinBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField" method="_on_spin_box_value_changed"]
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField/HBoxContainer/HBoxContainer2/SpinBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/VBoxContainer/OffsetVectorField" method="_on_spin_box_value_changed"]
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/VBoxContainer/HBoxContainer/HSlider" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection" method="_on_h_slider_value_changed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/PanelContainer/HBoxContainer/btnAddLayer" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection" method="_on_btn_add_layer_pressed"]
 [connection signal="sort_children" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/HSplitContainer/LayerContainer/MainLayerVBox/ScrollContainer/LayerVBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/HSplitContainer/LayerContainer/MainLayerVBox/ScrollContainer/LayerVBox" method="_on_sort_children"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/HSplitContainer/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/PanelContainer6/btnAddCell" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection" method="_on_btn_add_cell_pressed"]

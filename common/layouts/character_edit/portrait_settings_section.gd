@@ -12,6 +12,12 @@ signal changed
 @onready var timeline_section := %TimelineSection
 
 var id: String
+var base_path: String : set = _set_base_path
+
+
+func _set_base_path(val: String) -> void:
+	base_path = val
+	image_path_fp.base_path = val
 
 
 func _from_dict(dict: Dictionary = {}) -> void:

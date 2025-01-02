@@ -3,6 +3,7 @@ extends HBoxContainer
 
 @onready var x_spinbox := $HBoxContainer/HBoxContainer/SpinBox
 @onready var y_spinbox := $HBoxContainer/HBoxContainer2/SpinBox
+@onready var preview_section := %PreviewSection
 
 var value: Array : set = _set_value, get = _get_value
 
@@ -14,8 +15,7 @@ func _set_value(val: Array) -> void:
 
 func _get_value() -> Array:
 	return [x_spinbox.value, y_spinbox.value]
+	
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+func _on_spin_box_value_changed(_value: float) -> void:
+	preview_section.update_offset(value)

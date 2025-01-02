@@ -66,7 +66,12 @@ func _clear() -> void:
 
 
 func _from_dict(dict: Dictionary) -> void:
-	pass
+	_clear()
+	var frames: Dictionary = dict.get("Frames")
+	for frame_idx: int in frames.keys():
+		var frame_data: Dictionary = frames[frame_idx]
+		var cell := add_cell()
+		cell.image_path = frame_data.get("ImagePath", "")
 
 
 func _to_dict() -> Dictionary:

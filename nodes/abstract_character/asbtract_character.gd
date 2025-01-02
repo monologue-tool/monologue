@@ -22,6 +22,8 @@ func _init(node: RootNode):
 	character.connect("change", update_character)
 	character.connect("display", graph.set_selected.bind(root))
 	character.connect("shown", _on_character_field_shown)
+	
+	character.setters["base_path"] = graph.file_path
 
 
 func _on_character_field_shown() -> void:

@@ -10,6 +10,8 @@ var description: String = ""
 var default_portrait: String = ""
 var portraits: Dictionary = {}
 
+var base_path: String = ""
+
 
 func propagate(value: Variant) -> void:
 	super.propagate(value)

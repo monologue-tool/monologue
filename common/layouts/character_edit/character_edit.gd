@@ -10,8 +10,10 @@ extends MarginContainer
 @onready var nicknames_le := %NicknamesLineEdit
 @onready var display_name_le := %DisplayNameLineEdit
 @onready var description_te := %DescriptionTextEdit
+@onready var image_picker_le := %ImagePickerLineEdit
 
 var current_character_field: MonologueCharacterField
+var base_path: String
 
 
 func _ready() -> void:
@@ -56,7 +58,12 @@ func _from_dict(dict: Dictionary = {}) -> void:
 	description_te.text = dict.get("EditorDescription", "")
 	
 	portrait_list_section._from_dict(dict)
+	
+	base_path = current_character_field.base_path
+	portrait_settings_section.base_path = base_path
+	image_picker_le.base_path = base_path
 	_update_portrait()
+	
 
 
 func _to_dict() -> Dictionary:
