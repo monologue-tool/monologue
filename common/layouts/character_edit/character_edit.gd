@@ -61,6 +61,7 @@ func _from_dict(dict: Dictionary = {}) -> void:
 	
 	base_path = current_character_field.base_path
 	portrait_settings_section.base_path = base_path
+	timeline_section.base_path = base_path
 	image_picker_le.base_path = base_path
 	_update_portrait()
 	

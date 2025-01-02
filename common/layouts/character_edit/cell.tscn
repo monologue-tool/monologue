@@ -52,6 +52,9 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_1614f")
 theme_override_styles/hover = SubResource("StyleBoxFlat_y37jy")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_1614f")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_5et5j")
+toggle_mode = true
+keep_pressed_outside = true
 
 [connection signal="button_down" from="Button" to="." method="_on_button_button_down"]
 [connection signal="button_up" from="Button" to="." method="_on_button_button_up"]
+[connection signal="toggled" from="Button" to="." method="_on_button_toggled"]

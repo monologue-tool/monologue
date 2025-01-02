@@ -1,6 +1,10 @@
 extends VBoxContainer
 
 
+const IMAGE = ["*.bmp,*.jpg,*.jpeg,*.png,*.svg,*.webp;Image Files"]
+
+var filters: Array = ["*.bmp", "*.jpg", "*.jpeg", "*.png", "*.svg", "*.webp"]
+
 @onready var timeline := $TimelineContainer/Timeline
 @onready var layer_vbox := %LayerVBox
 @onready var layer_timeline_vbox := %LayerTimelineVBox
@@ -11,6 +15,8 @@ extends VBoxContainer
 @onready var cell_number := preload("res://common/layouts/character_edit/cell_number.tscn")
 
 var cell_count: int = 1
+var base_path: String
+var selected_cell: TimelineCell
 
 
 func _ready() -> void:
@@ -89,3 +95,18 @@ func _on_btn_add_cell_pressed() -> void:
 
 func _on_btn_add_layer_pressed() -> void:
 	add_timeline()
+
+
+func _on_button_pressed() -> void:
+	if selected_cell == null:
+		return
+	
+	GlobalSignal.emit("open_file_request",
+			[_on_file_selected, IMAGE, base_path.get_base_dir()])
+
+
+func _on_file_selected(path: String) -> void:
+	if selected_cell == null:
+		return
+	
+	selected_cell.image_path = Path.absolute_to_relative(path, base_path)

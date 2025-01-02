@@ -19,11 +19,18 @@ func add_cell() -> TimelineCell:
 	hbox.add_child(new_cell)
 	new_cell.connect("button_down", _on_cell_button_down.bind(new_cell))
 	new_cell.connect("button_up", _on_cell_button_up.bind(new_cell))
+	new_cell.connect("button_focus_exited", _on_cell_focus_exited)
 	
 	return new_cell
 
 
 func _on_cell_button_down(cell: TimelineCell) -> void:
+	for child in hbox.get_children():
+		if child is not TimelineCell or child == cell:
+			continue
+		
+		child.lose_focus()
+	
 	current_indicator = placement_indicator.instantiate()
 	hbox.add_child(current_indicator)
 	hbox.move_child(current_indicator, cell.get_index()+1)
@@ -34,6 +41,11 @@ func _on_cell_button_up(cell: TimelineCell) -> void:
 	
 	current_indicator.queue_free()
 	current_indicator = null
+	timeline_section.selected_cell = cell
+
+
+func _on_cell_focus_exited() -> void:
+	timeline_section.selected_cell = null
 
 
 func _process(_delta: float) -> void:

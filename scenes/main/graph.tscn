@@ -226,7 +226,6 @@ visible = false
 layout_mode = 2
 
 [node name="CharacterEditContainer" parent="." instance=ExtResource("13_k1v36")]
-visible = false
 layout_mode = 1
 
 [node name="ExpandedTextEditContainer" parent="." instance=ExtResource("9_v3rw4")]
