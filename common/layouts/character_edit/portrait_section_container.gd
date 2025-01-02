@@ -46,11 +46,7 @@ func get_default_portrait() -> String:
 
 
 func _on_portrait_option_pressed(portrait_option: CharacterEditPortraitOption) -> void:
-	# Save changes
-	if selected >= 0:
-		var previous_portrait: CharacterEditPortraitOption = portrait_vbox.get_child(selected)
-		portraits[previous_portrait.id] = portrait_settings_section._to_dict()
-		portraits[previous_portrait.id]["Name"] = previous_portrait.line_edit.text
+	save_current_portrait()
 	
 	selected = portrait_option.get_index()
 	
@@ -67,6 +63,13 @@ func _on_portrait_option_pressed(portrait_option: CharacterEditPortraitOption) -
 	portrait_selected.emit()
 
 
+func save_current_portrait() -> void:
+	if selected >= 0:
+		var portrait: CharacterEditPortraitOption = portrait_vbox.get_child(selected)
+		portraits[portrait.id] = portrait_settings_section._to_dict()
+		portraits[portrait.id]["Name"] = portrait.line_edit.text
+
+
 func _on_portrait_option_set_to_default(portrait_option: CharacterEditPortraitOption) -> void:
 	for portrait in portrait_vbox.get_children():
 		if portrait is not CharacterEditPortraitOption:
@@ -79,6 +82,7 @@ func _on_portrait_option_set_to_default(portrait_option: CharacterEditPortraitOp
 
 
 func _to_dict() -> Dictionary:
+	save_current_portrait()
 	return portraits
 
 
