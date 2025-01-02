@@ -19,7 +19,21 @@ func _ready() -> void:
 
 
 func _from_dict(dict: Dictionary) -> void:
-	pass
+	_clear()
+	cell_count = dict.get("FrameCount", 1)
+	for layer_data in dict.get("Layers", []):
+		add_timeline()
+		layer_vbox.get_children().back().timeline_label.text = layer_data.get("LayerName", "undefined")
+		layer_timeline_vbox.get_children().back()._from_dict(layer_data)
+	_update_cell_number()
+
+
+func _clear() -> void:
+	cell_count = 1
+	for child in layer_vbox.get_children():
+		child.queue_free()
+	for child in layer_timeline_vbox.get_children():
+		child.queue_free()
 
 
 func add_timeline() -> void:
@@ -50,7 +64,23 @@ func add_cell() -> void:
 
 
 func _to_dict() -> Dictionary:
-	return {}
+	var dict: Dictionary = {
+		"Fps": 25,
+		"FrameCount": cell_count,
+		"Layers": []
+	}
+	
+	for l: TimelineLayer in layer_vbox.get_children():
+		var layer_idx: int = l.get_index()
+		var l_timeline: LayerTimeline= layer_timeline_vbox.get_child(layer_idx)
+		dict["Layers"].append({
+			"LayerName": l.timeline_label.text,
+			"Visible": true,
+			"EditorLock": false,
+			"Frames": l_timeline._to_dict()
+		})
+		
+	return dict
 
 
 func _on_btn_add_cell_pressed() -> void:

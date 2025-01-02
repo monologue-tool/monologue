@@ -65,5 +65,17 @@ func _clear() -> void:
 		cell.queue_free()
 
 
+func _from_dict(dict: Dictionary) -> void:
+	pass
+
+
 func _to_dict() -> Dictionary:
-	return {}
+	var dict: Dictionary = {}
+	for cell: TimelineCell in hbox.get_children():
+		var cell_idx: int = cell.get_index()
+		dict[cell_idx] = {
+			"ImagePath": cell.image_path,
+			"Exposure": 1
+		}
+	
+	return dict

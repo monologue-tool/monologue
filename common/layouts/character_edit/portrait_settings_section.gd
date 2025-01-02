@@ -20,11 +20,9 @@ func _from_dict(dict: Dictionary = {}) -> void:
 	offset_vector_field.value = dict.get("Offset", [0, 0])
 	mirror_cb.button_pressed = dict.get("Mirror", false)
 
-	match portrait_type:
-		"Image":
-			image_path_fp.value = dict.get("ImagePath", "")
-		"Animation":
-			timeline_section._from_dict(dict.get("Animation", {}))
+	if portrait_type == "Image":
+		image_path_fp.value = dict.get("ImagePath", "")
+	timeline_section._from_dict(dict.get("Animation", {}))
 
 
 func _to_dict() -> Dictionary:

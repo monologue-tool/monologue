@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://d2ekvpgbp07fe"]
+[gd_scene load_steps=8 format=3 uid="uid://d2ekvpgbp07fe"]
 
 [ext_resource type="Texture2D" uid="uid://bv81uyypsna2u" path="res://ui/assets/icons/dots_grid.svg" id="1_3wu84"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/layer.gd" id="1_teuw3"]
 [ext_resource type="PackedScene" uid="uid://dfwf55ovgwir3" path="res://common/ui/buttons/delete_button.tscn" id="2_ta0kq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_38dgm"]
@@ -23,6 +24,7 @@ font_size = 14
 [node name="Layer" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 27)
 theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
+script = ExtResource("1_teuw3")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2

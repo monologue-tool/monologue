@@ -12,6 +12,8 @@ signal button_up
 
 @onready var texture_rect := $TextureRect
 
+var image_path: String
+
 
 func _ready() -> void:
 	texture_rect.texture = empty_cell_texture
