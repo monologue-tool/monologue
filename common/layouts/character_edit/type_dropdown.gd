@@ -32,9 +32,11 @@ func _update() -> void:
 		"Image":
 			timeline_section.hide()
 			file_picker.show()
+			file_picker._update()
 		"Animation":
 			timeline_section.show()
 			file_picker.hide()
+			timeline_section._update_preview()
 
 
 func _on_option_button_item_selected(_index: int) -> void:

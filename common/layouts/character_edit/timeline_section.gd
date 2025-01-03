@@ -86,6 +86,10 @@ func _update_cell_number() -> void:
 
 
 func _update_preview() -> void:
+	# Don't update if this function is called too early.
+	if layer_timeline_vbox == null:
+		return
+	
 	var sprites: Array = []
 	for timeline in layer_timeline_vbox.get_children():
 		sprites.append(timeline._to_sprite_frames())

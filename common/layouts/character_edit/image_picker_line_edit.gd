@@ -27,6 +27,10 @@ func _ready() -> void:
 
 
 func _update() -> void:
+	# Don't update if this function is called too early.
+	if line_edit == null:
+		return
+		
 	var path: String = line_edit.text
 	var texture: Texture2D = PlaceholderTexture2D.new()
 	if validate(path):
