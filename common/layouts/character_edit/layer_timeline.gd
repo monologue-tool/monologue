@@ -26,8 +26,8 @@ func add_cell() -> TimelineCell:
 
 
 func _on_cell_button_down(cell: TimelineCell) -> void:
-	for child in hbox.get_children():
-		if child is not TimelineCell or child == cell:
+	for child in get_all_cells():
+		if child == cell:
 			continue
 		
 		child.lose_focus()
@@ -47,13 +47,10 @@ func _on_cell_button_up(cell: TimelineCell) -> void:
 	_update_preview(cell.image_path)
 
 
-func _update_preview(path: String) -> void:
-	var preview_texture: Texture2D = PlaceholderTexture2D.new()
-	if FileAccess.file_exists(path):
-		var img := Image.load_from_file(path)
-		if img != null:
-			preview_texture = ImageTexture.create_from_image(img)
-	timeline_section.preview_section.update_preview(preview_texture)
+func _update_preview(_path: String) -> void:
+	var sprite_frames: SpriteFrames = _to_sprite_frames()
+	
+	timeline_section.preview_section.update_animation(sprite_frames)
 
 
 func _on_cell_focus_exited() -> void:
@@ -73,7 +70,7 @@ func _process(_delta: float) -> void:
 
 
 func remove_cell(pos: int) -> void:
-	var cells: Array = hbox.get_children()
+	var cells: Array = get_all_cells()
 	hbox.remove_child(cells[pos])
 	cells[pos].queue_free()
 
@@ -85,7 +82,7 @@ func fill() -> void:
 
 
 func _clear() -> void:
-	for cell in hbox.get_children():
+	for cell in get_all_cells():
 		cell.queue_free()
 
 
@@ -100,7 +97,7 @@ func _from_dict(dict: Dictionary) -> void:
 
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {}
-	for cell: TimelineCell in hbox.get_children():
+	for cell: TimelineCell in get_all_cells():
 		var cell_idx: int = cell.get_index()
 		dict[cell_idx] = {
 			"ImagePath": cell.image_path,
@@ -108,3 +105,31 @@ func _to_dict() -> Dictionary:
 		}
 	
 	return dict
+
+
+func get_all_cells() -> Array:
+	var cells: Array = []
+	for child in hbox.get_children():
+		if child is not TimelineCell:
+			continue
+		cells.append(child)
+	
+	return cells
+
+
+func _to_sprite_frames() -> SpriteFrames:
+	var sprite_frames := SpriteFrames.new()
+	sprite_frames.set_animation_speed("default", timeline_section.fps)
+	
+	var cells: Array = get_all_cells()
+	for cell: TimelineCell in cells:
+		var idx = cells.find(cell)
+		var texture: Texture2D = PlaceholderTexture2D.new()
+		if FileAccess.file_exists(cell.image_path):
+			var img := Image.load_from_file(cell.image_path)
+			if img != null:
+				texture = ImageTexture.create_from_image(img)
+		
+		sprite_frames.add_frame("default", texture, 1.0, idx)
+		
+	return sprite_frames

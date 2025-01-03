@@ -10,6 +10,7 @@ var filters: Array = ["*.bmp", "*.jpg", "*.jpeg", "*.png", "*.svg", "*.webp"]
 @onready var layer_timeline_vbox := %LayerTimelineVBox
 @onready var cell_number_hbox := %CellNumberHBox
 @onready var preview_section := %PreviewSection
+@onready var fps_spinbox := %FpsSpinBox
 
 @onready var layer := preload("res://common/layouts/character_edit/layer.tscn")
 @onready var layer_timeline := preload("res://common/layouts/character_edit/layer_timeline.tscn")
@@ -18,6 +19,11 @@ var filters: Array = ["*.bmp", "*.jpg", "*.jpeg", "*.png", "*.svg", "*.webp"]
 var cell_count: int = 1
 var base_path: String
 var selected_cell: TimelineCell
+var fps: int : get = _get_fps
+
+
+func _get_fps() -> int:
+	return fps_spinbox.value
 
 
 func _ready() -> void:
@@ -28,12 +34,23 @@ func _ready() -> void:
 func _from_dict(dict: Dictionary) -> void:
 	_clear()
 	cell_count = dict.get("FrameCount", 1)
+	fps_spinbox.value = dict.get("Fps", 12)
 	selected_cell = null
-	for layer_data in dict.get("Layers", []):
+	
+	var default_layer_data := [
+		{
+			"LayerName": "Layer 1", "Visible": true, "EditorLock": false,
+			"Frames": { 0: { "ImagePath": "", "Exposure": 1 }}
+		}
+	]
+	
+	for layer_data in dict.get("Layers", default_layer_data):
 		add_timeline()
 		layer_vbox.get_children().back().timeline_label.text = layer_data.get("LayerName", "undefined")
 		layer_timeline_vbox.get_children().back()._from_dict(layer_data)
 	_update_cell_number()
+	
+	preview_section.update_preview()
 
 
 func _clear() -> void:
@@ -73,7 +90,7 @@ func add_cell() -> void:
 
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {
-		"Fps": 25,
+		"Fps": fps,
 		"FrameCount": cell_count,
 		"Layers": []
 	}
