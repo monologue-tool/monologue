@@ -50,7 +50,9 @@ func _from_dict(dict: Dictionary) -> void:
 		layer_timeline_vbox.get_children().back()._from_dict(layer_data)
 	_update_cell_number()
 	
-	preview_section.update_preview()
+	#preview_section.update_preview()
+	_update_preview()
+	
 
 
 func _clear() -> void:
@@ -69,6 +71,8 @@ func add_timeline() -> void:
 	
 	layer_vbox.add_child(new_layer)
 	layer_timeline_vbox.add_child(new_layer_timeline)
+	
+	_update_preview()
 
 
 func _update_cell_number() -> void:
@@ -81,12 +85,21 @@ func _update_cell_number() -> void:
 		cell_number_hbox.add_child(new_cell)
 
 
+func _update_preview() -> void:
+	var sprites: Array = []
+	for timeline in layer_timeline_vbox.get_children():
+		sprites.append(timeline._to_sprite_frames())
+	
+	preview_section.update_animation(sprites)
+
+
 func add_cell() -> void:
 	cell_count += 1
 	_update_cell_number()
 	for t in layer_timeline_vbox.get_children():
 		t.add_cell()
 
+	_update_preview()
 
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {
@@ -129,4 +142,4 @@ func _on_file_selected(path: String) -> void:
 		return
 	
 	selected_cell.image_path = Path.absolute_to_relative(path, base_path)
-	selected_cell.timeline._update_preview(selected_cell.image_path)
+	_update_preview()

@@ -44,13 +44,7 @@ func _on_cell_button_up(cell: TimelineCell) -> void:
 	current_indicator = null
 	timeline_section.selected_cell = cell
 	
-	_update_preview(cell.image_path)
-
-
-func _update_preview(_path: String) -> void:
-	var sprite_frames: SpriteFrames = _to_sprite_frames()
-	
-	timeline_section.preview_section.update_animation(sprite_frames)
+	# Hide all animation player except the one releated to this timeline and show set the frame to this one
 
 
 func _on_cell_focus_exited() -> void:

@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://c7ee44ql1gv6b" path="res://ui/assets/icons/offset_cross.svg" id="6_q7cn4"]
 [ext_resource type="Script" path="res://addons/ReorderableContainer/reorderable_vbox.gd" id="6_rcm5i"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/portrait_settings_section.gd" id="7_gu775"]
-[ext_resource type="Script" path="res://common/layouts/character_edit/timeline_section_container.gd" id="9_shsbx"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/timeline_section.gd" id="9_shsbx"]
 [ext_resource type="Texture2D" uid="uid://hmjhxdsk3pwj" path="res://ui/assets/icons/trash.svg" id="10_m01ot"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/offset_vector_field.gd" id="11_jm5lp"]
 [ext_resource type="Texture2D" uid="uid://xiahr3jughjg" path="res://ui/assets/icons/plus_min.svg" id="11_l8sbu"]
@@ -502,9 +502,8 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 texture = SubResource("ImageTexture_qnpab")
 
-[node name="ViewportAnimatedSprite" type="AnimatedSprite2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport/Viewport/2DScene"]
+[node name="ASContainer" type="Node2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/PreviewViewport/Viewport/2DScene"]
 unique_name_in_owner = true
-visible = false
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer"]
 layout_mode = 2
