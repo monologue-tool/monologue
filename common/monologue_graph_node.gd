@@ -53,8 +53,7 @@ func _update_slot_icons() -> void:
 
 
 func _harmonize_size() -> void:
-	size.x = ceil(size.x/30)*30
-	size.y = ceil(size.y/30)*30
+	set_deferred("size", Vector2(ceil(size.x/30)*30, ceil(size.y/30)*30))
 
 
 func _set_titlebar_color(val: Color):
@@ -133,6 +132,9 @@ func _from_dict(dict: Dictionary) -> void:
 		var property = get(key.to_snake_case())
 		if property is Property:
 			property.value = dict.get(key)
+		var private_property = get("_" + key.to_snake_case())
+		if private_property is Property:
+			private_property.value = dict.get(key)
 	
 	_load_position(dict)
 	_update()  # refresh node UI after loading properties
@@ -177,8 +179,8 @@ func _to_next(dict: Dictionary, key: String = "NextID") -> void:
 
 
 func _update() -> void:
-	size.y = 0
-	_harmonize_size.call_deferred()
+	set_deferred("size", Vector2(size.x, 0))
+	_harmonize_size()
 
 
 func _validate_id(text: String) -> bool:

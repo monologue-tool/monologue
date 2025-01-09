@@ -91,8 +91,8 @@ func _update_preview() -> void:
 		return
 	
 	var sprites: Array = []
-	for timeline in layer_timeline_vbox.get_children():
-		sprites.append(timeline._to_sprite_frames())
+	for child_timeline in layer_timeline_vbox.get_children():
+		sprites.append(child_timeline._to_sprite_frames())
 	
 	preview_section.update_animation(sprites)
 

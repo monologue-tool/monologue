@@ -33,15 +33,15 @@ func add_item(item: Control, force_readable_name: bool = false) -> void:
 
 
 func _update():
-	var is_visible: bool = show_add_button
+	var can_see: bool = show_add_button
 		
 	for child in vbox.get_children():
 		if not child.visible:
 			continue
-		is_visible = true
+		can_see = true
 		
-	if visible != is_visible:
-		visible = is_visible
+	if visible != can_see:
+		visible = can_see
 
 
 func set_title(text: String) -> void:

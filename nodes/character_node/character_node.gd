@@ -73,7 +73,7 @@ func _ready():
 	update_animation.connect("preview", _update)
 	
 	super._ready()
-	_show_group(action_type.value)
+	_show_group()
 	_update()
 
 
@@ -90,14 +90,14 @@ func _update(value: Variant = null) -> void:
 	
 
 
-func _show_group(_action_type: Variant) -> void:
+func _show_group(act_type: Variant = action_type.value) -> void:
 	for key in _control_groups.keys():
 		for property in _control_groups.get(key):
 			property.visible = false
 	
 	for key in _control_groups.keys():
 		for property in _control_groups.get(key):
-			if key == action_type:
+			if key == act_type:
 				property.visible = true
 	title = node_type
 

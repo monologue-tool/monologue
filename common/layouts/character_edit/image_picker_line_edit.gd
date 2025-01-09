@@ -95,5 +95,5 @@ func _split_match(filter: String) -> Array:
 	return filter.split(";")[0].split(",")
 
 
-func _on_line_edit_text_changed(new_text: String) -> void:
+func _on_line_edit_text_changed(_new_text: String) -> void:
 	_update()
