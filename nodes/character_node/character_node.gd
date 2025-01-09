@@ -1,7 +1,7 @@
 class_name CharacterNode extends MonologueGraphNode
 
 
-var character        := Property.new(DROPDOWN, { "store_index": true })
+var character        := Property.new(DROPDOWN, { "store_index": true }, 0)
 var action_type      := Property.new(DROPDOWN, {}, "Join" )
 
 var _position        := Property.new(DROPDOWN, {}, "Left")
