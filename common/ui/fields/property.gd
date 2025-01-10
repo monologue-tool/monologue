@@ -23,6 +23,8 @@ var setters: Dictionary
 var uncollapse: bool
 ## Actual value of the property.
 var value: Variant
+## Initial value of the property.
+var default_value: Variant
 ## Toggles visibility of the field instance.
 var visible: bool : set = set_visible
 ## Overwrites the displayed property label
@@ -34,6 +36,7 @@ func _init(ui_scene: PackedScene, ui_setters: Dictionary = {},
 	scene = ui_scene
 	setters = ui_setters
 	value = default
+	default_value = default
 	custom_label = ui_custom_label
 	visible = true
 

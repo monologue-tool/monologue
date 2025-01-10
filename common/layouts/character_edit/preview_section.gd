@@ -40,7 +40,7 @@ func update_offset(offset: Array) -> void:
 
 func update_mirror(mirror: bool) -> void:
 	preview_texture.flip_h = mirror
-	preview_anim.flip_h = mirror
+	#preview_anim.flip_h = mirror
 
 
 func _on_h_slider_value_changed(value: float) -> void:

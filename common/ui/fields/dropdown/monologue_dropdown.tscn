@@ -2,15 +2,13 @@
 
 [ext_resource type="Script" path="res://common/ui/fields/dropdown/monolgue_dropdown.gd" id="1_jtdjo"]
 
-
-
 [node name="MonologueDropdown" type="HBoxContainer"]
 offset_right = 7.0
 offset_bottom = 29.0
 script = ExtResource("1_jtdjo")
 
 [node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 text = "Value"
 

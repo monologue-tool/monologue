@@ -8,7 +8,7 @@ offset_bottom = 29.0
 script = ExtResource("1_0u5l0")
 
 [node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 text = "Value"
 

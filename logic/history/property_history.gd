@@ -9,7 +9,6 @@ var node_path: NodePath
 ## List of property changes to make on [member node_name].
 var changes: Array[PropertyChange]
 
-
 func _init(graph: MonologueGraphEdit, path: NodePath,
 			change_list: Array[PropertyChange]) -> void:
 	graph_edit = graph
@@ -21,14 +20,14 @@ func _init(graph: MonologueGraphEdit, path: NodePath,
 
 
 func change_properties() -> void:
-	var node: MonologueGraphNode = graph_edit.get_node(node_path)
+	var node: Variant = graph_edit.get_node(node_path)
 	for change in changes:
 		node[change.property].propagate(change.after)
 		node[change.property].value = change.after
 
 
 func revert_properties() -> void:
-	var node: MonologueGraphNode = graph_edit.get_node(node_path)
+	var node: Variant = graph_edit.get_node(node_path)
 	for change in changes:
 		node[change.property].propagate(change.before)
 		node[change.property].value = change.before

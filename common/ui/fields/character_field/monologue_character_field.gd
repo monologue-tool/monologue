@@ -10,6 +10,9 @@ var description: String = ""
 var default_portrait: String = ""
 var portraits: Dictionary = {}
 
+var character_edit_dict: Dictionary = {}
+
+var graph_edit: MonologueGraphEdit
 var base_path: String = ""
 
 
@@ -19,14 +22,10 @@ func propagate(value: Variant) -> void:
 
 
 func _to_dict():
-	return {
-		"Name": name_edit.text,
-		"Nicknames": nicknames,
-		"DefaultDisplayName": display_name,
-		"EditorDescription": description,
-		"DefaultPortrait": default_portrait,
-		"Portraits": portraits
-	}
+	var dict: Dictionary = character_edit_dict.duplicate(true)
+	dict["Name"] = name_edit.text
+	
+	return dict
 
 
 func _on_line_edit_text_changed(_new_text: String) -> void:
