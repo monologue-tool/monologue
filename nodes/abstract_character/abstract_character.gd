@@ -23,6 +23,7 @@ func _init(node: RootNode):
 	character.connect("display", graph.set_selected.bind(root))
 	character.connect("shown", _on_character_field_shown)
 	
+	character.setters["graph_edit"] = graph
 	character.setters["base_path"] = graph.file_path
 
 

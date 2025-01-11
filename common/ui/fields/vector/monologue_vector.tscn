@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://5ciquxsl5tw5"]
+
+[ext_resource type="Script" path="res://common/ui/fields/vector/monologue_vector.gd" id="1_qpl0j"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ybuv6"]
+
+[node name="MonologueVector" type="HBoxContainer"]
+offset_right = 282.0
+offset_bottom = 29.0
+script = ExtResource("1_qpl0j")
+
+[node name="FieldLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(125, 0)
+layout_mode = 2
+size_flags_vertical = 0
+text = "Value"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="HBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "x"
+
+[node name="XSpinBox" type="SpinBox" parent="HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_icons/updown = SubResource("PlaceholderTexture2D_ybuv6")
+allow_greater = true
+allow_lesser = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="HBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "y"
+
+[node name="YSpinBox" type="SpinBox" parent="HBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_icons/updown = SubResource("PlaceholderTexture2D_ybuv6")
+allow_greater = true
+allow_lesser = true

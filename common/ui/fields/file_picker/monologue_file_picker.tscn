@@ -12,7 +12,7 @@ offset_bottom = 59.0
 script = ExtResource("1_siiu8")
 
 [node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 size_flags_vertical = 0
 text = "Value"
