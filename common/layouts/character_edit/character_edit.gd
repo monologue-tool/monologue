@@ -19,6 +19,7 @@ func _ready() -> void:
 	_on_close_character_edit()
 	GlobalSignal.add_listener("open_character_edit", _on_open_character_edit)
 	GlobalSignal.add_listener("close_character_edit", _on_close_character_edit)
+	GlobalSignal.add_listener("reload_character_edit", _on_reload_character_edit)
 	
 	portrait_list_section.connect("portrait_selected", _update_portrait)
 	_update_portrait()
@@ -48,6 +49,12 @@ func _on_close_character_edit() -> void:
 	hide()
 	graph_edit = null
 	character_index = -1
+
+
+func _on_reload_character_edit(index: int) -> void:
+	# triggered if character edit is opened but character index is different
+	if character_index != index:
+		_on_open_character_edit(graph_edit, index)
 
 
 func _update_portrait() -> void:

@@ -28,9 +28,12 @@ func set_property(node: Variant, property: String, value: Variant) -> void:
 
 func _display_character() -> void:
 	var node = graph_edit.get_node(node_path)
-	if not node[changes[0].property].field.is_visible_in_tree():
+	if node[changes[0].property].field.is_visible_in_tree():
+		GlobalSignal.emit("reload_character_edit", [character_index])
+	else:
 		graph_edit.set_selected(graph_edit.get_root_node())
 		GlobalSignal.emit("open_character_edit", [graph_edit, character_index])
+		
 
 
 func _hide_unrelated_windows() -> void:
