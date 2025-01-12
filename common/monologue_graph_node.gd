@@ -30,6 +30,7 @@ var node_type: String = "NodeUnknown"
 
 
 func _ready() -> void:
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	if show_titlebar:
 		_set_titlebar_color(titlebar_color)
 
@@ -54,7 +55,8 @@ func _update_slot_icons() -> void:
 
 
 func _harmonize_size() -> void:
-	set_deferred("size", Vector2(ceil(size.x/30)*30, ceil(size.y/30)*30))
+	size.x = ceil(size.x/30)*30
+	size.y = ceil(size.y/30)*30
 
 
 func _set_titlebar_color(val: Color):
@@ -180,7 +182,7 @@ func _to_next(dict: Dictionary, key: String = "NextID") -> void:
 
 
 func _update() -> void:
-	set_deferred("size", Vector2(size.x, 0))
+	size.y = 0
 	_harmonize_size()
 
 

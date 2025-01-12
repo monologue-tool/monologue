@@ -24,7 +24,7 @@ func clear():
 		id_field.queue_free()
 
 
-func on_graph_node_deselected(node):
+func on_graph_node_deselected(_node):
 	hide()
 
 
