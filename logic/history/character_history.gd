@@ -23,7 +23,7 @@ func revert_properties() -> void:
 
 func set_property(node: Variant, property: String, value: Variant) -> void:
 	super.set_property(node, property, value)
-	graph_edit.speakers[character_index][Util.to_key_name(property)] = value
+	graph_edit.speakers[character_index]["Character"][Util.to_key_name(property)] = value
 
 
 func _display_character() -> void:

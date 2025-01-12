@@ -42,10 +42,11 @@ func _from_dict(dict: Dictionary) -> void:
 		property.value = property.default_value
 	
 	# Load values
-	for key in dict.keys():
+	var character_dict = dict.get("Character", {})
+	for key in character_dict.keys():
 		var property = get(key.to_snake_case())
 		if property is Property:
-			property.value = dict.get(key)
+			property.value = character_dict.get(key)
 	
 	# Create fields
 	for field_name in _get_all_fields():
