@@ -22,8 +22,6 @@ func _init(node: RootNode):
 	character.connect("change", update_character)
 	character.connect("display", graph.set_selected.bind(root))
 	character.connect("shown", _on_character_field_shown)
-	
-	character.setters["character_index"] = idx.value
 	character.setters["graph_edit"] = graph
 
 
@@ -59,6 +57,7 @@ func _from_dict(dict: Dictionary) -> void:
 		character.value = dict.get("Character")
 		protected.value = dict.get("Protected")
 		idx.value = dict.get("EditorIndex")
+		character.setters["character_index"] = idx.value
 
 
 func _to_dict():

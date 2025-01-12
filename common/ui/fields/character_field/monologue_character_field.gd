@@ -4,7 +4,7 @@ class_name MonologueCharacterField extends MonologueField
 @onready var name_edit := %NameEdit
 @onready var delete_button := $HBoxContainer/VBoxContainer/VBoxContainer/HBoxContainer/DeleteButton
 
-var character_index: int
+var character_index: int = -1
 var default_portrait: String = ""
 var graph_edit: MonologueGraphEdit
 

@@ -29,6 +29,7 @@ func add_character(data: Dictionary = {}) -> MonologueCharacter:
 	if data:
 		character._from_dict(data)
 	character.idx.value = _character_references.size()
+	character.character.setters["character_index"] = character.idx.value
 	_character_references.append(character)
 	return character
 
