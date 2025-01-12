@@ -1,6 +1,10 @@
 class_name CharacterEditSection extends Control
 
 
+var character_index: int = -1
+var graph_edit: MonologueGraphEdit
+
+
 func _get_all_fields() -> Array:
 	var fields := []
 	for property in get_property_list():
@@ -11,9 +15,6 @@ func _get_all_fields() -> Array:
 		if property_var.is_connected("change", change):
 			property_var.disconnect("change", change)
 		property_var.connect("change", change.bind(property.name))
-		
-		if not property_var.is_connected("display", display):
-			property_var.connect("display", display)
 
 	return fields
 
@@ -22,20 +23,12 @@ func change(old_value: Variant, new_value: Variant, property: String) -> void:
 	var changes: Array[PropertyChange] = []
 	changes.append(PropertyChange.new(property, old_value, new_value))
 	
-	var graph = get_graph_edit()
-	var undo_redo = graph.undo_redo
+	var undo_redo = graph_edit.undo_redo
 	undo_redo.create_action("%s: %s => %s" % [property, old_value, new_value])
-	var history = PropertyHistory.new(graph, graph.get_path_to(self), changes)
+	var history = CharacterHistory.new(character_index,
+			graph_edit, graph_edit.get_path_to(self), changes)
 	undo_redo.add_prepared_history(history)
 	undo_redo.commit_action()
-
-
-func display() -> void:
-	get_graph_edit().set_selected(self)
-
-
-func get_graph_edit() -> MonologueGraphEdit:
-	return self.graph_edit
 
 
 func _from_dict(dict: Dictionary) -> void:

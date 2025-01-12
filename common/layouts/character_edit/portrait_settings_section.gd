@@ -28,32 +28,31 @@ func _ready() -> void:
 	]]
 
 
-
 func _set_base_path(val: String) -> void:
 	base_path = val
 	image_path_fp.base_path = val
 
 
 func _from_dict(dict: Dictionary = {}) -> void:
-	var portrait_type: String = dict.get("PortraitType", "Image")
-	portrait_type_field.value = portrait_type
+	var portrait_type_string: String = dict.get("PortraitType", "Image")
+	portrait_type_field.value = portrait_type_string
 	offset_vector_field.value = dict.get("Offset", [0, 0])
 	mirror_cb.button_pressed = dict.get("Mirror", false)
 
-	if portrait_type == "Image":
+	if portrait_type_string == "Image":
 		image_path_fp.value = dict.get("ImagePath", "")
 	timeline_section._from_dict(dict.get("Animation", {}))
 
 
 func _to_dict() -> Dictionary:
-	var portrait_type: String = portrait_type_field.value
+	var portrait_type_string: String = portrait_type_field.value
 	var dict: Dictionary = {
-		"PortraitType": portrait_type,
+		"PortraitType": portrait_type_string,
 		"Offset": offset_vector_field.value,
 		"Mirror": mirror_cb.button_pressed
 	}
 	
-	match portrait_type:
+	match portrait_type_string:
 		"Image":
 			dict["ImagePath"] = image_path_fp.value
 		"Animation":

@@ -128,6 +128,7 @@ func update_save_state() -> void:
 func _close_tab(graph_edit, tab_index, save_first = false) -> void:
 	if save_first:
 		GlobalSignal.emit("save", [true])
+	GlobalSignal.emit("close_character_edit")
 	graph_edit.queue_free()
 	await graph_edit.tree_exited  # buggy if we switch tabs without waiting
 	tab_bar.remove_tab(tab_index)

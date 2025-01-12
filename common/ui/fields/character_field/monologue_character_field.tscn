@@ -74,6 +74,5 @@ layout_mode = 2
 size_flags_vertical = 4
 
 [connection signal="focus_exited" from="HBoxContainer/VBoxContainer/NameContainer/InnerVBox/NameEdit" to="." method="_on_name_edit_focus_exited"]
-[connection signal="text_changed" from="HBoxContainer/VBoxContainer/NameContainer/InnerVBox/NameEdit" to="." method="_on_line_edit_text_changed"]
 [connection signal="text_submitted" from="HBoxContainer/VBoxContainer/NameContainer/InnerVBox/NameEdit" to="." method="_on_name_edit_text_submitted"]
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/VBoxContainer/HBoxContainer/EditButton" to="." method="_on_edit_button_pressed"]

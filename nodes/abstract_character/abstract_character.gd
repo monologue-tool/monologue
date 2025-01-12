@@ -23,8 +23,8 @@ func _init(node: RootNode):
 	character.connect("display", graph.set_selected.bind(root))
 	character.connect("shown", _on_character_field_shown)
 	
+	character.setters["character_index"] = idx.value
 	character.setters["graph_edit"] = graph
-	character.setters["base_path"] = graph.file_path
 
 
 func _on_character_field_shown() -> void:
@@ -40,8 +40,12 @@ func update_character(old_value: Variant, new_value: Variant):
 	graph.undo_redo.create_action("Character %s => %s" % [str(old_value), str(new_value)])
 	graph.undo_redo.add_do_property(root.characters, "value", new_list)
 	graph.undo_redo.add_do_method(root.characters.propagate.bind(new_list))
+	graph.undo_redo.add_do_method(graph.set_selected.bind(root))
+	graph.undo_redo.add_do_method(GlobalSignal.emit.bind("close_character_edit"))
 	graph.undo_redo.add_undo_property(root.characters, "value", old_list)
 	graph.undo_redo.add_undo_method(root.characters.propagate.bind(old_list))
+	graph.undo_redo.add_undo_method(graph.set_selected.bind(root))
+	graph.undo_redo.add_undo_method(GlobalSignal.emit.bind("close_character_edit"))
 	graph.undo_redo.commit_action()
 
 

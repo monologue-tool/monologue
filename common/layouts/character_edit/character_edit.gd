@@ -1,4 +1,4 @@
-extends CharacterEditSection
+class_name CharacterEdit extends CharacterEditSection
 
 
 @onready var main_section := %MainSettingsSection
@@ -12,28 +12,42 @@ var nicknames := Property.new(MonologueGraphNode.LINE)
 var display_name := Property.new(MonologueGraphNode.LINE)
 var description := Property.new(MonologueGraphNode.TEXT)
 
-var current_character_field: MonologueCharacterField
 var base_path: String
-var graph_edit: MonologueGraphEdit :
-	get: return current_character_field.graph_edit
 
 
 func _ready() -> void:
-	hide()
+	_on_close_character_edit()
 	GlobalSignal.add_listener("open_character_edit", _on_open_character_edit)
+	GlobalSignal.add_listener("close_character_edit", _on_close_character_edit)
 	
 	portrait_list_section.connect("portrait_selected", _update_portrait)
 	_update_portrait()
 
 
-func propagate() -> void:
-	pass
+## Trickle down the setting of graph_edit and character_index.
+func trickle() -> void:
+	var child_sections = [portrait_settings_section]
+	for section in child_sections:
+		section.graph_edit = graph_edit
+		section.character_index = character_index
 
 
-func _on_open_character_edit(character_field: MonologueCharacterField) -> void:
-	current_character_field = character_field
-	_from_dict(character_field._to_dict())
-	show()
+func _on_open_character_edit(graph: MonologueGraphEdit, index: int) -> void:
+	if index >= 0:
+		graph_edit = graph
+		character_index = index
+		trickle()
+		_from_dict(graph.speakers[index])
+		show()
+	else:
+		_on_close_character_edit()
+
+
+func _on_close_character_edit() -> void:
+	# also triggered when 'Done' button is pressed
+	hide()
+	graph_edit = null
+	character_index = -1
 
 
 func _update_portrait() -> void:
@@ -46,15 +60,12 @@ func _update_portrait() -> void:
 		timeline_section.hide()
 
 
-# Done button
-func _on_button_pressed() -> void:
-	current_character_field.character_edit_dict = _to_dict()
-	
-	hide()
-	current_character_field = null
-
-
 func _from_dict(dict: Dictionary = {}) -> void:
 	super._from_dict(dict)
 	_update_portrait()
-	
+
+
+func _to_dict() -> Dictionary:
+	var aggregate = _to_dict()
+	aggregate.merge(portrait_settings_section._to_dict())
+	return aggregate

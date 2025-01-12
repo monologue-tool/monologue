@@ -1,5 +1,4 @@
-class_name PropertyHistory
-extends MonologueHistory
+class_name PropertyHistory extends MonologueHistory
 
 
 ## Graph that owns the node whose properties have changed.
@@ -8,6 +7,7 @@ var graph_edit: MonologueGraphEdit
 var node_path: NodePath
 ## List of property changes to make on [member node_name].
 var changes: Array[PropertyChange]
+
 
 func _init(graph: MonologueGraphEdit, path: NodePath,
 			change_list: Array[PropertyChange]) -> void:
@@ -22,12 +22,21 @@ func _init(graph: MonologueGraphEdit, path: NodePath,
 func change_properties() -> void:
 	var node: Variant = graph_edit.get_node(node_path)
 	for change in changes:
-		node[change.property].propagate(change.after)
-		node[change.property].value = change.after
+		set_property(node, change.property, change.after)
+	_hide_unrelated_windows()
 
 
 func revert_properties() -> void:
 	var node: Variant = graph_edit.get_node(node_path)
 	for change in changes:
-		node[change.property].propagate(change.before)
-		node[change.property].value = change.before
+		set_property(node, change.property, change.before)
+	_hide_unrelated_windows()
+
+
+func set_property(node: Variant, property: String, value: Variant) -> void:
+	node[property].propagate(value)
+	node[property].value = value
+
+
+func _hide_unrelated_windows() -> void:
+	GlobalSignal.emit("close_character_edit")
