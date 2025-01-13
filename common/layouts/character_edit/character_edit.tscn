@@ -1,18 +1,13 @@
-[gd_scene load_steps=38 format=3 uid="uid://c7cf7rfwnhf77"]
+[gd_scene load_steps=31 format=3 uid="uid://c7cf7rfwnhf77"]
 
 [ext_resource type="Script" path="res://common/layouts/character_edit/character_edit.gd" id="1_mo23b"]
 [ext_resource type="LabelSettings" uid="uid://cu53lojswyksx" path="res://common/layouts/character_edit/theme/title_label_settings.tres" id="2_50fu3"]
-[ext_resource type="LabelSettings" uid="uid://bbx22ewomxes8" path="res://common/layouts/character_edit/theme/property_label_settings.tres" id="3_snoek"]
-[ext_resource type="Texture2D" uid="uid://t1i3wy037vsu" path="res://ui/assets/icons/folder_icon.png" id="4_fvqdm"]
-[ext_resource type="Script" path="res://common/layouts/character_edit/image_picker_line_edit.gd" id="5_7ejn8"]
-[ext_resource type="Script" path="res://common/layouts/character_edit/type_dropdown.gd" id="5_8dqmk"]
-[ext_resource type="Script" path="res://common/layouts/character_edit/portrait_section_container.gd" id="5_mpn8l"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/portrait_list_section.gd" id="5_mpn8l"]
 [ext_resource type="Texture2D" uid="uid://c7ee44ql1gv6b" path="res://ui/assets/icons/offset_cross.svg" id="6_q7cn4"]
 [ext_resource type="Script" path="res://addons/ReorderableContainer/reorderable_vbox.gd" id="6_rcm5i"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/portrait_settings_section.gd" id="7_gu775"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/timeline_section.gd" id="9_shsbx"]
 [ext_resource type="Texture2D" uid="uid://hmjhxdsk3pwj" path="res://ui/assets/icons/trash.svg" id="10_m01ot"]
-[ext_resource type="Script" path="res://common/layouts/character_edit/offset_vector_field.gd" id="11_jm5lp"]
 [ext_resource type="Texture2D" uid="uid://xiahr3jughjg" path="res://ui/assets/icons/plus_min.svg" id="11_l8sbu"]
 [ext_resource type="Script" path="res://common/layouts/character_edit/preview_section.gd" id="13_nmxnm"]
 [ext_resource type="PackedScene" uid="uid://c3kq4oc8yxco7" path="res://common/layouts/character_edit/cell_number.tscn" id="14_3yl0d"]
@@ -30,11 +25,6 @@ content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
 bg_color = Color(0.275, 0.275, 0.302, 0.25)
-
-[sub_resource type="LabelSettings" id="LabelSettings_nr3ee"]
-font_color = Color(0.768627, 0.180392, 0.25098, 1)
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_j6j4p"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_qnpab"]
 
@@ -167,7 +157,7 @@ layout_mode = 2
 text = "Portraits"
 label_settings = ExtResource("2_50fu3")
 
-[node name="PortraitListContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection"]
+[node name="FieldVBox" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 20
@@ -175,29 +165,30 @@ theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 0
 
-[node name="PortraitList" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer"]
+[node name="PortraitList" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/FieldVBox"]
+visible = false
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ng6uw")
 
-[node name="VboxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList"]
+[node name="VboxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/FieldVBox/PortraitList"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/FieldVBox/PortraitList/VboxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PortraitVBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/ScrollContainer"]
+[node name="PortraitVBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/FieldVBox/PortraitList/VboxContainer/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="AddButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer"]
+[node name="AddButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/FieldVBox/PortraitList/VboxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
@@ -240,137 +231,7 @@ theme_override_constants/margin_bottom = 0
 [node name="FieldVBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer"]
 layout_mode = 2
 
-[node name="PortraitTypeField" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox"]
-layout_mode = 2
-script = ExtResource("5_8dqmk")
-
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/PortraitTypeField"]
-custom_minimum_size = Vector2(125, 0)
-layout_mode = 2
-text = "Portrait Type"
-label_settings = ExtResource("3_snoek")
-
-[node name="OptionButton" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/PortraitTypeField"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-selected = 0
-item_count = 2
-popup/item_0/text = "Image"
-popup/item_1/text = "Animation"
-popup/item_1/id = 1
-
-[node name="ImagePickerLineEdit" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox"]
-unique_name_in_owner = true
-layout_mode = 2
-script = ExtResource("5_7ejn8")
-
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit"]
-custom_minimum_size = Vector2(125, 0)
-layout_mode = 2
-size_flags_vertical = 0
-text = "Image Path"
-label_settings = ExtResource("3_snoek")
-
-[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="LineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-structured_text_bidi_override = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox/LineEdit"]
-layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -36.0
-grow_horizontal = 0
-grow_vertical = 2
-alignment = 2
-
-[node name="FilePickerButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox/LineEdit/HBoxContainer"]
-custom_minimum_size = Vector2(33, 25)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-icon = ExtResource("4_fvqdm")
-flat = true
-icon_alignment = 1
-expand_icon = true
-
-[node name="WarnLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-text = "File path not found!"
-label_settings = SubResource("LabelSettings_nr3ee")
-autowrap_mode = 2
-
-[node name="OffsetVectorField" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox"]
-layout_mode = 2
-script = ExtResource("11_jm5lp")
-
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField"]
-custom_minimum_size = Vector2(125, 0)
-layout_mode = 2
-size_flags_vertical = 0
-text = "Offset"
-label_settings = ExtResource("3_snoek")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = "x"
-
-[node name="SpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_icons/updown = SubResource("PlaceholderTexture2D_j6j4p")
-allow_greater = true
-allow_lesser = true
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "y"
-
-[node name="SpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer/HBoxContainer2"]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_icons/updown = SubResource("PlaceholderTexture2D_j6j4p")
-allow_greater = true
-allow_lesser = true
-
-[node name="MonologueCheckButton" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/MonologueCheckButton"]
-custom_minimum_size = Vector2(125, 0)
-layout_mode = 2
-text = "Mirror"
-label_settings = ExtResource("3_snoek")
-
-[node name="CheckButton" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/MonologueCheckButton"]
-layout_mode = 2
-
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox"]
-visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 20
@@ -695,15 +556,7 @@ alignment = 1
 layout_mode = 2
 text = "Done"
 
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/PortraitListContainer/PortraitList/VboxContainer/AddButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection" method="_on_add_button_pressed"]
-[connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/PortraitTypeField/OptionButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/PortraitTypeField" method="_on_option_button_item_selected"]
-[connection signal="focus_exited" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit" method="_on_line_edit_focus_exited"]
-[connection signal="text_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit" method="_on_line_edit_text_changed"]
-[connection signal="text_submitted" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox/LineEdit" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit" method="_on_line_edit_text_submitted"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit/VBox/LineEdit/HBoxContainer/FilePickerButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/ImagePickerLineEdit" method="_on_file_picker_button_pressed"]
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer/HBoxContainer/SpinBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField" method="_on_spin_box_value_changed"]
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField/HBoxContainer/HBoxContainer2/SpinBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/OffsetVectorField" method="_on_spin_box_value_changed"]
-[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection/MarginContainer/FieldVBox/MonologueCheckButton/CheckButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection" method="_on_check_button_toggled"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection/FieldVBox/PortraitList/VboxContainer/AddButton" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection" method="_on_add_button_pressed"]
 [connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection/MarginContainer/PanelContainer/VBoxContainer/HBoxContainer/HSlider" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PreviewSection" method="_on_h_slider_value_changed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/PanelContainer/HBoxContainer/btnAddLayer" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection" method="_on_btn_add_layer_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/PanelContainer/HBoxContainer/Button" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection" method="_on_button_pressed"]

@@ -1,4 +1,4 @@
-class_name CharacterEditPortraitOption extends Panel
+class_name PortraitOption extends MonologueField
 
 signal pressed
 signal set_to_default
@@ -18,6 +18,8 @@ signal name_submitted
 var is_active: bool = false
 var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
 var id: String = IDGen.generate(5)
+var _to_dict: Callable
+var portrait_index: int = -1
 
 
 func _ready() -> void:
@@ -26,6 +28,12 @@ func _ready() -> void:
 	
 	active_stylebox.bg_color = Color("d55160")
 	active_stylebox.set_corner_radius_all(5)
+	
+	tree_exited.connect(_exited)
+
+
+func _exited() -> void:
+	print("yoooo")
 
 
 func line_edit_unfocus() -> void:

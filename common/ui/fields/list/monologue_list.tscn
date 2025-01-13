@@ -13,3 +13,5 @@ script = ExtResource("1_8kx3n")
 layout_mode = 2
 show_add_button = true
 separate_items = true
+
+[editable path="CollapsibleField"]

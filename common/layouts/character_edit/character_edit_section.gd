@@ -31,7 +31,7 @@ func change(old_value: Variant, new_value: Variant, property: String) -> void:
 	undo_redo.commit_action()
 
 
-func _from_dict(dict: Dictionary) -> void:
+func flush() -> void:
 	# Delete old fields
 	for field in self.field_vbox.get_children():
 		field.queue_free()
@@ -40,6 +40,11 @@ func _from_dict(dict: Dictionary) -> void:
 	for field_name in _get_all_fields():
 		var property: Property = get(field_name)
 		property.value = property.default_value
+	
+
+
+func _from_dict(dict: Dictionary) -> void:
+	flush()
 	
 	# Load values
 	var character_dict = dict.get("Character", {})
@@ -50,6 +55,7 @@ func _from_dict(dict: Dictionary) -> void:
 	
 	# Create fields
 	for field_name in _get_all_fields():
+		print(field_name)
 		var property: Property = get(field_name)
 		var field_label: String = field_name.replace("_", " ").capitalize()
 		

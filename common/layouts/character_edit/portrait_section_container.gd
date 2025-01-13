@@ -19,7 +19,7 @@ func _on_add_button_pressed() -> void:
 	}
 
 
-func add_option(option_name: String = "") -> CharacterEditPortraitOption:
+func add_option(option_name: String = "") -> PortraitOption:
 	var new_portrait := portrait_option_obj.instantiate()
 	portrait_vbox.add_child(new_portrait)
 	new_portrait.connect("pressed", _on_portrait_option_pressed.bind(new_portrait))
@@ -45,13 +45,13 @@ func get_default_portrait() -> String:
 	return ""
 
 
-func _on_portrait_option_pressed(portrait_option: CharacterEditPortraitOption) -> void:
+func _on_portrait_option_pressed(portrait_option: PortraitOption) -> void:
 	save_current_portrait()
 	
 	selected = portrait_option.get_index()
 	
 	for portrait in portrait_vbox.get_children():
-		if portrait is not CharacterEditPortraitOption:
+		if portrait is not PortraitOption:
 			continue
 		
 		if portrait == portrait_option:
@@ -65,14 +65,14 @@ func _on_portrait_option_pressed(portrait_option: CharacterEditPortraitOption) -
 
 func save_current_portrait() -> void:
 	if selected >= 0:
-		var portrait: CharacterEditPortraitOption = portrait_vbox.get_child(selected)
+		var portrait: PortraitOption = portrait_vbox.get_child(selected)
 		portraits[portrait.id] = portrait_settings_section._to_dict()
 		portraits[portrait.id]["Name"] = portrait.line_edit.text
 
 
-func _on_portrait_option_set_to_default(portrait_option: CharacterEditPortraitOption) -> void:
+func _on_portrait_option_set_to_default(portrait_option: PortraitOption) -> void:
 	for portrait in portrait_vbox.get_children():
-		if portrait is not CharacterEditPortraitOption:
+		if portrait is not PortraitOption:
 			continue
 		
 		if portrait == portrait_option:

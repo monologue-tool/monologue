@@ -1,12 +1,7 @@
-class_name PortraitSettingsSection extends CharacterEditSection
+class_name PortraitSettingsSection extends PortraitEditSection
 
 
 signal changed
-
-@onready var portrait_type_field := $MarginContainer/FieldVBox/PortraitTypeField
-@onready var image_path_fp := $MarginContainer/FieldVBox/ImagePickerLineEdit
-@onready var offset_vector_field := $MarginContainer/FieldVBox/OffsetVectorField
-@onready var mirror_cb := $MarginContainer/FieldVBox/MonologueCheckButton/CheckButton
 
 var portrait_type := Property.new(MonologueGraphNode.DROPDOWN, {}, "Image")
 var image_path := Property.new(MonologueGraphNode.FILE, {})
@@ -30,35 +25,29 @@ func _ready() -> void:
 
 func _set_base_path(val: String) -> void:
 	base_path = val
-	image_path_fp.base_path = val
+	image_path.setters["base_path"] = val
 
 
 func _from_dict(dict: Dictionary = {}) -> void:
-	var portrait_type_string: String = dict.get("PortraitType", "Image")
-	portrait_type_field.value = portrait_type_string
-	offset_vector_field.value = dict.get("Offset", [0, 0])
-	mirror_cb.button_pressed = dict.get("Mirror", false)
-
-	if portrait_type_string == "Image":
-		image_path_fp.value = dict.get("ImagePath", "")
+	super._from_dict(dict)
 	timeline_section._from_dict(dict.get("Animation", {}))
 
 
 func _to_dict() -> Dictionary:
-	var portrait_type_string: String = portrait_type_field.value
-	var dict: Dictionary = {
-		"PortraitType": portrait_type_string,
-		"Offset": offset_vector_field.value,
-		"Mirror": mirror_cb.button_pressed
-	}
-	
-	match portrait_type_string:
-		"Image":
-			dict["ImagePath"] = image_path_fp.value
-		"Animation":
-			dict["Animation"] = timeline_section._to_dict()
-	
-	return dict
+	#var portrait_type_string: String = portrait_type_field.value
+	#var dict: Dictionary = {
+		#"PortraitType": portrait_type_string,
+		#"Offset": offset_vector_field.value,
+		#"Mirror": mirror_cb.button_pressed
+	#}
+	#
+	#match portrait_type_string:
+		#"Image":
+			#dict["ImagePath"] = image_path_fp.value
+		#"Animation":
+			#dict["Animation"] = timeline_section._to_dict()
+	#
+	return super._to_dict()
 
 
 func _on_check_button_toggled(toggled_on: bool) -> void:

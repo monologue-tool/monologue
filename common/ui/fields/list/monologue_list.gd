@@ -9,12 +9,19 @@ var add_callback: Callable = GlobalVariables.empty_callback
 var delete_callback: Callable = func(list): return list
 var get_callback: Callable = GlobalVariables.empty_callback
 var data_list: Array = []
+var flat: bool = false
 
 
 func _ready() -> void:
 	collapsible_field = $CollapsibleField
 	collapsible_field.add_pressed.connect(_on_add_button_pressed)
 	post_ready.call_deferred()
+	
+	if flat:
+		collapsible_field.separate_items = false
+		$CollapsibleField/Button.hide()
+		$CollapsibleField/CollapsibleContainer.add_theme_constant_override("margin_left", 0)
+		$CollapsibleField/CollapsibleContainer/PanelContainer/VboxContainer.remove_theme_constant_override("separation")
 
 
 func post_ready() -> void:
@@ -46,7 +53,8 @@ func clear_list():
 
 func create_item_container() -> PanelContainer:
 	var item_container = PanelContainer.new()
-	item_container.add_theme_stylebox_override("panel", stylebox)
+	var container_stylebox: StyleBox = stylebox if not flat else StyleBoxEmpty.new()
+	item_container.add_theme_stylebox_override("panel", container_stylebox)
 	return item_container
 
 
@@ -102,7 +110,7 @@ func _find_first_hbox(control: Control) -> HBoxContainer:
 func _on_add_button_pressed() -> void:
 	# the add_callback creates the actual instance in its source node
 	var new_item = add_callback.call()
-	data_list.append(new_item._to_dict())
+	data_list.append(new_item._to_dict.call())
 	append_list_item(new_item)
 	field_updated.emit(data_list)
 

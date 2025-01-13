@@ -1,4 +1,4 @@
-extends VBoxContainer
+class_name TimelineSection extends PortraitEditSection
 
 
 const IMAGE = ["*.bmp,*.jpg,*.jpeg,*.png,*.svg,*.webp;Image Files"]

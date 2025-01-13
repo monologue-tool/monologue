@@ -27,7 +27,7 @@ func _ready() -> void:
 
 ## Trickle down the setting of graph_edit and character_index.
 func trickle() -> void:
-	var child_sections = [portrait_settings_section]
+	var child_sections = [portrait_list_section, portrait_settings_section, timeline_section]
 	for section in child_sections:
 		section.graph_edit = graph_edit
 		section.character_index = character_index
@@ -69,6 +69,7 @@ func _update_portrait() -> void:
 
 func _from_dict(dict: Dictionary = {}) -> void:
 	super._from_dict(dict)
+	portrait_list_section._from_dict(dict)
 	_update_portrait()
 
 
