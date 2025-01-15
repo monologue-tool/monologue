@@ -5,8 +5,8 @@ class_name SentenceNode extends MonologueGraphNode
 var speaker         := Property.new(DROPDOWN, { "store_index": true })
 var display_name    := Property.new(LINE, { "is_sublabel": true })
 var display_variant := Property.new(LINE, { "is_sublabel": true })
-var sentence        := Property.new(TEXT)
-var voiceline       := Property.new(FILE, { "filters": FilePicker.AUDIO })
+var sentence        := Localizable.new(TEXT)
+var voiceline       := Localizable.new(FILE, { "filters": FilePicker.AUDIO })
 
 @onready var _preview = $MainContainer/TextLabelPreview
 
@@ -31,6 +31,8 @@ func _on_text_preview(text: Variant):
 
 
 func _update():
+	print(GlobalVariables.is_exporting_properties)
+	print(sentence.value)
 	_preview.text = sentence.value
 	speaker.callers["set_items"] = [get_graph_edit().speakers, "Reference", "ID"]
 	super._update()

@@ -13,8 +13,7 @@ alignment = 0
 icon_alignment = 2
 script = ExtResource("2_mi5fl")
 
-[node name="DropdownContainer" type="Control" parent="."]
-visible = false
+[node name="Dropdown" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,7 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="DropdownContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="Dropdown"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,29 +32,29 @@ offset_bottom = -45.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="DropdownContainer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Dropdown/PanelContainer"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DropdownContainer/PanelContainer/MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="Dropdown/PanelContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="DropdownContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Scroll" type="ScrollContainer" parent="Dropdown/PanelContainer/MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DropdownContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer"]
+[node name="Options" type="VBoxContainer" parent="Dropdown/PanelContainer/MarginContainer/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
 
-[node name="LanguageOption" parent="DropdownContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/VBoxContainer" instance=ExtResource("3_unc6p")]
+[node name="LanguageOption" parent="Dropdown/PanelContainer/MarginContainer/VBox/Scroll/Options" instance=ExtResource("3_unc6p")]
 layout_mode = 2
 script = null
 
-[node name="HSeparator" type="HSeparator" parent="DropdownContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="Dropdown/PanelContainer/MarginContainer/VBox"]
 layout_mode = 2
 
-[node name="btnAdd" type="Button" parent="DropdownContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="btnAdd" type="Button" parent="Dropdown/PanelContainer/MarginContainer/VBox"]
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 icon = ExtResource("4_1p58k")
@@ -63,4 +62,4 @@ icon_alignment = 1
 expand_icon = true
 
 [connection signal="pressed" from="." to="." method="_on_pressed"]
-[connection signal="pressed" from="DropdownContainer/PanelContainer/MarginContainer/VBoxContainer/btnAdd" to="." method="_on_btn_add_pressed"]
+[connection signal="pressed" from="Dropdown/PanelContainer/MarginContainer/VBox/btnAdd" to="." method="_on_btn_add_pressed"]

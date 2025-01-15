@@ -18,7 +18,7 @@ const UNSAVED_FILE_SUFFIX: String = "*"
 @onready var graph: GraphEditSwitcher = %GraphEditSwitcher
 @onready var welcome: WelcomeWindow = $WelcomeWindow
 
-var root_scene = GlobalVariables.node_dictionary.get("Root")
+var root_scene = Constants.NODE_SCENES.get("Root")
 var live_dict: Dictionary
 
 ## Set to true if a file operation is triggered from Header instead of WelcomeWindow.
@@ -58,10 +58,10 @@ func _input(event):
 
 func _to_dict() -> Dictionary:
 	var list_nodes: Array[Dictionary] = []
-	var graph_edit = graph.current
+	GlobalVariables.is_exporting_properties = true
 	
 	# compile all node data of the current graph edit
-	for node in graph_edit.get_nodes():
+	for node in graph.current.get_nodes():
 		if node.is_queued_for_deletion():
 			continue
 		
@@ -85,6 +85,7 @@ func _to_dict() -> Dictionary:
 			"Reference": "_NARRATOR",
 			"ID": 0
 		})
+	GlobalVariables.is_exporting_properties = false
 	
 	return {
 		"EditorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
@@ -131,6 +132,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 		graph.current.name = path.get_file().trim_suffix(".json")
 		graph.current.speakers = data.get("Characters")
 		graph.current.variables = data.get("Variables")
+		graph.current.languages = data.get("Languages", [])
 		graph.current.data = data
 		
 		var node_list = data.get("ListNodes")
@@ -149,6 +151,7 @@ func save():
 		file.close()
 		graph.current.update_version()
 		graph.update_save_state()
+	
 
 
 func test_project(from_node: Variant = null):
@@ -174,7 +177,7 @@ func _load_nodes(node_list: Array) -> void:
 			# option data gets sent to the base_options dictionary
 			graph.current.base_options[data.get("ID")] = data
 		else:
-			var node_scene = GlobalVariables.node_dictionary.get(node_type)
+			var node_scene = Constants.NODE_SCENES.get(node_type)
 			if node_scene:
 				var node_instance = node_scene.instantiate()
 				node_instance.id.value = data.get("ID")

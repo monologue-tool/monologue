@@ -5,9 +5,9 @@ class_name MonologueList extends MonologueField
 var delete_scene = preload("res://common/ui/buttons/delete_button.tscn")
 var stylebox = preload("res://ui/theme_default/list_item.stylebox")
 
-var add_callback: Callable = GlobalVariables.empty_callback
+var add_callback: Callable = Constants.empty_callback
 var delete_callback: Callable = func(list): return list
-var get_callback: Callable = GlobalVariables.empty_callback
+var get_callback: Callable = Constants.empty_callback
 var data_list: Array = []
 
 

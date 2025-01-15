@@ -13,7 +13,7 @@ var graph_edit_scene = preload("res://common/layouts/graph_edit/monologue_graph_
 var is_closing_all_tabs: bool
 var pending_new_graph: MonologueGraphEdit
 var prompt_scene = preload("res://common/windows/prompt_window/prompt_window.tscn")
-var root_scene = GlobalVariables.node_dictionary.get("Root")
+var root_scene = Constants.NODE_SCENES.get("Root")
 var tab_bar: TabBar
 
 @onready var graph_edits: Control = $GraphEditZone/GraphEdits

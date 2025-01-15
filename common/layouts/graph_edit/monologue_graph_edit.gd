@@ -10,6 +10,7 @@ var file_path: String
 var undo_redo := HistoryHandler.new()
 var version = undo_redo.get_version()
 
+var languages = []
 var speakers = []
 var variables = []
 
@@ -89,7 +90,7 @@ func add_node(node_type, record: bool = true) -> Array[MonologueGraphNode]:
 				control_node.picker_from_node, control_node.picker_from_port):
 			picker_to_names.append(picker_to_node.name)
 	
-	var node_scene = GlobalVariables.node_dictionary.get(node_type)
+	var node_scene = Constants.NODE_SCENES.get(node_type)
 	var new_node = node_scene.instantiate()
 	
 	# created_nodes include auxilliary nodes from new_node, such as BridgeOut

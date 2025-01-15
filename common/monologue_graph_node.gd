@@ -113,7 +113,7 @@ func get_graph_edit() -> MonologueGraphEdit:
 func get_property_names() -> PackedStringArray:
 	var names = PackedStringArray()
 	for property in get_property_list():
-		if property.class_name == "Property":
+		if Constants.PROPERTY_CLASSES.has(property.class_name):
 			names.append(property.name)
 	return names
 
