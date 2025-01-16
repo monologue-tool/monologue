@@ -3,7 +3,6 @@ class_name MonologueGraphEdit extends GraphEdit
 
 
 var close_button_scene = preload("res://common/ui/buttons/close_button.tscn")
-var control_node: MonologueControl
 var base_options = {}
 var data: Dictionary
 var file_path: String
@@ -82,13 +81,14 @@ func _gui_input(_event: InputEvent) -> void:
 	else:
 		DisplayServer.cursor_set_custom_image(Cursor.arrow)
 
+
 ## Adds a node of the given type to this graph.
-func add_node(node_type, record: bool = true) -> Array[MonologueGraphNode]:
+func add_node(node_type, record: bool = true,
+		picker: GraphNodePicker = null) -> Array[MonologueGraphNode]:
 	# if adding from picker, track existing to_nodes of the picker_from_node
 	var picker_to_names = []
-	if control_node.picker_from_node and control_node.picker_from_port:
-		for picker_to_node in get_all_connections_from_slot(
-				control_node.picker_from_node, control_node.picker_from_port):
+	if picker:
+		for picker_to_node in get_all_connections_from_slot(picker.from_node, picker.from_port):
 			picker_to_names.append(picker_to_node.name)
 	
 	var node_scene = Constants.NODE_SCENES.get(node_type)
@@ -101,8 +101,8 @@ func add_node(node_type, record: bool = true) -> Array[MonologueGraphNode]:
 	if record:
 		var addition = AddNodeHistory.new(self, created_nodes)
 		if not picker_to_names.is_empty():
-			addition.picker_from_node = control_node.picker_from_node
-			addition.picker_from_port = control_node.picker_from_port
+			addition.picker_from_node = picker.from_node
+			addition.picker_from_port = picker.from_port
 			addition.picker_to_names = picker_to_names
 		
 		undo_redo.create_action("Add new %s" % [new_node.node_type])
@@ -234,8 +234,6 @@ func pick_and_center(nodes: Array[MonologueGraphNode],
 		if picker.graph_release:
 			offset = (picker.release + scroll_offset)/zoom
 		
-		control_node.picker_from_node = null
-		control_node.picker_from_port = null
 		picker.flush()
 	
 	for node in nodes:

@@ -3,10 +3,10 @@
 class_name GraphEditSwitcher extends VBoxContainer
 
 
-const UNSAVED_FILE_SUFFIX: String = "*"
-
 ## Reference to the side panel control to connect graph edits to.
 @export var side_panel: SidePanel
+## Reference to the tab bar for switching graph edits.
+@export var tab_bar: TabBar
 
 var current: MonologueGraphEdit: get = get_current_graph_edit
 var graph_edit_scene = preload("res://common/layouts/graph_edit/monologue_graph_edit.tscn")
@@ -14,14 +14,11 @@ var is_closing_all_tabs: bool
 var pending_new_graph: MonologueGraphEdit
 var prompt_scene = preload("res://common/windows/prompt_window/prompt_window.tscn")
 var root_scene = Constants.NODE_SCENES.get("Root")
-var tab_bar: TabBar
 
 @onready var graph_edits: Control = $GraphEditZone/GraphEdits
-@onready var control: MonologueControl = $"../../../.."
 
 
 func _ready() -> void:
-	tab_bar = control.tab_bar
 	tab_bar.connect("tab_changed", _on_tab_changed)
 	tab_bar.connect("tab_close_pressed", _on_tab_close_pressed)
 	new_graph_edit()
@@ -107,7 +104,6 @@ func new_graph_edit() -> MonologueGraphEdit:
 	var graph_edit = graph_edit_scene.instantiate()
 	var root_node = root_scene.instantiate()
 	
-	graph_edit.control_node = control
 	graph_edit.add_child(root_node)
 	connect_side_panel(graph_edit)
 	graph_edits.add_child(graph_edit)
@@ -151,8 +147,8 @@ func show_current_config() -> void:
 ## Update tab title with a suffix based on the current graph_edit's save state.
 func update_save_state() -> void:
 	var index = current.get_index()
-	var trim = tab_bar.get_tab_title(index).trim_suffix(UNSAVED_FILE_SUFFIX)
-	var title = trim + UNSAVED_FILE_SUFFIX if current.is_unsaved() else trim
+	var trim = tab_bar.get_tab_title(index).trim_suffix(Constants.UNSAVED_FILE_SUFFIX)
+	var title = trim + Constants.UNSAVED_FILE_SUFFIX if current.is_unsaved() else trim
 	tab_bar.set_tab_title(index, title)
 
 

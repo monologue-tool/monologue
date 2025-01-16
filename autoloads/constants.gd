@@ -22,6 +22,7 @@ const NODE_SCENES = {
 	"Reroute": preload("res://nodes/reroute_node/reroute_node.tscn")
 }
 const PROPERTY_CLASSES = ["Property", "Localizable"]
+const UNSAVED_FILE_SUFFIX: String = "*"
 
 
 static func empty_callback() -> void:

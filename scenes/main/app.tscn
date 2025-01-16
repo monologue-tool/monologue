@@ -12,13 +12,13 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_da2f7"]
 bg_color = Color(0.192157, 0.192157, 0.211765, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3e2q5"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3cp53"]
 bg_color = Color(1, 1, 1, 0.12549)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ralhf"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrrxk"]
 bg_color = Color(1, 1, 1, 0.12549)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gwny7"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5xwar"]
 bg_color = Color(0.784314, 0.188235, 0.184314, 1)
 
 [node name="App" type="Control"]
@@ -87,17 +87,17 @@ theme_override_constants/separation = 0
 
 [node name="tbReduceButton" parent="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer" instance=ExtResource("3_0m70l")]
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_3e2q5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_3cp53")
 texture = ExtResource("4_b7q52")
 
 [node name="tbSizeButton" parent="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer" instance=ExtResource("3_0m70l")]
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_ralhf")
+theme_override_styles/hover = SubResource("StyleBoxFlat_jrrxk")
 texture = ExtResource("5_fxbua")
 
 [node name="tbCloseButton" parent="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer" instance=ExtResource("3_0m70l")]
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_gwny7")
+theme_override_styles/hover = SubResource("StyleBoxFlat_5xwar")
 hover_color = Color(0.784314, 0.188235, 0.184314, 1)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Frame/VBoxContainer/CustomTitleBar"]
@@ -106,11 +106,15 @@ layout_mode = 2
 [node name="HSeparator" type="HSeparator" parent="Frame/VBoxContainer"]
 layout_mode = 2
 
-[node name="MonologueControl" parent="Frame/VBoxContainer" node_paths=PackedStringArray("tab_bar") instance=ExtResource("1_kiov6")]
+[node name="MonologueControl" parent="Frame/VBoxContainer" instance=ExtResource("1_kiov6")]
 layout_mode = 2
-tab_bar = NodePath("../CustomTitleBar/HBoxContainer2/TabBar")
+
+[node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueControl/MarginContainer/MainContainer/GraphEditsArea" index="0" node_paths=PackedStringArray("tab_bar")]
+tab_bar = NodePath("../../../../../CustomTitleBar/HBoxContainer2/TabBar")
 
 [connection signal="gui_input" from="Frame/VBoxContainer/CustomTitleBar" to="Frame/VBoxContainer/CustomTitleBar" method="_on_gui_input"]
 [connection signal="pressed" from="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer/tbReduceButton" to="Frame/VBoxContainer/CustomTitleBar" method="_on_tb_reduce_button_pressed"]
 [connection signal="pressed" from="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer/tbSizeButton" to="Frame/VBoxContainer/CustomTitleBar" method="_on_tb_size_button_pressed"]
 [connection signal="pressed" from="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer/tbCloseButton" to="Frame/VBoxContainer/CustomTitleBar" method="_on_tb_close_button_pressed"]
+
+[editable path="Frame/VBoxContainer/MonologueControl"]
