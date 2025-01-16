@@ -28,12 +28,6 @@ func _ready() -> void:
 	
 	active_stylebox.bg_color = Color("d55160")
 	active_stylebox.set_corner_radius_all(5)
-	
-	tree_exited.connect(_exited)
-
-
-func _exited() -> void:
-	print("yoooo")
 
 
 func line_edit_unfocus() -> void:

@@ -48,7 +48,7 @@ func _to_dict_portrait(_portrait_id: String) -> Dictionary:
 	return {}
 
 
-func get_portraits() -> Array:
+func get_portraits() -> Array: # TODO: switch between portraits
 	return _portrait_references
 
 
@@ -99,5 +99,6 @@ func _on_portrait_option_set_to_default(portrait_option: PortraitOption) -> void
 	pass
 
 
-func _to_dict() -> Dictionary:
-	return portraits.value
+func _from_dict(dict: Dictionary) -> void:
+	load_portraits(dict.get("Portraits", []))
+	super._from_dict(dict)

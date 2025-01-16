@@ -40,22 +40,19 @@ func flush() -> void:
 	for field_name in _get_all_fields():
 		var property: Property = get(field_name)
 		property.value = property.default_value
-	
 
 
 func _from_dict(dict: Dictionary) -> void:
 	flush()
 	
 	# Load values
-	var character_dict = dict.get("Character", {})
-	for key in character_dict.keys():
+	for key in dict.keys():
 		var property = get(key.to_snake_case())
 		if property is Property:
-			property.value = character_dict.get(key)
+			property.value = dict.get(key)
 	
 	# Create fields
 	for field_name in _get_all_fields():
-		print(field_name)
 		var property: Property = get(field_name)
 		var field_label: String = field_name.replace("_", " ").capitalize()
 		
@@ -70,7 +67,5 @@ func _to_dict() -> Dictionary:
 			continue
 		
 		var property_name: String = property.name
-		#print(property_name)
-		#print(get(property_name).value)
 		dict[Util.to_key_name(property_name)] = get(property_name).value
 	return dict

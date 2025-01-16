@@ -46,6 +46,8 @@ func _on_open_character_edit(graph: MonologueGraphEdit, index: int) -> void:
 
 func _on_close_character_edit() -> void:
 	# also triggered when 'Done' button is pressed
+	if graph_edit:
+		graph_edit.speakers[character_index]["Character"].merge(_to_dict(), true)
 	hide()
 	graph_edit = null
 	character_index = -1
@@ -68,12 +70,13 @@ func _update_portrait() -> void:
 
 
 func _from_dict(dict: Dictionary = {}) -> void:
-	super._from_dict(dict)
-	portrait_list_section._from_dict(dict)
+	var character_dict: Dictionary = dict.get("Character", {})
+	super._from_dict(character_dict)
+	portrait_list_section._from_dict(character_dict)
 	_update_portrait()
 
 
 func _to_dict() -> Dictionary:
-	var aggregate = _to_dict()
-	aggregate.merge(portrait_settings_section._to_dict())
+	var aggregate = super._to_dict()
+	aggregate.merge(portrait_list_section._to_dict(), true)
 	return aggregate
