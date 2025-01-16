@@ -7,6 +7,8 @@ var runner
 
 func before_test():
 	runner = scene_runner("res://common/layouts/language_switcher/language_switcher.tscn")
+	var mock_graph_edit = mock(MonologueGraphEdit)
+	runner.set_property("graph_edit", mock_graph_edit)
 
 
 func test_first_language_does_not_show_delete_button():

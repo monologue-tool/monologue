@@ -3,6 +3,9 @@ class_name LanguageSwitcher extends Button
 
 const DEFAULT_LOCALE = "English"
 
+## Current graph edit which has the loaded languages.
+@export var graph_edit: MonologueGraphEdit
+## Currently selected index from the dropdown of languages.
 @export var selected_index: int
 
 var arrow_left := preload("res://ui/assets/icons/arrow_left.svg")
@@ -44,10 +47,14 @@ func get_languages() -> Dictionary:
 	return option_dictionary
 
 
-func load_languages(list: PackedStringArray = []) -> void:
+func load_languages(list: PackedStringArray = [], graph: MonologueGraphEdit = null) -> void:
+	graph_edit = graph
 	for child in vbox.get_children():
 		vbox.remove_child(child)
 		child.queue_free()
+	
+	if graph:
+		selected_index = graph.current_language_index
 	selected_index = 0 if selected_index >= list.size() else selected_index
 	
 	if list.is_empty():
@@ -63,7 +70,11 @@ func load_languages(list: PackedStringArray = []) -> void:
 
 
 func _on_option_removed(option: LanguageOption) -> void:
-	GlobalSignal.emit("delete_language", [option])
+	var action = [option.language_name, graph_edit.file_path]
+	graph_edit.undo_redo.create_action("Delete %s language from %s" % action)
+	var deletion = DeleteLanguageHistory.new(graph_edit, option.language_name, option.name)
+	graph_edit.undo_redo.add_prepared_history(deletion)
+	graph_edit.undo_redo.commit_action()
 
 
 func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
@@ -71,12 +82,16 @@ func _on_option_rename(old: String, new: String, option: LanguageOption) -> void
 	if get_languages().keys().has(new):
 		option.language_name = old
 	else:
-		GlobalSignal.emit("modify_language", [option, new])
+		var action = [option.language_name, new]
+		graph_edit.undo_redo.create_action("Change %s language to %s" % [action])
+		var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
+		graph_edit.undo_redo.add_prepared_history(change)
+		graph_edit.undo_redo.commit_action()
 
 
 func _on_option_selected(option: LanguageOption) -> void:
 	selected_index = option.get_index()
-	GlobalSignal.emit("select_language", [selected_index])
+	graph_edit.current_language_index = selected_index
 
 
 func _on_pressed() -> void:
@@ -89,4 +104,6 @@ func _on_pressed() -> void:
 
 
 func _on_btn_add_pressed() -> void:
-	GlobalSignal.emit("add_language")
+	graph_edit.undo_redo.create_action("Add language to %s" % graph_edit.file_path)
+	graph_edit.undo_redo.add_prepared_history(AddLanguageHistory.new(graph_edit))
+	graph_edit.undo_redo.commit_action()

@@ -24,11 +24,6 @@ func _ready() -> void:
 	new_graph_edit()
 	GlobalSignal.add_listener("previous_tab", previous_tab)
 	GlobalSignal.add_listener("show_current_config", show_current_config)
-	
-	GlobalSignal.add_listener("add_language", add_language_to_current)
-	GlobalSignal.add_listener("delete_language", delete_language_from_current)
-	GlobalSignal.add_listener("modify_language", modify_language_of_current)
-	GlobalSignal.add_listener("select_language", select_language_for_current)
 
 
 func _input(event: InputEvent) -> void:
@@ -39,12 +34,6 @@ func _input(event: InputEvent) -> void:
 		current.trigger_undo()
 	elif event.is_action_pressed("Delete") and not side_panel.visible:
 		current.trigger_delete()
-
-
-func add_language_to_current() -> void:
-	current.undo_redo.create_action("Add language to %s" % current.file_path)
-	current.undo_redo.add_prepared_history(AddLanguageHistory.new(current))
-	current.undo_redo.commit_action()
 
 
 ## Adds a root node to the current graph edit if given root ID doesn't exist.
@@ -72,14 +61,6 @@ func commit_side_panel(node: MonologueGraphNode) -> void:
 	side_panel.refocus(node)
 
 
-func delete_language_from_current(option: LanguageOption) -> void:
-	var text = [option.language_name, current.file_path]
-	current.undo_redo.create_action("Delete %s language from %s" % text)
-	var deletion = DeleteLanguageHistory.new(current, option.language_name, option.name)
-	current.undo_redo.add_prepared_history(deletion)
-	current.undo_redo.commit_action()
-
-
 func get_current_graph_edit() -> MonologueGraphEdit:
 	return graph_edits.get_child(tab_bar.current_tab)
 
@@ -90,14 +71,6 @@ func is_file_opened(filepath: String) -> bool:
 		if node is MonologueGraphEdit and node.file_path == filepath:
 			return true
 	return false
-
-
-func modify_language_of_current(option: LanguageOption, locale: String) -> void:
-	var text = [option.language_name, locale]
-	current.undo_redo.create_action("Change %s language to %s" % [text])
-	var change = ModifyLanguageHistory.new(current, option.name, option.language_name, locale)
-	current.undo_redo.add_prepared_history(change)
-	current.undo_redo.commit_action()
 
 
 func new_graph_edit() -> MonologueGraphEdit:
@@ -112,10 +85,6 @@ func new_graph_edit() -> MonologueGraphEdit:
 		ge.visible = ge == graph_edit
 	
 	return graph_edit
-
-
-func select_language_for_current(selected_index: int) -> void:
-	current.current_language_index = selected_index
 
 
 func _on_tab_close_pressed(tab: int) -> void:
@@ -177,7 +146,7 @@ func _on_tab_changed(tab: int) -> void:
 		for ge in graph_edits.get_children():
 			if graph_edits.get_child(tab) == ge:
 				ge.visible = true
-				GlobalSignal.emit("load_languages", [ge.languages])
+				GlobalSignal.emit("load_languages", [ge.languages, current])
 				if ge.active_graphnode:
 					side_panel.on_graph_node_selected(ge.active_graphnode, true)
 				else:
