@@ -92,7 +92,8 @@ func _to_dict() -> Dictionary:
 		"RootNodeID": get_root_dict(list_nodes).get("ID"),
 		"ListNodes": list_nodes,
 		"Characters": characters,
-		"Variables": graph.current.variables
+		"Variables": graph.current.variables,
+		"Languages": GlobalVariables.language_switcher.get_languages().keys()
 	}
 
 
@@ -132,7 +133,8 @@ func load_project(path: String, new_graph: bool = false) -> void:
 		graph.current.name = path.get_file().trim_suffix(".json")
 		graph.current.speakers = data.get("Characters")
 		graph.current.variables = data.get("Variables")
-		graph.current.languages = data.get("Languages", [])
+		graph.current.languages = data.get("Languages")
+		GlobalSignal.emit("load_languages", data.get("Languages", []))
 		graph.current.data = data
 		
 		var node_list = data.get("ListNodes")

@@ -32,14 +32,16 @@ func from_raw_string(raw_dict: Dictionary) -> Dictionary:
 	var language_dict = GlobalVariables.language_switcher.get_languages()
 	var new_dict = {}
 	for key in raw_dict:
-		var locale_string = language_dict.get(key)
-		if locale_string:
-			new_dict[locale_string] = raw_dict.get(key)
+		var language_option = language_dict.get(key)
+		if language_option:
+			new_dict[language_option] = raw_dict.get(key)
 	return new_dict
 
 
 func to_raw_string() -> Dictionary:
+	var language_dict = GlobalVariables.language_switcher.get_languages()
 	var new_dict = {}
 	for key in raw_data:
-		new_dict[str(key)] = raw_data.get(key)
+		if language_dict.has(str(key)):
+			new_dict[str(key)] = raw_data.get(key)
 	return new_dict

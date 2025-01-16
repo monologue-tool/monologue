@@ -31,8 +31,6 @@ func _on_text_preview(text: Variant):
 
 
 func _update():
-	print(GlobalVariables.is_exporting_properties)
-	print(sentence.value)
 	_preview.text = sentence.value
 	speaker.callers["set_items"] = [get_graph_edit().speakers, "Reference", "ID"]
 	super._update()

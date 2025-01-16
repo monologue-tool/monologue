@@ -18,7 +18,6 @@ func _ready() -> void:
 	GlobalSignal.add_listener("load_languages", load_languages)
 	tree_exiting.connect(GlobalSignal.remove_listener.bind("load_languages", load_languages))
 	load_languages()
-	GlobalVariables.is_exporting_properties = false
 
 
 func get_current_language() -> LanguageOption:
@@ -29,7 +28,8 @@ func get_current_language() -> LanguageOption:
 func get_languages() -> Dictionary:
 	var option_dictionary = {}
 	for option in vbox.get_children():
-		option_dictionary[str(option)] = option
+		if is_instance_valid(option) and not option.is_queued_for_deletion():
+			option_dictionary[str(option)] = option
 	return option_dictionary
 
 
@@ -51,9 +51,13 @@ func load_languages(list: PackedStringArray = []) -> void:
 			already_added.append(list[i])
 
 
+func _on_option_removed(option_name: String) -> void:
+	pass
+
+
 func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
 	# if the new language name already exists in list, reset to old name
-	if get_languages().values().map(str).has(new):
+	if get_languages().keys().has(new):
 		option.language_name = old
 
 
@@ -75,5 +79,6 @@ func _on_btn_add_pressed(locale_name: String = "") -> LanguageOption:
 	vbox.add_child(new_option)
 	new_option.language_name = locale_name
 	new_option.language_name_changed.connect(_on_option_rename)
+	new_option.language_removed.connect(_on_option_removed)
 	new_option.pressed.connect(_on_option_selected.bind(new_option))
 	return new_option
