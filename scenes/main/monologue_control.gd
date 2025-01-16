@@ -119,8 +119,6 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	if file and not graph.is_file_opened(path):
 		if new_graph:
 			graph.new_graph_edit()
-		graph.current.file_path = path  # set path first before tab creation
-		graph.add_tab(path.get_file())
 		
 		var data = {}
 		var text = file.get_as_text()
@@ -129,12 +127,13 @@ func load_project(path: String, new_graph: bool = false) -> void:
 			data = _to_dict()
 			save()
 		
+		graph.current.file_path = path  # set path first before tab creation
+		graph.current.languages = data.get("Languages", [])  # load language before tab creation
+		graph.add_tab(path.get_file())
 		graph.current.clear()
 		graph.current.name = path.get_file().trim_suffix(".json")
 		graph.current.speakers = data.get("Characters")
 		graph.current.variables = data.get("Variables")
-		graph.current.languages = data.get("Languages")
-		GlobalSignal.emit("load_languages", data.get("Languages", []))
 		graph.current.data = data
 		
 		var node_list = data.get("ListNodes")

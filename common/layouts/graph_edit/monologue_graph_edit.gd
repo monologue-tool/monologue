@@ -16,6 +16,7 @@ var variables = []
 
 var active_graphnode: MonologueGraphNode  # for tab-switching purpose
 var connecting_mode: bool
+var current_language_index: int
 var moving_mode: bool
 var recorded_positions: Dictionary = {}  # for undo/redo positoning purpose
 var selected_nodes: Array[MonologueGraphNode] = []  # for group delete

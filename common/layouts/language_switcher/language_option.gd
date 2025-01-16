@@ -2,7 +2,7 @@ class_name LanguageOption extends Button
 
 
 signal language_name_changed(old_name: String, new_name: String, option: LanguageOption)
-signal language_removed(language_name: String)
+signal language_removed(option: LanguageOption)
 
 var language_name: String : set = set_language_name
 var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
@@ -49,7 +49,7 @@ func _on_btn_edit_pressed() -> void:
 
 
 func _on_btn_delete_pressed() -> void:
-	language_removed.emit(language_name)
+	language_removed.emit(self)
 	queue_free()
 
 

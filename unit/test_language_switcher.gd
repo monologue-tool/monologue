@@ -23,7 +23,7 @@ func test_language_get_raw_data_deleted():
 	# when user sets a value in a language and then deletes that language
 	var localizable = auto_free(Localizable.new(null))
 	localizable.value = "im a test"
-	runner.invoke("_on_btn_add_pressed", "Finnish")
+	runner.invoke("add_language", "Finnish")
 	runner.set_property("selected_index", 1)
 	localizable.value = "olen testi"
 	runner.get_property("vbox").get_child(1)._on_btn_delete_pressed()
@@ -84,6 +84,22 @@ func test_language_set_value_and_switch_locales():
 	
 	GlobalVariables.is_exporting_properties = true
 	assert_dict(localizable.value).is_equal({"Deutsch": de, "Français": fr, "日本語": jp})
+
+
+func test_load_languages():
+	runner.invoke("load_languages", ["English", "Spanish"])
+	var vbox: VBoxContainer = runner.get_property("vbox")
+	assert_int(vbox.get_child_count()).is_equal(2)
+	assert_str(str(vbox.get_child(0))).is_equal("English")
+	assert_str(str(vbox.get_child(1))).is_equal("Spanish")
+
+
+func test_load_languages_duplicate():
+	runner.invoke("load_languages", ["English", "Irish", "English", "English"])
+	var vbox: VBoxContainer = runner.get_property("vbox")
+	assert_int(vbox.get_child_count()).is_equal(2)
+	assert_str(str(vbox.get_child(0))).is_equal("English")
+	assert_str(str(vbox.get_child(1))).is_equal("Irish")
 
 
 func after_test():
