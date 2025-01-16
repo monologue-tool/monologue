@@ -88,8 +88,8 @@ func set_label_visible(_can_see: bool) -> void:
 
 
 func propagate(data: Variant) -> void:
-	clear_list()
 	super.propagate(data)
+	clear_list()
 	data_list = get_callback.call()
 	for reference in data_list:
 		append_list_item(reference)
