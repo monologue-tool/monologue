@@ -35,3 +35,4 @@ func _set_name(locale: String) -> void:
 	var index = option.get_index()
 	option.set_language_name(locale)
 	graph_edit.languages[index] = locale
+	GlobalSignal.emit("show_languages")

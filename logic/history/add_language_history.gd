@@ -24,9 +24,11 @@ func add_language_option() -> void:
 	else:
 		node_name = option.name
 	graph_edit.languages = GlobalVariables.language_switcher.get_languages().keys()
+	GlobalSignal.emit("show_languages")
 
 
 func delete_language_option() -> void:
 	var node = GlobalVariables.language_switcher.vbox.get_node(node_name)
 	node.queue_free()
 	graph_edit.languages.erase(language_name)
+	GlobalSignal.emit("show_languages")

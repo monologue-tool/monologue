@@ -20,7 +20,9 @@ func _ready() -> void:
 	dropdown_container.hide()
 	GlobalVariables.language_switcher = self
 	GlobalSignal.add_listener("load_languages", load_languages)
+	GlobalSignal.add_listener("show_languages", show_dropdown)
 	tree_exiting.connect(GlobalSignal.remove_listener.bind("load_languages", load_languages))
+	tree_exiting.connect(GlobalSignal.remove_listener.bind("show_languages", show_dropdown))
 	load_languages()
 
 
@@ -69,6 +71,11 @@ func load_languages(list: PackedStringArray = [], graph: MonologueGraphEdit = nu
 			already_added.append(list[i])
 
 
+func show_dropdown(can_see: bool = true) -> void:
+	dropdown_container.visible = can_see
+	icon = arrow_down if can_see else arrow_left
+
+
 func _on_option_removed(option: LanguageOption) -> void:
 	var action = [option.language_name, graph_edit.file_path]
 	graph_edit.undo_redo.create_action("Delete %s language from %s" % action)
@@ -95,12 +102,7 @@ func _on_option_selected(option: LanguageOption) -> void:
 
 
 func _on_pressed() -> void:
-	dropdown_container.visible = !dropdown_container.visible
-	
-	if dropdown_container.visible:
-		icon = arrow_down
-	else:
-		icon = arrow_left
+	show_dropdown(!dropdown_container.visible)
 
 
 func _on_btn_add_pressed() -> void:
