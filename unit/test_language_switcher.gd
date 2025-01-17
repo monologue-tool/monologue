@@ -43,6 +43,16 @@ func test_language_get_value_renamed():
 	assert_array(runner.invoke("get_languages").keys()).is_equal(["Martian"])
 
 
+func test_language_get_value_nonexist_after_switch():
+	runner.invoke("load_languages", ["Alien", "Broken"])
+	var localizable = auto_free(Localizable.new(null))
+	localizable.value = "hello"
+	runner.set_property("selected_index", 1)
+	assert_str(localizable.value).is_equal("")
+	GlobalVariables.is_exporting_properties = true
+	assert_dict(localizable.value).is_equal({"Alien": "hello"})
+
+
 func test_language_set_value_locale_dictionary():
 	# this scenario happens when .json is first loaded and the value
 	# is the entire raw locale dictionary rather than the actual value

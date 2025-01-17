@@ -4,6 +4,14 @@ class_name Localizable extends Property
 
 ## Stores the value in a locale dictionary.
 var raw_data: Dictionary = {}
+## The value to be initialized on a new locale. Empty string by default.
+var initialized_value: Variant
+
+
+func _init(ui_scene: PackedScene, ui_setters: Dictionary = {},
+			default: Variant = "") -> void:
+	super(ui_scene, ui_setters, default)
+	initialized_value = default
 
 
 ## Gets the current language from the language switcher.
@@ -17,7 +25,7 @@ func get_locale() -> LanguageOption:
 func get_value() -> Variant:
 	if GlobalVariables.is_exporting_properties:
 		return to_raw_string()
-	return raw_data.get(get_locale(), super.get_value())
+	return raw_data.get(get_locale(), initialized_value)
 
 
 func set_value(new_value: Variant) -> void:

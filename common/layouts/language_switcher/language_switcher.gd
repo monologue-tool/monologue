@@ -21,8 +21,6 @@ func _ready() -> void:
 	GlobalVariables.language_switcher = self
 	GlobalSignal.add_listener("load_languages", load_languages)
 	GlobalSignal.add_listener("show_languages", show_dropdown)
-	tree_exiting.connect(GlobalSignal.remove_listener.bind("load_languages", load_languages))
-	tree_exiting.connect(GlobalSignal.remove_listener.bind("show_languages", show_dropdown))
 	load_languages()
 
 
@@ -71,6 +69,16 @@ func load_languages(list: PackedStringArray = [], graph: MonologueGraphEdit = nu
 			already_added.append(list[i])
 
 
+func select_by_name(locale: String, refresh: bool = true) -> void:
+	var selected_option: LanguageOption
+	for child in vbox.get_children():
+		if child.language_name == locale:
+			selected_option = child
+			break
+	if selected_option:
+		_on_option_selected(selected_option, refresh)
+
+
 func show_dropdown(can_see: bool = true) -> void:
 	dropdown_container.visible = can_see
 	icon = arrow_down if can_see else arrow_left
@@ -85,16 +93,18 @@ func _on_option_removed(option: LanguageOption) -> void:
 
 
 func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
-	var act_text = [option.language_name, new]
-	graph_edit.undo_redo.create_action("Change %s language to %s" % [act_text])
+	graph_edit.undo_redo.create_action("Change %s language to %s" % [old, new])
 	var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
 	graph_edit.undo_redo.add_prepared_history(change)
 	graph_edit.undo_redo.commit_action()
 
 
-func _on_option_selected(option: LanguageOption) -> void:
+func _on_option_selected(option: LanguageOption, refresh: bool = true) -> void:
 	selected_index = option.get_index()
 	graph_edit.current_language_index = selected_index
+	text = option.language_name
+	if refresh:
+		GlobalSignal.emit("refresh")  # update all localizable values
 
 
 func _on_pressed() -> void:

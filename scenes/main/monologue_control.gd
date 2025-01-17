@@ -11,6 +11,7 @@ func _ready():
 	
 	GlobalSignal.add_listener("add_graph_node", add_node_from_global)
 	GlobalSignal.add_listener("select_new_node", _select_new_node)
+	GlobalSignal.add_listener("refresh", refresh)
 	GlobalSignal.add_listener("load_project", load_project)
 	GlobalSignal.add_listener("test_trigger", test_project)
 	GlobalSignal.add_listener("save", save)
@@ -107,6 +108,14 @@ func load_project(path: String, new_graph: bool = false) -> void:
 		_connect_nodes(node_list)
 		graph_switcher.add_root()
 		graph_switcher.current.update_node_positions()
+
+
+## Reload the current graph edit and side panel values.
+func refresh() -> void:
+	for node in graph_switcher.current.get_nodes():
+		node._update()
+	if side_panel_node.visible:
+		side_panel_node.on_graph_node_selected(side_panel_node.selected_node, true)
 
 
 func save():

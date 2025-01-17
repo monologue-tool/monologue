@@ -25,7 +25,7 @@ func line_edit_unfocus() -> void:
 	line_edit.editable = false
 	line_edit.selecting_enabled = false
 	line_edit.flat = true
-	line_edit.mouse_filter = Control.MOUSE_FILTER_PASS
+	line_edit.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	add_theme_stylebox_override("focus", line_edit_unfocus_stylebox)
 
