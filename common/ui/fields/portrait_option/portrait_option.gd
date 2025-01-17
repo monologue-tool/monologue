@@ -30,6 +30,10 @@ func _ready() -> void:
 	active_stylebox.set_corner_radius_all(5)
 
 
+func propagate(value: Variant) -> void:
+	super.propagate(value)
+
+
 func set_option_name(new_name: String) -> void:
 	line_edit.text = new_name
 

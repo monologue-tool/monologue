@@ -35,11 +35,12 @@ func add_portrait(_option_dict: Dictionary = {}) -> AbstractPortraitOption:
 	var portrait_id: String = IDGen.generate(5)
 	var option_name: String = ""
 	
-	new_portrait.id.setters["value"] = portrait_id
+	new_portrait.id.value = portrait_id
+	new_portrait.idx.value = _portrait_references.size()
 	new_portrait.portrait.callers["set_option_name"] = [option_name if option_name != "" else "new portrait %s" % (_portrait_references.size() + 1)]
+	#new_portrait.portrait.setters["_to_dict"] = _to_dict_portrait.bind(portrait_id)
 	new_portrait.portrait.connecters[_on_portrait_option_pressed] = "pressed"
 	new_portrait.portrait.connecters[_on_portrait_option_set_to_default] = "set_to_default"
-	
 	
 	_portrait_references.append(new_portrait)
 	
@@ -107,3 +108,7 @@ func _get_all_fields() -> Array:
 func _from_dict(dict: Dictionary) -> void:
 	load_portraits(dict.get("Portraits", []))
 	super._from_dict(dict)
+
+
+func _to_dict() -> Dictionary:
+	return super._to_dict()

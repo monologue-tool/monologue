@@ -23,7 +23,6 @@ func _init(node: PortraitListSection):
 func update_portrait(old_value: Variant, new_value: Variant):
 	var old_list = root.portraits.value.duplicate(true)
 	var new_list = root.portraits.value.duplicate(true)
-	new_list[idx.value] = new_value
 	
 	graph.undo_redo.create_action("Portrait %s => %s" % [str(old_value), str(new_value)])
 	graph.undo_redo.add_do_property(root.portraits, "value", new_list)
@@ -45,5 +44,5 @@ func _from_dict(dict: Dictionary) -> void:
 		portrait.setters["portrait_index"] = idx.value
 
 
-func _to_dict():
+func _to_dict() -> Dictionary:
 	return { "ID": id.value, "Portrait": portrait.value, "EditorIndex": idx.value }
