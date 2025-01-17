@@ -1,18 +1,29 @@
 extends GdUnitTestSuite
 
 
-## Scene runner for LanguageSwitcher.
 var runner
+var mock_graph_edit
 
 
 func before_test():
 	runner = scene_runner("res://common/layouts/language_switcher/language_switcher.tscn")
-	var mock_graph_edit = mock(MonologueGraphEdit)
+	mock_graph_edit = mock(MonologueGraphEdit)
 	runner.set_property("graph_edit", mock_graph_edit)
 
 
+func test_delete_language():
+	runner.invoke("load_languages", ["One", "Two", "Three", "Four"], mock_graph_edit)
+	runner.set_property("selected_index", 3)
+	var four = runner.get_property("vbox").get_child(3)
+	mock_graph_edit.current_language_index = 3
+	var deletion = DeleteLanguageHistory.new(mock_graph_edit, "Four", four.name)
+	deletion.redo()
+	assert_int(mock_graph_edit.current_language_index).is_equal(2)
+	assert_int(runner.get_property("selected_index")).is_equal(2)
+
+
 func test_first_language_does_not_show_delete_button():
-	runner.invoke("load_languages", ["Sindarin", "Khuzdul"])
+	runner.invoke("load_languages", ["Sindarin", "Khuzdul"], mock_graph_edit)
 	var first_option: LanguageOption = runner.get_property("vbox").get_child(0)
 	assert_str(first_option.line_edit.text).is_equal("Sindarin")
 	assert_bool(first_option.del_button.visible).is_false()
@@ -44,7 +55,7 @@ func test_language_get_value_renamed():
 
 
 func test_language_get_value_nonexist_after_switch():
-	runner.invoke("load_languages", ["Alien", "Broken"])
+	runner.invoke("load_languages", ["Alien", "Broken"], mock_graph_edit)
 	var localizable = auto_free(Localizable.new(null))
 	localizable.value = "hello"
 	runner.set_property("selected_index", 1)
@@ -56,14 +67,14 @@ func test_language_get_value_nonexist_after_switch():
 func test_language_set_value_locale_dictionary():
 	# this scenario happens when .json is first loaded and the value
 	# is the entire raw locale dictionary rather than the actual value
-	runner.invoke("load_languages", [])
+	runner.invoke("load_languages", [], mock_graph_edit)
 	var localizable = auto_free(Localizable.new(null))
 	localizable.value = {"English": "test"}
 	assert_str(localizable.value).is_equal("test")
 
 
 func test_language_set_value_locale_dictionary_non_default():
-	runner.invoke("load_languages", ["Español", "Italiano"])
+	runner.invoke("load_languages", ["Español", "Italiano"], mock_graph_edit)
 	runner.set_property("selected_index", 1)
 	var localizable = auto_free(Localizable.new(null))
 	localizable.value = {"Español": "hola soy una prueba", "Italiano": "ciao sono un test"}
@@ -78,7 +89,7 @@ func test_language_set_value_string():
 
 
 func test_language_set_value_and_switch_locales():
-	runner.invoke("load_languages", ["Deutsch", "Français", "日本語"])
+	runner.invoke("load_languages", ["Deutsch", "Français", "日本語"], mock_graph_edit)
 	var localizable = auto_free(Localizable.new(null))
 	var de = "hallo! ich bin ein test"
 	localizable.value = de
@@ -99,7 +110,7 @@ func test_language_set_value_and_switch_locales():
 
 
 func test_load_languages():
-	runner.invoke("load_languages", ["English", "Spanish"])
+	runner.invoke("load_languages", ["English", "Spanish"], mock_graph_edit)
 	var vbox: VBoxContainer = runner.get_property("vbox")
 	assert_int(vbox.get_child_count()).is_equal(2)
 	assert_str(str(vbox.get_child(0))).is_equal("English")
@@ -107,7 +118,7 @@ func test_load_languages():
 
 
 func test_load_languages_duplicate():
-	runner.invoke("load_languages", ["English", "Irish", "English", "English"])
+	runner.invoke("load_languages", ["English", "Irish", "English", "English"], mock_graph_edit)
 	var vbox: VBoxContainer = runner.get_property("vbox")
 	assert_int(vbox.get_child_count()).is_equal(2)
 	assert_str(str(vbox.get_child(0))).is_equal("English")

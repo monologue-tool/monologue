@@ -32,3 +32,9 @@ func delete_language_option() -> void:
 	node.queue_free()
 	graph_edit.languages.erase(language_name)
 	GlobalSignal.emit("show_languages")
+	
+	# update selection if selected_index exceeds language count
+	var languages = GlobalVariables.language_switcher.get_languages()
+	if GlobalVariables.language_switcher.selected_index >= languages.size():
+		var select = languages.values()[languages.size() - 1]
+		GlobalVariables.language_switcher._on_option_selected(select)
