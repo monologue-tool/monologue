@@ -77,23 +77,19 @@ func show_dropdown(can_see: bool = true) -> void:
 
 
 func _on_option_removed(option: LanguageOption) -> void:
-	var action = [option.language_name, graph_edit.file_path]
-	graph_edit.undo_redo.create_action("Delete %s language from %s" % action)
+	var act_text = [option.language_name, graph_edit.file_path]
+	graph_edit.undo_redo.create_action("Delete %s language from %s" % act_text)
 	var deletion = DeleteLanguageHistory.new(graph_edit, option.language_name, option.name)
 	graph_edit.undo_redo.add_prepared_history(deletion)
 	graph_edit.undo_redo.commit_action()
 
 
 func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
-	# if the new language name already exists in list, reset to old name
-	if get_languages().keys().has(new):
-		option.language_name = old
-	else:
-		var action = [option.language_name, new]
-		graph_edit.undo_redo.create_action("Change %s language to %s" % [action])
-		var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
-		graph_edit.undo_redo.add_prepared_history(change)
-		graph_edit.undo_redo.commit_action()
+	var act_text = [option.language_name, new]
+	graph_edit.undo_redo.create_action("Change %s language to %s" % [act_text])
+	var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
+	graph_edit.undo_redo.add_prepared_history(change)
+	graph_edit.undo_redo.commit_action()
 
 
 func _on_option_selected(option: LanguageOption) -> void:
