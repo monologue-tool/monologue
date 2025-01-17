@@ -1,8 +1,8 @@
 class_name PortraitOption extends MonologueField
 
-signal pressed
-signal set_to_default
-signal name_submitted
+signal pressed(this_option: PortraitOption)
+signal set_to_default(this_option: PortraitOption)
+signal name_submitted(this_option: PortraitOption)
 
 @onready var line_edit: LineEdit = %LineEdit
 @onready var btn_star := $MarginContainer/HBoxContainer/HBoxContainer/btnStar
@@ -30,6 +30,10 @@ func _ready() -> void:
 	active_stylebox.set_corner_radius_all(5)
 
 
+func set_option_name(new_name: String) -> void:
+	line_edit.text = new_name
+
+
 func line_edit_unfocus() -> void:
 	line_edit.editable = false
 	line_edit.selecting_enabled = false
@@ -45,6 +49,7 @@ func _on_btn_edit_pressed() -> void:
 	line_edit.selecting_enabled = true
 	line_edit.flat = false
 	line_edit.mouse_filter = Control.MOUSE_FILTER_STOP
+	line_edit.grab_focus()
 	
 	button.hide()
 	
@@ -66,7 +71,7 @@ func _on_btn_star_pressed() -> void:
 func set_default() -> void:
 	is_default = true
 	btn_star.texture_normal = star_full_icon
-	set_to_default.emit()
+	set_to_default.emit(self)
 
 
 func release_default() -> void:
@@ -82,10 +87,11 @@ func set_active() -> void:
 func release_active() -> void:
 	is_active = false
 	remove_theme_stylebox_override("panel")
+	line_edit_unfocus()
 
 
 func _on_button_pressed() -> void:
-	pressed.emit()
+	pressed.emit(self)
 
 
 func _on_button_gui_input(event: InputEvent) -> void:

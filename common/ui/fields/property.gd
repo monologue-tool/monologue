@@ -19,6 +19,8 @@ var field: MonologueField
 var scene: PackedScene
 ## Dictionary of field property names to set values.
 var setters: Dictionary
+## Dictionary of callables to connect to field signals.
+var connecters: Dictionary
 ## Temporary boolean to uncollapse the field when first shown if set to true.
 var uncollapse: bool
 ## Actual value of the property.
@@ -88,6 +90,11 @@ func show(panel: Control, child_index: int = -1) -> MonologueField:
 	
 	for method in callers.keys():
 		field.callv(method, callers.get(method, []))
+	
+	for callable in connecters.keys():
+		var signal_name: String = connecters.get(callable, "")
+		if field.has_signal(signal_name):
+			field.connect(connecters.get(callable), callable)
 	
 	field.propagate(value)
 	field.connect("field_changed", preview.emit)

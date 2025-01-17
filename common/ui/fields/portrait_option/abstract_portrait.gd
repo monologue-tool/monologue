@@ -17,7 +17,6 @@ var root: PortraitListSection
 func _init(node: PortraitListSection):
 	root = node
 	portrait.connect("change", update_portrait)
-	#portrait.connect("display", graph.set_selected.bind(root))
 	portrait.setters["graph_edit"] = graph
 
 
