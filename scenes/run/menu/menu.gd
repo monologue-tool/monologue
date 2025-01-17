@@ -15,6 +15,7 @@ func load_scene(scene):
 	var main_scene = scene.instantiate()
 	main_scene.from_node = from_node
 	main_scene.file_path = file_path
+	main_scene.locale = str(GlobalVariables.language_switcher.get_current_language())
 	get_window().add_child(main_scene)
 	
 	queue_free()
