@@ -34,7 +34,7 @@ func set_count(number: int) -> void:
 	count_label.text = "Option %d" % number
 
 
-func update_parent(_old_value, _new_value) -> void:
+func update_parent(_old_value = "", _new_value = "") -> void:
 	var old_option = choice_node.options.value[get_index()]
 	var new_options = choice_node.options.value.duplicate(true)
 	new_options[get_index()] = old_option.merged(_to_dict(), true)

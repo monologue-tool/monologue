@@ -68,11 +68,8 @@ func link_option(option: OptionNode, link: bool = true):
 
 
 func reload_preview() -> void:
-	# reset options.value so that it can react to language switching
-	#for i in get_child_count():
-		#var option_node: OptionNode = get_child(i)
-		#options.value[i]["Option"].merge(option_node.option.to_raw_value(), true)
-	_refresh(options.value)
+	var nodes = get_children().map(func(o): return o._to_dict())
+	_refresh(nodes)
 
 
 ## Update the NextID of this choice node on the given port.

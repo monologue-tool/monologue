@@ -31,6 +31,11 @@ func change_properties() -> void:
 	for change in changes:
 		node[change.property].propagate(change.after)
 		node[change.property].value = change.after
+	
+	GlobalSignal.emit.call_deferred("refresh")
+	if node is OptionNode:
+		print(node.choice_node.get_children().map(func(x): return x.option.value))
+		#print(node.choice_node.options.value)
 
 
 func revert_properties() -> void:
@@ -39,8 +44,19 @@ func revert_properties() -> void:
 	for change in changes:
 		node[change.property].propagate(change.before)
 		node[change.property].value = change.before
+	
+	GlobalSignal.emit.call_deferred("refresh")
+	if node is OptionNode:
+		print(node.choice_node.get_children().map(func(x): return x.option.value))
+		#print(node.choice_node.options.value)
 
 
 func reset_language() -> void:
 	if GlobalVariables.language_switcher:
 		GlobalVariables.language_switcher.select_by_name(locale, false)
+
+
+func update_option(node) -> void:
+	if node is OptionNode:
+		node.update_parent()
+		node.choice_node.reload_preview()
