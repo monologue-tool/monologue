@@ -38,7 +38,7 @@ func get_current_language() -> LanguageOption:
 	return vbox.get_child(selected_index)
 
 
-## Returns language options in Dictionary format, where key = language string name.
+## Returns language options in Dictionary format, where key = language name.
 func get_languages() -> Dictionary:
 	var option_dictionary = {}
 	for option in vbox.get_children():

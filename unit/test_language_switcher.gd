@@ -40,17 +40,15 @@ func test_language_get_raw_data_deleted():
 	runner.set_property("selected_index", 1)
 	localizable.value = "olen testi"
 	runner.get_property("vbox").get_child(1)._on_btn_delete_pressed()
-	GlobalVariables.is_exporting_properties = true
-	assert_dict(localizable.value).is_equal({"English": "im a test"})
+	assert_dict(localizable.to_raw_value()).is_equal({"English": "im a test"})
 
 
 func test_language_get_value_renamed():
-	GlobalVariables.is_exporting_properties = true
 	var localizable = auto_free(Localizable.new(null))
 	localizable.value = "beep boop"
-	assert_dict(localizable.value).is_equal({"English": "beep boop"})
+	assert_dict(localizable.to_raw_value()).is_equal({"English": "beep boop"})
 	runner.get_property("vbox").get_child(0).set_language_name("Martian")
-	assert_dict(localizable.value).is_equal({"Martian": "beep boop"})
+	assert_dict(localizable.to_raw_value()).is_equal({"Martian": "beep boop"})
 	assert_array(runner.invoke("get_languages").keys()).is_equal(["Martian"])
 
 
@@ -60,8 +58,7 @@ func test_language_get_value_nonexist_after_switch():
 	localizable.value = "hello"
 	runner.set_property("selected_index", 1)
 	assert_str(localizable.value).is_equal("")
-	GlobalVariables.is_exporting_properties = true
-	assert_dict(localizable.value).is_equal({"Alien": "hello"})
+	assert_dict(localizable.to_raw_value()).is_equal({"Alien": "hello"})
 
 
 func test_language_set_value_locale_dictionary():
@@ -84,8 +81,7 @@ func test_language_set_value_locale_dictionary_non_default():
 func test_language_set_value_string():
 	var localizable = auto_free(Localizable.new(null))
 	localizable.value = "test"
-	GlobalVariables.is_exporting_properties = true
-	assert_dict(localizable.value).is_equal({"English": "test"})
+	assert_dict(localizable.to_raw_value()).is_equal({"English": "test"})
 
 
 func test_language_set_value_and_switch_locales():
@@ -105,8 +101,7 @@ func test_language_set_value_and_switch_locales():
 	localizable.value = jp
 	assert_str(localizable.value).is_equal(jp)
 	
-	GlobalVariables.is_exporting_properties = true
-	assert_dict(localizable.value).is_equal({"Deutsch": de, "Français": fr, "日本語": jp})
+	assert_dict(localizable.to_raw_value()).is_equal({"Deutsch": de, "Français": fr, "日本語": jp})
 
 
 func test_load_languages():
@@ -126,5 +121,4 @@ func test_load_languages_duplicate():
 
 
 func after_test():
-	GlobalVariables.is_exporting_properties = false
 	GlobalVariables.language_switcher = null

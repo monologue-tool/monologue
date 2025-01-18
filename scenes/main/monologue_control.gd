@@ -28,7 +28,6 @@ func _input(event):
 
 func _to_dict() -> Dictionary:
 	var list_nodes: Array[Dictionary] = []
-	GlobalVariables.is_exporting_properties = true
 	
 	# compile all node data of the current graph edit
 	for node in graph_switcher.current.get_nodes():
@@ -55,7 +54,6 @@ func _to_dict() -> Dictionary:
 			"Reference": "_NARRATOR",
 			"ID": 0
 		})
-	GlobalVariables.is_exporting_properties = false
 	
 	return {
 		"EditorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
@@ -113,7 +111,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 ## Reload the current graph edit and side panel values.
 func refresh() -> void:
 	for node in graph_switcher.current.get_nodes():
-		node._update()
+		node.reload_preview()
 	if side_panel_node.visible:
 		side_panel_node.on_graph_node_selected(side_panel_node.selected_node, true)
 

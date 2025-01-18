@@ -128,6 +128,11 @@ func is_editable() -> bool:
 	return false
 
 
+## Reload the preview text of the graph node, if any.
+func reload_preview() -> void:
+	pass
+
+
 func _from_dict(dict: Dictionary) -> void:
 	for key in dict.keys():
 		var property = get(key.to_snake_case())
@@ -167,8 +172,11 @@ func _to_dict() -> Dictionary:
 
 func _to_fields(dict: Dictionary) -> void:
 	for property_name in get_property_names():
-		if get(property_name).visible:
-			dict[Util.to_key_name(property_name)] = get(property_name).value
+		var property = get(property_name)
+		var is_raw = property is Localizable
+		if property.visible:
+			var value = property.to_raw_value() if is_raw else property.value
+			dict[Util.to_key_name(property_name)] = value
 
 
 func _to_next(dict: Dictionary, key: String = "NextID") -> void:

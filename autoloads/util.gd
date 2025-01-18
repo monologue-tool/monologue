@@ -39,6 +39,14 @@ func is_equal(a: Variant, b: Variant) -> bool:
 	return false
 
 
+## Check if all elements of array_a is inside of array_b.
+func is_inside(array_a: Array, array_b: Array) -> bool:
+	for element in array_a:
+		if not array_b.has(element):
+			return false
+	return true
+
+
 ## Converts a snake case name to JSON key format with capitalized "ID".
 func to_key_name(snake_case_name: String, delimiter: String = ""):
 	var words = snake_case_name.capitalize().split(" ")

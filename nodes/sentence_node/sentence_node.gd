@@ -18,6 +18,10 @@ func _ready():
 	voiceline.setters["base_path"] = get_graph_edit().file_path
 
 
+func reload_preview() -> void:
+	_preview.text = sentence.value
+
+
 func _from_dict(dict: Dictionary):
 	# special handling for backwards compatibility v2.x
 	speaker.value = dict.get("SpeakerID", 0)
@@ -31,7 +35,7 @@ func _on_text_preview(text: Variant):
 
 
 func _update():
-	_preview.text = sentence.value
+	reload_preview()
 	speaker.callers["set_items"] = [get_graph_edit().speakers, "Reference", "ID"]
 	super._update()
 

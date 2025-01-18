@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://common/ui/fields/list/monologue_list.gd" id="1_8kx3n"]
 [ext_resource type="PackedScene" uid="uid://hvv74un17dp0" path="res://common/ui/fields/collapsible_field/collapsible_field.tscn" id="2_jih45"]
 
-
 [node name="MonologueList" type="VBoxContainer"]
 offset_right = 200.0
 offset_bottom = 60.0

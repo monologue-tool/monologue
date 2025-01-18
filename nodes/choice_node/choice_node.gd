@@ -29,8 +29,12 @@ func add_option(reference: Dictionary = {}) -> OptionNode:
 	
 	if reference:
 		new_option._from_dict(reference)
-		new_option.preview_label.text = \
-				reference.get("Option", reference.get("Sentence", ""))
+		var value = reference.get("Option", reference.get("Sentence", ""))
+		if value is Dictionary:
+			var switcher = GlobalVariables.language_switcher
+			var locale = str(switcher.get_current_language())
+			value = value.get(locale, "")
+		new_option.preview_label.text = value
 		link_option(new_option)
 	
 	var is_first = get_child_count() <= 1
@@ -61,6 +65,14 @@ func link_option(option: OptionNode, link: bool = true):
 				get_parent().connect_node(name, index, next_node.name, 0)
 			else:
 				get_parent().disconnect_node(name, index, next_node.name, 0)
+
+
+func reload_preview() -> void:
+	# reset options.value so that it can react to language switching
+	#for i in get_child_count():
+		#var option_node: OptionNode = get_child(i)
+		#options.value[i]["Option"].merge(option_node.option.to_raw_value(), true)
+	_refresh(options.value)
 
 
 ## Update the NextID of this choice node on the given port.
