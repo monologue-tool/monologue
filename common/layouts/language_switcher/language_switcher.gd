@@ -122,9 +122,16 @@ func _on_option_rename(old: String, new: String, option: LanguageOption) -> void
 	var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
 	graph_edit.undo_redo.add_prepared_history(change)
 	graph_edit.undo_redo.commit_action()
+	
+	var selected_option: LanguageOption = vbox.get_children()[selected_index]
+	_on_option_selected(selected_option, false)
 
 
 func _on_option_selected(option: LanguageOption, refresh: bool = true) -> void:
+	for opt: LanguageOption in vbox.get_children():
+		opt.unselect()
+	option.select()
+	
 	selected_index = option.get_index()
 	if graph_edit:
 		graph_edit.current_language_index = selected_index
