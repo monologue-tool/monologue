@@ -29,25 +29,21 @@ slot/0/draw_stylebox = false
 script = ExtResource("3_su5mj")
 titlebar_color = Color(0, 0.505882, 0.501961, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="HBox" type="HBoxContainer" parent="MarginContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Label" type="Label" parent="MarginContainer/HBox"]
+[node name="Label" type="Label" parent="HBox"]
 layout_mode = 2
 text = "Play"
 
-[node name="AudioLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="AudioLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xwfg8")
 text = "nothing"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="LoopLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="LoopLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xwfg8")
 text = "and loop"

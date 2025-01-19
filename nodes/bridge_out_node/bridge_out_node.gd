@@ -2,7 +2,7 @@
 class_name BridgeOutNode extends MonologueGraphNode
 
 
-@onready var number_selector = $CenterContainer/HBoxContainer/LinkNumber
+@onready var number_selector = $HBoxContainer/LinkNumber
 
 
 func _ready():

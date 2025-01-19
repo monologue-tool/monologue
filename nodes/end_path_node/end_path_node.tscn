@@ -5,7 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://dccbv4x7joj8a" path="res://ui/assets/icons/exit.png" id="3_w7usk"]
 
 [node name="EndPathNode" type="GraphNode"]
-offset_right = 240.0
+custom_minimum_size = Vector2(130, 0)
+offset_right = 92.0
 offset_bottom = 91.0
 scale = Vector2(0.6, 0.6)
 mouse_filter = 1

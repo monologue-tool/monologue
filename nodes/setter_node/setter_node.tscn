@@ -5,10 +5,6 @@
 [ext_resource type="Script" path="res://nodes/setter_node/setter_node.gd" id="3_3ny3s"]
 [ext_resource type="StyleBox" uid="uid://bmb6fo20hn20m" path="res://ui/theme_default/node_value.stylebox" id="4_xcnds"]
 
-
-
-
-
 [sub_resource type="Theme" id="Theme_llmqa"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_v4ya3"]
@@ -16,7 +12,7 @@ font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="SetterNode" type="GraphNode" groups=["graph_nodes"]]
 offset_right = 302.0
-offset_bottom = 126.0
+offset_bottom = 116.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = SubResource("Theme_llmqa")
@@ -42,59 +38,51 @@ slot/1/draw_stylebox = false
 script = ExtResource("3_3ny3s")
 titlebar_color = Color(0.733333, 0.392157, 0.188235, 1)
 
-[node name="OptionContainer" type="MarginContainer" parent="."]
+[node name="OptionContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="HBox" type="HBoxContainer" parent="OptionContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="DescriptorLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="DescriptorLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
 text = "Enable option"
 
-[node name="OptionIdLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="OptionIdLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xcnds")
 text = "option id"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="QuestionLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="QuestionLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
 text = "?"
 
-[node name="BoolLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="BoolLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xcnds")
 text = "value"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="VariableContainer" type="MarginContainer" parent="."]
+[node name="VariableContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="HBox" type="HBoxContainer" parent="VariableContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="DescriptorLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="DescriptorLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
 text = "Set"
 
-[node name="VariableLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="VariableLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xcnds")
 text = "variable"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="OperatorLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="OperatorLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xcnds")
 text = "operator"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ValueLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="ValueLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_xcnds")
 text = "value

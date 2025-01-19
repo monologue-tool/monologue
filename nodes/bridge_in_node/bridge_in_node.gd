@@ -6,7 +6,7 @@ class_name BridgeInNode extends MonologueGraphNode
 var bridge_out_scene = preload("res://nodes/bridge_out_node/bridge_out_node.tscn")
 
 ## Spinner control which selects what number to bridge to.
-@onready var number_selector: SpinBox = $CenterContainer/HBoxContainer/LinkNumber
+@onready var number_selector: SpinBox = $HBoxContainer/LinkNumber
 
 
 func _ready():

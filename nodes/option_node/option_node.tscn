@@ -2,23 +2,21 @@
 
 [ext_resource type="Script" path="res://nodes/option_node/option_node.gd" id="1_67u8k"]
 
-
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5mv5j"]
 content_margin_left = 10.0
-content_margin_top = 5.0
+content_margin_top = 10.0
 content_margin_right = 10.0
-content_margin_bottom = 5.0
+content_margin_bottom = 10.0
 bg_color = Color(0.192157, 0.192157, 0.211765, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.301961, 0.301961, 0.301961, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 corner_detail = 12
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_32su8"]
@@ -26,8 +24,10 @@ corner_detail = 12
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vd2tk"]
 
 [node name="OptionNode" type="GraphNode"]
-offset_right = 341.0
-offset_bottom = 112.0
+custom_minimum_size = Vector2(0, 70)
+offset_right = 412.0
+offset_bottom = 102.0
+size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_5mv5j")
 theme_override_styles/titlebar = SubResource("StyleBoxEmpty_32su8")
@@ -47,25 +47,17 @@ script = ExtResource("1_67u8k")
 titlebar_color = Color(0.835294, 0.317647, 0.376471, 1)
 show_titlebar = false
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
-
-[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="CountLabel" type="Label" parent="MarginContainer/VBox"]
+[node name="CountLabel" type="Label" parent="VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.686275, 0.686275, 0.686275, 1)
 text = "Option 1"
 text_overrun_behavior = 3
 
-[node name="PreviewLabel" type="Label" parent="MarginContainer/VBox"]
+[node name="PreviewLabel" type="Label" parent="VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.686275, 0.686275, 0.686275, 1)
 clip_text = true

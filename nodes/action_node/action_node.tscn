@@ -9,6 +9,7 @@
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="ActionNode" type="GraphNode" node_paths=PackedStringArray("arg_box", "action_label", "no_args_label") groups=["graph_nodes"]]
+custom_minimum_size = Vector2(360, 0)
 offset_right = 343.0
 offset_bottom = 87.0
 size_flags_horizontal = 0
@@ -34,33 +35,29 @@ slot/1/right_icon = ExtResource("2_revt5")
 slot/1/draw_stylebox = false
 script = ExtResource("3_s1gpj")
 arg_box = NodePath("ArgBox")
-action_label = NodePath("CallContainer/CallBox/ActionLabel")
-no_args_label = NodePath("CallContainer/CallBox/NoArgsLabel")
+action_label = NodePath("CallBox/ActionLabel")
+no_args_label = NodePath("CallBox/NoArgsLabel")
 titlebar_color = Color(0.733333, 0.392157, 0.188235, 1)
 
-[node name="CallContainer" type="MarginContainer" parent="."]
+[node name="CallBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="CallBox" type="HBoxContainer" parent="CallContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="CallLabel" type="Label" parent="CallContainer/CallBox"]
+[node name="CallLabel" type="Label" parent="CallBox"]
 layout_mode = 2
 text = "Call"
 
-[node name="ActionLabel" type="Label" parent="CallContainer/CallBox"]
+[node name="ActionLabel" type="Label" parent="CallBox"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_286lp")
 text = "custom action"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="WithLabel" type="Label" parent="CallContainer/CallBox"]
+[node name="WithLabel" type="Label" parent="CallBox"]
 layout_mode = 2
 text = "with"
 
-[node name="NoArgsLabel" type="Label" parent="CallContainer/CallBox"]
+[node name="NoArgsLabel" type="Label" parent="CallBox"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_286lp")
 text = "no arguments"

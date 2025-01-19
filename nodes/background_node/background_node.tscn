@@ -11,8 +11,9 @@
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="Background" type="GraphNode" groups=["graph_nodes"]]
-offset_right = 273.0
-offset_bottom = 82.0
+custom_minimum_size = Vector2(300, 0)
+offset_right = 308.0
+offset_bottom = 72.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = SubResource("Theme_llmqa")
@@ -29,29 +30,25 @@ slot/0/draw_stylebox = false
 script = ExtResource("3_oaxk1")
 titlebar_color = Color(0, 0.505882, 0.501961, 1)
 
-[node name="BackgroundContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="VBox" type="VBoxContainer" parent="BackgroundContainer"]
+[node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="HBox" type="HBoxContainer" parent="BackgroundContainer/VBox"]
+[node name="HBox" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="BgLabel" type="Label" parent="BackgroundContainer/VBox/HBox"]
+[node name="BgLabel" type="Label" parent="VBox/HBox"]
 layout_mode = 2
 text = "Set Background to Image"
 
-[node name="PathLabel" type="Label" parent="BackgroundContainer/VBox/HBox"]
+[node name="PathLabel" type="Label" parent="VBox/HBox"]
 layout_mode = 2
 theme_override_styles/normal = ExtResource("4_qtkwm")
 text = "No Image"
 label_settings = SubResource("LabelSettings_ae3bv")
 
-[node name="PreviewRect" type="TextureRect" parent="BackgroundContainer/VBox"]
+[node name="PreviewRect" type="TextureRect" parent="VBox"]
 visible = false
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2

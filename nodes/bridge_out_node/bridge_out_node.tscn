@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="2_pjg2v"]
 
 [node name="BridgeOutNode" type="GraphNode"]
+custom_minimum_size = Vector2(160, 0)
 offset_right = 185.0
 offset_bottom = 72.0
 scale = Vector2(0.6, 0.6)
@@ -21,21 +22,17 @@ slot/0/draw_stylebox = false
 script = ExtResource("1_6kxjr")
 titlebar_color = Color(0.360784, 0.501961, 0.184314, 1)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="HBoxContainer"]
 layout_mode = 2
 text = "Link to"
 justification_flags = 195
 
-[node name="LinkNumber" type="SpinBox" parent="CenterContainer/HBoxContainer"]
+[node name="LinkNumber" type="SpinBox" parent="HBoxContainer"]
 layout_mode = 2
 min_value = 1.0
 value = 1.0

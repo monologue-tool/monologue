@@ -8,15 +8,15 @@ func _ready():
 
 
 func get_variable_label() -> Label:
-	return $MarginContainer/HBox/VariableLabel
+	return $HBox/VariableLabel
 
 
 func get_operator_label() -> Label:
-	return $MarginContainer/HBox/OperatorLabel
+	return $HBox/OperatorLabel
 
 
 func get_value_label() -> Label:
-	return $MarginContainer/HBox/ValueLabel
+	return $HBox/ValueLabel
 
 
 func get_operator_options():

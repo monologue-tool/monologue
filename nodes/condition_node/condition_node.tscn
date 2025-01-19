@@ -24,6 +24,7 @@ corner_radius_bottom_left = 5
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="ConditionNode" type="GraphNode" groups=["graph_nodes"]]
+custom_minimum_size = Vector2(360, 0)
 offset_right = 320.0
 offset_bottom = 101.0
 size_flags_horizontal = 0
@@ -51,41 +52,35 @@ slot/1/draw_stylebox = false
 script = ExtResource("3_vhhwe")
 titlebar_color = Color(0.733333, 0.392157, 0.188235, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="HBox" type="HBoxContainer" parent="MarginContainer"]
-layout_mode = 2
-
-[node name="IfLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="IfLabel" type="Label" parent="HBox"]
 layout_mode = 2
 text = "If"
 
-[node name="VariableLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="VariableLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
 text = "variable"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="OperatorLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="OperatorLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
 text = "condition"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="ValueLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
 text = "value"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ThenLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="ThenLabel" type="Label" parent="HBox"]
 layout_mode = 2
 text = "then"
 
-[node name="ElseContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-
-[node name="ElseLabel" type="Label" parent="ElseContainer"]
+[node name="ElseLabel" type="Label" parent="."]
 layout_mode = 2
 text = "Else"

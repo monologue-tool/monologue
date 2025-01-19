@@ -24,8 +24,8 @@ corner_radius_bottom_left = 5
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="EventNode" type="GraphNode" groups=["graph_nodes"]]
-offset_right = 320.0
-offset_bottom = 82.0
+offset_right = 324.0
+offset_bottom = 72.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = SubResource("Theme_llmqa")
@@ -42,34 +42,31 @@ slot/0/draw_stylebox = false
 script = ExtResource("3_c6hyr")
 titlebar_color = Color(0.0196078, 0.513726, 0.341176, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="HBox" type="HBoxContainer" parent="MarginContainer"]
-layout_mode = 2
-
-[node name="WhenLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="WhenLabel" type="Label" parent="HBox"]
 layout_mode = 2
 text = "When"
 
-[node name="VariableLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="VariableLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
 text = "variable"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="OperatorLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="OperatorLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
 text = "condition"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="ValueLabel" type="Label" parent="HBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
 text = "value"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="DoLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="DoLabel" type="Label" parent="HBox"]
 layout_mode = 2
 text = "do"

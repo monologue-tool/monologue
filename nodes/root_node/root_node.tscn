@@ -8,7 +8,7 @@ font_color = Color(0.635294, 0.635294, 0.635294, 1)
 
 [node name="RootNode" type="GraphNode" groups=["graph_nodes"]]
 offset_right = 340.0
-offset_bottom = 81.0
+offset_bottom = 82.0
 size_flags_vertical = 0
 title = "RootNode"
 slot/0/left_enabled = false
@@ -23,14 +23,7 @@ slot/0/draw_stylebox = false
 script = ExtResource("1_e8g7i")
 titlebar_color = Color(0, 0, 0, 1)
 
-[node name="Connection" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
-
-[node name="Label" type="Label" parent="Connection"]
+[node name="Label" type="Label" parent="."]
 layout_mode = 2
 text = "Select this node to edit settings"
 label_settings = SubResource("LabelSettings_afdty")
