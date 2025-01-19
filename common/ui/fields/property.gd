@@ -22,7 +22,7 @@ var setters: Dictionary
 ## Temporary boolean to uncollapse the field when first shown if set to true.
 var uncollapse: bool
 ## Actual value of the property.
-var value: Variant
+var value: Variant : set = set_value, get = get_value
 ## Toggles visibility of the field instance.
 var visible: bool : set = set_visible
 
@@ -33,6 +33,10 @@ func _init(ui_scene: PackedScene, ui_setters: Dictionary = {},
 	setters = ui_setters
 	value = default
 	visible = true
+
+
+func get_value() -> Variant:
+	return value
 
 
 ## Invokes a given method with the given arguments on the field if present.
@@ -61,9 +65,15 @@ func propagate(new_value: Variant, can_display: bool = true) -> void:
 		display.emit()
 
 
+## Trigger a property value change only when valeus are different.
 func save_value(new_value: Variant) -> void:
 	if not Util.is_equal(value, new_value):
 		change.emit(value, new_value)
+
+
+## Setter for value which does not trigger change signals.
+func set_value(new_value: Variant) -> void:
+	value = new_value
 
 
 func set_visible(can_see: bool) -> void:

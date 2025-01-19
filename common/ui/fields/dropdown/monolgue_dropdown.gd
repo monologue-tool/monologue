@@ -53,6 +53,7 @@ func set_items(data: Array, key_text: String = "text", key_id: String = "id",
 	option_button.clear()
 	for idx in range(data.size()):
 		var item_id = data[idx].get(key_id, -1)
+		print(item_id)
 		option_button.add_item(data[idx].get(key_text, "undefined"), item_id)
 		option_button.set_item_metadata(idx, data[idx].get(key_meta, ""))
 

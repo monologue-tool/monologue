@@ -1,11 +1,12 @@
 class_name OptionNode extends MonologueGraphNode
 
 
-var option := Property.new(TEXT, { "minimum_size": Vector2(200, 100) })
+var option := Localizable.new(TEXT, { "minimum_size": Vector2(200, 100) })
 var enable_by_default := Property.new(CHECKBOX, {}, true)
 var one_shot := Property.new(CHECKBOX, {}, false)
 var next_id := Property.new(LINE, {}, -1)
 
+@onready var choice_node = get_parent()
 @onready var count_label = $MarginContainer/VBox/CountLabel
 @onready var preview_label = $MarginContainer/VBox/PreviewLabel
 
@@ -26,16 +27,18 @@ func display() -> void:
 
 
 func get_graph_edit() -> MonologueGraphEdit:
-	# for OptionNode, get_parent() returns ChoiceNode
-	return get_parent().get_graph_edit()
+	return choice_node.get_graph_edit()
 
 
 func set_count(number: int) -> void:
 	count_label.text = "Option %d" % number
 
 
-func update_parent(_old_value, _new_value) -> void:
-	get_parent().options.value[get_index()] = _to_dict()
+func update_parent(_old_value = "", _new_value = "") -> void:
+	var old_option = choice_node.options.value[get_index()]
+	var new_options = choice_node.options.value.duplicate(true)
+	new_options[get_index()] = old_option.merged(_to_dict(), true)
+	choice_node.options.value = new_options
 
 
 func _from_dict(dict: Dictionary) -> void:

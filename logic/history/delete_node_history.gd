@@ -13,7 +13,7 @@ func _init(graph: MonologueGraphEdit, nodes: Array[MonologueGraphNode]):
 			var created_nodes: Array[MonologueGraphNode] = []
 			for name in restoration_data.keys():
 				var type = restoration_data[name].get("$type").trim_prefix("Node")
-				var node = GlobalVariables.node_dictionary.get(type)
+				var node = Constants.NODE_SCENES.get(type)
 				var inst = node.instantiate()
 				graph_edit.add_child(inst)
 				created_nodes.append(inst)

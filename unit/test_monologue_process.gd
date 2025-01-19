@@ -49,6 +49,24 @@ func test_load_dialogue():
 	assert_str(sharpener).is_equal("Mr.Sharpener")
 
 
+func test_localize():
+	runner.locale = "Spanish"
+	var value = runner.localize({"English": "today", "Spanish": "hoy"})
+	assert_str(value).is_equal("hoy")
+
+
+func test_localize_plain_value():
+	runner.locale = "Spanish"
+	var value = runner.localize("no es mismo")
+	assert_str(value).is_equal("no es mismo")
+
+
+func test_localize_nonexist():
+	runner.locale = "Spanish"
+	var value = runner.localize({"English": "today"})
+	assert_str(value).is_equal("")
+
+
 func test_next():
 	var fake = { "$type": "Nope", "ID": "a", "NextID": "b" }
 	do_return(fake).on(runner).find_node_from_id(any())
