@@ -12,9 +12,9 @@ func _init(graph: MonologueGraphEdit, locale: String, path: String) -> void:
 
 func undo():
 	var redo_result = super.redo()
-	for property in restoration:
-		if is_instance_valid(property):
-			property.raw_data = restoration.get(property)
+	for localizable in restoration:
+		if is_instance_valid(localizable):
+			localizable.raw_data = restoration.get(localizable).duplicate(true)
 	
 	for choice in choices:
 		choice.restore_options(choices.get(choice))
@@ -23,4 +23,8 @@ func undo():
 
 
 func redo():
+	for localizable in restoration:
+		var language_node = GlobalVariables.language_switcher.get_by_node_name(node_name)
+		if is_instance_valid(localizable) and language_node.language_name == language_name:
+			localizable.raw_data.erase(node_name)
 	return super.undo()
