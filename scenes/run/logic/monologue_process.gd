@@ -143,6 +143,7 @@ func process_node(node: Dictionary) -> void:
 					continue
 				if option.get("Enable") == false:
 					continue
+				option["Option"] = localize(option.get("Option", ""))
 				options.append(option)
 			monologue_new_choice.emit(options)
 		
