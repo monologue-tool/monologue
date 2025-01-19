@@ -31,7 +31,7 @@ func revert() -> void:
 
 
 func _set_name(locale: String) -> void:
-	var option = GlobalVariables.language_switcher.vbox.get_node(node_name)
+	var option = GlobalVariables.language_switcher.get_by_node_name(node_name)
 	var index = option.get_index()
 	option.set_language_name(locale)
 	graph_edit.languages[index] = locale

@@ -21,6 +21,8 @@ func _ready() -> void:
 	GlobalVariables.language_switcher = self
 	GlobalSignal.add_listener("load_languages", load_languages)
 	GlobalSignal.add_listener("show_languages", show_dropdown)
+	GlobalSignal.add_listener("enable_language_switcher", set_enabled)
+	GlobalSignal.add_listener("disable_language_switcher", set_enabled.bind(false))
 	load_languages()
 
 
@@ -38,20 +40,26 @@ func get_current_language() -> LanguageOption:
 	return vbox.get_child(selected_index)
 
 
-## Returns language options in Dictionary format, where key = language name.
+## Returns language option node names as Dictionary, where key = language name.
 func get_languages() -> Dictionary:
 	var option_dictionary = {}
 	for option in vbox.get_children():
 		if is_instance_valid(option) and not option.is_queued_for_deletion():
-			option_dictionary[str(option)] = option
+			option_dictionary[str(option)] = option.name
 	return option_dictionary
+
+
+## Returns the language option that has the given node name.
+## The node name is separate from language_name because it allows the user
+## to rename the language without changing the reference for undo/redo.
+func get_by_node_name(node_name: String) -> LanguageOption:
+	return vbox.get_node_or_null(node_name)
 
 
 func load_languages(list: PackedStringArray = [], graph: MonologueGraphEdit = null) -> void:
 	graph_edit = graph
 	for child in vbox.get_children():
-		vbox.remove_child(child)
-		child.queue_free()
+		remove_language(child)
 	
 	if graph:
 		selected_index = graph.current_language_index
@@ -67,9 +75,15 @@ func load_languages(list: PackedStringArray = [], graph: MonologueGraphEdit = nu
 			if i == 0:
 				new_option.show_delete_button(false)
 			already_added.append(list[i])
+	_on_option_selected(vbox.get_child(selected_index))
 
 
-func select_by_name(locale: String, refresh: bool = true) -> void:
+func remove_language(option_node) -> void:
+	vbox.remove_child(option_node)
+	option_node.queue_free()
+
+
+func select_by_locale(locale: String, refresh: bool = true) -> void:
 	var selected_option: LanguageOption
 	for child in vbox.get_children():
 		if child.language_name == locale:
@@ -77,6 +91,16 @@ func select_by_name(locale: String, refresh: bool = true) -> void:
 			break
 	if selected_option:
 		_on_option_selected(selected_option, refresh)
+
+
+func set_enabled(active: bool = true) -> void:
+	if not active:
+		show_dropdown(false)
+		disabled = true
+		focus_mode = FOCUS_NONE
+	else:
+		disabled = false
+		focus_mode = FOCUS_ALL
 
 
 func show_dropdown(can_see: bool = true) -> void:
@@ -88,6 +112,7 @@ func _on_option_removed(option: LanguageOption) -> void:
 	var act_text = [option.language_name, graph_edit.file_path]
 	graph_edit.undo_redo.create_action("Delete %s language from %s" % act_text)
 	var deletion = DeleteLanguageHistory.new(graph_edit, option.language_name, option.name)
+	GlobalSignal.emit("language_deleted", [option.name, deletion.restoration, deletion.choices])
 	graph_edit.undo_redo.add_prepared_history(deletion)
 	graph_edit.undo_redo.commit_action()
 
@@ -101,7 +126,8 @@ func _on_option_rename(old: String, new: String, option: LanguageOption) -> void
 
 func _on_option_selected(option: LanguageOption, refresh: bool = true) -> void:
 	selected_index = option.get_index()
-	graph_edit.current_language_index = selected_index
+	if graph_edit:
+		graph_edit.current_language_index = selected_index
 	text = option.language_name
 	if refresh:
 		GlobalSignal.emit("refresh")  # update all localizable values

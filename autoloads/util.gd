@@ -39,12 +39,12 @@ func is_equal(a: Variant, b: Variant) -> bool:
 	return false
 
 
-## Check if all elements of array_a is inside of array_b.
-func is_inside(array_a: Array, array_b: Array) -> bool:
+## Check if any element of array_a is inside of array_b.
+func is_any_inside(array_a: Array, array_b: Array) -> bool:
 	for element in array_a:
-		if not array_b.has(element):
-			return false
-	return true
+		if array_b.has(element):
+			return true
+	return false
 
 
 ## Converts a snake case name to JSON key format with capitalized "ID".

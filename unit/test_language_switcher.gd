@@ -22,6 +22,35 @@ func test_delete_language():
 	assert_int(runner.get_property("selected_index")).is_equal(2)
 
 
+func test_delete_language_destroys_raw_data():
+	# when user sets a value in a language and then deletes that language
+	# the localizable should still have that raw data for undo/redo purposes
+	var localizable = auto_free(Localizable.new(null))
+	localizable.value = "im a test"
+	runner.invoke("add_language", "Finnish")
+	runner.set_property("selected_index", 1)
+	localizable.value = "olen testi"
+	runner.get_property("vbox").get_child(1)._on_btn_delete_pressed()
+	var no_persist = {"English": "im a test"}
+	assert_dict(localizable.to_raw_value()).is_equal(no_persist)
+
+
+func test_delete_language_undo_restores_data():
+	runner.invoke("load_languages", ["Present", "Del"], mock_graph_edit)
+	runner.set_property("selected_index", 1)
+	var localizable = auto_free(Localizable.new(null))
+	var data = "the data that will be deleted"
+	localizable.value = data
+	var persist = {"Del": data}
+	assert_dict(localizable.to_raw_value()).is_equal(persist)
+	
+	var node = runner.get_property("vbox").get_child(1)
+	var deletion = DeleteLanguageHistory.new(mock_graph_edit, "Del", node.name)
+	deletion.redo()
+	deletion.undo()
+	assert_dict(localizable.to_raw_value()).is_equal(persist)
+
+
 func test_first_language_does_not_show_delete_button():
 	runner.invoke("load_languages", ["Sindarin", "Khuzdul"], mock_graph_edit)
 	var first_option: LanguageOption = runner.get_property("vbox").get_child(0)
@@ -30,17 +59,6 @@ func test_first_language_does_not_show_delete_button():
 	var second_option: LanguageOption = runner.get_property("vbox").get_child(1)
 	assert_str(second_option.line_edit.text).is_equal("Khuzdul")
 	assert_bool(second_option.del_button.visible).is_true()
-
-
-func test_language_get_raw_data_deleted():
-	# when user sets a value in a language and then deletes that language
-	var localizable = auto_free(Localizable.new(null))
-	localizable.value = "im a test"
-	runner.invoke("add_language", "Finnish")
-	runner.set_property("selected_index", 1)
-	localizable.value = "olen testi"
-	runner.get_property("vbox").get_child(1)._on_btn_delete_pressed()
-	assert_dict(localizable.to_raw_value()).is_equal({"English": "im a test"})
 
 
 func test_language_get_value_renamed():

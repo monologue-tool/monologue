@@ -12,9 +12,14 @@ func before_test():
 	lang2 = auto_free(LanguageOption.new())
 	lang1.line_edit = mock(LineEdit)
 	lang2.line_edit = mock(LineEdit)
+	lang1.name = "LanguageOption1"
 	lang1.language_name = "Lang1"
+	lang2.name = "LanguageOption2"
 	lang2.language_name = "Lang2"
-	do_return({"Lang1": lang1, "Lang2": lang2}).on(switcher).get_languages()
+	do_return(lang1).on(switcher).get_by_node_name("LanguageOption1")
+	do_return(lang2).on(switcher).get_by_node_name("LanguageOption2")
+	do_return({"Lang1": lang1.name, "Lang2": lang2.name}).on(switcher).get_languages()
+	
 	do_return(lang1).on(switcher).get_current_language()
 	GlobalVariables.language_switcher = switcher
 
@@ -89,6 +94,34 @@ func test_language_integration():
 	choice_node.get_child(1).update_parent("", opt2_text2)
 	var d2 = e2.merged({"Lang2": opt2_text2})
 	assert_dict(choice_node.get_child(1).option.to_raw_value()).is_equal(d2)
+
+
+func test_restore_options():
+	var runner = scene_runner("res://unit/empty_test.tscn")
+	var choice_node = auto_free(ChoiceNode.new())
+	var mock_graph_edit = mock(MonologueGraphEdit, CALL_REAL_FUNC)
+	mock_graph_edit.add_child(choice_node)
+	runner.invoke("add_child", mock_graph_edit)
+	var option1 = choice_node.get_child(0)
+	var opt1_text = "first"
+	option1.choice_node = choice_node
+	option1.option.value = (opt1_text)
+	option1.update_parent("", opt1_text)
+	var option2 = choice_node.get_child(1)
+	var opt2_text = "second"
+	option2.choice_node = choice_node
+	option2.option.raw_data = {"LanguageOption1": "bla bla bla", "LanguageOption2": opt2_text}
+	option2.update_parent("", opt2_text)
+	
+	var test_option = auto_free(LanguageOption.new())
+	do_return(test_option).on(switcher).add_language(lang2.language_name)
+	var deletion = DeleteLanguageHistory.new(mock_graph_edit, lang2.language_name, lang2.name)
+	choice_node.store_options(deletion.node_name, deletion.restoration, deletion.choices)
+	deletion.redo()
+	assert_object(lang2).is_queued_for_deletion()
+	deletion.undo()
+	var expected = {"Lang1": "bla bla bla", "Lang2": opt2_text}
+	assert_dict(choice_node.options.value[1].get("Option")).is_equal(expected)
 
 
 func test_update_parent():

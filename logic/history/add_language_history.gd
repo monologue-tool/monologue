@@ -28,13 +28,12 @@ func add_language_option() -> void:
 
 
 func delete_language_option() -> void:
-	var node = GlobalVariables.language_switcher.vbox.get_node(node_name)
-	node.queue_free()
+	var node = GlobalVariables.language_switcher.get_by_node_name(node_name)
+	GlobalVariables.language_switcher.remove_language(node)
 	graph_edit.languages.erase(language_name)
 	GlobalSignal.emit("show_languages")
 	
 	# update selection if selected_index exceeds language count
-	var languages = GlobalVariables.language_switcher.get_languages()
+	var languages = GlobalVariables.language_switcher.get_languages().keys()
 	if GlobalVariables.language_switcher.selected_index >= languages.size():
-		var select = languages.values()[languages.size() - 1]
-		GlobalVariables.language_switcher._on_option_selected(select)
+		GlobalVariables.language_switcher.select_by_locale(languages.back())

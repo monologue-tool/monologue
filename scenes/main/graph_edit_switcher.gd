@@ -142,11 +142,12 @@ func _on_tab_changed(tab: int) -> void:
 			pending_new_graph.queue_free()
 			pending_new_graph = null
 		GlobalSignal.emit("hide_welcome")
+		GlobalSignal.emit("enable_language_switcher")
 		
 		for ge in graph_edits.get_children():
 			if graph_edits.get_child(tab) == ge:
 				ge.visible = true
-				GlobalSignal.emit("load_languages", [ge.languages, current])
+				GlobalSignal.emit("load_languages", [ge.languages, ge])
 				if ge.active_graphnode:
 					side_panel.on_graph_node_selected(ge.active_graphnode, true)
 				else:
@@ -157,4 +158,5 @@ func _on_tab_changed(tab: int) -> void:
 		tab_bar.tab_close_display_policy = TabBar.CLOSE_BUTTON_SHOW_NEVER
 		pending_new_graph = new_graph_edit()
 		GlobalSignal.emit("show_welcome")
+		GlobalSignal.emit("disable_language_switcher")
 		side_panel.hide()
