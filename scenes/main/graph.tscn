@@ -178,6 +178,7 @@ script = ExtResource("6_tdvn8")
 layout_mode = 2
 
 [node name="LanguageSwitcher" parent="MarginContainer/MainContainer/GraphEditsArea/ToolBarContainer/VBoxContainer/CenterContainer/ToolBar/Left/HBoxContainer" instance=ExtResource("6_nqv8k")]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="Right" type="PanelContainer" parent="MarginContainer/MainContainer/GraphEditsArea/ToolBarContainer/VBoxContainer/CenterContainer/ToolBar"]

@@ -115,7 +115,7 @@ func get_graph_edit() -> MonologueGraphEdit:
 func get_property_names() -> PackedStringArray:
 	var names = PackedStringArray()
 	for property in get_property_list():
-		if property.class_name == "Property":
+		if Constants.PROPERTY_CLASSES.has(property.class_name):
 			names.append(property.name)
 	return names
 
@@ -128,6 +128,11 @@ func is_editable() -> bool:
 			continue
 		return true
 	return false
+
+
+## Reload the preview text of the graph node, if any.
+func reload_preview() -> void:
+	pass
 
 
 func _from_dict(dict: Dictionary) -> void:
@@ -172,8 +177,11 @@ func _to_dict() -> Dictionary:
 
 func _to_fields(dict: Dictionary) -> void:
 	for property_name in get_property_names():
-		if get(property_name).visible:
-			dict[Util.to_key_name(property_name)] = get(property_name).value
+		var property = get(property_name)
+		var is_raw = property is Localizable
+		if property.visible:
+			var value = property.to_raw_value() if is_raw else property.value
+			dict[Util.to_key_name(property_name)] = value
 
 
 func _to_next(dict: Dictionary, key: String = "NextID") -> void:

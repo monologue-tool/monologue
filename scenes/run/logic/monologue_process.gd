@@ -24,6 +24,7 @@ var root_node_id: String
 var node_list: Array
 var characters: Array
 var variables: Array
+var locale: String
 var events: Array
 var next_id: Variant
 var fallback_id: Variant
@@ -50,6 +51,12 @@ func load_dialogue(json_path: String, custom_id: Variant = null) -> void:
 		option["Enable"] = option.get("EnableByDefault")
 	
 	print("[INFO] Dialogue %s loaded" % json_path.get_file())
+
+
+func localize(value: Variant, default = "") -> Variant:
+	if value is Dictionary:
+		return value.get(locale, default)
+	return value
 
 
 func next() -> void:
@@ -111,13 +118,13 @@ func process_node(node: Dictionary) -> void:
 		
 		"NodeSentence":
 			next_id = node.get("NextID")
-			var sentence = process_conditional_text(node.get("Sentence"))
+			var sentence = process_conditional_text(localize(node.get("Sentence")))
 			var speaker_name = get_speaker_name(node.get("SpeakerID"))
 			var display_name = node.get("DisplayName", node.get("DisplaySpeakerName"))
 			if not display_name:
 				display_name = speaker_name
 			
-			var path = node.get("VoicelinePath", "")
+			var path = localize(node.get("VoicelinePath", ""))
 			if path:
 				if path.is_relative_path():
 					path = base_path + "/" + path
@@ -136,6 +143,7 @@ func process_node(node: Dictionary) -> void:
 					continue
 				if option.get("Enable") == false:
 					continue
+				option["Option"] = localize(option.get("Option", ""))
 				options.append(option)
 			monologue_new_choice.emit(options)
 		

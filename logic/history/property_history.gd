@@ -7,6 +7,8 @@ var graph_edit: MonologueGraphEdit
 var node_path: NodePath
 ## List of property changes to make on [member node_name].
 var changes: Array[PropertyChange]
+## Selected locale in the language switcher when this change was made.
+var locale: String = LanguageSwitcher.DEFAULT_LOCALE
 
 
 func _init(graph: MonologueGraphEdit, path: NodePath,
@@ -17,20 +19,34 @@ func _init(graph: MonologueGraphEdit, path: NodePath,
 	
 	_undo_callback = revert_properties
 	_redo_callback = change_properties
+	
+	if GlobalVariables.language_switcher:
+		locale = str(GlobalVariables.language_switcher.get_current_language())
 
 
 func change_properties() -> void:
-	var node: Variant = graph_edit.get_node(node_path)
+	reset_language()
+	var node: MonologueGraphNode = graph_edit.get_node(node_path)
 	for change in changes:
 		set_property(node, change.property, change.after)
 	_hide_unrelated_windows()
+	
+	GlobalSignal.emit.call_deferred("refresh")
 
 
 func revert_properties() -> void:
-	var node: Variant = graph_edit.get_node(node_path)
+	reset_language()
+	var node: MonologueGraphNode = graph_edit.get_node(node_path)
 	for change in changes:
 		set_property(node, change.property, change.before)
 	_hide_unrelated_windows()
+	
+	GlobalSignal.emit.call_deferred("refresh")
+
+
+func reset_language() -> void:
+	if GlobalVariables.language_switcher:
+		GlobalVariables.language_switcher.select_by_locale(locale, false)
 
 
 func set_property(node: Variant, property: String, value: Variant) -> void:

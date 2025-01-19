@@ -1,5 +1,5 @@
 @icon("res://ui/assets/icons/choice.svg")
-class_name ChoiceNode  extends MonologueGraphNode
+class_name ChoiceNode extends MonologueGraphNode
 
 
 var option_scene = preload("res://nodes/option_node/option_node.tscn")
@@ -16,6 +16,7 @@ func _ready():
 	options.setters["get_callback"] = get_children
 	options.callers["set_label_visible"] = [false]
 	options.connect("preview", _refresh)
+	GlobalSignal.add_listener("language_deleted", store_options)
 	
 	if get_child_count() <= 0:
 		options.value.append(add_option()._to_dict())
@@ -29,8 +30,12 @@ func add_option(reference: Dictionary = {}) -> OptionNode:
 	
 	if reference:
 		new_option._from_dict(reference)
-		new_option.preview_label.text = \
-				reference.get("Option", reference.get("Sentence", ""))
+		var value = reference.get("Option", reference.get("Sentence", ""))
+		if value is Dictionary:
+			var switcher = GlobalVariables.language_switcher
+			var locale = str(switcher.get_current_language())
+			value = value.get(locale, "")
+		new_option.preview_label.text = value
 		link_option(new_option)
 	
 	var is_first = get_child_count() <= 1
@@ -61,6 +66,21 @@ func link_option(option: OptionNode, link: bool = true):
 				get_parent().connect_node(name, index, next_node.name, 0)
 			else:
 				get_parent().disconnect_node(name, index, next_node.name, 0)
+
+
+func reload_preview() -> void:
+	var nodes = get_children().map(func(o): return o._to_dict())
+	_refresh(nodes)
+
+
+func restore_options(options_value: Array) -> void:
+	options.value = options_value
+	_refresh(options_value)
+
+
+func store_options(_name, _rest: Dictionary, choices: Dictionary) -> void:
+	var nodes = get_children().map(func(o): return o._to_dict())
+	choices[self] = nodes
 
 
 ## Update the NextID of this choice node on the given port.

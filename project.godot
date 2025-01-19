@@ -26,11 +26,12 @@ config/icon="res://icon.png"
 
 [autoload]
 
+Constants="*res://autoloads/constants.gd"
 App="*res://autoloads/app.gd"
-Util="*res://autoloads/util.gd"
 GlobalVariables="*res://autoloads/global_variables.gd"
-SfxLoader="*res://autoloads/sfx_loader.gd"
 GlobalSignal="*res://autoloads/global_signal.gd"
+Util="*res://autoloads/util.gd"
+SfxLoader="*res://autoloads/sfx_loader.gd"
 Path="*res://autoloads/path.gd"
 IDGen="*res://autoloads/id_gen.gd"
 Cursor="*res://autoloads/cursor.gd"
