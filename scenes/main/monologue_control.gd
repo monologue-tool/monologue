@@ -84,6 +84,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	if file and not graph_switcher.is_file_opened(path):
 		if new_graph:
 			graph_switcher.new_graph_edit()
+		graph_switcher.current.file_path = path  # set path first before tab creation
 		
 		var data = {}
 		var text = file.get_as_text()
@@ -92,7 +93,6 @@ func load_project(path: String, new_graph: bool = false) -> void:
 			data = _to_dict()
 			save()
 		
-		graph_switcher.current.file_path = path  # set path first before tab creation
 		graph_switcher.current.languages = data.get("Languages", [])  # load language before tab
 		graph_switcher.add_tab(path.get_file())
 		graph_switcher.current.clear()
