@@ -20,6 +20,7 @@ const SLIDER = preload("res://common/ui/fields/slider/monologue_slider.tscn")
 const SPINBOX = preload("res://common/ui/fields/spin_box/monologue_spin_box.tscn")
 const TEXT = preload("res://common/ui/fields/text/monologue_text.tscn")
 const TOGGLE = preload("res://common/ui/fields/toggle/monologue_toggle.tscn")
+const VECTOR = preload("res://common/ui/fields/vector/monologue_vector.tscn")
 
 const LEFT_SLOT = preload("res://ui/assets/icons/slot.svg")
 const RIGHT_SLOT = preload("res://ui/assets/icons/slot.svg")
@@ -29,6 +30,7 @@ var node_type: String = "NodeUnknown"
 
 
 func _ready() -> void:
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	if show_titlebar:
 		_set_titlebar_color(titlebar_color)
 
@@ -138,6 +140,9 @@ func _from_dict(dict: Dictionary) -> void:
 		var property = get(key.to_snake_case())
 		if property is Property:
 			property.value = dict.get(key)
+		var private_property = get("_" + key.to_snake_case())
+		if private_property is Property:
+			private_property.value = dict.get(key)
 	
 	_load_position(dict)
 	_update()  # refresh node UI after loading properties
@@ -186,7 +191,7 @@ func _to_next(dict: Dictionary, key: String = "NextID") -> void:
 
 func _update() -> void:
 	size.y = 0
-	_harmonize_size.call_deferred()
+	_harmonize_size()
 
 
 func _validate_id(text: String) -> bool:

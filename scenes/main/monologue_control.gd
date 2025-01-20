@@ -51,8 +51,12 @@ func _to_dict() -> Dictionary:
 	var characters = graph_switcher.current.speakers
 	if characters.size() <= 0:
 		characters.append({
-			"Reference": "_NARRATOR",
-			"ID": 0
+			"ID": IDGen.generate(5),
+			"Protected": true,
+			"Character": {
+				"Name": "_NARRATOR"
+			},
+			"EditorIndex": 0
 		})
 	
 	return {
@@ -93,11 +97,12 @@ func load_project(path: String, new_graph: bool = false) -> void:
 			data = _to_dict()
 			save()
 		
+		var converter := NodeConverter.new()
 		graph_switcher.current.languages = data.get("Languages", [])  # load language before tab
 		graph_switcher.add_tab(path.get_file())
 		graph_switcher.current.clear()
 		graph_switcher.current.name = path.get_file().trim_suffix(".json")
-		graph_switcher.current.speakers = data.get("Characters")
+		graph_switcher.current.speakers = converter.convert_characters(data.get("Characters"))
 		graph_switcher.current.variables = data.get("Variables")
 		graph_switcher.current.data = data
 		

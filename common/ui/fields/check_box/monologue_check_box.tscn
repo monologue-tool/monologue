@@ -2,8 +2,6 @@
 
 [ext_resource type="Script" path="res://common/ui/fields/check_box/monologue_check_box.gd" id="1_awprp"]
 
-
-
 [node name="MonologueCheckBox" type="HBoxContainer"]
 offset_right = 81.0
 offset_bottom = 40.0

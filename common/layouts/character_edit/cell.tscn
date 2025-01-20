@@ -1,0 +1,60 @@
+[gd_scene load_steps=7 format=3 uid="uid://cdpox07h3wlf3"]
+
+[ext_resource type="Texture2D" uid="uid://bjra4bs2l0m6x" path="res://ui/assets/icons/cell_single.svg" id="1_1jxcg"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/timeline_cell.gd" id="1_wpwcu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y3h2k"]
+draw_center = false
+border_width_right = 1
+border_color = Color(0.117647, 0.117647, 0.129412, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1614f"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.835294, 0.317647, 0.376471, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y37jy"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.84, 0.3192, 0.37996, 0.498039)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5et5j"]
+
+[node name="Cell" type="PanelContainer"]
+custom_minimum_size = Vector2(26, 26)
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+script = ExtResource("1_wpwcu")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+texture = ExtResource("1_1jxcg")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxFlat_1614f")
+theme_override_styles/hover = SubResource("StyleBoxFlat_y37jy")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_1614f")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_5et5j")
+toggle_mode = true
+keep_pressed_outside = true
+
+[connection signal="button_down" from="Button" to="." method="_on_button_button_down"]
+[connection signal="button_up" from="Button" to="." method="_on_button_button_up"]
+[connection signal="toggled" from="Button" to="." method="_on_button_toggled"]

@@ -1,0 +1,78 @@
+[gd_scene load_steps=6 format=3 uid="uid://rmul5j0wm0l8"]
+
+[ext_resource type="PackedScene" uid="uid://dfwf55ovgwir3" path="res://common/ui/buttons/delete_button.tscn" id="1_eutnh"]
+[ext_resource type="Script" path="res://common/ui/fields/character_field/monologue_character_field.gd" id="1_no1me"]
+[ext_resource type="Texture2D" uid="uid://ddah0eo1qhki4" path="res://common/ui/fields/character_field/assets/portrait_placeholder.svg" id="2_jkh4y"]
+[ext_resource type="Shader" uid="uid://bsso8dloc4bce" path="res://logic/shaders/texture_rect_clip.tres" id="2_nva25"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q7tom"]
+shader = ExtResource("2_nva25")
+shader_parameter/corner_scale = 0.1
+
+[node name="VBoxContainer" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+script = ExtResource("1_no1me")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer/CenterContainer"]
+material = SubResource("ShaderMaterial_q7tom")
+clip_contents = true
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("2_jkh4y")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FieldLabel" type="Label" parent="HBoxContainer/VBoxContainer/NameContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_vertical = 0
+text = "Name"
+
+[node name="InnerVBox" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/NameContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer/NameContainer/InnerVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="EditButton" type="Button" parent="HBoxContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Edit"
+
+[node name="DeleteButton" parent="HBoxContainer/VBoxContainer/VBoxContainer/HBoxContainer" instance=ExtResource("1_eutnh")]
+layout_mode = 2
+size_flags_vertical = 4
+
+[connection signal="focus_exited" from="HBoxContainer/VBoxContainer/NameContainer/InnerVBox/NameEdit" to="." method="_on_name_edit_focus_exited"]
+[connection signal="text_submitted" from="HBoxContainer/VBoxContainer/NameContainer/InnerVBox/NameEdit" to="." method="_on_name_edit_text_submitted"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/VBoxContainer/HBoxContainer/EditButton" to="." method="_on_edit_button_pressed"]

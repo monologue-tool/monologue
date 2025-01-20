@@ -1,0 +1,95 @@
+[gd_scene load_steps=8 format=3 uid="uid://d2ekvpgbp07fe"]
+
+[ext_resource type="Texture2D" uid="uid://bv81uyypsna2u" path="res://ui/assets/icons/dots_grid.svg" id="1_3wu84"]
+[ext_resource type="Script" path="res://common/layouts/character_edit/layer.gd" id="1_teuw3"]
+[ext_resource type="PackedScene" uid="uid://dfwf55ovgwir3" path="res://common/ui/buttons/delete_button.tscn" id="2_ta0kq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_38dgm"]
+bg_color = Color(0.27451, 0.27451, 0.301961, 0.25098)
+border_width_bottom = 1
+border_color = Color(0.117647, 0.117647, 0.129412, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y3h2k"]
+draw_center = false
+border_width_right = 1
+border_color = Color(0.117647, 0.117647, 0.129412, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6xlvw"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_86o0e"]
+line_spacing = 0.0
+font_size = 14
+
+[node name="Layer" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 27)
+theme_override_styles/panel = SubResource("StyleBoxFlat_38dgm")
+script = ExtResource("1_teuw3")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="PanelContainer5" type="PanelContainer" parent="HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer/PanelContainer5"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 0
+texture = ExtResource("1_3wu84")
+stretch_mode = 3
+
+[node name="PanelContainer3" type="PanelContainer" parent="HBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+
+[node name="DeleteButton" parent="HBoxContainer/PanelContainer3" instance=ExtResource("2_ta0kq")]
+custom_minimum_size = Vector2(26, 16)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+
+[node name="TextureButton" type="TextureButton" parent="HBoxContainer/PanelContainer"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="PanelContainer2" type="PanelContainer" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+
+[node name="TextureButton" type="TextureButton" parent="HBoxContainer/PanelContainer2"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="PanelContainer4" type="PanelContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_6xlvw")
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/PanelContainer4"]
+layout_mode = 2
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="Label" type="Label" parent="HBoxContainer/PanelContainer4/MarginContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Layer 1"
+label_settings = SubResource("LabelSettings_86o0e")

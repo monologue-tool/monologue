@@ -2,10 +2,10 @@
 class_name RootNode extends MonologueGraphNode
 
 
-var speakers  := Property.new(LIST, {}, [])
-var variables := Property.new(LIST, {}, [])
+var characters := Property.new(LIST, {}, [])
+var variables  := Property.new(LIST, {}, [])
 
-var _speaker_references = []
+var _character_references = []
 var _variable_references = []
 
 
@@ -13,10 +13,10 @@ func _ready():
 	node_type = "NodeRoot"
 	super._ready()
 	
-	load_speakers(get_parent().speakers)
-	speakers.setters["add_callback"] = add_speaker
-	speakers.setters["get_callback"] = get_speakers
-	speakers.connect("preview", load_speakers)
+	load_character(get_parent().speakers)
+	characters.setters["add_callback"] = add_character
+	characters.setters["get_callback"] = get_speakers
+	characters.connect("preview", load_character)
 	
 	load_variables(get_parent().variables)
 	variables.setters["add_callback"] = add_variable
@@ -24,13 +24,14 @@ func _ready():
 	variables.connect("preview", load_variables)
 
 
-func add_speaker(data: Dictionary = {}) -> MonologueCharacter:
-	var speaker = MonologueCharacter.new(self)
+func add_character(data: Dictionary = {}) -> MonologueCharacter:
+	var character = MonologueCharacter.new(self)
 	if data:
-		speaker._from_dict(data)
-	speaker.id.value = _speaker_references.size()
-	_speaker_references.append(speaker)
-	return speaker
+		character._from_dict(data)
+	character.idx.value = _character_references.size()
+	character.character.setters["character_index"] = character.idx.value
+	_character_references.append(character)
+	return character
 
 
 func add_variable(data: Dictionary = {}) -> MonologueVariable:
@@ -43,7 +44,7 @@ func add_variable(data: Dictionary = {}) -> MonologueVariable:
 
 
 func get_speakers():
-	return _speaker_references
+	return _character_references
 
 
 func get_variables():
@@ -51,19 +52,21 @@ func get_variables():
 
 
 ## Perform initial loading of speakers and set indexes correctly.
-func load_speakers(new_speaker_list: Array):
-	_speaker_references.clear()
-	var ascending = func(a, b): return a.get("ID") < b.get("ID")
-	new_speaker_list.sort_custom(ascending)
-	for speaker_data in new_speaker_list:
-		add_speaker(speaker_data)
+func load_character(new_character_list: Array):
+	_character_references.clear()
+	var ascending = func(a, b): return a.get("EditorIndex") < b.get("EditorIndex")
+	new_character_list.sort_custom(ascending)
+	for speaker_data in new_character_list:
+		add_character(speaker_data)
 	
-	if _speaker_references.is_empty():
-		var narrator = add_speaker()
-		narrator.name.value = "_NARRATOR"
-		new_speaker_list.append(narrator._to_dict())
-	speakers.value = new_speaker_list
-	get_graph_edit().speakers = new_speaker_list
+	if _character_references.is_empty():
+		var narrator = add_character()
+		narrator.character.value["Name"] = "_NARRATOR"
+		narrator.protected.value = true
+		new_character_list.append(narrator._to_dict())
+	
+	characters.value = new_character_list
+	get_graph_edit().speakers = new_character_list
 
 
 func load_variables(new_variable_list: Array):

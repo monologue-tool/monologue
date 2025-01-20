@@ -72,3 +72,33 @@ func convert_dice_roll(dict: Dictionary) -> Dictionary:
 	dict.erase("PassID")
 	dict.erase("FailID")
 	return dict
+
+
+func convert_characters(list: Array) -> Array:
+	var all_ids: Array = []
+	
+	for character in list:
+		if character.has("Reference"):
+			continue
+		
+		all_ids.append(character.get("ID"))
+	
+	for character in list:
+		if not character.has("Reference"):
+			continue
+		var list_idx: int = list.find(character)
+		
+		var character_name: String = character.get("Reference", "undefined")
+		
+		var new_character = {
+			"ID": IDGen.generate(5),
+			"EditorIndex": character.get("ID"),
+			"Protected": character_name == "_NARRATOR",
+			"Character": {
+				"Name": character_name
+			}
+		}
+		
+		list[list_idx] = new_character
+	
+	return list

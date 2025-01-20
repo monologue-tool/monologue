@@ -1,0 +1,74 @@
+[gd_scene load_steps=7 format=3 uid="uid://c3kq4oc8yxco7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y3h2k"]
+draw_center = false
+border_width_right = 1
+border_color = Color(0.117647, 0.117647, 0.129412, 1)
+
+[sub_resource type="GDScript" id="GDScript_aiax2"]
+script/source = "extends PanelContainer
+
+
+@onready var label: Label = $Label
+
+@export var cell_number: int = 1
+
+
+func _ready() -> void:
+	label.text = str(cell_number)
+
+
+func _on_button_pressed() -> void:
+	pass
+"
+
+[sub_resource type="LabelSettings" id="LabelSettings_jbxed"]
+line_spacing = 0.0
+font_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fi15l"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.835294, 0.317647, 0.376471, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vog8c"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.84, 0.3192, 0.37996, 0.498039)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x14x4"]
+
+[node name="CellNumber" type="PanelContainer"]
+custom_minimum_size = Vector2(27, 26)
+theme_override_styles/panel = SubResource("StyleBoxFlat_y3h2k")
+script = SubResource("GDScript_aiax2")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "1"
+label_settings = SubResource("LabelSettings_jbxed")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxFlat_fi15l")
+theme_override_styles/hover = SubResource("StyleBoxFlat_vog8c")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fi15l")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_x14x4")
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

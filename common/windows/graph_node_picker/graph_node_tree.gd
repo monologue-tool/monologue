@@ -10,6 +10,7 @@ var _data =  [
 		{"text": "Narration", "children": [
 			{"text": "Sentence", "icon": "text.svg"},
 			{"text": "Choice", "icon": "choice.svg"},
+			{"text": "Character", "icon": "text.svg"},
 		]},
 		{"text": "Logic", "children": [
 			{"text": "Action", "icon": "action.svg"},

@@ -19,19 +19,27 @@ var field: MonologueField
 var scene: PackedScene
 ## Dictionary of field property names to set values.
 var setters: Dictionary
+## Dictionary of callables to connect to field signals.
+var connecters: Dictionary
 ## Temporary boolean to uncollapse the field when first shown if set to true.
 var uncollapse: bool
+## Initial value of the property.
+var default_value: Variant
 ## Actual value of the property.
 var value: Variant : set = set_value, get = get_value
 ## Toggles visibility of the field instance.
 var visible: bool : set = set_visible
+## Overwrites the displayed property label
+var custom_label: Variant
 
 
 func _init(ui_scene: PackedScene, ui_setters: Dictionary = {},
-			default: Variant = "") -> void:
+			default: Variant = "", ui_custom_label: Variant = null) -> void:
 	scene = ui_scene
 	setters = ui_setters
 	value = default
+	default_value = default
+	custom_label = ui_custom_label
 	visible = true
 
 
@@ -92,6 +100,11 @@ func show(panel: Control, child_index: int = -1) -> MonologueField:
 	
 	for method in callers.keys():
 		field.callv(method, callers.get(method, []))
+	
+	for callable in connecters.keys():
+		var signal_name: String = connecters.get(callable, "")
+		if field.has_signal(signal_name):
+			field.connect(connecters.get(callable), callable)
 	
 	field.propagate(value)
 	field.connect("field_changed", preview.emit)

@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://common/ui/fields/collapsible_field/collapsible_field.gd" id="1_tmui1"]
 [ext_resource type="Texture2D" uid="uid://cb6n6enqfvclw" path="res://ui/assets/icons/arrow_right.svg" id="2_357t1"]
 
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ng6uw"]
 content_margin_left = 10.0
 content_margin_top = 10.0
@@ -20,6 +19,7 @@ anchors_preset = -1
 anchor_right = 0.029
 offset_right = 0.5
 offset_bottom = 59.0
+size_flags_vertical = 3
 script = ExtResource("1_tmui1")
 
 [node name="Button" type="Button" parent="."]
@@ -29,6 +29,7 @@ alignment = 0
 
 [node name="CollapsibleContainer" type="MarginContainer" parent="."]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 0
@@ -45,6 +46,8 @@ theme_override_constants/separation = 0
 [node name="FieldContainer" type="VBoxContainer" parent="CollapsibleContainer/PanelContainer/VboxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="AddButton" type="Button" parent="CollapsibleContainer/PanelContainer/VboxContainer"]
 unique_name_in_owner = true

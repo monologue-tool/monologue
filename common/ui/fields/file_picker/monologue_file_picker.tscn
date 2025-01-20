@@ -3,9 +3,6 @@
 [ext_resource type="Script" path="res://common/ui/fields/file_picker/file_picker.gd" id="1_siiu8"]
 [ext_resource type="Texture2D" uid="uid://t1i3wy037vsu" path="res://ui/assets/icons/folder_icon.png" id="2_plad0"]
 
-
-
-
 [sub_resource type="LabelSettings" id="LabelSettings_nr3ee"]
 font_color = Color(0.768627, 0.180392, 0.25098, 1)
 
@@ -15,7 +12,7 @@ offset_bottom = 59.0
 script = ExtResource("1_siiu8")
 
 [node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 size_flags_vertical = 0
 text = "Value"

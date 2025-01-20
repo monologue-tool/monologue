@@ -4,8 +4,11 @@
 [ext_resource type="PackedScene" uid="uid://hvv74un17dp0" path="res://common/ui/fields/collapsible_field/collapsible_field.tscn" id="2_jih45"]
 
 [node name="MonologueList" type="VBoxContainer"]
-offset_right = 200.0
-offset_bottom = 60.0
+anchors_preset = -1
+anchor_right = 0.125
+anchor_bottom = 0.062
+offset_bottom = 0.479996
+size_flags_vertical = 3
 theme_override_constants/separation = 5
 script = ExtResource("1_8kx3n")
 
@@ -13,3 +16,5 @@ script = ExtResource("1_8kx3n")
 layout_mode = 2
 show_add_button = true
 separate_items = true
+
+[editable path="CollapsibleField"]

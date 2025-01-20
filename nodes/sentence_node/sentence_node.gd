@@ -36,9 +36,9 @@ func _on_text_preview(text: Variant):
 
 func _update():
 	reload_preview()
-	speaker.callers["set_items"] = [get_graph_edit().speakers, "Reference", "ID"]
+	speaker.callers["set_items"] = [get_graph_edit().speakers, "Character/Name", "EditorIndex"]
 	super._update()
 
 
 func _get_field_groups() -> Array:
-	return [{"Character": ["speaker", "display_name", "display_variant"]}]
+	return [{"Speaker": ["speaker", "display_name", "display_variant"]}]
