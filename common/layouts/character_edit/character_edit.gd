@@ -1,11 +1,6 @@
 class_name CharacterEdit extends CharacterEditSection
 
 
-@onready var portrait_list_section := %PortraitListSection
-@onready var portrait_settings_section := %PortraitSettingsSection
-@onready var preview_section := %PreviewSection
-@onready var timeline_section := %TimelineSection
-
 var nicknames := Property.new(MonologueGraphNode.LINE)
 var display_name := Property.new(MonologueGraphNode.LINE)
 var description := Property.new(MonologueGraphNode.TEXT)
