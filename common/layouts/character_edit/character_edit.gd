@@ -16,6 +16,7 @@ func _ready() -> void:
 	GlobalSignal.add_listener("open_character_edit", open)
 	GlobalSignal.add_listener("close_character_edit", close)
 	GlobalSignal.add_listener("reload_character_edit", reload)
+	super._ready()
 
 
 func open(graph: MonologueGraphEdit, index: int) -> void:

@@ -96,6 +96,7 @@ func _on_portrait_option_set_to_default(portrait_option: PortraitOption) -> void
 	for option: PortraitOption in all_options:
 		if option == portrait_option:
 			var index = all_options.find(option)
+			default_portrait.save_value(references[index].id.value)
 			default_portrait.value = references[index].id.value
 		else:
 			option.release_default()

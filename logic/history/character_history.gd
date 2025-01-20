@@ -28,7 +28,8 @@ func set_property(node: Variant, property: String, value: Variant) -> void:
 
 func _display_character() -> void:
 	var node = graph_edit.get_node(node_path)
-	if node[changes[0].property].field.is_visible_in_tree():
+	var property = node[changes[0].property]
+	if property.field and property.field.is_visible_in_tree():
 		GlobalSignal.emit("reload_character_edit", [character_index])
 	else:
 		graph_edit.set_selected(graph_edit.get_root_node())
