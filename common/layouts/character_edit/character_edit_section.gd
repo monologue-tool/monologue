@@ -1,22 +1,20 @@
 class_name CharacterEditSection extends Control
 
 
-var character_index: int = -1
-var graph_edit: MonologueGraphEdit
+## Character index that is being edited in the graph_edit.
+@export var character_index: int = -1 : set = set_index
+## Container which will house all the fields for this section.
+@export var field_vbox: Control
+## The graph_edit storing the character.
+@export var graph_edit: MonologueGraphEdit : set = set_graph_edit
+## List of other sections that are linked to this section.
+@export var linked_sections: Array[CharacterEditSection]
 
 
-func _get_all_fields() -> Array:
-	var fields := []
-	for property in get_property_list():
-		if property.class_name != "Property":
-			continue
-		fields.append(property.name)
-		var property_var: Property = get(property.name)
-		if property_var.is_connected("change", change):
-			property_var.disconnect("change", change)
-		property_var.connect("change", change.bind(property.name))
-
-	return fields
+func _ready() -> void:
+	for entry in get_property_list():
+		if Constants.PROPERTY_CLASSES.has(entry.class_name):
+			get(entry.name).connect("change", change.bind(entry.name))
 
 
 func change(old_value: Variant, new_value: Variant, property: String) -> void:
@@ -31,41 +29,48 @@ func change(old_value: Variant, new_value: Variant, property: String) -> void:
 	undo_redo.commit_action()
 
 
+## Deletes all field controls in the field_vbox.
 func flush() -> void:
-	# Delete old fields
-	for field in self.field_vbox.get_children():
+	for field in field_vbox.get_children():
 		field.queue_free()
-	
-	# Reset property to default
-	for field_name in _get_all_fields():
-		var property: Property = get(field_name)
-		property.value = property.default_value
+
+
+func set_graph_edit(graph: MonologueGraphEdit) -> void:
+	graph_edit = graph
+	for section in linked_sections:
+		section.graph_edit = graph
+
+
+func set_index(index: int) -> void:
+	character_index = index
+	for section in linked_sections:
+		section.character_index = index
 
 
 func _from_dict(dict: Dictionary) -> void:
 	flush()
-	
-	# Load values
-	for key in dict.keys():
-		var property = get(key.to_snake_case())
-		if property is Property:
-			property.value = dict.get(key)
-	
-	# Create fields
-	for field_name in _get_all_fields():
-		var property: Property = get(field_name)
-		var field_label: String = field_name.replace("_", " ").capitalize()
-		
-		property.callers["set_label_text"] = [field_label]
-		property.show(self.field_vbox)
+	for entry in get_property_list():
+		if Constants.PROPERTY_CLASSES.has(entry.class_name):
+			var key = Util.to_key_name(entry.name)
+			var property = get(entry.name)
+			var is_value = property is Property
+			var is_raw = property is Localizable
+			if property and (is_value or is_raw) and property.visible:
+				if is_value:
+					property.value = dict.get(key, property.default_value)
+				elif is_raw:
+					property.raw_data = dict.get(key, {})
+				var label = key.capitalize()
+				property.callers["set_label_text"] = [label]
+				property.show(field_vbox)
 
 
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {}
 	for property in get_property_list():
-		if property.class_name != "Property":
-			continue
-		
-		var property_name: String = property.name
-		dict[Util.to_key_name(property_name)] = get(property_name).value
+		if Constants.PROPERTY_CLASSES.has(property.class_name):
+			var reference = get(property.name)
+			var is_raw = reference is Localizable
+			var value = reference.to_raw_value() if is_raw else reference.value
+			dict[Util.to_key_name(property.name)] = value
 	return dict

@@ -86,7 +86,7 @@ bg_color = Color(0.27451, 0.27451, 0.301961, 0.25098)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_omduo"]
 
-[node name="CharacterEdit" type="MarginContainer"]
+[node name="CharacterEdit" type="MarginContainer" node_paths=PackedStringArray("field_vbox", "linked_sections")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -98,6 +98,8 @@ theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 script = ExtResource("1_mo23b")
+field_vbox = NodePath("PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/MainSettingsSection/MarginContainer/FieldVBox")
+linked_sections = [NodePath("PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection")]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
@@ -146,10 +148,12 @@ theme_override_constants/margin_bottom = 0
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PortraitListSection" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer"]
+[node name="PortraitListSection" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer" node_paths=PackedStringArray("field_vbox", "linked_sections")]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("5_mpn8l")
+field_vbox = NodePath("ScrollContainer/FieldVBox")
+linked_sections = [NodePath("../../LeftContainer/HSplitContainer/PortraitSettingsSection"), NodePath("../../LeftContainer/TimelineSection")]
 
 [node name="SectionLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/RightContainer/PortraitListSection"]
 layout_mode = 2
@@ -180,13 +184,14 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="PortraitSettingsSection" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer"]
+[node name="PortraitSettingsSection" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer" node_paths=PackedStringArray("field_vbox")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 script = ExtResource("7_gu775")
+field_vbox = NodePath("MarginContainer/FieldVBox")
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/HSplitContainer/PortraitSettingsSection"]
 layout_mode = 2
@@ -533,4 +538,4 @@ text = "Done"
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/PanelContainer/HBoxContainer/Button" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection" method="_on_button_pressed"]
 [connection signal="sort_children" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/HSplitContainer/LayerContainer/MainLayerVBox/ScrollContainer/LayerVBox" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/HSplitContainer/LayerContainer/MainLayerVBox/ScrollContainer/LayerVBox" method="_on_sort_children"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection/TimelineContainer/Timeline/VBoxContainer/HSplitContainer/LayerTimelineContainer/ScrollContainer/LayerTimelineVBox/FrameCountTimeline/HBox/PanelContainer6/btnAddCell" to="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/LeftContainer/TimelineSection" method="_on_btn_add_cell_pressed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2/Button" to="." method="_on_close_character_edit"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2/Button" to="." method="close"]

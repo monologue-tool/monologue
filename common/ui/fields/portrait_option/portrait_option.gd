@@ -17,9 +17,6 @@ signal name_submitted(this_option: PortraitOption)
 
 var is_active: bool = false
 var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
-var id: String = IDGen.generate(5)
-var _to_dict: Callable
-var portrait_index: int = -1
 
 
 func _ready() -> void:

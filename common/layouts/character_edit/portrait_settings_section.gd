@@ -8,7 +8,6 @@ var image_path := Property.new(MonologueGraphNode.FILE, {})
 var offset := Property.new(MonologueGraphNode.VECTOR, {}, [0, 0])
 var mirror := Property.new(MonologueGraphNode.TOGGLE, {}, false)
 
-@onready var field_vbox := $MarginContainer/FieldVBox
 @onready var preview_section := %PreviewSection
 @onready var timeline_section := %TimelineSection
 
@@ -21,6 +20,7 @@ func _ready() -> void:
 		{ "id": 0, "text": "Image"     },
 		{ "id": 1, "text": "Animation" },
 	]]
+	super._ready()
 
 
 func _set_base_path(val: String) -> void:

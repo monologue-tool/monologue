@@ -26,7 +26,7 @@ func _init(graph: MonologueGraphEdit, path: NodePath,
 
 func change_properties() -> void:
 	reset_language()
-	var node: MonologueGraphNode = graph_edit.get_node(node_path)
+	var node = graph_edit.get_node(node_path)
 	for change in changes:
 		set_property(node, change.property, change.after)
 	_hide_unrelated_windows()
@@ -36,7 +36,7 @@ func change_properties() -> void:
 
 func revert_properties() -> void:
 	reset_language()
-	var node: MonologueGraphNode = graph_edit.get_node(node_path)
+	var node = graph_edit.get_node(node_path)
 	for change in changes:
 		set_property(node, change.property, change.before)
 	_hide_unrelated_windows()

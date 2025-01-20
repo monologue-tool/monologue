@@ -1,50 +1,34 @@
 class_name CharacterEdit extends CharacterEditSection
 
 
-@onready var main_section := %MainSettingsSection
 @onready var portrait_list_section := %PortraitListSection
 @onready var portrait_settings_section := %PortraitSettingsSection
 @onready var preview_section := %PreviewSection
 @onready var timeline_section := %TimelineSection
-@onready var field_vbox := %FieldVBox
 
 var nicknames := Property.new(MonologueGraphNode.LINE)
 var display_name := Property.new(MonologueGraphNode.LINE)
 var description := Property.new(MonologueGraphNode.TEXT)
 
-var base_path: String
-
 
 func _ready() -> void:
-	_on_close_character_edit()
-	GlobalSignal.add_listener("open_character_edit", _on_open_character_edit)
-	GlobalSignal.add_listener("close_character_edit", _on_close_character_edit)
-	GlobalSignal.add_listener("reload_character_edit", _on_reload_character_edit)
-	
-	portrait_list_section.connect("portrait_selected", _update_portrait)
-	_update_portrait()
+	close()
+	GlobalSignal.add_listener("open_character_edit", open)
+	GlobalSignal.add_listener("close_character_edit", close)
+	GlobalSignal.add_listener("reload_character_edit", reload)
 
 
-## Trickle down the setting of graph_edit and character_index.
-func trickle() -> void:
-	var child_sections = [portrait_list_section, portrait_settings_section, timeline_section]
-	for section in child_sections:
-		section.graph_edit = graph_edit
-		section.character_index = character_index
-
-
-func _on_open_character_edit(graph: MonologueGraphEdit, index: int) -> void:
+func open(graph: MonologueGraphEdit, index: int) -> void:
 	if index >= 0:
 		graph_edit = graph
 		character_index = index
-		trickle()
 		_from_dict(graph.speakers[index])
 		show()
 	else:
-		_on_close_character_edit()
+		close()
 
 
-func _on_close_character_edit() -> void:
+func close() -> void:
 	# also triggered when 'Done' button is pressed
 	if graph_edit:
 		graph_edit.speakers[character_index]["Character"].merge(_to_dict(), true)
@@ -53,30 +37,26 @@ func _on_close_character_edit() -> void:
 	character_index = -1
 
 
-func _on_reload_character_edit(index: int) -> void:
+func reload(index: int) -> void:
 	# triggered if character edit is opened but character index is different
 	if character_index != index:
-		_on_open_character_edit(graph_edit, index)
-
-
-func _update_portrait() -> void:
-	var selected_idx: int = portrait_list_section.selected
-	
-	var show_portrait_sections: bool = selected_idx >= 0
-	portrait_settings_section.visible = show_portrait_sections
-	preview_section.visible = show_portrait_sections
-	if show_portrait_sections == false:
-		timeline_section.hide()
+		open(graph_edit, index)
 
 
 func _from_dict(dict: Dictionary = {}) -> void:
 	var character_dict: Dictionary = dict.get("Character", {})
 	super._from_dict(character_dict)
-	portrait_list_section._from_dict(character_dict)
-	_update_portrait()
+	_from_recursive(character_dict, linked_sections)
+
+
+func _from_recursive(dict: Dictionary, subsections: Array[CharacterEditSection]) -> void:
+	for subsection in subsections:
+		subsection._from_dict(dict)
+		_from_recursive(dict, subsection.linked_sections)
 
 
 func _to_dict() -> Dictionary:
-	var aggregate = super._to_dict()
-	aggregate.merge(portrait_list_section._to_dict(), true)
-	return aggregate
+	var flat_map = super._to_dict()
+	for section in linked_sections:
+		flat_map.merge(section._to_dict(), true)
+	return flat_map

@@ -3,8 +3,9 @@ class_name AbstractPortraitOption extends RefCounted
 
 const PORTRAIT_FIELD := preload("res://common/ui/fields/portrait_option/portrait_option.tscn")
 
+var portrait_name := Property.new(MonologueGraphNode.LINE, {}, "")
 var portrait := Property.new(PORTRAIT_FIELD, {}, {})
-var id := Property.new(MonologueGraphNode.LINE, {}, IDGen.generate())
+var id := Property.new(MonologueGraphNode.LINE, {}, IDGen.generate(5))
 var idx := Property.new(MonologueGraphNode.SPINBOX, {}, 0)
 
 #var custom_delete_button :
@@ -18,6 +19,7 @@ func _init(node: PortraitListSection):
 	root = node
 	portrait.connect("change", update_portrait)
 	portrait.setters["graph_edit"] = graph
+	portrait_name.visible = false
 
 
 func update_portrait(old_value: Variant, new_value: Variant):
@@ -38,11 +40,17 @@ func get_property_names() -> PackedStringArray:
 
 func _from_dict(dict: Dictionary) -> void:
 	if dict.get("ID") is String:
-		id.value = dict.get("ID")
-		portrait.value = dict.get("Portrait")
+		id.value = dict.get("ID", IDGen.generate(5))
+		portrait_name.value = dict.get("Name", "")
+		portrait.value = dict.get("Portrait", {})
 		idx.value = dict.get("EditorIndex")
 		portrait.setters["portrait_index"] = idx.value
 
 
 func _to_dict() -> Dictionary:
-	return { "ID": id.value, "Portrait": portrait.value, "EditorIndex": idx.value }
+	return {
+		"ID": id.value,
+		"Name": portrait_name.value,
+		"Portrait": portrait.value,
+		"EditorIndex": idx.value,
+	}
