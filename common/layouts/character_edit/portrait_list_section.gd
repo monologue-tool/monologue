@@ -66,11 +66,13 @@ func load_portraits(new_portrait_list: Array) -> void:
 			abstract_option.portrait.callers["set_default"] = []
 	
 	portraits.value = new_portrait_list
+	_update_portrait()
 
 
 func _from_dict(dict: Dictionary) -> void:
 	super._from_dict(dict)
-	_update_portrait()
+	load_portraits(dict.get("Portraits", []))
+	portraits.propagate(portraits.value)
 
 
 func _on_portrait_option_pressed(portrait_option: PortraitOption) -> void:
