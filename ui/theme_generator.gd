@@ -12,6 +12,7 @@ var primary_text_color_40: Color = Color("ffffff64")
 var secondary_text_color: Color = Color("b3b3b3")
 
 var accent_color: Color = Color("d55160")
+var error_color: Color = Color("c42e40")
 var background_color: Color = Color("1e1e21")
 var border_color: Color = tertiary_color
 
@@ -47,6 +48,7 @@ var separator_style = stylebox_line({
 var hover_button: Dictionary = { bg_color = tertiary_color }
 var pressed_button: Dictionary = { bg_color = accent_color }
 var empty_button: Dictionary = { draw_center = false }
+var error_button: Dictionary = { border_color = error_color, borders_ = border_width(default_border_width) }
 
 
 func get_inner_radius(outer_radius: int, padding: int) -> int:
@@ -89,6 +91,9 @@ func define_button() -> void:
 	for node_type in ["Button", "OptionButton", "MenuButton"]:
 		_button_style_builder(button_style, node_type)
 		_button_style_builder(button_style_no_corner, node_type, "_NoCorner")
+	
+	_button_style_builder(inherit(button_style, error_button), "OptionButton", "_Error")
+	_button_style_builder(inherit(button_style, error_button), "OptionButton", "_NoCorner_Error")
 
 ## CheckBox and CheckButton
 func define_check_box() -> void:
