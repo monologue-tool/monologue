@@ -69,13 +69,24 @@ func define_theme() -> void:
 		_button_style_builder(button_style_no_corner, node_type, "_NoCorner")
 #endregion
 	
-#region CheckBox style
-	define_style("CheckBox", {
-		normal = inherit(button_style, empty_button, base_border_stylebox),
-		hover = inherit(button_style, hover_button),
-		pressed = inherit(button_style, pressed_button),
-		focus = inherit(button_style, hover_button)
-	})
+#region CheckBox/CheckButton style
+	var check_style: Dictionary = {
+		normal = stylebox_empty({}),
+		hover = stylebox_empty({}),
+		pressed = stylebox_empty({}),
+		focus = stylebox_empty({})
+	}
+	
+	define_style("CheckBox", inherit(check_style, {
+		h_separation = tertiary_content_margin,
+		checked = preload("res://ui/assets/icons/check.svg"),
+		unchecked = ImageTexture.new()
+	}))
+	
+	define_style("CheckButton", inherit(check_style, {
+		checked = preload("res://ui/assets/icons/toggle_on.svg"),
+		unchecked = preload("res://ui/assets/icons/toggle_off.svg")
+	}))
 #endregion
 	
 #region GraphEdit style

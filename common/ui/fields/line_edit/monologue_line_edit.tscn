@@ -25,7 +25,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="LineEdit" type="LineEdit" parent="HBox/InnerVBox"]
-custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBox/InnerVBox/LineEdit"]

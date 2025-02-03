@@ -2,8 +2,6 @@
 
 [ext_resource type="Script" path="res://common/ui/fields/toggle/monologue_toggle.gd" id="1_0u5l0"]
 
-
-
 [node name="MonologueCheckButton" type="HBoxContainer"]
 offset_right = 43.0
 offset_bottom = 29.0
@@ -14,7 +12,29 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Value"
 
-[node name="CheckButton" type="CheckButton" parent="."]
+[node name="Control" type="Control" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
 
-[connection signal="toggled" from="CheckButton" to="." method="_on_check_button_toggled"]
+[node name="Panel" type="Panel" parent="Control"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -12.0
+offset_right = 40.0
+offset_bottom = 12.0
+grow_vertical = 2
+theme_type_variation = &"Panel_Primary_Corner5_Outline"
+
+[node name="CheckButton" type="CheckButton" parent="Control"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -12.0
+offset_right = 32.0
+offset_bottom = 12.0
+grow_vertical = 2
+
+[connection signal="toggled" from="Control/CheckButton" to="." method="_on_check_button_toggled"]
