@@ -26,7 +26,7 @@ corner_detail = 12
 [node name="OptionNode" type="GraphNode"]
 custom_minimum_size = Vector2(0, 70)
 offset_right = 412.0
-offset_bottom = 102.0
+offset_bottom = 94.0
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_5mv5j")
@@ -50,6 +50,7 @@ show_titlebar = false
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
+theme_type_variation = &"VBoxContainer_Small"
 
 [node name="CountLabel" type="Label" parent="VBox"]
 layout_mode = 2

@@ -14,7 +14,9 @@ signal shown
 ## Dictionary of field method names to argument list values.
 var callers: Dictionary = {}
 ## Reference to UI instance.
-var field: MonologueField
+var field: Control
+## Reference to the field container.
+var field_container: Control
 ## Scene used to instantiate the field's UI control.
 var scene: PackedScene
 ## Dictionary of field property names to set values.
@@ -52,7 +54,7 @@ func morph(new_scene: PackedScene) -> void:
 	if is_instance_valid(field):
 		var panel = field.get_parent()
 		var child_index = field.get_index()
-		field.queue_free()
+		field_container.queue_free()
 		show(panel, child_index)
 
 
@@ -81,14 +83,26 @@ func set_visible(can_see: bool) -> void:
 	_check_visibility()
 
 
-func show(panel: Control, child_index: int = -1) -> MonologueField:
+func show(panel: Control, child_index: int = -1, auto_margin: bool = true) -> MonologueField:
 	field = scene.instantiate()
+	
+	field_container = MarginContainer.new()
+	field_container.theme_type_variation = "MarginContainer_Medium"
+	field_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	field_container.add_theme_constant_override("margin_right", 0)
+	field_container.add_theme_constant_override("margin_bottom", 0)
+	if field is CollapsibleField or field is MonologueList or not auto_margin:
+		field_container.add_theme_constant_override("margin_left", 0)
+		field_container.add_theme_constant_override("margin_top", 0)
+	
 	for property in setters.keys():
 		field.set(property, setters.get(property))
 	
-	panel.add_child(field)
+	field_container.add_child(field)
+	
+	panel.add_child(field_container)
 	if child_index >= 0:
-		panel.move_child(field, child_index)
+		panel.move_child(field_container, child_index)
 	
 	for method in callers.keys():
 		field.callv(method, callers.get(method, []))

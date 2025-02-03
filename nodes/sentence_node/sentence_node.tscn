@@ -1,8 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cifg2nritn8t6"]
+[gd_scene load_steps=2 format=3 uid="uid://cifg2nritn8t6"]
 
 [ext_resource type="Script" path="res://nodes/sentence_node/sentence_node.gd" id="1_at5jy"]
-[ext_resource type="Texture2D" uid="uid://px17kflnvnd7" path="res://ui/assets/icons/slot_left.svg" id="1_hvs86"]
-[ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="2_5kymc"]
 
 [node name="SentenceNode" type="GraphNode" groups=["graph_nodes"]]
 custom_minimum_size = Vector2(400, 100)
@@ -13,25 +11,18 @@ title = "NodeSentence"
 slot/0/left_enabled = true
 slot/0/left_type = 0
 slot/0/left_color = Color(1, 1, 1, 1)
-slot/0/left_icon = ExtResource("1_hvs86")
+slot/0/left_icon = null
 slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color(1, 1, 1, 1)
-slot/0/right_icon = ExtResource("2_5kymc")
+slot/0/right_icon = null
 slot/0/draw_stylebox = false
 script = ExtResource("1_at5jy")
 titlebar_color = Color(0.835294, 0.317647, 0.376471, 1)
 
-[node name="MainContainer" type="MarginContainer" parent="."]
+[node name="TextLabelPreview" type="RichTextLabel" parent="."]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="TextLabelPreview" type="RichTextLabel" parent="MainContainer"]
-layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.72549, 0.72549, 0.72549, 1)
 bbcode_enabled = true

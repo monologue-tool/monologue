@@ -7,7 +7,6 @@ custom_minimum_size = Vector2(400, 60)
 offset_right = 400.0
 offset_bottom = 60.0
 size_flags_vertical = 0
-theme_override_constants/separation = 15
 title = "ChoiceNode"
 script = ExtResource("1_nn3v2")
 titlebar_color = Color(0.835294, 0.317647, 0.376471, 1)

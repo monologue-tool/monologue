@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://common/windows/file_dialog/file_dialog.gd" id="1_mjdqk"]
 
-
 [node name="FileDialog" type="FileDialog"]
 auto_translate_mode = 1
 size = Vector2i(419, 175)

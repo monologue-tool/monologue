@@ -8,7 +8,7 @@ var display_variant := Property.new(LINE, { "is_sublabel": true })
 var sentence        := Localizable.new(TEXT)
 var voiceline       := Localizable.new(FILE, { "filters": FilePicker.AUDIO })
 
-@onready var _preview = $MainContainer/TextLabelPreview
+@onready var _preview = $TextLabelPreview
 
 
 func _ready():

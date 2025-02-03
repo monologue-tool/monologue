@@ -2,14 +2,14 @@
 
 [ext_resource type="Script" path="res://common/windows/prompt_window/prompt_window.gd" id="1_u0ucq"]
 
-
-
 [node name="PromptWindow" type="Window"]
+transparent_bg = true
 initial_position = 2
 size = Vector2i(500, 150)
 unresizable = true
 borderless = true
 always_on_top = true
+transparent = true
 popup_window = true
 script = ExtResource("1_u0ucq")
 
@@ -19,6 +19,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"PanelContainer_Primary_Corner10_Outline"
 
 [node name="VBox" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 2

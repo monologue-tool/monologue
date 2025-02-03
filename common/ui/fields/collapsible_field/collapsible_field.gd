@@ -52,11 +52,13 @@ func _on_button_pressed() -> void:
 func open() -> void:
 	button.icon = icon_open
 	collapsible_container.show()
+	button.release_focus()
 
 
 func close() -> void:
 	button.icon = icon_close
 	collapsible_container.hide()
+	button.release_focus()
 
 
 func _on_add_button_pressed() -> void:

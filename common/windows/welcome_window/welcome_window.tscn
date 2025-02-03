@@ -1,25 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://bqqcww601rcx5"]
+[gd_scene load_steps=7 format=3 uid="uid://bqqcww601rcx5"]
 
 [ext_resource type="Script" path="res://common/windows/welcome_window/welcome_window.gd" id="1_hscvo"]
 [ext_resource type="Texture2D" uid="uid://uyec6noccly6" path="res://ui/assets/icons/new_file_icon.png" id="2_ripxl"]
 [ext_resource type="Texture2D" uid="uid://t1i3wy037vsu" path="res://ui/assets/icons/folder_icon.png" id="3_sct6c"]
 [ext_resource type="PackedScene" uid="uid://dbq34pvukxcce" path="res://common/windows/welcome_window/recent_file_container.tscn" id="4_v0v62"]
 [ext_resource type="PackedScene" uid="uid://dspmmme0jspdx" path="res://common/ui/buttons/close_button.tscn" id="5_h3u5k"]
-
-
-
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wb4lr"]
-content_margin_left = 20.0
-content_margin_top = 20.0
-content_margin_right = 20.0
-content_margin_bottom = 20.0
-bg_color = Color(0.129412, 0.14902, 0.180392, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-anti_aliasing = false
 
 [sub_resource type="LabelSettings" id="LabelSettings_7mcdy"]
 font_color = Color(0.423529, 0.423529, 0.423529, 1)
@@ -42,7 +27,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_wb4lr")
+theme_type_variation = &"PanelContainer_Primary_Corner10_Outline"
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer"]
 layout_mode = 2

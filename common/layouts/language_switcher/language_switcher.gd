@@ -13,7 +13,7 @@ var arrow_down := preload("res://ui/assets/icons/arrow_down.svg")
 var option_scene := preload("res://common/layouts/language_switcher/language_option.tscn")
 
 @onready var dropdown_container: Control = $Dropdown
-@onready var vbox: VBoxContainer = $Dropdown/PanelContainer/MarginContainer/VBox/Scroll/Options
+@onready var vbox: VBoxContainer = $Dropdown/PanelContainer/VBox/Scroll/Options
 
 
 func _ready() -> void:
@@ -106,6 +106,9 @@ func set_enabled(active: bool = true) -> void:
 func show_dropdown(can_see: bool = true) -> void:
 	dropdown_container.visible = can_see
 	icon = arrow_down if can_see else arrow_left
+	
+	if !can_see:
+		release_focus()
 
 
 func _on_option_removed(option: LanguageOption) -> void:

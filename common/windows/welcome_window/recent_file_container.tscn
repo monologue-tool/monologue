@@ -1,10 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dbq34pvukxcce"]
+[gd_scene load_steps=2 format=3 uid="uid://dbq34pvukxcce"]
 
 [ext_resource type="Script" path="res://common/windows/welcome_window/recent_file_container.gd" id="1_0a36f"]
-
-
-[sub_resource type="LabelSettings" id="LabelSettings_1l82f"]
-font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="RecentFilesContainer" type="VBoxContainer" node_paths=PackedStringArray("button_container")]
 script = ExtResource("1_0a36f")
@@ -12,8 +8,8 @@ button_container = NodePath("ButtonContainer")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
+theme_type_variation = &"Label_Secondary"
 text = "Recent files"
-label_settings = SubResource("LabelSettings_1l82f")
 
 [node name="ButtonContainer" type="VBoxContainer" parent="."]
 layout_mode = 2

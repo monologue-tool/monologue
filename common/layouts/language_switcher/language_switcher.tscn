@@ -7,6 +7,8 @@
 
 [node name="LanguageSwitcher" type="Button"]
 custom_minimum_size = Vector2(200, 0)
+offset_right = 200.0
+offset_bottom = 34.0
 text = "English"
 icon = ExtResource("1_cmhp2")
 alignment = 0
@@ -27,34 +29,32 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -205.0
-offset_bottom = -45.0
+offset_left = -10.0
+offset_top = -220.0
+offset_right = 10.0
+offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"Primary_Corner10"
 
-[node name="MarginContainer" type="MarginContainer" parent="Dropdown/PanelContainer"]
+[node name="VBox" type="VBoxContainer" parent="Dropdown/PanelContainer"]
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="Dropdown/PanelContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="Scroll" type="ScrollContainer" parent="Dropdown/PanelContainer/MarginContainer/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="Dropdown/PanelContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Options" type="VBoxContainer" parent="Dropdown/PanelContainer/MarginContainer/VBox/Scroll"]
+[node name="Options" type="VBoxContainer" parent="Dropdown/PanelContainer/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"VBoxContainer_Medium"
 alignment = 2
 
-[node name="LanguageOption" parent="Dropdown/PanelContainer/MarginContainer/VBox/Scroll/Options" instance=ExtResource("3_unc6p")]
+[node name="LanguageOption" parent="Dropdown/PanelContainer/VBox/Scroll/Options" instance=ExtResource("3_unc6p")]
 layout_mode = 2
 script = null
 
-[node name="HSeparator" type="HSeparator" parent="Dropdown/PanelContainer/MarginContainer/VBox"]
-layout_mode = 2
-
-[node name="btnAdd" type="Button" parent="Dropdown/PanelContainer/MarginContainer/VBox"]
+[node name="btnAdd" type="Button" parent="Dropdown/PanelContainer/VBox"]
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 icon = ExtResource("4_1p58k")
@@ -62,4 +62,4 @@ icon_alignment = 1
 expand_icon = true
 
 [connection signal="pressed" from="." to="." method="_on_pressed"]
-[connection signal="pressed" from="Dropdown/PanelContainer/MarginContainer/VBox/btnAdd" to="." method="_on_btn_add_pressed"]
+[connection signal="pressed" from="Dropdown/PanelContainer/VBox/btnAdd" to="." method="_on_btn_add_pressed"]

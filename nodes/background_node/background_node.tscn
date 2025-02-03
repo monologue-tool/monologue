@@ -1,9 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://cwpq37000kaqi"]
+[gd_scene load_steps=4 format=3 uid="uid://cwpq37000kaqi"]
 
-[ext_resource type="Texture2D" uid="uid://px17kflnvnd7" path="res://ui/assets/icons/slot_left.svg" id="1_5j0eh"]
-[ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="2_53u4f"]
 [ext_resource type="Script" path="res://nodes/background_node/background_node.gd" id="3_oaxk1"]
-[ext_resource type="StyleBox" uid="uid://bmb6fo20hn20m" path="res://ui/theme_default/node_value.stylebox" id="4_qtkwm"]
 
 [sub_resource type="Theme" id="Theme_llmqa"]
 
@@ -21,22 +18,23 @@ title = "SetterNode"
 slot/0/left_enabled = true
 slot/0/left_type = 0
 slot/0/left_color = Color(1, 1, 1, 1)
-slot/0/left_icon = ExtResource("1_5j0eh")
+slot/0/left_icon = null
 slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color(1, 1, 1, 1)
-slot/0/right_icon = ExtResource("2_53u4f")
+slot/0/right_icon = null
 slot/0/draw_stylebox = false
 script = ExtResource("3_oaxk1")
 titlebar_color = Color(0, 0.505882, 0.501961, 1)
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_type_variation = &"VBoxContainer_Big"
 
 [node name="HBox" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 mouse_filter = 2
+theme_type_variation = &"HBoxContainer_Small"
 
 [node name="BgLabel" type="Label" parent="VBox/HBox"]
 layout_mode = 2
@@ -44,7 +42,7 @@ text = "Set Background to Image"
 
 [node name="PathLabel" type="Label" parent="VBox/HBox"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_qtkwm")
+theme_type_variation = &"Label_NodeValue"
 text = "No Image"
 label_settings = SubResource("LabelSettings_ae3bv")
 
