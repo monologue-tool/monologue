@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bqjfdabrxujp7"]
+[gd_scene load_steps=24 format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" path="res://scenes/main/monologue_control.gd" id="1_r00lk"]
 [ext_resource type="Script" path="res://common/windows/welcome_window/welcome_window.gd" id="3_bs36t"]
@@ -12,7 +12,6 @@
 [ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.tscn" id="9_v3rw4"]
 [ext_resource type="Texture2D" uid="uid://bddodmw1pm42r" path="res://title_banner@0.5x.png" id="10_m5ce4"]
 [ext_resource type="Script" path="res://scenes/main/graph_edit_switcher.gd" id="11_k843q"]
-[ext_resource type="Script" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.gd" id="12_jdwju"]
 [ext_resource type="Script" path="res://common/windows/welcome_window/recent_file_container.gd" id="14_xsog8"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="15_hn16p"]
 [ext_resource type="Texture2D" uid="uid://faci8gjgsxub" path="res://ui/assets/icons/file_plus.svg" id="16_x1vtb"]
@@ -121,7 +120,7 @@ mouse_filter = 2
 
 [node name="SidePanel" parent="MarginContainer/MainContainer/GraphEditsArea/MarginContainer/HSplitContainer" instance=ExtResource("6_3jc6d")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(425, 0)
+custom_minimum_size = Vector2(450, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -242,16 +241,6 @@ layout_mode = 2
 [node name="ExpandedTextEditContainer" parent="." instance=ExtResource("9_v3rw4")]
 visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_left = 0.0
-anchor_top = 0.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
-script = ExtResource("12_jdwju")
 
 [node name="GraphNodePicker" parent="." node_paths=PackedStringArray("switcher") instance=ExtResource("19_myvjg")]
 initial_position = 1
@@ -361,7 +350,7 @@ size_flags_horizontal = 8
 size_flags_vertical = 0
 
 [node name="FileDialog" type="FileDialog" parent="."]
-size = Vector2i(419, 180)
+size = Vector2i(419, 201)
 access = 2
 use_native_dialog = true
 script = ExtResource("20_2dvte")

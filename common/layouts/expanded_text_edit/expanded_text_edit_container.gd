@@ -1,4 +1,4 @@
-extends CenterContainer
+extends MarginContainer
 
 
 @onready var text_edit: TextEdit = %TextEdit
