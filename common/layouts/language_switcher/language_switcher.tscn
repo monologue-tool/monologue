@@ -35,7 +35,7 @@ offset_right = 10.0
 offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"Primary_Corner10"
+theme_type_variation = &"PanelContainer_Primary_Corner10_Outline"
 
 [node name="VBox" type="VBoxContainer" parent="Dropdown/PanelContainer"]
 layout_mode = 2
@@ -57,6 +57,7 @@ script = null
 [node name="btnAdd" type="Button" parent="Dropdown/PanelContainer/VBox"]
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
+theme_type_variation = &"Button_Outline"
 icon = ExtResource("4_1p58k")
 icon_alignment = 1
 expand_icon = true
