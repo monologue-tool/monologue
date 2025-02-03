@@ -2,7 +2,6 @@
 class_name MonologueArgument extends MonologueVariable
 
 
-var value_stylebox = preload("res://ui/theme_default/node_value.stylebox")
 var last_boolean: bool
 var last_number: float
 var last_string: String
@@ -43,7 +42,7 @@ func create_representation(parent: Control) -> HBoxContainer:
 	representation.add_child(type_label)
 	
 	var value_label = Label.new()
-	value_label.add_theme_stylebox_override("normal", value_stylebox)
+	value_label.theme_type_variation = "Label_NodeValue"
 	value_label.text = str(value.value) if value.value is not String or \
 			value.value != "" else "value"
 	representation.add_child(value_label)

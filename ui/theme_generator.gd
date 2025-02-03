@@ -46,8 +46,9 @@ var separator_style = stylebox_line({
 })
 
 var hover_button: Dictionary = { bg_color = tertiary_color }
-var pressed_button: Dictionary = { bg_color = accent_color }
+var pressed_button: Dictionary = { bg_color = tertiary_color }
 var empty_button: Dictionary = { draw_center = false }
+var accent_button: Dictionary = { bg_color = accent_color }
 var error_button: Dictionary = { border_color = error_color, borders_ = border_width(default_border_width) }
 
 
@@ -91,6 +92,14 @@ func define_button() -> void:
 	for node_type in ["Button", "OptionButton", "MenuButton"]:
 		_button_style_builder(button_style, node_type)
 		_button_style_builder(button_style_no_corner, node_type, "_NoCorner")
+	
+	var accent_button_style: Dictionary = inherit(button_style, accent_button)
+	define_variant_style("Button_Accent", "Button", {
+		normal = accent_button_style,
+		hover = accent_button_style,
+		pressed = accent_button_style,
+		focus = accent_button_style
+	})
 	
 	_button_style_builder(inherit(button_style, error_button), "OptionButton", "_Error")
 	_button_style_builder(inherit(button_style, error_button), "OptionButton", "_NoCorner_Error")
@@ -351,6 +360,10 @@ func define_field_edit() -> void:
 	define_style("LineEdit", {
 		focus = inherit(field_edit_style, base_border_stylebox),
 		normal = field_edit_style
+	})
+	define_variant_style("LineEdit_Flat", "LineEdit", {
+		focus = inherit(field_edit_style, { draw_center = false }),
+		normal = inherit(field_edit_style, { draw_center = false }),
 	})
 
 ## Tree
