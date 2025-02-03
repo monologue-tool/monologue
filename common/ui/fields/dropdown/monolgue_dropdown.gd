@@ -7,6 +7,10 @@ class_name MonologueDropdown extends MonologueField
 @onready var option_button: OptionButton = $OptionButton
 
 
+func _ready() -> void:
+	option_button.get_popup().transparent_bg = true
+
+
 func disable_items(index_list: PackedInt32Array):
 	for index in range(1, option_button.item_count):
 		var is_disabled = index_list.has(index)

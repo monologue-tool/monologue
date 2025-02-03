@@ -271,7 +271,7 @@ func define_panel() -> void:
 ## PopupMenu
 func define_popup_menu() -> void:
 	var popupmenu_style = inherit(general_normal_stylebox, base_border_stylebox, stylebox_flat({
-		corners_ = corner_radius(secondary_corner_radius)
+		corners_ = corner_radius(tertiary_content_margin)
 	}))
 	
 	define_style("PopupMenu", {
@@ -281,7 +281,6 @@ func define_popup_menu() -> void:
 		item_start_padding = secondary_content_margin,
 		v_separation = 4,
 		font_size = 16,
-		#title_font_size = 18,
 		hover = inherit(general_normal_stylebox, stylebox_flat({
 			corners_ = corner_radius(tertiary_content_margin),
 			bg_color = tertiary_color
