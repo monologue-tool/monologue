@@ -37,6 +37,12 @@ var base_border_stylebox: Dictionary = stylebox_flat({
 	border_color = border_color,
 })
 
+var separator_style = stylebox_line({
+	color = border_color,
+	grow_begin = 0,
+	grow_end = 0,
+	thickness = 1,
+})
 
 var hover_button: Dictionary = { bg_color = tertiary_color }
 var pressed_button: Dictionary = { bg_color = accent_color }
@@ -56,7 +62,23 @@ func setup() -> void:
 
 
 func define_theme() -> void:
-#region Button/OptionButton/MenuButton style
+	define_button()
+	define_check_box()
+	define_graph_edit()
+	define_graph_node()
+	define_separator()
+	define_label()
+	define_margin_container()
+	define_panel()
+	define_popup_menu()
+	define_box_container()
+	define_scroll_bar()
+	define_tab_bar()
+	define_field_edit()
+	define_tree()
+	
+## Button, OptionButton and MenuButton
+func define_button() -> void:
 	var button_style: Dictionary = stylebox_flat({
 		bg_color = secondary_color,
 		corners_ = corner_radius(tertiary_corner_radius),
@@ -67,9 +89,9 @@ func define_theme() -> void:
 	for node_type in ["Button", "OptionButton", "MenuButton"]:
 		_button_style_builder(button_style, node_type)
 		_button_style_builder(button_style_no_corner, node_type, "_NoCorner")
-#endregion
-	
-#region CheckBox/CheckButton style
+
+## CheckBox and CheckButton
+func define_check_box() -> void:
 	var check_style: Dictionary = {
 		normal = stylebox_empty({}),
 		hover = stylebox_empty({}),
@@ -87,9 +109,9 @@ func define_theme() -> void:
 		checked = preload("res://ui/assets/icons/toggle_on.svg"),
 		unchecked = preload("res://ui/assets/icons/toggle_off.svg")
 	}))
-#endregion
-	
-#region GraphEdit style
+
+## GraphEdit
+func define_graph_edit() -> void:
 	var graph_edit_panel: Dictionary = stylebox_flat({ bg_color = background_color })
 	
 	define_style("GraphEdit", {
@@ -97,9 +119,9 @@ func define_theme() -> void:
 		grid_minor = Color("ffffff0d"),
 		panel = graph_edit_panel
 	})
-#endregion
-	
-#region GraphNode style
+
+## GraphNode and GraphNodeTitleLabel
+func define_graph_node() -> void:
 	var selected_graph_node: Dictionary = { border_color = Color("fff") }
 	
 	var graph_node_panel_style: Dictionary = stylebox_flat({
@@ -128,20 +150,14 @@ func define_theme() -> void:
 		titlebar = graph_node_titlebar_style,
 		titlebar_selected = selected_graph_node_titlebar_style
 	})
-#endregion
 	
 	define_style("GraphNodeTitleLabel", {
 		font = preload("res://ui/assets/fonts/NotoSans-SemiBold.ttf"),
 		normal = stylebox_empty({})
 	})
-	
-#region Separator
-	var separator_style = stylebox_line({
-		color = border_color,
-		grow_begin = 0,
-		grow_end = 0,
-		thickness = 1,
-	})
+
+## HSeparator and VSeparator
+func define_separator() -> void:
 	for separator_type in ["HSeparator", "VSeparator"]:
 		var separator_type_style: Dictionary = inherit(separator_style, stylebox_line({
 			vertical = separator_type == "VSeparator"
@@ -158,9 +174,9 @@ func define_theme() -> void:
 				separation = 1,
 				separator = inherit(separator_type_style, variant_separator)
 			})
-#endregion
-	
-#region Label style
+
+## Label
+func define_label() -> void:
 	var node_value_style: Dictionary = stylebox_flat({
 		margins_ = content_margins(tertiary_content_margin),
 		corners_ = corner_radius(tertiary_corner_radius),
@@ -180,9 +196,9 @@ func define_theme() -> void:
 		font_color = secondary_text_color,
 		normal = node_value_style
 	})
-#endregion
 
-#region MarginContainer
+## MarginContainer
+func define_margin_container() -> void:
 	define_style("MarginContainer", {
 		margin_bottom = primary_content_margin,
 		margin_left = primary_content_margin,
@@ -201,9 +217,9 @@ func define_theme() -> void:
 		margin_right = tertiary_content_margin,
 		margin_top = tertiary_content_margin
 	})
-#endregion
 	
-#region Panel/PanelContainer
+## Panel and PanelContainer
+func define_panel() -> void:
 	var background_colors := [primary_color, secondary_color]
 	var background_colors_label := ["Primary", "Secondary"]
 	var margins := [0, primary_content_margin, secondary_content_margin, tertiary_content_margin]
@@ -246,9 +262,9 @@ func define_theme() -> void:
 	define_variant_style("PanelContainer_SidePanel", "PanelContainer", {
 		panel = inherit(base_border_stylebox, side_panel_style)
 	})
-#endregion
-	
-#region PopupMenu style
+
+## PopupMenu
+func define_popup_menu() -> void:
 	var popupmenu_style = inherit(general_normal_stylebox, base_border_stylebox, stylebox_flat({
 		corners_ = corner_radius(secondary_corner_radius)
 	}))
@@ -268,8 +284,9 @@ func define_theme() -> void:
 		panel = popupmenu_style,
 		separator = inherit(separator_style, stylebox_flat({ vertical = true }))
 	})
-#endregion
-	
+
+## HBoxContainer and VBoxContainer
+func define_box_container() -> void:
 	var box_containers := ["HBoxContainer", "VBoxContainer"]
 	
 	for box_container in box_containers:
@@ -277,15 +294,16 @@ func define_theme() -> void:
 		define_variant_style("%s_Big" % box_container, box_container, { separation = primary_content_margin })
 		define_variant_style("%s_Medium" % box_container, box_container, { separation = secondary_content_margin })
 		define_variant_style("%s_Small" % box_container, box_container, { separation = tertiary_content_margin })
-	
 
+## HScrollBar and VScrollBar
+func define_scroll_bar() -> void:
 	_scroll_bar_builder("HScrollBar")
 	_scroll_bar_builder("HScrollBar", "Left")
 	_scroll_bar_builder("VScrollBar")
 	_scroll_bar_builder("VScrollBar", "Top")
 
-	
-#region TabBar style
+## TabBar
+func define_tab_bar() -> void:
 	var hovered_tab: Dictionary = stylebox_flat({ bg_color = tertiary_color })
 	var selected_tab: Dictionary = stylebox_flat({ bg_color = accent_color })
 	var unselected_tab: Dictionary = stylebox_flat({ draw_center = false })
@@ -312,8 +330,9 @@ func define_theme() -> void:
 		tab_selected = inherit(tab_bar_style, selected_tab),
 		tab_unselected = inherit(tab_bar_style, unselected_tab)
 	})
-#endregion
-	
+
+## TextEdit and LineEdit
+func define_field_edit() -> void:
 	var field_edit_style: Dictionary = stylebox_flat({
 		margins_ = content_margins(tertiary_content_margin),
 		corners_ = corner_radius(tertiary_corner_radius),
@@ -329,8 +348,9 @@ func define_theme() -> void:
 		focus = inherit(field_edit_style, base_border_stylebox),
 		normal = field_edit_style
 	})
-	
-#region Tree style
+
+## Tree
+func define_tree() -> void:
 	var tree_panel: Dictionary = stylebox_flat({
 		bg_color = background_color,
 		border_color = border_color,
@@ -356,7 +376,6 @@ func define_theme() -> void:
 		panel = tree_panel,
 		focus = inherit(tree_panel, { draw_center = false })
 	})
-#endregion
 
 
 func _button_style_builder(style, node_type, variant_name: String = "") -> void:
