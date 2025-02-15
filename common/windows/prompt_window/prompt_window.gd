@@ -1,4 +1,4 @@
-class_name PromptWindow extends Window
+class_name PromptWindow extends MonologueWindow
 
 
 signal confirmed
@@ -11,7 +11,6 @@ const SAVE_PROMPT = "%s has been modified, save changes?"
 @onready var confirm_button = $PanelContainer/VBox/HBox/ConfirmButton
 @onready var deny_button = $PanelContainer/VBox/HBox/DenyButton
 @onready var cancel_button = $PanelContainer/VBox/HBox/CancelButton
-
 
 
 func prompt_save(filename: String) -> void:
