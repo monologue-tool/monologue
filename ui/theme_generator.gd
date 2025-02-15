@@ -1,40 +1,39 @@
 @tool
 class_name MonologueThemeGenerator extends ProgrammaticTheme
 
-# Constants for colors
-const PRIMARY_COLOR = Color("313136")
-const SECONDARY_COLOR = Color("36363c")
-const TERTIARY_COLOR = Color("46464d")
-const PRIMARY_TEXT_COLOR = Color("ffffff")
-const PRIMARY_TEXT_COLOR_02 = Color("ffffff05")
-const PRIMARY_TEXT_COLOR_40 = Color("ffffff64")
-const SECONDARY_TEXT_COLOR = Color("b3b3b3")
-const ACCENT_COLOR = Color("d55160")
-const ERROR_COLOR = Color("c42e40")
-const BACKGROUND_COLOR = Color("1e1e21")
-const BORDER_COLOR = TERTIARY_COLOR
 
-# Constants for dimensions
-const DEFAULT_BORDER_WIDTH = 1
-const PRIMARY_CORNER_RADIUS = 30
-const SECONDARY_CORNER_RADIUS = 15
-const TERTIARY_CORNER_RADIUS = 5
-const PRIMARY_CONTENT_MARGIN = 20
-const SECONDARY_CONTENT_MARGIN = 10
-const TERTIARY_CONTENT_MARGIN = 5
+var PRIMARY_COLOR := Color("313136")
+var SECONDARY_COLOR := Color("36363c")
+var TERTIARY_COLOR := Color("46464d")
+var PRIMARY_TEXT_COLOR := Color("ffffff")
+var PRIMARY_TEXT_COLOR_02 := Color("ffffff05")
+var PRIMARY_TEXT_COLOR_40 := Color("ffffff64")
+var SECONDARY_TEXT_COLOR := Color("b3b3b3")
+var ACCENT_COLOR := Color("d55160")
+var ERROR_COLOR := Color("c42e40")
+var BACKGROUND_COLOR := Color("1e1e21")
+var BORDER_COLOR := TERTIARY_COLOR
+
+var DEFAULT_BORDER_WIDTH := 1
+var PRIMARY_CORNER_RADIUS := 30
+var SECONDARY_CORNER_RADIUS := 15
+var TERTIARY_CORNER_RADIUS := 5
+var PRIMARY_CONTENT_MARGIN := 20
+var SECONDARY_CONTENT_MARGIN := 10
+var TERTIARY_CONTENT_MARGIN := 5
 
 # Base styleboxes
-var GENERAL_NORMAL_STYLEBOX = stylebox_flat({
+var GENERAL_NORMAL_STYLEBOX: Dictionary = stylebox_flat({
 	bg_color = PRIMARY_COLOR,
 	corners_ = corner_radius(SECONDARY_CORNER_RADIUS),
 	font_color = PRIMARY_TEXT_COLOR,
 	margins_ = content_margins(SECONDARY_CONTENT_MARGIN)
 })
-var BASE_BORDER_STYLEBOX = stylebox_flat({
+var BASE_BORDER_STYLEBOX: Dictionary = stylebox_flat({
 	borders_ = border_width(DEFAULT_BORDER_WIDTH),
 	border_color = BORDER_COLOR,
 })
-var SEPARATOR_STYLE = stylebox_line({
+var SEPARATOR_STYLE: Dictionary = stylebox_line({
 	color = BORDER_COLOR,
 	grow_begin = 0,
 	grow_end = 0,
@@ -42,11 +41,12 @@ var SEPARATOR_STYLE = stylebox_line({
 })
 
 # Button states
-var HOVER_BUTTON = { bg_color = TERTIARY_COLOR }
-var PRESSED_BUTTON = { bg_color = TERTIARY_COLOR }
-var EMPTY_BUTTON = { draw_center = false }
-var ACCENT_BUTTON = { bg_color = ACCENT_COLOR }
-var ERROR_BUTTON = { border_color = ERROR_COLOR, borders_ = border_width(DEFAULT_BORDER_WIDTH) }
+var HOVER_BUTTON := { bg_color = TERTIARY_COLOR }
+var PRESSED_BUTTON := { bg_color = TERTIARY_COLOR }
+var EMPTY_BUTTON := { draw_center = false }
+var ACCENT_BUTTON := { bg_color = ACCENT_COLOR }
+var ERROR_BUTTON := { border_color = ERROR_COLOR, borders_ = border_width(DEFAULT_BORDER_WIDTH) }
+
 
 func setup() -> void:
 	set_save_path("res://ui/theme_default/main.tres")
