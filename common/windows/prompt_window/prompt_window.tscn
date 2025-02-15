@@ -1,11 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://bkreq3xdr7gxw"]
+[gd_scene load_steps=3 format=3 uid="uid://bkreq3xdr7gxw"]
 
 [ext_resource type="Script" path="res://common/windows/prompt_window/prompt_window.gd" id="1_u0ucq"]
+[ext_resource type="Texture2D" uid="uid://cfc0nhupnhixg" path="res://icon_min.png" id="2_kx1ym"]
 
 [node name="PromptWindow" type="Window"]
 transparent_bg = true
 initial_position = 2
-size = Vector2i(500, 150)
+size = Vector2i(650, 206)
+wrap_controls = true
 unresizable = true
 borderless = true
 always_on_top = true
@@ -19,44 +21,70 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"PanelContainer_Primary_Corner10_Outline"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_type_variation = &"PanelContainer_Primary_Corner20_Outline"
 
-[node name="VBox" type="VBoxContainer" parent="PanelContainer"]
+[node name="HBox" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
+theme_type_variation = &"HBoxContainer_Big"
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/HBox"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+texture = ExtResource("2_kx1ym")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_override_constants/separation = 20
+theme_type_variation = &"VBoxContainer_Big"
 
-[node name="PromptLabel" type="Label" parent="PanelContainer/VBox"]
-custom_minimum_size = Vector2(400, 40)
+[node name="LabelHBox" type="VBoxContainer" parent="PanelContainer/HBox/VBox"]
 layout_mode = 2
+theme_type_variation = &"VBoxContainer_Medium"
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/HBox/VBox/LabelHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
 text = "Save changes?"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 2
 clip_text = true
 text_overrun_behavior = 2
 
-[node name="HBox" type="HBoxContainer" parent="PanelContainer/VBox"]
+[node name="DescriptionLabel" type="Label" parent="PanelContainer/HBox/VBox/LabelHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(500, 75)
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_type_variation = &"Label_Secondary"
+text = "The document you have opened will be closed. Do you want to save the changes?"
+autowrap_mode = 3
 
-[node name="ConfirmButton" type="Button" parent="PanelContainer/VBox/HBox"]
+[node name="HBox" type="HBoxContainer" parent="PanelContainer/HBox/VBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Save & Quit"
+theme_type_variation = &"HBoxContainer_Big"
 
-[node name="DenyButton" type="Button" parent="PanelContainer/VBox/HBox"]
+[node name="ConfirmButton" type="Button" parent="PanelContainer/HBox/VBox/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Discard"
+text = "Yes"
 
-[node name="CancelButton" type="Button" parent="PanelContainer/VBox/HBox"]
+[node name="DenyButton" type="Button" parent="PanelContainer/HBox/VBox/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+text = "No"
+
+[node name="CancelButton" type="Button" parent="PanelContainer/HBox/VBox/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 0)
+layout_mode = 2
 text = "Cancel"
 
 [connection signal="tree_exited" from="." to="." method="_on_tree_exited"]
-[connection signal="pressed" from="PanelContainer/VBox/HBox/ConfirmButton" to="." method="_on_confirm_button_pressed"]
-[connection signal="pressed" from="PanelContainer/VBox/HBox/DenyButton" to="." method="_on_deny_button_pressed"]
-[connection signal="pressed" from="PanelContainer/VBox/HBox/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="PanelContainer/HBox/VBox/HBox/ConfirmButton" to="." method="_on_confirm_button_pressed"]
+[connection signal="pressed" from="PanelContainer/HBox/VBox/HBox/DenyButton" to="." method="_on_deny_button_pressed"]
+[connection signal="pressed" from="PanelContainer/HBox/VBox/HBox/CancelButton" to="." method="_on_cancel_button_pressed"]
