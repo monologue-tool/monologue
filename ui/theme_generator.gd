@@ -1,68 +1,55 @@
 @tool
 class_name MonologueThemeGenerator extends ProgrammaticTheme
 
-## Colors
-var primary_color: Color = Color("313136")
-var secondary_color: Color = Color("36363c")
-var tertiary_color: Color = Color("46464d")
+# Constants for colors
+const PRIMARY_COLOR = Color("313136")
+const SECONDARY_COLOR = Color("36363c")
+const TERTIARY_COLOR = Color("46464d")
+const PRIMARY_TEXT_COLOR = Color("ffffff")
+const PRIMARY_TEXT_COLOR_02 = Color("ffffff05")
+const PRIMARY_TEXT_COLOR_40 = Color("ffffff64")
+const SECONDARY_TEXT_COLOR = Color("b3b3b3")
+const ACCENT_COLOR = Color("d55160")
+const ERROR_COLOR = Color("c42e40")
+const BACKGROUND_COLOR = Color("1e1e21")
+const BORDER_COLOR = TERTIARY_COLOR
 
-var primary_text_color: Color = Color("ffffff")
-var primary_text_color_02: Color = Color("ffffff05")
-var primary_text_color_40: Color = Color("ffffff64")
-var secondary_text_color: Color = Color("b3b3b3")
+# Constants for dimensions
+const DEFAULT_BORDER_WIDTH = 1
+const PRIMARY_CORNER_RADIUS = 30
+const SECONDARY_CORNER_RADIUS = 15
+const TERTIARY_CORNER_RADIUS = 5
+const PRIMARY_CONTENT_MARGIN = 20
+const SECONDARY_CONTENT_MARGIN = 10
+const TERTIARY_CONTENT_MARGIN = 5
 
-var accent_color: Color = Color("d55160")
-var error_color: Color = Color("c42e40")
-var background_color: Color = Color("1e1e21")
-var border_color: Color = tertiary_color
-
-## Constants
-var default_border_width: int = 1
-
-var primary_corner_radius: int = 30
-var secondary_corner_radius: int = 15
-var tertiary_corner_radius: int = 5
-
-var primary_content_margin: int = 20
-var secondary_content_margin: int = 10
-var tertiary_content_margin: int = 5
-
-var general_normal_stylebox: Dictionary = stylebox_flat({
-	bg_color = primary_color,
-	corners_ = corner_radius(secondary_corner_radius),
-	font_color = primary_text_color,
-	margins_ = content_margins(secondary_content_margin)
+# Base styleboxes
+var GENERAL_NORMAL_STYLEBOX = stylebox_flat({
+	bg_color = PRIMARY_COLOR,
+	corners_ = corner_radius(SECONDARY_CORNER_RADIUS),
+	font_color = PRIMARY_TEXT_COLOR,
+	margins_ = content_margins(SECONDARY_CONTENT_MARGIN)
 })
-var base_border_stylebox: Dictionary = stylebox_flat({
-	borders_ = border_width(default_border_width),
-	border_color = border_color,
+var BASE_BORDER_STYLEBOX = stylebox_flat({
+	borders_ = border_width(DEFAULT_BORDER_WIDTH),
+	border_color = BORDER_COLOR,
 })
-
-var separator_style = stylebox_line({
-	color = border_color,
+var SEPARATOR_STYLE = stylebox_line({
+	color = BORDER_COLOR,
 	grow_begin = 0,
 	grow_end = 0,
 	thickness = 1,
 })
 
-var hover_button: Dictionary = { bg_color = tertiary_color }
-var pressed_button: Dictionary = { bg_color = tertiary_color }
-var empty_button: Dictionary = { draw_center = false }
-var accent_button: Dictionary = { bg_color = accent_color }
-var error_button: Dictionary = { border_color = error_color, borders_ = border_width(default_border_width) }
-
-
-func get_inner_radius(outer_radius: int, padding: int) -> int:
-	return outer_radius - padding
-func get_outer_radius(inner_radius: int, padding: int) -> int:
-	return inner_radius + padding
-func get_radius_padding(outer_radius: int, inner_radius: int) -> int:
-	return outer_radius - inner_radius
-
+# Button states
+var HOVER_BUTTON = { bg_color = TERTIARY_COLOR }
+var PRESSED_BUTTON = { bg_color = TERTIARY_COLOR }
+var EMPTY_BUTTON = { draw_center = false }
+var ACCENT_BUTTON = { bg_color = ACCENT_COLOR }
+var ERROR_BUTTON = { border_color = ERROR_COLOR, borders_ = border_width(DEFAULT_BORDER_WIDTH) }
 
 func setup() -> void:
 	set_save_path("res://ui/theme_default/main.tres")
-
 
 func define_theme() -> void:
 	define_button()
@@ -79,260 +66,259 @@ func define_theme() -> void:
 	define_tab_bar()
 	define_field_edit()
 	define_tree()
-	
-## Button, OptionButton and MenuButton
+
+# Button, OptionButton and MenuButton
 func define_button() -> void:
-	var button_style: Dictionary = stylebox_flat({
-		bg_color = secondary_color,
-		corners_ = corner_radius(tertiary_corner_radius),
-		margins_ = content_margins(secondary_content_margin, tertiary_content_margin)
+	var button_style = stylebox_flat({
+		bg_color = SECONDARY_COLOR,
+		corners_ = corner_radius(TERTIARY_CORNER_RADIUS),
+		margins_ = content_margins(SECONDARY_CONTENT_MARGIN, TERTIARY_CONTENT_MARGIN)
 	})
-	var button_style_no_corner: Dictionary = inherit(button_style, { corners_ = corner_radius(0) })
-	
+	var button_style_no_corner = inherit(button_style, { corners_ = corner_radius(0) })
+
 	for node_type in ["Button", "OptionButton", "MenuButton"]:
 		_button_style_builder(button_style, node_type)
 		_button_style_builder(button_style_no_corner, node_type, "_NoCorner")
-	
-	var accent_button_style: Dictionary = inherit(button_style, accent_button)
+
+	var accent_button_style = inherit(button_style, ACCENT_BUTTON)
 	define_variant_style("Button_Accent", "Button", {
 		normal = accent_button_style,
 		hover = accent_button_style,
 		pressed = accent_button_style,
 		focus = accent_button_style
 	})
-	
-	_button_style_builder(inherit(button_style, error_button), "OptionButton", "_Error")
-	_button_style_builder(inherit(button_style, error_button), "OptionButton", "_NoCorner_Error")
 
-## CheckBox and CheckButton
+	_button_style_builder(inherit(button_style, ERROR_BUTTON), "OptionButton", "_Error")
+	_button_style_builder(inherit(button_style, ERROR_BUTTON), "OptionButton", "_NoCorner_Error")
+
+# CheckBox and CheckButton
 func define_check_box() -> void:
-	var check_style: Dictionary = {
+	var check_style = {
 		normal = stylebox_empty({}),
 		hover = stylebox_empty({}),
 		pressed = stylebox_empty({}),
 		focus = stylebox_empty({})
 	}
-	
+
 	define_style("CheckBox", inherit(check_style, {
-		h_separation = tertiary_content_margin,
+		h_separation = TERTIARY_CONTENT_MARGIN,
 		checked = preload("res://ui/assets/icons/check.svg"),
 		unchecked = ImageTexture.new()
 	}))
-	
+
 	define_style("CheckButton", inherit(check_style, {
 		checked = preload("res://ui/assets/icons/toggle_on.svg"),
 		unchecked = preload("res://ui/assets/icons/toggle_off.svg")
 	}))
 
-## GraphEdit
+# GraphEdit
 func define_graph_edit() -> void:
-	var graph_edit_panel: Dictionary = stylebox_flat({ bg_color = background_color })
-	
+	var graph_edit_panel = stylebox_flat({ bg_color = BACKGROUND_COLOR })
+
 	define_style("GraphEdit", {
 		grid_major = Color("ffffff0d"),
 		grid_minor = Color("ffffff0d"),
 		panel = graph_edit_panel
 	})
 
-## GraphNode and GraphNodeTitleLabel
+# GraphNode and GraphNodeTitleLabel
 func define_graph_node() -> void:
-	var selected_graph_node: Dictionary = { border_color = Color("fff") }
-	
-	var graph_node_panel_style: Dictionary = stylebox_flat({
-		bg_color = primary_color,
-		corners_ = corner_radius(0, 0, tertiary_corner_radius, tertiary_corner_radius),
-		margins_ = content_margins(primary_content_margin, primary_content_margin, primary_content_margin, primary_content_margin)
+	var selected_graph_node = { border_color = Color("fff") }
+
+	var graph_node_panel_style = stylebox_flat({
+		bg_color = PRIMARY_COLOR,
+		corners_ = corner_radius(0, 0, TERTIARY_CORNER_RADIUS, TERTIARY_CORNER_RADIUS),
+		margins_ = content_margins(PRIMARY_CONTENT_MARGIN, PRIMARY_CONTENT_MARGIN, PRIMARY_CONTENT_MARGIN, PRIMARY_CONTENT_MARGIN)
 	})
-	var selected_graph_node_panel_style: Dictionary = inherit(graph_node_panel_style, selected_graph_node, stylebox_flat({
+	var selected_graph_node_panel_style = inherit(graph_node_panel_style, selected_graph_node, stylebox_flat({
 		border_ = border_width(1, 0, 1, 1)
 	}))
-	var graph_node_titlebar_style: Dictionary = stylebox_flat({
-		corners_ = corner_radius(tertiary_corner_radius, tertiary_corner_radius, 0, 0),
-		margins_ = content_margins(primary_content_margin, tertiary_content_margin, primary_content_margin, tertiary_content_margin)
+	var graph_node_titlebar_style = stylebox_flat({
+		corners_ = corner_radius(TERTIARY_CORNER_RADIUS, TERTIARY_CORNER_RADIUS, 0, 0),
+		margins_ = content_margins(PRIMARY_CONTENT_MARGIN, TERTIARY_CONTENT_MARGIN, PRIMARY_CONTENT_MARGIN, TERTIARY_CONTENT_MARGIN)
 	})
-	var selected_graph_node_titlebar_style: Dictionary = inherit(graph_node_titlebar_style, selected_graph_node, stylebox_flat({
+	var selected_graph_node_titlebar_style = inherit(graph_node_titlebar_style, selected_graph_node, stylebox_flat({
 		border_ = border_width(1, 1, 1, 0)
 	}))
-	
+
 	define_style("GraphNode", {
-		separation = tertiary_content_margin,
+		separation = TERTIARY_CONTENT_MARGIN,
 		port = preload("res://ui/assets/icons/slot.svg"),
-		
 		panel = graph_node_panel_style,
 		panel_selected = selected_graph_node_panel_style,
 		slot = stylebox_empty({}),
 		titlebar = graph_node_titlebar_style,
 		titlebar_selected = selected_graph_node_titlebar_style
 	})
-	
+
 	define_style("GraphNodeTitleLabel", {
 		font = preload("res://ui/assets/fonts/NotoSans-SemiBold.ttf"),
 		normal = stylebox_empty({})
 	})
 
-## HSeparator and VSeparator
+# HSeparator and VSeparator
 func define_separator() -> void:
 	for separator_type in ["HSeparator", "VSeparator"]:
-		var separator_type_style: Dictionary = inherit(separator_style, stylebox_line({
+		var separator_type_style = inherit(SEPARATOR_STYLE, stylebox_line({
 			vertical = separator_type == "VSeparator"
 		}))
 		define_style(separator_type, {
 			separation = 1,
 			separator = separator_type_style
 		})
-		
-		for margin in [primary_content_margin, secondary_content_margin, tertiary_content_margin]:
-			var variant_separator: Dictionary = { grow_begin = margin, grow_end = margin }
-			
+
+		for margin in [PRIMARY_CONTENT_MARGIN, SECONDARY_CONTENT_MARGIN, TERTIARY_CONTENT_MARGIN]:
+			var variant_separator = { grow_begin = margin, grow_end = margin }
+
 			define_variant_style("%s_Grow%s" % [separator_type, margin], separator_type, {
 				separation = 1,
 				separator = inherit(separator_type_style, variant_separator)
 			})
 
-## Label
+# Label
 func define_label() -> void:
-	var node_value_style: Dictionary = stylebox_flat({
-		margins_ = content_margins(tertiary_content_margin),
-		corners_ = corner_radius(tertiary_corner_radius),
-		bg_color = background_color
+	var node_value_style = stylebox_flat({
+		margins_ = content_margins(TERTIARY_CONTENT_MARGIN),
+		corners_ = corner_radius(TERTIARY_CORNER_RADIUS),
+		bg_color = BACKGROUND_COLOR
 	})
-	
+
 	define_style("Label", {
-		font_color = primary_text_color,
+		font_color = PRIMARY_TEXT_COLOR,
 		normal = stylebox_empty({})
 	})
-	
+
 	define_variant_style("Label_Secondary", "Label", {
-		font_color = secondary_text_color
+		font_color = SECONDARY_TEXT_COLOR
 	})
-	
+
 	define_variant_style("Label_NodeValue", "Label", {
-		font_color = secondary_text_color,
+		font_color = SECONDARY_TEXT_COLOR,
 		normal = node_value_style
 	})
 
-## MarginContainer
+# MarginContainer
 func define_margin_container() -> void:
 	define_style("MarginContainer", {
-		margin_bottom = primary_content_margin,
-		margin_left = primary_content_margin,
-		margin_right = primary_content_margin,
-		margin_top = primary_content_margin
+		margin_bottom = PRIMARY_CONTENT_MARGIN,
+		margin_left = PRIMARY_CONTENT_MARGIN,
+		margin_right = PRIMARY_CONTENT_MARGIN,
+		margin_top = PRIMARY_CONTENT_MARGIN
 	})
 	define_variant_style("MarginContainer_Medium", "MarginContainer", {
-		margin_bottom = secondary_content_margin,
-		margin_left = secondary_content_margin,
-		margin_right = secondary_content_margin,
-		margin_top = secondary_content_margin
+		margin_bottom = SECONDARY_CONTENT_MARGIN,
+		margin_left = SECONDARY_CONTENT_MARGIN,
+		margin_right = SECONDARY_CONTENT_MARGIN,
+		margin_top = SECONDARY_CONTENT_MARGIN
 	})
 	define_variant_style("MarginContainer_Small", "MarginContainer", {
-		margin_bottom = tertiary_content_margin,
-		margin_left = tertiary_content_margin,
-		margin_right = tertiary_content_margin,
-		margin_top = tertiary_content_margin
+		margin_bottom = TERTIARY_CONTENT_MARGIN,
+		margin_left = TERTIARY_CONTENT_MARGIN,
+		margin_right = TERTIARY_CONTENT_MARGIN,
+		margin_top = TERTIARY_CONTENT_MARGIN
 	})
-	
-## Panel and PanelContainer
+
+# Panel and PanelContainer
 func define_panel() -> void:
-	var background_colors := [primary_color, secondary_color]
-	var background_colors_label := ["Primary", "Secondary"]
-	var margins := [0, primary_content_margin, secondary_content_margin, tertiary_content_margin]
-	var corners := [0, primary_corner_radius, secondary_corner_radius, tertiary_corner_radius]
-	
-	define_style("Panel", { panel = general_normal_stylebox })
-	define_style("PanelContainer", { panel = general_normal_stylebox })
-	
+	var background_colors = [PRIMARY_COLOR, SECONDARY_COLOR]
+	var background_colors_label = ["Primary", "Secondary"]
+	var margins = [0, PRIMARY_CONTENT_MARGIN, SECONDARY_CONTENT_MARGIN, TERTIARY_CONTENT_MARGIN]
+	var corners = [0, PRIMARY_CORNER_RADIUS, SECONDARY_CORNER_RADIUS, TERTIARY_CORNER_RADIUS]
+
+	define_style("Panel", { panel = GENERAL_NORMAL_STYLEBOX })
+	define_style("PanelContainer", { panel = GENERAL_NORMAL_STYLEBOX })
+
 	for color in background_colors:
-		var bg_index: int = background_colors.find(color)
+		var bg_index = background_colors.find(color)
 		var bg_panel_style = stylebox_flat({ bg_color = color })
-		
+
 		for margin in margins:
-			var margin_index: int = margins.find(margin)
+			var margin_index = margins.find(margin)
 			var shape_panel_style = stylebox_flat({
 				corners_ = corner_radius(corners[margin_index]),
 				margins_ = content_margins(margin)
 			})
-			
-			var variant_name: String = "%s_Corner%s" % [background_colors_label[bg_index],  margin]
-			var variant_panel: Dictionary = inherit(bg_panel_style, shape_panel_style)
-			
+
+			var variant_name = "%s_Corner%s" % [background_colors_label[bg_index],  margin]
+			var variant_panel = inherit(bg_panel_style, shape_panel_style)
+
 			define_variant_style("Panel_%s" % variant_name, "Panel", { panel = variant_panel })
 			define_variant_style("PanelContainer_%s" % variant_name, "PanelContainer", { panel = variant_panel })
-			
+
 			define_variant_style("Panel_%s_Outline" % variant_name, "Panel", {
-				panel = inherit(variant_panel, base_border_stylebox)
+				panel = inherit(variant_panel, BASE_BORDER_STYLEBOX)
 			})
 			define_variant_style("PanelContainer_%s_Outline" % variant_name, "PanelContainer", {
-				panel = inherit(variant_panel, base_border_stylebox)
+				panel = inherit(variant_panel, BASE_BORDER_STYLEBOX)
 			})
-	
-	var side_panel_style: Dictionary = stylebox_flat({
-		bg_color = primary_color,
-		borders_ = border_width(default_border_width, 0, 0, 0),
+
+	var side_panel_style = stylebox_flat({
+		bg_color = PRIMARY_COLOR,
+		borders_ = border_width(DEFAULT_BORDER_WIDTH, 0, 0, 0),
 		corners_ = corner_radius(0),
-		margins_ = content_margins(secondary_content_margin)
-	})
-	
-	define_variant_style("PanelContainer_SidePanel", "PanelContainer", {
-		panel = inherit(base_border_stylebox, side_panel_style)
+		margins_ = content_margins(SECONDARY_CONTENT_MARGIN)
 	})
 
-## PopupMenu
+	define_variant_style("PanelContainer_SidePanel", "PanelContainer", {
+		panel = inherit(BASE_BORDER_STYLEBOX, side_panel_style)
+	})
+
+# PopupMenu
 func define_popup_menu() -> void:
-	var popupmenu_style = inherit(general_normal_stylebox, base_border_stylebox, stylebox_flat({
-		corners_ = corner_radius(tertiary_content_margin)
+	var popupmenu_style = inherit(GENERAL_NORMAL_STYLEBOX, BASE_BORDER_STYLEBOX, stylebox_flat({
+		corners_ = corner_radius(TERTIARY_CONTENT_MARGIN)
 	}))
-	
+
 	define_style("PopupMenu", {
-		h_separation = secondary_content_margin,
+		h_separation = SECONDARY_CONTENT_MARGIN,
 		icon_max_width = 14,
-		item_end_padding = secondary_content_margin,
-		item_start_padding = secondary_content_margin,
+		item_end_padding = SECONDARY_CONTENT_MARGIN,
+		item_start_padding = SECONDARY_CONTENT_MARGIN,
 		v_separation = 4,
 		font_size = 16,
-		hover = inherit(general_normal_stylebox, stylebox_flat({
-			corners_ = corner_radius(tertiary_content_margin),
-			bg_color = tertiary_color
+		hover = inherit(GENERAL_NORMAL_STYLEBOX, stylebox_flat({
+			corners_ = corner_radius(TERTIARY_CONTENT_MARGIN),
+			bg_color = TERTIARY_COLOR
 		})),
 		panel = popupmenu_style,
-		separator = inherit(separator_style, stylebox_flat({ vertical = true }))
+		separator = inherit(SEPARATOR_STYLE, stylebox_flat({ vertical = true }))
 	})
 
-## HBoxContainer and VBoxContainer
+# HBoxContainer and VBoxContainer
 func define_box_container() -> void:
-	var box_containers := ["HBoxContainer", "VBoxContainer"]
-	
+	var box_containers = ["HBoxContainer", "VBoxContainer"]
+
 	for box_container in box_containers:
 		define_style(box_container, { separation = 0 })
-		define_variant_style("%s_Big" % box_container, box_container, { separation = primary_content_margin })
-		define_variant_style("%s_Medium" % box_container, box_container, { separation = secondary_content_margin })
-		define_variant_style("%s_Small" % box_container, box_container, { separation = tertiary_content_margin })
+		define_variant_style("%s_Big" % box_container, box_container, { separation = PRIMARY_CONTENT_MARGIN })
+		define_variant_style("%s_Medium" % box_container, box_container, { separation = SECONDARY_CONTENT_MARGIN })
+		define_variant_style("%s_Small" % box_container, box_container, { separation = TERTIARY_CONTENT_MARGIN })
 
-## HScrollBar and VScrollBar
+# HScrollBar and VScrollBar
 func define_scroll_bar() -> void:
 	_scroll_bar_builder("HScrollBar")
 	_scroll_bar_builder("HScrollBar", "Left")
 	_scroll_bar_builder("VScrollBar")
 	_scroll_bar_builder("VScrollBar", "Top")
 
-## TabBar
+# TabBar
 func define_tab_bar() -> void:
-	var hovered_tab: Dictionary = stylebox_flat({ bg_color = tertiary_color })
-	var selected_tab: Dictionary = stylebox_flat({ bg_color = accent_color })
-	var unselected_tab: Dictionary = stylebox_flat({ draw_center = false })
-	
-	var tab_bar_style: Dictionary = stylebox_flat({
-		bg_color = secondary_color,
-		borders_ = border_width(0, 0, default_border_width, 0),
-		border_color = border_color,
-		margins_ = content_margins(secondary_content_margin, tertiary_content_margin)
+	var hovered_tab = stylebox_flat({ bg_color = TERTIARY_COLOR })
+	var selected_tab = stylebox_flat({ bg_color = ACCENT_COLOR })
+	var unselected_tab = stylebox_flat({ draw_center = false })
+
+	var tab_bar_style = stylebox_flat({
+		bg_color = SECONDARY_COLOR,
+		borders_ = border_width(0, 0, DEFAULT_BORDER_WIDTH, 0),
+		border_color = BORDER_COLOR,
+		margins_ = content_margins(SECONDARY_CONTENT_MARGIN, TERTIARY_CONTENT_MARGIN)
 	})
-	
+
 	define_style("TabBar", {
-		font_hovered_color = primary_text_color,
-		font_selected_color = primary_text_color,
-		font_unselected_color = secondary_text_color,
-		h_separation = tertiary_content_margin,
+		font_hovered_color = PRIMARY_TEXT_COLOR,
+		font_selected_color = PRIMARY_TEXT_COLOR,
+		font_unselected_color = SECONDARY_TEXT_COLOR,
+		h_separation = TERTIARY_CONTENT_MARGIN,
 		font_size = 14,
 		close = preload("res://ui/assets/icons/cross.svg"),
 		button_highlight = stylebox_empty({}),
@@ -344,21 +330,21 @@ func define_tab_bar() -> void:
 		tab_unselected = inherit(tab_bar_style, unselected_tab)
 	})
 
-## TextEdit and LineEdit
+# TextEdit and LineEdit
 func define_field_edit() -> void:
-	var field_edit_style: Dictionary = stylebox_flat({
-		margins_ = content_margins(tertiary_content_margin),
-		corners_ = corner_radius(tertiary_corner_radius),
-		bg_color = background_color
+	var field_edit_style = stylebox_flat({
+		margins_ = content_margins(TERTIARY_CONTENT_MARGIN),
+		corners_ = corner_radius(TERTIARY_CORNER_RADIUS),
+		bg_color = BACKGROUND_COLOR
 	})
-	
+
 	define_style("TextEdit", {
-		focus = inherit(field_edit_style, base_border_stylebox),
+		focus = inherit(field_edit_style, BASE_BORDER_STYLEBOX),
 		normal = field_edit_style
 	})
-	
+
 	define_style("LineEdit", {
-		focus = inherit(field_edit_style, base_border_stylebox),
+		focus = inherit(field_edit_style, BASE_BORDER_STYLEBOX),
 		normal = field_edit_style
 	})
 	define_variant_style("LineEdit_Flat", "LineEdit", {
@@ -366,25 +352,25 @@ func define_field_edit() -> void:
 		normal = inherit(field_edit_style, { draw_center = false }),
 	})
 
-## Tree
+# Tree
 func define_tree() -> void:
-	var tree_panel: Dictionary = stylebox_flat({
-		bg_color = background_color,
-		border_color = border_color,
-		borders_ = border_width(default_border_width),
-		corners_ = corner_radius(tertiary_content_margin)
+	var tree_panel = stylebox_flat({
+		bg_color = BACKGROUND_COLOR,
+		border_color = BORDER_COLOR,
+		borders_ = border_width(DEFAULT_BORDER_WIDTH),
+		corners_ = corner_radius(TERTIARY_CONTENT_MARGIN)
 	})
-	
+
 	define_style("Tree", {
-		children_hl_line_color = primary_text_color_02,
-		custom_button_font_highlight = primary_text_color_40,
-		font_color = primary_text_color,
-		parent_hl_line_color = primary_text_color_40,
-		relationship_line_color = primary_text_color_02,
+		children_hl_line_color = PRIMARY_TEXT_COLOR_02,
+		custom_button_font_highlight = PRIMARY_TEXT_COLOR_40,
+		font_color = PRIMARY_TEXT_COLOR,
+		parent_hl_line_color = PRIMARY_TEXT_COLOR_40,
+		relationship_line_color = PRIMARY_TEXT_COLOR_02,
 		children_hl_line_width = 1,
 		draw_guides = 0,
 		draw_relationship_lines = 1,
-		h_separation = secondary_content_margin,
+		h_separation = SECONDARY_CONTENT_MARGIN,
 		inner_item_margin_left = 1,
 		inner_item_margin_right = 1,
 		parent_hl_line_margin = 0,
@@ -394,60 +380,54 @@ func define_tree() -> void:
 		focus = inherit(tree_panel, { draw_center = false })
 	})
 
-
 func _button_style_builder(style, node_type, variant_name: String = "") -> void:
-	var main_style: Dictionary = {
+	var main_style = {
 		normal = style,
-		hover = inherit(style, hover_button),
-		pressed = inherit(style, pressed_button),
-		focus = inherit(style, hover_button)
+		hover = inherit(style, HOVER_BUTTON),
+		pressed = inherit(style, PRESSED_BUTTON),
+		focus = inherit(style, HOVER_BUTTON)
 	}
 	if variant_name == "":
 		define_style(node_type, main_style)
 	else:
 		define_variant_style("%s%s" % [node_type, variant_name], node_type, main_style)
-		
+
 	define_variant_style("%s_Flat%s" % [node_type, variant_name], node_type, {
-		normal = inherit(style, empty_button),
-		hover = inherit(style, hover_button),
-		pressed = inherit(style, pressed_button),
-		focus = inherit(style, hover_button)
+		normal = inherit(style, EMPTY_BUTTON),
+		hover = inherit(style, HOVER_BUTTON),
+		pressed = inherit(style, PRESSED_BUTTON),
+		focus = inherit(style, HOVER_BUTTON)
 	})
 	define_variant_style("%s_Outline%s" % [node_type, variant_name], node_type, {
-		normal = inherit(empty_button, base_border_stylebox, style),
-		hover = inherit(empty_button, base_border_stylebox, style),
-		pressed = inherit(style, hover_button),
-		focus = inherit(empty_button, base_border_stylebox, style)
+		normal = inherit(EMPTY_BUTTON, BASE_BORDER_STYLEBOX, style),
+		hover = inherit(EMPTY_BUTTON, BASE_BORDER_STYLEBOX, style),
+		pressed = inherit(style, HOVER_BUTTON),
+		focus = inherit(EMPTY_BUTTON, BASE_BORDER_STYLEBOX, style)
 	})
-
 
 func _scroll_bar_builder(node_type, variant_name: String = "") -> void:
-	var grabber_style: Dictionary = stylebox_flat({
-		bg_color = tertiary_color,
-		corner_ = corner_radius(secondary_corner_radius)
+	var grabber_style = stylebox_flat({
+		bg_color = TERTIARY_COLOR,
+		corner_ = corner_radius(SECONDARY_CORNER_RADIUS)
 	})
-	var scroll_style: Dictionary = stylebox_flat({
+	var scroll_style = stylebox_flat({
 		draw_center = true,
-		bg_color = secondary_color,
-		border_color = border_color,
+		bg_color = SECONDARY_COLOR,
+		border_color = BORDER_COLOR,
 		margins_ = content_margins(3),
 		expand_ = expand_margins(3),
-		corner_ = corner_radius(secondary_corner_radius)
+		corner_ = corner_radius(SECONDARY_CORNER_RADIUS)
 	})
-	
-	var scroll_bar_style: Dictionary = {
+
+	var scroll_bar_style = {
 		grabber = grabber_style,
 		grabber_highlight = grabber_style,
 		grabber_pressed = grabber_style,
 		scroll = scroll_style,
 		scroll_focus = scroll_style
 	}
-		
+
 	if variant_name == "":
 		define_style(node_type, scroll_bar_style)
 	else:
 		define_variant_style("%s_%s" % [node_type,  variant_name], node_type, scroll_bar_style)
-
-
-func request_stylebox() -> StyleBox:
-	return StyleBoxEmpty.new()
