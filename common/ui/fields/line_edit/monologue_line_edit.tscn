@@ -4,36 +4,30 @@
 [ext_resource type="Texture2D" uid="uid://dm2u0xqmmcorj" path="res://ui/assets/icons/copy.png" id="2_lbcco"]
 [ext_resource type="FontFile" uid="uid://2eq6t1lcw61" path="res://ui/assets/fonts/NotoSans-Italic.ttf" id="3_bg611"]
 
-
-
-
-[node name="MonologueLine" type="MarginContainer"]
-offset_right = 300.0
-offset_bottom = 97.0
+[node name="MonologueLineEdit" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
 size_flags_horizontal = 3
 script = ExtResource("1_toqtt")
+sublabel_prefix = "┗ "
 
-[node name="OuterVBox" type="VBoxContainer" parent="."]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="HBox" type="HBoxContainer" parent="OuterVBox"]
-layout_mode = 2
-
-[node name="FieldLabel" type="Label" parent="OuterVBox/HBox"]
+[node name="FieldLabel" type="Label" parent="HBox"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 0
 text = "Value"
 
-[node name="InnerVBox" type="VBoxContainer" parent="OuterVBox/HBox"]
+[node name="InnerVBox" type="VBoxContainer" parent="HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LineEdit" type="LineEdit" parent="OuterVBox/HBox/InnerVBox"]
-custom_minimum_size = Vector2(100, 0)
+[node name="LineEdit" type="LineEdit" parent="HBox/InnerVBox"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="OuterVBox/HBox/InnerVBox/LineEdit"]
+[node name="HBoxContainer" type="HBoxContainer" parent="HBox/InnerVBox/LineEdit"]
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
@@ -44,7 +38,7 @@ grow_horizontal = 0
 grow_vertical = 2
 alignment = 2
 
-[node name="CopyButton" type="Button" parent="OuterVBox/HBox/InnerVBox/LineEdit/HBoxContainer"]
+[node name="CopyButton" type="Button" parent="HBox/InnerVBox/LineEdit/HBoxContainer"]
 custom_minimum_size = Vector2(33, 25)
 layout_mode = 2
 icon = ExtResource("2_lbcco")
@@ -52,12 +46,12 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="WarnLabel" type="Label" parent="OuterVBox/HBox/InnerVBox"]
+[node name="WarnLabel" type="Label" parent="HBox/InnerVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.768627, 0.180392, 0.25098, 1)
 text = "Warning"
 
-[node name="NoteLabel" type="Label" parent="OuterVBox"]
+[node name="NoteLabel" type="Label" parent="."]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.498039, 0.498039, 0.498039, 1)
@@ -65,8 +59,3 @@ theme_override_fonts/font = ExtResource("3_bg611")
 theme_override_font_sizes/font_size = 12
 text = "Note: Description"
 autowrap_mode = 3
-
-[connection signal="focus_exited" from="OuterVBox/HBox/InnerVBox/LineEdit" to="." method="_on_focus_exited"]
-[connection signal="text_changed" from="OuterVBox/HBox/InnerVBox/LineEdit" to="." method="_on_text_changed"]
-[connection signal="text_submitted" from="OuterVBox/HBox/InnerVBox/LineEdit" to="." method="_on_text_submitted"]
-[connection signal="pressed" from="OuterVBox/HBox/InnerVBox/LineEdit/HBoxContainer/CopyButton" to="." method="_on_copy_button_pressed"]

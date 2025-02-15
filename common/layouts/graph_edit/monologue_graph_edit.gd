@@ -244,6 +244,9 @@ func pick_and_center(nodes: Array[MonologueGraphNode],
 
 
 func post_node_offset(nodes: Array[MonologueGraphNode]) -> void:
+	if not nodes[0].is_slot_enabled_left(0):
+		return
+	
 	var first_port_pos = nodes[0].get_input_port_position(0)
 	for node in nodes:
 		node.position_offset -= first_port_pos

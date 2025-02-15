@@ -5,8 +5,8 @@ class_name MonologueText extends MonologueField
 
 @onready var label = $Label
 @onready var text_edit = $HBoxContainer/TextEdit
-@onready var expand_container = $HBoxContainer/TextEdit/ExpandContainer
-@onready var expand_button = $HBoxContainer/TextEdit/ExpandContainer/Button
+@onready var expand_container = $HBoxContainer/TextEdit/Button
+@onready var expand_button = $HBoxContainer/TextEdit/Button
 
 
 func _ready():

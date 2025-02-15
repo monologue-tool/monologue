@@ -1,10 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://x84tcb0t06mo"]
+[gd_scene load_steps=4 format=3 uid="uid://x84tcb0t06mo"]
 
 [ext_resource type="Script" path="res://common/layouts/language_switcher/language_option.gd" id="1_ektfo"]
 [ext_resource type="Texture2D" uid="uid://dixramdai4iq4" path="res://ui/assets/icons/pen.svg" id="1_p47ob"]
 [ext_resource type="Texture2D" uid="uid://hmjhxdsk3pwj" path="res://ui/assets/icons/trash.svg" id="3_1qtny"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1kg51"]
 
 [node name="LanguageOption" type="Button"]
 custom_minimum_size = Vector2(0, 35)
@@ -20,16 +18,20 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"MarginContainer_Small"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
+size_flags_vertical = 4
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 mouse_filter = 1
+theme_type_variation = &"LineEdit_Flat"
 theme_override_colors/font_uneditable_color = Color(1, 1, 1, 1)
-theme_override_styles/focus = SubResource("StyleBoxEmpty_1kg51")
+theme_override_font_sizes/font_size = 12
 text = "English"
 max_length = 15
 editable = false
@@ -40,6 +42,7 @@ text_direction = 1
 
 [node name="ControlsContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
+theme_type_variation = &"HBoxContainer_Medium"
 alignment = 2
 
 [node name="btnEdit" type="TextureButton" parent="MarginContainer/HBoxContainer/ControlsContainer"]

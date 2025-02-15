@@ -1,4 +1,4 @@
-extends Window
+extends MonologueWindow
 
 
 func _ready() -> void:
@@ -7,6 +7,9 @@ func _ready() -> void:
 	
 	visible = is_pre_release
 	grab_focus()
+	
+	super._ready()
+
 
 func _on_button_pressed() -> void:
 	hide()

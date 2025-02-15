@@ -2,7 +2,7 @@ class_name MonologueToggle extends MonologueField
 
 
 @onready var label = $Label
-@onready var check_button = $CheckButton
+@onready var check_button = $Control/CheckButton
 
 
 func set_label_text(text: String) -> void:

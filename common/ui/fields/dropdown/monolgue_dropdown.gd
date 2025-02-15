@@ -7,6 +7,10 @@ class_name MonologueDropdown extends MonologueField
 @onready var option_button: OptionButton = $OptionButton
 
 
+func _ready() -> void:
+	option_button.get_popup().transparent_bg = true
+
+
 func disable_items(index_list: PackedInt32Array):
 	for index in range(1, option_button.item_count):
 		var is_disabled = index_list.has(index)
@@ -53,7 +57,6 @@ func set_items(data: Array, key_text: String = "text", key_id: String = "id",
 	option_button.clear()
 	for idx in range(data.size()):
 		var item_id = data[idx].get(key_id, -1)
-		print(item_id)
 		option_button.add_item(data[idx].get(key_text, "undefined"), item_id)
 		option_button.set_item_metadata(idx, data[idx].get(key_meta, ""))
 
@@ -62,25 +65,13 @@ func set_label_text(text: String) -> void:
 	label.text = text
 
 
-# TODO: properly switch Themes when working on #37 interface redesign
 func validate():
 	var is_out = option_button.selected >= option_button.item_count
 	var is_negative = option_button.selected < 0
 	if is_negative or is_out or option_button.is_item_disabled(option_button.selected):
-		var stylebox = load("res://Assets/DropdownError.stylebox")
-		option_button.add_theme_color_override("font_hover_color", Color("c42e40"))
-		option_button.add_theme_color_override("font_focus_color", Color("8b0000"))
-		option_button.add_theme_color_override("font_color", Color("8b0000"))
-		option_button.add_theme_stylebox_override("hover", stylebox)
-		option_button.add_theme_stylebox_override("focus", stylebox)
-		option_button.add_theme_stylebox_override("normal", stylebox)
+		option_button.theme_type_variation = "OptionButton_Error"
 	else:
-		option_button.remove_theme_color_override("font_hover_color")
-		option_button.remove_theme_color_override("font_focus_color")
-		option_button.remove_theme_color_override("font_color")
-		option_button.remove_theme_stylebox_override("hover")
-		option_button.remove_theme_stylebox_override("focus")
-		option_button.remove_theme_stylebox_override("normal")
+		option_button.theme_type_variation = ""
 
 
 func _on_item_selected(index: int) -> void:

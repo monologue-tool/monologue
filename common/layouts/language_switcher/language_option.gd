@@ -5,20 +5,13 @@ signal language_name_changed(old_name: String, new_name: String, option: Languag
 signal language_removed(option: LanguageOption)
 
 var language_name: String : set = set_language_name
-var line_edit_unfocus_stylebox := StyleBoxEmpty.new()
 
 @onready var del_button: TextureButton = $MarginContainer/HBoxContainer/ControlsContainer/btnDelete
 @onready var line_edit: LineEdit = $MarginContainer/HBoxContainer/LineEdit
-@onready var line_edit_focus_stylebox: StyleBoxFlat = preload("res://ui/theme_default/line_edit_focus.tres")
-@onready var selected_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 
 
 func _ready() -> void:
-	line_edit_unfocus_stylebox.set_content_margin_all(line_edit_focus_stylebox.content_margin_top)
 	line_edit_unfocus()
-	
-	selected_stylebox.set_corner_radius_all(5)
-	selected_stylebox.bg_color = Color("d55160")
 
 
 func _to_string() -> String:
@@ -30,8 +23,7 @@ func line_edit_unfocus() -> void:
 	line_edit.selecting_enabled = false
 	line_edit.flat = true
 	line_edit.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	add_theme_stylebox_override("focus", line_edit_unfocus_stylebox)
+	line_edit.theme_type_variation = "LineEdit_Flat"
 
 
 func set_language_name(new_name: String) -> void:
@@ -49,13 +41,13 @@ func _on_btn_edit_pressed() -> void:
 	line_edit.flat = false
 	line_edit.mouse_filter = Control.MOUSE_FILTER_STOP
 	
-	add_theme_stylebox_override("focus", line_edit_focus_stylebox)
+	line_edit.theme_type_variation = ""
 
 
 func _on_btn_delete_pressed() -> void:
 	language_removed.emit(self)
 	queue_free()
-	remove_theme_stylebox_override("normal")
+	theme_type_variation = ""
 
 
 func _on_line_edit_focus_exited() -> void:
@@ -70,9 +62,7 @@ func _on_line_edit_text_submitted(new_text: String) -> void:
 
 
 func select() -> void:
-	add_theme_stylebox_override("normal", selected_stylebox)
-	add_theme_stylebox_override("hover", selected_stylebox)
+	theme_type_variation = "Button_Accent"
 
 func unselect() -> void:
-	remove_theme_stylebox_override("normal")
-	remove_theme_stylebox_override("hover")
+	theme_type_variation = ""

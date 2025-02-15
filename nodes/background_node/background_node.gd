@@ -5,8 +5,8 @@ var image := Property.new(FILE, { "filters": FilePicker.IMAGE })
 var transition := Property.new(DROPDOWN, {}, "No Transition")
 var duration := Property.new(SPINBOX, { "step": 0.1, "minimum": 0.0 }, 0.0)
 
-@onready var _path_label = $BackgroundContainer/VBox/HBox/PathLabel
-@onready var _preview_rect = $BackgroundContainer/VBox/PreviewRect
+@onready var _path_label = $VBox/HBox/PathLabel
+@onready var _preview_rect = $VBox/PreviewRect
 
 
 func _ready():

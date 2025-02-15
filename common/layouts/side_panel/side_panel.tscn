@@ -3,44 +3,43 @@
 [ext_resource type="Script" path="res://common/layouts/side_panel/side_panel.gd" id="1_haagr"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="2_34x8o"]
 
-
-
 [node name="SidePanelNodeDetails" type="PanelContainer"]
 offset_right = 158.0
 offset_bottom = 121.0
+theme_type_variation = &"PanelContainer_SidePanel"
 script = ExtResource("1_haagr")
 
-[node name="OuterMargin" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Scroller" type="ScrollContainer" parent="OuterMargin"]
+[node name="Scroller" type="ScrollContainer" parent="."]
+clip_contents = false
 layout_mode = 2
 
-[node name="InnerMargin" type="MarginContainer" parent="OuterMargin/Scroller"]
+[node name="VBox" type="VBoxContainer" parent="Scroller"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBox" type="VBoxContainer" parent="OuterMargin/Scroller/InnerMargin"]
+[node name="TopBox" type="MarginContainer" parent="Scroller/VBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_type_variation = &"MarginContainer_Medium"
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
 
-[node name="HBox" type="HBoxContainer" parent="OuterMargin/Scroller/InnerMargin/VBox"]
+[node name="HBox" type="HBoxContainer" parent="Scroller/VBox/TopBox"]
 layout_mode = 2
+theme_type_variation = &"HBoxContainer_Small"
 
-[node name="RFHButton" type="TextureButton" parent="OuterMargin/Scroller/InnerMargin/VBox/HBox"]
+[node name="RFHButton" type="TextureButton" parent="Scroller/VBox/TopBox/HBox"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("2_34x8o")
 stretch_mode = 3
 
-[node name="Fields" type="VBoxContainer" parent="OuterMargin/Scroller/InnerMargin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="Scroller/VBox"]
+layout_mode = 2
+theme_type_variation = &"HSeparator_Grow10"
+
+[node name="Fields" type="VBoxContainer" parent="Scroller/VBox"]
 layout_mode = 2
 
-[connection signal="pressed" from="OuterMargin/Scroller/InnerMargin/VBox/HBox/RFHButton" to="." method="_on_rfh_button_pressed"]
+[connection signal="pressed" from="Scroller/VBox/TopBox/HBox/RFHButton" to="." method="_on_rfh_button_pressed"]

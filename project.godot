@@ -49,7 +49,7 @@ window/size/fullscreen=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/Todo_Manager/plugin.cfg", "res://addons/gdUnit4/plugin.cfg")
+enabled=PackedStringArray("res://addons/ColorPreview/plugin.cfg", "res://addons/Todo_Manager/plugin.cfg", "res://addons/gdUnit4/plugin.cfg")
 
 [file_customization]
 

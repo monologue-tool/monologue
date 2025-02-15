@@ -3,10 +3,10 @@
 [ext_resource type="Script" path="res://nodes/choice_node/choice_node.gd" id="1_nn3v2"]
 
 [node name="ChoiceNode" type="GraphNode" groups=["graph_nodes"]]
-offset_right = 320.0
-scale = Vector2(1.0021, 1)
+custom_minimum_size = Vector2(400, 60)
+offset_right = 400.0
+offset_bottom = 60.0
 size_flags_vertical = 0
-theme_override_constants/separation = 15
 title = "ChoiceNode"
 script = ExtResource("1_nn3v2")
 titlebar_color = Color(0.835294, 0.317647, 0.376471, 1)

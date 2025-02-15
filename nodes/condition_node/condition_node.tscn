@@ -1,31 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://dsv566w4evo8b"]
+[gd_scene load_steps=4 format=3 uid="uid://dsv566w4evo8b"]
 
-[ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="1_242j4"]
-[ext_resource type="Texture2D" uid="uid://px17kflnvnd7" path="res://ui/assets/icons/slot_left.svg" id="1_dup0t"]
 [ext_resource type="Script" path="res://nodes/condition_node/condition_node.gd" id="3_vhhwe"]
 
 [sub_resource type="Theme" id="Theme_llmqa"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sipot"]
-content_margin_left = 5.0
-content_margin_right = 5.0
-bg_color = Color(0.0862745, 0.101961, 0.12549, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.0784314, 0.0862745, 0.0980392, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
 
 [sub_resource type="LabelSettings" id="LabelSettings_v4ya3"]
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="ConditionNode" type="GraphNode" groups=["graph_nodes"]]
-offset_right = 320.0
-offset_bottom = 101.0
+offset_right = 314.0
+offset_bottom = 128.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = SubResource("Theme_llmqa")
@@ -33,11 +17,11 @@ title = "ConditionNode"
 slot/0/left_enabled = true
 slot/0/left_type = 0
 slot/0/left_color = Color(1, 1, 1, 1)
-slot/0/left_icon = ExtResource("1_dup0t")
+slot/0/left_icon = null
 slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color(1, 1, 1, 1)
-slot/0/right_icon = ExtResource("1_242j4")
+slot/0/right_icon = null
 slot/0/draw_stylebox = false
 slot/1/left_enabled = false
 slot/1/left_type = 0
@@ -46,46 +30,44 @@ slot/1/left_icon = null
 slot/1/right_enabled = true
 slot/1/right_type = 0
 slot/1/right_color = Color(1, 1, 1, 1)
-slot/1/right_icon = ExtResource("1_242j4")
+slot/1/right_icon = null
 slot/1/draw_stylebox = false
 script = ExtResource("3_vhhwe")
 titlebar_color = Color(0.733333, 0.392157, 0.188235, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
+theme_type_variation = &"HBoxContainer_Small"
 
-[node name="HBox" type="HBoxContainer" parent="MarginContainer"]
-layout_mode = 2
-
-[node name="IfLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="IfLabel" type="Label" parent="HBox"]
 layout_mode = 2
 text = "If"
 
-[node name="VariableLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="VariableLabel" type="Label" parent="HBox"]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
+theme_type_variation = &"Label_NodeValue"
 text = "variable"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="OperatorLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="OperatorLabel" type="Label" parent="HBox"]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
+theme_type_variation = &"Label_NodeValue"
 text = "condition"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ValueLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="ValueLabel" type="Label" parent="HBox"]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_sipot")
+theme_type_variation = &"Label_NodeValue"
 text = "value"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ThenLabel" type="Label" parent="MarginContainer/HBox"]
+[node name="ThenLabel" type="Label" parent="HBox"]
 layout_mode = 2
 text = "then"
 
-[node name="ElseContainer" type="MarginContainer" parent="."]
+[node name="ElseHBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="ElseLabel" type="Label" parent="ElseContainer"]
+[node name="ElseLabel" type="Label" parent="ElseHBox"]
 layout_mode = 2
 text = "Else"

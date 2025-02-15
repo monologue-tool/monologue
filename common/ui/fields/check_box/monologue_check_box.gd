@@ -1,11 +1,12 @@
 class_name MonologueCheckBox extends MonologueField
 
 
-@onready var check_box = $CheckBox
+@onready var check_box = $Control/CheckBox
+@onready var label = $Label
 
 
 func set_label_text(text: String) -> void:
-	check_box.text = text
+	label.text = text
 
 
 func propagate(value: Variant) -> void:

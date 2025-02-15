@@ -1,58 +1,44 @@
-[gd_scene load_steps=6 format=3 uid="uid://bxu71eq40qoq6"]
+[gd_scene load_steps=3 format=3 uid="uid://bxu71eq40qoq6"]
 
-[ext_resource type="Texture2D" uid="uid://px17kflnvnd7" path="res://ui/assets/icons/slot_left.svg" id="1_akw3b"]
-[ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="2_kflmp"]
 [ext_resource type="Script" path="res://nodes/wait_node/wait_node.gd" id="3_n44rg"]
-[ext_resource type="StyleBox" uid="uid://bmb6fo20hn20m" path="res://ui/theme_default/node_value.stylebox" id="4_eokp5"]
-
-
-
-
 
 [sub_resource type="LabelSettings" id="LabelSettings_82fue"]
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="WaitNode" type="GraphNode" groups=["graph_nodes"]]
-custom_minimum_size = Vector2(200, 100)
+custom_minimum_size = Vector2(200, 0)
 offset_right = 200.0
-offset_bottom = 102.0
+offset_bottom = 82.0
 size_flags_vertical = 0
 title = "NodeWait"
 slot/0/left_enabled = true
 slot/0/left_type = 0
 slot/0/left_color = Color(1, 1, 1, 1)
-slot/0/left_icon = ExtResource("1_akw3b")
+slot/0/left_icon = null
 slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color(1, 1, 1, 1)
-slot/0/right_icon = ExtResource("2_kflmp")
+slot/0/right_icon = null
 slot/0/draw_stylebox = false
 script = ExtResource("3_n44rg")
 titlebar_color = Color(0.360784, 0.501961, 0.184314, 1)
 
-[node name="MainContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="HBox" type="HBoxContainer" parent="MainContainer"]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
+theme_type_variation = &"HBoxContainer_Small"
 
-[node name="Label" type="Label" parent="MainContainer/HBox"]
+[node name="Label" type="Label" parent="HBox"]
 layout_mode = 2
 text = "Wait"
 
-[node name="WaitLabel" type="Label" parent="MainContainer/HBox"]
+[node name="WaitLabel" type="Label" parent="HBox"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_eokp5")
+theme_type_variation = &"Label_NodeValue"
 text = "0"
 label_settings = SubResource("LabelSettings_82fue")
 
-[node name="Label2" type="Label" parent="MainContainer/HBox"]
+[node name="Label2" type="Label" parent="HBox"]
 layout_mode = 2
 text = "seconds"
 

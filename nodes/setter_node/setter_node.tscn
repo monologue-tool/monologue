@@ -1,13 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://qd3nbp87ls3r"]
+[gd_scene load_steps=5 format=3 uid="uid://qd3nbp87ls3r"]
 
-[ext_resource type="Texture2D" uid="uid://px17kflnvnd7" path="res://ui/assets/icons/slot_left.svg" id="1_bsa4i"]
 [ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="2_t53kr"]
 [ext_resource type="Script" path="res://nodes/setter_node/setter_node.gd" id="3_3ny3s"]
-[ext_resource type="StyleBox" uid="uid://bmb6fo20hn20m" path="res://ui/theme_default/node_value.stylebox" id="4_xcnds"]
-
-
-
-
 
 [sub_resource type="Theme" id="Theme_llmqa"]
 
@@ -15,8 +9,8 @@
 font_color = Color(0.572549, 0.572549, 0.572549, 1)
 
 [node name="SetterNode" type="GraphNode" groups=["graph_nodes"]]
-offset_right = 302.0
-offset_bottom = 126.0
+offset_right = 300.0
+offset_bottom = 132.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = SubResource("Theme_llmqa")
@@ -24,11 +18,11 @@ title = "SetterNode"
 slot/0/left_enabled = true
 slot/0/left_type = 0
 slot/0/left_color = Color(1, 1, 1, 1)
-slot/0/left_icon = ExtResource("1_bsa4i")
+slot/0/left_icon = null
 slot/0/right_enabled = true
 slot/0/right_type = 0
 slot/0/right_color = Color(1, 1, 1, 1)
-slot/0/right_icon = ExtResource("2_t53kr")
+slot/0/right_icon = null
 slot/0/draw_stylebox = false
 slot/1/left_enabled = false
 slot/1/left_type = 0
@@ -42,61 +36,55 @@ slot/1/draw_stylebox = false
 script = ExtResource("3_3ny3s")
 titlebar_color = Color(0.733333, 0.392157, 0.188235, 1)
 
-[node name="OptionContainer" type="MarginContainer" parent="."]
+[node name="OptionContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
+theme_type_variation = &"HBoxContainer_Small"
 
-[node name="HBox" type="HBoxContainer" parent="OptionContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="DescriptorLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="DescriptorLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
 text = "Enable option"
 
-[node name="OptionIdLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="OptionIdLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_xcnds")
+theme_type_variation = &"Label_NodeValue"
 text = "option id"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="QuestionLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="QuestionLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
 text = "?"
 
-[node name="BoolLabel" type="Label" parent="OptionContainer/HBox"]
+[node name="BoolLabel" type="Label" parent="OptionContainer"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_xcnds")
+theme_type_variation = &"Label_NodeValue"
 text = "value"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="VariableContainer" type="MarginContainer" parent="."]
+[node name="VariableContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
+theme_type_variation = &"HBoxContainer_Small"
 
-[node name="HBox" type="HBoxContainer" parent="VariableContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="DescriptorLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="DescriptorLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
 text = "Set"
 
-[node name="VariableLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="VariableLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_xcnds")
+theme_type_variation = &"Label_NodeValue"
 text = "variable"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="OperatorLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="OperatorLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_xcnds")
+theme_type_variation = &"Label_NodeValue"
 text = "operator"
 label_settings = SubResource("LabelSettings_v4ya3")
 
-[node name="ValueLabel" type="Label" parent="VariableContainer/HBox"]
+[node name="ValueLabel" type="Label" parent="VariableContainer"]
 layout_mode = 2
-theme_override_styles/normal = ExtResource("4_xcnds")
+theme_type_variation = &"Label_NodeValue"
 text = "value
 "
 label_settings = SubResource("LabelSettings_v4ya3")

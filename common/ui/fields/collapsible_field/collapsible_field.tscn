@@ -1,57 +1,47 @@
-[gd_scene load_steps=4 format=3 uid="uid://hvv74un17dp0"]
+[gd_scene load_steps=3 format=3 uid="uid://hvv74un17dp0"]
 
 [ext_resource type="Script" path="res://common/ui/fields/collapsible_field/collapsible_field.gd" id="1_tmui1"]
 [ext_resource type="Texture2D" uid="uid://cb6n6enqfvclw" path="res://ui/assets/icons/arrow_right.svg" id="2_357t1"]
 
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ng6uw"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.275, 0.275, 0.302, 0.25)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
 [node name="CollapsibleField" type="VBoxContainer"]
 anchors_preset = -1
 anchor_right = 0.029
-offset_right = 0.5
-offset_bottom = 59.0
+offset_right = 0.600002
+offset_bottom = 35.0
 script = ExtResource("1_tmui1")
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 2
+theme_type_variation = &"Button_Flat_NoCorner"
 icon = ExtResource("2_357t1")
 alignment = 0
 
 [node name="CollapsibleContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 22
+theme_type_variation = &"MarginContainer_Medium"
+theme_override_constants/margin_left = 40
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="CollapsibleContainer"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ng6uw")
-
-[node name="VboxContainer" type="VBoxContainer" parent="CollapsibleContainer/PanelContainer"]
+[node name="VBox" type="VBoxContainer" parent="CollapsibleContainer"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="FieldContainer" type="VBoxContainer" parent="CollapsibleContainer/PanelContainer/VboxContainer"]
+[node name="FieldContainer" type="VBoxContainer" parent="CollapsibleContainer/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="AddButton" type="Button" parent="CollapsibleContainer/PanelContainer/VboxContainer"]
+[node name="AddButton" type="Button" parent="CollapsibleContainer/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_type_variation = &"Button_Outline"
 text = "+"
 
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+theme_type_variation = &"HSeparator_Grow10"
+
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="CollapsibleContainer/PanelContainer/VboxContainer/AddButton" to="." method="_on_add_button_pressed"]
+[connection signal="pressed" from="CollapsibleContainer/VBox/AddButton" to="." method="_on_add_button_pressed"]

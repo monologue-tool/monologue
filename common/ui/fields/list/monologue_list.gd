@@ -3,7 +3,6 @@ class_name MonologueList extends MonologueField
 
 
 var delete_scene = preload("res://common/ui/buttons/delete_button.tscn")
-var stylebox = preload("res://ui/theme_default/list_item.stylebox")
 
 var add_callback: Callable = Constants.empty_callback
 var delete_callback: Callable = func(list): return list
@@ -41,7 +40,6 @@ func clear_list():
 
 func create_item_container() -> PanelContainer:
 	var item_container = PanelContainer.new()
-	item_container.add_theme_stylebox_override("panel", stylebox)
 	return item_container
 
 
