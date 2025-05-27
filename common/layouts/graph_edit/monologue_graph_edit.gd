@@ -405,3 +405,8 @@ func _on_mouse_entered() -> void:
 func _on_mouse_exited() -> void:
 	DisplayServer.cursor_set_custom_image(null)
 	mouse_hovering = false
+
+
+func get_all_custom_nodes() -> Array[MonologueGraphNode]:
+	var nodes: Array[MonologueGraphNode] = get_nodes()
+	return nodes.filter(func(n): return n is DefineCustomNode)

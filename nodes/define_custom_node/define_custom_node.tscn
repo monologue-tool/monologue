@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://bpx7c770evl5r"]
+
+[ext_resource type="Texture2D" uid="uid://px17kflnvnd7" path="res://ui/assets/icons/slot_left.svg" id="1_d28u8"]
+[ext_resource type="Texture2D" uid="uid://bexlgpgwakbrr" path="res://ui/assets/icons/slot_right.svg" id="2_5dowv"]
+[ext_resource type="Script" uid="uid://bki5xr0imaspb" path="res://nodes/define_custom_node/define_custom_node.gd" id="3_x6egi"]
+
+[sub_resource type="Theme" id="Theme_llmqa"]
+
+[node name="DefineCustomNode" type="GraphNode"]
+offset_right = 191.0
+offset_bottom = 82.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme = SubResource("Theme_llmqa")
+title = "Define <node_name>"
+slot/0/left_enabled = false
+slot/0/left_type = 0
+slot/0/left_color = Color(1, 1, 1, 1)
+slot/0/left_icon = ExtResource("1_d28u8")
+slot/0/right_enabled = true
+slot/0/right_type = 0
+slot/0/right_color = Color(1, 1, 1, 1)
+slot/0/right_icon = ExtResource("2_5dowv")
+slot/0/draw_stylebox = false
+script = ExtResource("3_x6egi")
+titlebar_color = Color(0.0196078, 0.513726, 0.341176, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="DefineLabel" type="Label" parent="MarginContainer/HBox"]
+layout_mode = 2
+text = "Define"

@@ -38,6 +38,8 @@ func _on_enable_picker_mode(node: String = "", port: int = -1, mouse_pos = null,
 			var mouse_position =  Vector2i(get_parent().get_global_mouse_position())
 			position = get_tree().get_root().position + mouse_position
 		current_screen = get_tree().get_root().current_screen
+		
+		%Tree._load()
 		show()
 
 
@@ -61,3 +63,9 @@ func _on_create_button_pressed() -> void: close()
 func _on_visibility_changed() -> void:
 	var root_screen: int = get_tree().get_root().current_screen
 	current_screen = root_screen
+
+
+func _on_tree_button_clicked(_item: TreeItem, _column: int, id: int, _mouse_button_index: int) -> void:
+	if id == 1:
+		GlobalSignal.emit("add_graph_node", ["DefineCustom", self])
+		close()

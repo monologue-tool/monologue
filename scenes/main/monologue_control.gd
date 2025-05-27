@@ -10,6 +10,7 @@ func _ready():
 	$WelcomeWindow.show()
 	
 	GlobalSignal.add_listener("add_graph_node", add_node_from_global)
+	GlobalSignal.add_listener("add_custom_graph_node", add_custom_node_from_global)
 	GlobalSignal.add_listener("select_new_node", _select_new_node)
 	GlobalSignal.add_listener("refresh", refresh)
 	GlobalSignal.add_listener("load_project", load_project)
@@ -69,6 +70,20 @@ func _to_dict() -> Dictionary:
 ## Used by header menu and graph node selector (picker).
 func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
 	var nodes: Array[MonologueGraphNode] = graph_switcher.current.add_node(node_type, true, picker)
+	graph_switcher.current.pick_and_center(nodes, picker)
+
+
+func add_custom_node_from_global(node_type: String, picker: GraphNodePicker = null):
+	var nodes: Array[MonologueGraphNode] = graph_switcher.current.add_node("Custom", true, picker)
+	
+	var all_define = graph_switcher.current.get_all_custom_nodes()
+	var custom_node_id = "-1"
+	for node in all_define:
+		if node.custom_node_name.value == node_type:
+			custom_node_id = node.id.value
+	
+	nodes[0].define_node_id = custom_node_id
+	nodes[0]._update()
 	graph_switcher.current.pick_and_center(nodes, picker)
 
 

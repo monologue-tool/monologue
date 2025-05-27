@@ -6,7 +6,8 @@ extends Tree
 
 ## The data to build the tree
 ## An oject can contain keys with name "text", "value", icon" and "children".
-var _data =  [
+func _get_data() -> Array:
+	return [
 		{"text": "Narration", "children": [
 			{"text": "Sentence", "icon": "text.svg"},
 			{"text": "Choice", "icon": "choice.svg"},
@@ -30,35 +31,54 @@ var _data =  [
 		{"text": "Helpers", "children": [
 			{"text": "Comment", "icon": "comment.svg"},
 			{"text": "Reroute", "icon": "path.svg"},
-		]}
+		]},
+		{"text": "Custom nodes", "button_icon": "plus.svg", "button_id": 1,"children": _get_custom_nodes()}
 	]
 
 var _first_item_found: bool = false
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
+func _load() -> void:
+	clear()
 	var root = create_item()
-	_recusive_load_data(_data, root)
+	_recusive_load_data(_get_data(), root)
 	deselect_all()
+
+
+func _get_custom_nodes() -> Array:
+	var all_custom_nodes: Array[MonologueGraphNode] = window.switcher.current.get_all_custom_nodes()
+	var data: Array = []
+	
+	for custom_node in all_custom_nodes:
+		data.append({
+			"text": custom_node.custom_node_name.value
+		})
+	
+	return data
 
 
 func _recusive_load_data(items: Array, tree_parent: TreeItem) -> void:
 	for obj: Dictionary in items:
-		var tree_item = create_item(tree_parent)
+		var tree_item: TreeItem = create_item(tree_parent)
 		tree_item.collapsed = true
-		
+
 		if obj.has("text"):
 			tree_item.set_text(0, obj.get("text"))
 		if obj.has("icon"):
 			var icon_texture = load("res://ui/assets/icons/" + obj.get("icon"))
 			tree_item.set_icon(0, icon_texture)
+		if obj.has("button_icon"):
+			var icon_texture = load("res://ui/assets/icons/" + obj.get("button_icon"))
+			tree_item.add_button(0, icon_texture, obj.get("button_id", 1))
 		if obj.has("children"):
 			_recusive_load_data(obj.get("children"), tree_item)
 
 
 func _create() -> void:
 	var node_type = get_selected().get_text(0)
+	if get_selected().get_parent().get_text(0) == "Custom nodes":
+		GlobalSignal.emit("add_custom_graph_node", [node_type, window])
+		return
 	GlobalSignal.emit("add_graph_node", [node_type, window])
 
 

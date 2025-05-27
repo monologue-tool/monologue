@@ -13,6 +13,8 @@ const NODE_SCENES = {
 	"Choice": preload("res://nodes/choice_node/choice_node.tscn"),
 	"Comment": preload("res://nodes/comment_node/comment_node.tscn"),
 	"Condition": preload("res://nodes/condition_node/condition_node.tscn"),
+	"Custom": preload("res://nodes/custom_node/custom_node.tscn"),
+	"DefineCustom": preload("res://nodes/define_custom_node/define_custom_node.tscn"),
 	"Random": preload("res://nodes/random_node/random_node.tscn"),
 	"EndPath": preload("res://nodes/end_path_node/end_path_node.tscn"),
 	"Event": preload("res://nodes/event_node/event_node.tscn"),
