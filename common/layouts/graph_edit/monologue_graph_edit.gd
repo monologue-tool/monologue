@@ -2,6 +2,9 @@
 class_name MonologueGraphEdit extends GraphEdit
 
 
+signal connection_made
+signal connection_broken
+
 var close_button_scene = preload("res://common/ui/buttons/close_button.tscn")
 var base_options = {}
 var data: Dictionary
@@ -125,6 +128,7 @@ func disconnect_outbound_from_node(from_node: StringName, from_port: int) -> voi
 			var to_node = connection.get("to_node")
 			var to_port = connection.get("to_port")
 			disconnect_node(from_node, from_port, to_node, to_port)
+			connection_broken.emit()
 
 
 ## Deletes the given graphnode and return its dictionary data.
@@ -134,6 +138,7 @@ func free_graphnode(node: MonologueGraphNode) -> Dictionary:
 	for c in inbound_connections + outbound_connections:
 		disconnect_node(c.get("from_node"), c.get("from_port"),
 				c.get("to_node"), c.get("to_port"))
+		connection_broken.emit()
 	
 	var node_data = node._to_dict()
 	if "options" in node:
@@ -256,9 +261,10 @@ func post_node_offset(nodes: Array[MonologueGraphNode]) -> void:
 func propagate_connection(from_node, from_port, to_node, to_port, next = true) -> void:
 	if next:
 		connect_node(from_node, from_port, to_node, to_port)
-		
+		connection_made.emit()
 	else:
 		disconnect_node(from_node, from_port, to_node, to_port)
+		connection_broken.emit()
 	
 	var graph_node = get_node_or_null(NodePath(from_node))
 	if graph_node and graph_node.has_method("update_next_id"):
@@ -355,6 +361,8 @@ func _on_connection_request(from_node, from_port, to_node, to_port) -> void:
 		undo_redo.add_do_method(propagate_connection.bindv(arguments))
 		undo_redo.add_undo_method(propagate_connection.bindv(arguments + [false]))
 		undo_redo.commit_action()
+		
+		connection_made.emit()
 
 
 func _on_disconnection_request(from_node, from_port, to_node, to_port) -> void:
@@ -410,3 +418,25 @@ func _on_mouse_exited() -> void:
 func get_all_custom_nodes() -> Array[MonologueGraphNode]:
 	var nodes: Array[MonologueGraphNode] = get_nodes()
 	return nodes.filter(func(n): return n is DefineCustomNode)
+
+
+# Recursive function
+func get_end_of_chain_nodes(node: MonologueGraphNode, n: int = 0) -> Array:
+	var port_count: int = node.get_output_port_count()
+	var end_of_chain: Array = []
+	
+	if n >= 255:
+		return end_of_chain
+	
+	var all_connections: Array = []
+	for port_idx in range(port_count):
+		all_connections.append_array(get_all_connections_from_slot(node.name, port_idx))
+		
+	for connected in all_connections:
+		if connected == null: continue
+		end_of_chain.append_array(get_end_of_chain_nodes(connected, n+1))
+	
+	if port_count > all_connections.size():
+		end_of_chain.append(node)
+
+	return end_of_chain
