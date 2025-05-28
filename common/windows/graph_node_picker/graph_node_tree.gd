@@ -46,10 +46,10 @@ func _load() -> void:
 
 
 func _get_custom_nodes() -> Array:
-	var all_custom_nodes: Array[MonologueGraphNode] = window.switcher.current.get_all_custom_nodes()
+	var all_custom_nodes: Array = window.switcher.current.get_all_custom_nodes()
 	var data: Array = []
 	
-	for custom_node in all_custom_nodes:
+	for custom_node: MonologueGraphNode in all_custom_nodes:
 		data.append({
 			"text": custom_node.custom_node_name.value
 		})
