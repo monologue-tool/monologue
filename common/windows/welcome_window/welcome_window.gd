@@ -1,31 +1,21 @@
-class_name WelcomeWindow extends Window
+class_name WelcomeWindow extends MonologueWindow
 
 
 ## Callback for loading projects after file selection.
 var file_callback = func(path): GlobalSignal.emit("load_project", [path])
 
-@onready var close_button: BaseButton = $PanelContainer/CloseButton
+@onready var close_button: BaseButton = %CloseButton
 @onready var recent_files: RecentFilesContainer = %RecentFilesContainer
-@onready var version_label: Label = $PanelContainer/VBoxContainer/VersionLabel
+@onready var version_label: Label = %VersionLabel
 
 
 func _ready():
+	super._ready()
 	version_label.text = "v" + ProjectSettings.get("application/config/version")
-	get_parent().connect("resized", _on_resized)
 	
-	update_size.call_deferred()
 	GlobalSignal.add_listener("show_welcome", show)
 	GlobalSignal.add_listener("hide_welcome", hide)
 
-
-func update_size() -> void:
-	move_to_center()
-	reset_size()
-	size.x = 450
-
-
-func _on_resized():
-	update_size()
 
 
 func _on_new_file_btn_pressed() -> void:

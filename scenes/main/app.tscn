@@ -1,25 +1,21 @@
 [gd_scene load_steps=13 format=3 uid="uid://bim51g1aibuw0"]
 
+[ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="1_1u5fg"]
 [ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/main/graph.tscn" id="1_kiov6"]
-[ext_resource type="Script" uid="uid://bsq6lognjqdwu" path="res://scenes/main/custom_title_bar.gd" id="1_sdg01"]
-[ext_resource type="Texture2D" uid="uid://cfc0nhupnhixg" path="res://icon_min.png" id="2_601ss"]
-[ext_resource type="PackedScene" uid="uid://c2k0l1j45eshc" path="res://scenes/main/title_bar_button.tscn" id="3_0m70l"]
 [ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="3_gcdaj"]
-[ext_resource type="Texture2D" uid="uid://cxek38x4sufp5" path="res://ui/assets/icons/ui_reduce.svg" id="4_b7q52"]
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_f1t0i"]
-[ext_resource type="Texture2D" uid="uid://c4ib88gq1pbjr" path="res://ui/assets/icons/ui_maximize.svg" id="5_fxbua"]
+[ext_resource type="Shader" uid="uid://de1ql8ahad2ts" path="res://common/blur.gdshader" id="5_1u5fg"]
+[ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.tscn" id="6_cqyrh"]
+[ext_resource type="Script" uid="uid://d0xgy6gflipxs" path="res://common/layouts/dimmer/dimmer.gd" id="6_nw038"]
+[ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="7_nw038"]
+[ext_resource type="PackedScene" uid="uid://d3f7d4bb40iht" path="res://common/windows/preview_window/preview_window.tscn" id="8_7qdje"]
+[ext_resource type="PackedScene" uid="uid://bqqcww601rcx5" path="res://common/windows/welcome_window/welcome_window.tscn" id="9_fp7qq"]
+[ext_resource type="Script" uid="uid://b2l7hjfyrnr3x" path="res://common/windows/file_dialog/file_dialog.gd" id="10_r77hi"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_da2f7"]
-bg_color = Color(0.192157, 0.192157, 0.211765, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k15gm"]
-bg_color = Color(1, 1, 1, 0.12549)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w73i2"]
-bg_color = Color(1, 1, 1, 0.12549)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1u5fg"]
-bg_color = Color(0.784314, 0.188235, 0.184314, 1)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7ks4x"]
+shader = ExtResource("5_1u5fg")
+shader_parameter/lod = 1.0
+shader_parameter/darkness = 0.25
 
 [node name="App" type="Control"]
 layout_mode = 3
@@ -41,7 +37,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_da2f7")
+theme_type_variation = &"EditorBackground"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Frame"]
 layout_mode = 2
@@ -51,12 +47,11 @@ theme_override_constants/separation = 0
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_constants/separation = 0
-script = ExtResource("1_sdg01")
 
 [node name="MainPopupMenu" type="MenuButton" parent="Frame/VBoxContainer/CustomTitleBar"]
 custom_minimum_size = Vector2(43, 0)
 layout_mode = 2
-icon = ExtResource("2_601ss")
+icon = ExtResource("1_1u5fg")
 icon_alignment = 1
 expand_icon = true
 script = ExtResource("4_f1t0i")
@@ -76,45 +71,62 @@ clip_tabs = false
 tab_count = 1
 tab_0/icon = ExtResource("3_gcdaj")
 
-[node name="VSeparator2" type="VSeparator" parent="Frame/VBoxContainer/CustomTitleBar"]
-visible = false
-layout_mode = 2
-
-[node name="tbButtonContainer" type="HBoxContainer" parent="Frame/VBoxContainer/CustomTitleBar"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="tbReduceButton" parent="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer" instance=ExtResource("3_0m70l")]
-layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_k15gm")
-texture = ExtResource("4_b7q52")
-
-[node name="tbSizeButton" parent="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer" instance=ExtResource("3_0m70l")]
-layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_w73i2")
-texture = ExtResource("5_fxbua")
-
-[node name="tbCloseButton" parent="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer" instance=ExtResource("3_0m70l")]
-layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_1u5fg")
-hover_color = Color(0.784314, 0.188235, 0.184314, 1)
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Frame/VBoxContainer/CustomTitleBar"]
-layout_mode = 2
-
 [node name="HSeparator" type="HSeparator" parent="Frame/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/separation = 1
 
-[node name="MonologueControl" parent="Frame/VBoxContainer" instance=ExtResource("1_kiov6")]
+[node name="MonologueControl" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "graph_node_picker") instance=ExtResource("1_kiov6")]
 layout_mode = 2
+welcome_window = NodePath("../../../WelcomeWindow")
+graph_node_picker = NodePath("../../../GraphNodePicker")
 
-[node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueControl/MarginContainer/MainContainer/GraphEditsArea" index="0" node_paths=PackedStringArray("tab_bar")]
-tab_bar = NodePath("../../../../../CustomTitleBar/HBoxContainer2/TabBar")
+[node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea" index="0" node_paths=PackedStringArray("tab_bar")]
+tab_bar = NodePath("../../../../CustomTitleBar/HBoxContainer2/TabBar")
 
-[connection signal="gui_input" from="Frame/VBoxContainer/CustomTitleBar" to="Frame/VBoxContainer/CustomTitleBar" method="_on_gui_input"]
-[connection signal="pressed" from="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer/tbReduceButton" to="Frame/VBoxContainer/CustomTitleBar" method="_on_tb_reduce_button_pressed"]
-[connection signal="pressed" from="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer/tbSizeButton" to="Frame/VBoxContainer/CustomTitleBar" method="_on_tb_size_button_pressed"]
-[connection signal="pressed" from="Frame/VBoxContainer/CustomTitleBar/tbButtonContainer/tbCloseButton" to="Frame/VBoxContainer/CustomTitleBar" method="_on_tb_close_button_pressed"]
+[node name="SearchBarContainer" parent="Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea" index="3"]
+offset_left = 39.0
+offset_top = 138.0
+offset_right = 39.0
+offset_bottom = 138.0
+
+[node name="Dimmer" type="ColorRect" parent="."]
+visible = false
+z_index = 2
+material = SubResource("ShaderMaterial_7ks4x")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_nw038")
+
+[node name="ExpandedTextEditContainer" parent="." instance=ExtResource("6_cqyrh")]
+visible = false
+z_index = 2
+layout_mode = 1
+
+[node name="GraphNodePicker" parent="." node_paths=PackedStringArray("switcher") instance=ExtResource("7_nw038")]
+visible = false
+keep_title_visible = false
+content_scale_mode = 2
+content_scale_aspect = 1
+switcher = NodePath("../Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea/GraphEditSwitcher")
+
+[node name="PreviewWindow" parent="." instance=ExtResource("8_7qdje")]
+visible = false
+
+[node name="WelcomeWindow" parent="." instance=ExtResource("9_fp7qq")]
+size = Vector2i(450, 300)
+visible = false
+
+[node name="FileDialog" type="FileDialog" parent="."]
+auto_translate_mode = 1
+size = Vector2i(419, 201)
+access = 2
+use_native_dialog = true
+script = ExtResource("10_r77hi")
+
+[connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 
 [editable path="Frame/VBoxContainer/MonologueControl"]

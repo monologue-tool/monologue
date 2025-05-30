@@ -22,12 +22,9 @@ slot/0/draw_stylebox = true
 script = ExtResource("3_vd25i")
 titlebar_color = Color(1, 1, 1, 1)
 
-[node name="MainContainer" type="MarginContainer" parent="."]
+[node name="CommentEdit" type="TextEdit" parent="."]
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="CommentEdit" type="TextEdit" parent="MainContainer"]
-layout_mode = 2
 wrap_mode = 1
 scroll_fit_content_height = true
 

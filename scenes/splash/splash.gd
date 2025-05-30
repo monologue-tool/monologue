@@ -6,12 +6,14 @@ extends Control
 @export var after_blink_time: float = 0.5
 
 @onready var timer = $tMinDisplayTime
+@onready var title = $CenterContainer/TextureRect
 @onready var eye = $CenterContainer/TextureRect/AnimatedSprite2D
 
 
 func _ready() -> void:
 	timer.start(min_display_time)
 	ResourceLoader.load_threaded_request(load_scene)
+	title.connect("item_rect_changed", _on_item_rect_changed)
 
 
 func _process(_delta: float) -> void:
@@ -26,3 +28,8 @@ func _process(_delta: float) -> void:
 		
 		get_window().unresizable = false
 		get_tree().change_scene_to_packed(scene)
+
+
+func _on_item_rect_changed() -> void:
+	eye.global_position.x = title.position.x + 143
+	eye.global_position.y = title.position.y + 40

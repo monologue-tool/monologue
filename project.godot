@@ -36,6 +36,10 @@ Path="*res://autoloads/path.gd"
 IDGen="*res://autoloads/id_gen.gd"
 Cursor="*res://autoloads/cursor.gd"
 
+[debug]
+
+gdscript/warnings/integer_division=0
+
 [display]
 
 window/size/viewport_width=1400
@@ -69,8 +73,9 @@ ui/inspector/tree_view_mode=1
 
 [gui]
 
-theme/custom="res://ui/theme_default/main.tres"
-theme/default_font_subpixel_positioning=0
+theme/custom="uid://budfhk1hudcfj"
+theme/custom_font="uid://xxjublydw27h"
+theme/default_font_hinting=2
 theme/lcd_subpixel_layout=0
 
 [input]

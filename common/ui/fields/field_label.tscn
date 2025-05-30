@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://x0daq5tsejey"]
+
+[node name="FieldLabel" type="Label"]
+custom_minimum_size = Vector2(100, 31)
+size_flags_vertical = 0
+text = "Value"
+vertical_alignment = 1

@@ -1,19 +1,78 @@
-[gd_scene load_steps=2 format=3 uid="uid://c0d8fac8so0p0"]
+[gd_scene load_steps=12 format=3 uid="uid://c0d8fac8so0p0"]
 
 [ext_resource type="Script" uid="uid://catei6iaaw77f" path="res://common/ui/fields/spin_box/monologue_spin_box.gd" id="1_wmtop"]
+[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_1ivi1"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_i3s76"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_a42se"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_x4l3i"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_vh5iv"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_ae1hp"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_rwqsu"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_jeakv"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_107wb"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_4hddc"]
 
 [node name="MonologueSpinBox" type="HBoxContainer"]
 script = ExtResource("1_wmtop")
 
-[node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+[node name="Label" parent="." instance=ExtResource("2_1ivi1")]
 layout_mode = 2
-size_flags_vertical = 0
-text = "Value"
 
-[node name="SpinBox" type="SpinBox" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"SpinBoxPanel"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="DecreaseButton" type="Button" parent="PanelContainer/HBoxContainer"]
+custom_minimum_size = Vector2(31, 0)
+layout_mode = 2
+theme_type_variation = &"SpinBoxButtonLeft"
+text = "-"
+
+[node name="VSeparator" type="VSeparator" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="SpinBox" type="SpinBox" parent="PanelContainer/HBoxContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+theme_override_constants/set_min_buttons_width_from_icons = 0
+theme_override_constants/buttons_width = 0
+theme_override_constants/field_and_buttons_separation = 0
+theme_override_constants/buttons_vertical_separation = 0
+theme_override_icons/up_disabled = SubResource("Texture2DRD_i3s76")
+theme_override_icons/down = SubResource("Texture2DRD_a42se")
+theme_override_icons/down_hover = SubResource("Texture2DRD_x4l3i")
+theme_override_icons/down_pressed = SubResource("Texture2DRD_vh5iv")
+theme_override_icons/down_disabled = SubResource("Texture2DRD_ae1hp")
+theme_override_icons/up_pressed = SubResource("Texture2DRD_rwqsu")
+theme_override_icons/up_hover = SubResource("Texture2DRD_jeakv")
+theme_override_icons/up = SubResource("Texture2DRD_107wb")
+theme_override_icons/updown = SubResource("Texture2DRD_4hddc")
+alignment = 1
 update_on_text_changed = true
+select_all_on_focus = true
 
-[connection signal="value_changed" from="SpinBox" to="." method="_on_value_changed"]
+[node name="VSeparator2" type="VSeparator" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="IncreaseButton" type="Button" parent="PanelContainer/HBoxContainer"]
+custom_minimum_size = Vector2(31, 0)
+layout_mode = 2
+theme_type_variation = &"SpinBoxButtonRight"
+text = "+"
+
+[connection signal="pressed" from="PanelContainer/HBoxContainer/DecreaseButton" to="." method="_on_decrease_button_pressed"]
+[connection signal="value_changed" from="PanelContainer/HBoxContainer/SpinBox" to="." method="_on_value_changed"]
+[connection signal="pressed" from="PanelContainer/HBoxContainer/IncreaseButton" to="." method="_on_increase_button_pressed"]

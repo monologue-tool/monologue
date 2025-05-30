@@ -1,7 +1,7 @@
 extends PanelContainer
 
 
-@onready var line_edit: LineEdit = $MarginContainer/HBoxContainer/LineEdit
+@onready var line_edit: LineEdit = $HBoxContainer/LineEdit
 
 
 func focus() -> void:

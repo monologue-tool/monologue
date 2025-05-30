@@ -11,11 +11,11 @@ var ribbon_scene = preload("res://common/ui/ribbon/ribbon.tscn")
 var revert_text: String
 var validator: Callable = func(_text): return true
 
-@onready var copy_button = $OuterVBox/HBox/InnerVBox/LineEdit/HBoxContainer/CopyButton
-@onready var label = $OuterVBox/HBox/FieldLabel
-@onready var line_edit = $OuterVBox/HBox/InnerVBox/LineEdit
-@onready var warning = $OuterVBox/HBox/InnerVBox/WarnLabel
-@onready var note = $OuterVBox/NoteLabel
+@onready var copy_button = $HBox/InnerVBox/LineEdit/HBoxContainer/CopyButton
+@onready var label = $HBox/FieldLabel
+@onready var line_edit = $HBox/InnerVBox/LineEdit
+@onready var warning = $HBox/InnerVBox/WarnLabel
+@onready var note = $NoteLabel
 
 
 # Called when the node enters the scene tree for the first time.

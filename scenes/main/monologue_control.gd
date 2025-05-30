@@ -1,5 +1,7 @@
 class_name MonologueControl extends Control
 
+@export var welcome_window: WelcomeWindow
+@export var graph_node_picker: GraphNodePicker
 
 @onready var graph_switcher: GraphEditSwitcher = %GraphEditSwitcher
 @onready var side_panel_node: SidePanel = %SidePanel
@@ -7,7 +9,7 @@ class_name MonologueControl extends Control
 
 func _ready():
 	get_tree().auto_accept_quit = false  # quit handled by _close_tab()
-	$WelcomeWindow.show()
+	welcome_window.show()
 	
 	GlobalSignal.add_listener("add_graph_node", add_node_from_global)
 	GlobalSignal.add_listener("add_custom_graph_node", add_custom_node_from_global)
@@ -19,7 +21,7 @@ func _ready():
 
 
 func _select_new_node() -> void:
-	$GraphNodePicker.show()
+	graph_node_picker.show()
 
 
 func _input(event):

@@ -1,18 +1,22 @@
-[gd_scene load_steps=2 format=3 uid="uid://dh7yuosc0hhpp"]
+[gd_scene load_steps=3 format=3 uid="uid://dh7yuosc0hhpp"]
 
 [ext_resource type="Script" uid="uid://ctumcy1k8si7o" path="res://common/ui/fields/toggle/monologue_toggle.gd" id="1_0u5l0"]
+[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_tj6ps"]
 
 [node name="MonologueCheckButton" type="HBoxContainer"]
 offset_right = 43.0
 offset_bottom = 29.0
 script = ExtResource("1_0u5l0")
 
-[node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-text = "Value"
-
-[node name="CheckButton" type="CheckButton" parent="."]
+[node name="Label" parent="." instance=ExtResource("2_tj6ps")]
 layout_mode = 2
 
-[connection signal="toggled" from="CheckButton" to="." method="_on_check_button_toggled"]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="CheckButton" type="CheckButton" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="toggled" from="VBoxContainer/CheckButton" to="." method="_on_check_button_toggled"]

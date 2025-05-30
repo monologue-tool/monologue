@@ -7,16 +7,23 @@ class_name MonologueSlider extends MonologueField
 @export var step: float
 @export var suffix: String
 
-@onready var control_label = $ControlLabel
-@onready var display_label = $DisplayLabel
-@onready var reset_button = $ResetButton
-@onready var slider = $HSlider
+@onready var control_label = $FieldLabel
+@onready var spin_box = $HBoxContainer/SpinBox
+@onready var reset_button = $HBoxContainer/ResetButton
+@onready var slider = $HBoxContainer/HSlider
+
+var skip_spin_box_update: bool = false
 
 
 func _ready():
 	slider.min_value = minimum
 	slider.max_value = maximum
 	slider.step = step
+	
+	spin_box.min_value = minimum
+	spin_box.max_value = maximum
+	spin_box.step = step
+	spin_box.suffix = suffix
 
 
 func set_label_text(text: String) -> void:
@@ -40,4 +47,13 @@ func _on_reset() -> void:
 
 
 func _on_value_changed(value: float) -> void:
-	display_label.text = str(value) + suffix
+	skip_spin_box_update = true
+	spin_box.value = value
+
+func _on_spin_box_value_changed(value: float) -> void:
+	if skip_spin_box_update:
+		skip_spin_box_update = false
+		return
+	
+	slider.value = value
+	field_updated.emit(slider.value)

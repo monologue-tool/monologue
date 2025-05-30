@@ -3,42 +3,50 @@
 [ext_resource type="Script" uid="uid://dtf4ge38njewp" path="res://common/layouts/side_panel/side_panel.gd" id="1_haagr"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="2_34x8o"]
 
-[node name="SidePanelNodeDetails" type="PanelContainer"]
+[node name="SidePanel" type="PanelContainer"]
 offset_right = 158.0
 offset_bottom = 121.0
+theme_type_variation = &"EditorSidePanel"
 script = ExtResource("1_haagr")
 
-[node name="OuterMargin" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Scroller" type="ScrollContainer" parent="OuterMargin"]
-layout_mode = 2
-
-[node name="InnerMargin" type="MarginContainer" parent="OuterMargin/Scroller"]
+[node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBox" type="VBoxContainer" parent="OuterMargin/Scroller/InnerMargin"]
+[node name="PanelContainer" type="PanelContainer" parent="VBox"]
+z_index = 1
+layout_mode = 2
+theme_type_variation = &"EditorSidePanelTopBox"
+
+[node name="VBox" type="VBoxContainer" parent="VBox/PanelContainer"]
+layout_mode = 2
+
+[node name="TopBox" type="HBoxContainer" parent="VBox/PanelContainer/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HBoxContainer_Small"
+
+[node name="RFHButton" type="Button" parent="VBox/PanelContainer/VBox/TopBox"]
+custom_minimum_size = Vector2(34, 29)
+layout_mode = 2
+icon = ExtResource("2_34x8o")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HSeparator" type="HSeparator" parent="VBox/PanelContainer/VBox"]
+layout_mode = 2
+theme_type_variation = &"HSeparatorGrow"
+
+[node name="Scroller" type="ScrollContainer" parent="VBox"]
+clip_contents = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Fields" type="VBoxContainer" parent="VBox/Scroller"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
 
-[node name="HBox" type="HBoxContainer" parent="OuterMargin/Scroller/InnerMargin/VBox"]
-layout_mode = 2
-
-[node name="RFHButton" type="TextureButton" parent="OuterMargin/Scroller/InnerMargin/VBox/HBox"]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("2_34x8o")
-stretch_mode = 3
-
-[node name="Fields" type="VBoxContainer" parent="OuterMargin/Scroller/InnerMargin/VBox"]
-layout_mode = 2
-
-[connection signal="pressed" from="OuterMargin/Scroller/InnerMargin/VBox/HBox/RFHButton" to="." method="_on_rfh_button_pressed"]
+[connection signal="pressed" from="VBox/PanelContainer/VBox/TopBox/RFHButton" to="." method="_on_rfh_button_pressed"]

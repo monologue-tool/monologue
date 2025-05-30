@@ -2,7 +2,7 @@
 class_name CommentNode extends MonologueGraphNode
 
 
-@onready var comment_edit = $MainContainer/CommentEdit
+@onready var comment_edit = $CommentEdit
 
 
 func _ready() -> void:

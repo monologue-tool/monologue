@@ -1,4 +1,4 @@
-extends Window
+extends MonologueWindow
 
 
 @export var dns_checkbox: CheckBox
@@ -13,6 +13,9 @@ func _ready() -> void:
 	var is_new = version != last_version
 	visible = is_pre_release and (not do_not_show or is_new)
 	grab_focus()
+	
+	super._ready()
+
 
 
 func _on_button_pressed() -> void:

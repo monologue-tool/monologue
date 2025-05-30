@@ -1,47 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://cvum3eaenloix"]
+[gd_scene load_steps=5 format=3 uid="uid://cvum3eaenloix"]
 
 [ext_resource type="Script" uid="uid://bhh7i0hnd3psj" path="res://common/layouts/search_bar/search_bar.gd" id="1_k0a4y"]
 [ext_resource type="Texture2D" uid="uid://7cgdpf2fr6p6" path="res://ui/assets/icons/search.svg" id="2_ejrx2"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7u87y"]
-bg_color = Color(0.192157, 0.192157, 0.211765, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.301961, 0.301961, 0.301961, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-corner_detail = 12
-shadow_color = Color(0.063, 0.063, 0.07, 0.14902)
-shadow_size = 64
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_iwyw6"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5dmbh"]
 
 [node name="SearchBar" type="PanelContainer"]
-theme_override_styles/panel = SubResource("StyleBoxFlat_7u87y")
+custom_minimum_size = Vector2(400, 0)
+theme_type_variation = &"OuterPanel"
 script = ExtResource("1_k0a4y")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 10
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 texture = ExtResource("2_ejrx2")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/HBoxContainer"]
+[node name="LineEdit" type="LineEdit" parent="HBoxContainer"]
 custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_iwyw6")

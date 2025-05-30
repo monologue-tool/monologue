@@ -84,7 +84,7 @@ autostart = true
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Label")
 libraries = {
-"": SubResource("AnimationLibrary_t7v2m")
+&"": SubResource("AnimationLibrary_t7v2m")
 }
 
 [connection signal="timeout" from="Timer" to="." method="_on_timeout"]

@@ -2,7 +2,7 @@ extends Tree
 
 
 @onready var create_btn: Button = %CreateButton
-@onready var window: GraphNodePicker = $"../../../.."
+@onready var window: GraphNodePicker = $"../../.."
 
 ## The data to build the tree
 ## An oject can contain keys with name "text", "value", icon" and "children".

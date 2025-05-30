@@ -157,30 +157,30 @@ func free_graphnode(node: MonologueGraphNode) -> Dictionary:
 
 ## Find all other connections that connect to the given graphnode.
 func get_all_inbound_connections(from_node: StringName) -> Array:
-	var inbound = []
+	var node_connections = []
 	for connection in get_connection_list():
 		if connection.get("to_node") == from_node:
-			inbound.append(connection)
-	return inbound
+			node_connections.append(connection)
+	return node_connections
 
 
 ## Find all connections that originate from the given graphnode.
 func get_all_outbound_connections(from_node: StringName) -> Array:
-	var outbound = []
+	var node_connections = []
 	for connection in get_connection_list():
 		if connection.get("from_node") == from_node:
-			outbound.append(connection)
-	return outbound
+			node_connections.append(connection)
+	return node_connections
 
 
 ## Find connections of the given [param from_node] at its [param from_port].
 func get_all_connections_from_slot(from_node: StringName, from_port: int) -> Array:
-	var all = []
+	var node_connections = []
 	for connection in get_connection_list():
 		if connection.get("from_node") == from_node and connection.get("from_port") == from_port:
 			var to = get_node_or_null(NodePath(connection.get("to_node")))
-			all.append(to)
-	return all
+			node_connections.append(to)
+	return node_connections
 
 
 func get_free_bridge_number(_n=1, lp_max=50) -> int:
@@ -249,6 +249,9 @@ func pick_and_center(nodes: Array[MonologueGraphNode],
 
 
 func post_node_offset(nodes: Array[MonologueGraphNode]) -> void:
+	if not nodes[0].is_slot_enabled_left(0):
+		return
+	
 	var first_port_pos = nodes[0].get_input_port_position(0)
 	for node in nodes:
 		node.position_offset -= first_port_pos

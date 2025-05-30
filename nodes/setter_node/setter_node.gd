@@ -11,8 +11,8 @@ var _control_groups = {
 }
 
 @onready var _option_container = $OptionContainer
-@onready var _option_id_label = $OptionContainer/HBox/OptionIdLabel
-@onready var _bool_label = $OptionContainer/HBox/BoolLabel
+@onready var _option_id_label = $OptionContainer/OptionIdLabel
+@onready var _bool_label = $OptionContainer/BoolLabel
 @onready var _variable_container = $VariableContainer
 
 
@@ -33,15 +33,15 @@ func _ready() -> void:
 
 
 func get_variable_label() -> Label:
-	return $VariableContainer/HBox/VariableLabel
+	return $VariableContainer/VariableLabel
 
 
 func get_operator_label() -> Label:
-	return $VariableContainer/HBox/OperatorLabel
+	return $VariableContainer/OperatorLabel
 
 
 func get_value_label() -> Label:
-	return $VariableContainer/HBox/ValueLabel
+	return $VariableContainer/ValueLabel
 
 
 func _from_dict(dict: Dictionary) -> void:

@@ -64,3 +64,4 @@ func get_auto_display_scale() -> float:
 		# Icons won't look great, but this is better than having editor elements overflow from its window.
 		return 0.75
 	return 1.0
+	

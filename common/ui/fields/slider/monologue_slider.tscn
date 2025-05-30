@@ -1,37 +1,72 @@
-[gd_scene load_steps=2 format=3 uid="uid://cndkr1vq6ab1o"]
+[gd_scene load_steps=12 format=3 uid="uid://cndkr1vq6ab1o"]
 
 [ext_resource type="Script" uid="uid://bfviu4cmsm4jo" path="res://common/ui/fields/slider/monologue_slider.gd" id="1_waj5i"]
+[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_ntngi"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_ipp53"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_8e8dw"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_cqv1s"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_w48go"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_peeyv"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_delru"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_8xcfa"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_catv5"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_d3004"]
 
 [node name="MonologueSlider" type="HBoxContainer"]
 offset_right = 291.0
 offset_bottom = 29.0
 script = ExtResource("1_waj5i")
 
-[node name="ControlLabel" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+[node name="FieldLabel" parent="." instance=ExtResource("2_ntngi")]
 layout_mode = 2
-text = "Value"
 
-[node name="HSlider" type="HSlider" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HSlider" type="HSlider" parent="HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 min_value = -100.0
 
-[node name="DisplayLabel" type="Label" parent="."]
-custom_minimum_size = Vector2(70, 0)
+[node name="SpinBox" type="SpinBox" parent="HBoxContainer"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.572549, 0.572549, 0.572549, 1)
-text = "0.0"
+theme_override_constants/set_min_buttons_width_from_icons = 0
+theme_override_constants/buttons_width = 0
+theme_override_constants/field_and_buttons_separation = 0
+theme_override_constants/buttons_vertical_separation = 0
+theme_override_icons/up_disabled = SubResource("Texture2DRD_ipp53")
+theme_override_icons/down = SubResource("Texture2DRD_8e8dw")
+theme_override_icons/down_hover = SubResource("Texture2DRD_cqv1s")
+theme_override_icons/down_pressed = SubResource("Texture2DRD_w48go")
+theme_override_icons/down_disabled = SubResource("Texture2DRD_peeyv")
+theme_override_icons/up_pressed = SubResource("Texture2DRD_delru")
+theme_override_icons/up_hover = SubResource("Texture2DRD_8xcfa")
+theme_override_icons/up = SubResource("Texture2DRD_catv5")
+theme_override_icons/updown = SubResource("Texture2DRD_d3004")
+alignment = 1
+update_on_text_changed = true
+select_all_on_focus = true
 
-[node name="ResetButton" type="Button" parent="."]
+[node name="ResetButton" type="Button" parent="HBoxContainer"]
+visible = false
 layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.768627, 0.180392, 0.25098, 1)
+size_flags_vertical = 4
+theme_type_variation = &"Button_Outline"
 text = "reset"
-flat = true
 
-[connection signal="drag_ended" from="HSlider" to="." method="_on_drag_ended"]
-[connection signal="value_changed" from="HSlider" to="." method="_on_value_changed"]
-[connection signal="pressed" from="ResetButton" to="." method="_on_reset"]
+[connection signal="drag_ended" from="HBoxContainer/HSlider" to="." method="_on_drag_ended"]
+[connection signal="value_changed" from="HBoxContainer/HSlider" to="." method="_on_value_changed"]
+[connection signal="value_changed" from="HBoxContainer/SpinBox" to="." method="_on_spin_box_value_changed"]
+[connection signal="pressed" from="HBoxContainer/ResetButton" to="." method="_on_reset"]

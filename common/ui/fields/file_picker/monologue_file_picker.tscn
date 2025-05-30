@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://o5dt5106rohh"]
+[gd_scene load_steps=5 format=3 uid="uid://o5dt5106rohh"]
 
 [ext_resource type="Script" uid="uid://bqlktpo5qx1ps" path="res://common/ui/fields/file_picker/file_picker.gd" id="1_siiu8"]
+[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_hph74"]
 [ext_resource type="Texture2D" uid="uid://t1i3wy037vsu" path="res://ui/assets/icons/folder_icon.png" id="2_plad0"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_nr3ee"]
@@ -11,11 +12,8 @@ offset_right = 300.0
 offset_bottom = 59.0
 script = ExtResource("1_siiu8")
 
-[node name="Label" type="Label" parent="."]
-custom_minimum_size = Vector2(100, 0)
+[node name="Label" parent="." instance=ExtResource("2_hph74")]
 layout_mode = 2
-size_flags_vertical = 0
-text = "Value"
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2

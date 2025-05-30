@@ -7,8 +7,8 @@ var one_shot := Property.new(CHECKBOX, {}, false)
 var next_id := Property.new(LINE, {}, -1)
 
 @onready var choice_node = get_parent()
-@onready var count_label = $MarginContainer/VBox/CountLabel
-@onready var preview_label = $MarginContainer/VBox/PreviewLabel
+@onready var count_label = $VBox/CountLabel
+@onready var preview_label = $VBox/PreviewLabel
 
 
 func _ready() -> void:

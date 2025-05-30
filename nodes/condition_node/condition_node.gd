@@ -13,7 +13,8 @@ func _load_connections(data: Dictionary, key: String = "IfNextID") -> void:
 	var else_next_id = data.get("ElseNextID")
 	if else_next_id is String:
 		var else_next_node = get_graph_edit().get_node_by_id(else_next_id)
-		get_graph_edit().connect_node(name, 1, else_next_node.name, 0)
+		if else_next_node:
+			get_graph_edit().connect_node(name, 1, else_next_node.name, 0)
 
 
 func _to_next(dict: Dictionary, key: String = "IfNextID") -> void:
