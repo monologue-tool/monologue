@@ -73,3 +73,7 @@ func _on_add_button_pressed() -> void:
 
 func _is_not_being_deleted(node: Node) -> bool:
 	return not node.is_queued_for_deletion()
+
+
+func _update() -> void:
+	add_button.visible = show_add_button
