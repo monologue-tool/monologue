@@ -1,13 +1,12 @@
-[gd_scene load_steps=24 format=3 uid="uid://bqjfdabrxujp7"]
+[gd_scene load_steps=21 format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/main/monologue_editor.gd" id="1_ovo1o"]
 [ext_resource type="PackedScene" uid="uid://dfkqf3wjdnj0m" path="res://common/layouts/editor/editor_section.tscn" id="2_q62vd"]
 [ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="3_mei7o"]
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_pwbil"]
 [ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="5_4jbkx"]
-[ext_resource type="Script" uid="uid://yglbu25x1rsy" path="res://scenes/main/characters_section.gd" id="6_mei7o"]
+[ext_resource type="PackedScene" uid="uid://mfdu320oy6ex" path="res://common/layouts/editor/list_section/list_section.tscn" id="6_mei7o"]
 [ext_resource type="Script" uid="uid://bmku341x5gaoe" path="res://scenes/main/add_node_button.gd" id="6_sr1k3"]
-[ext_resource type="Script" uid="uid://44fcg1a4cs5" path="res://scenes/main/variables_section.gd" id="7_pwbil"]
 [ext_resource type="Texture2D" uid="uid://bfmsxfn26cvfn" path="res://ui/assets/icons/character.svg" id="7_xxwqg"]
 [ext_resource type="Texture2D" uid="uid://b46sqb5g0spae" path="res://ui/assets/icons/variables.svg" id="8_uvwqm"]
 [ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/layouts/language_switcher/language_switcher.tscn" id="9_kkjrq"]
@@ -20,20 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
 [ext_resource type="PackedScene" uid="uid://cvum3eaenloix" path="res://common/layouts/search_bar/search_bar.tscn" id="16_n4eqx"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1u3ep"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.186303, 0.183362, 0.215088, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pwbil"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7fun3"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
@@ -46,19 +32,6 @@ border_width_bottom = 1
 border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qe3vh"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.225127, 0.224539, 0.257441, 1)
-border_width_left = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
@@ -99,8 +72,7 @@ dragging_enabled = false
 [node name="EditorSection" parent="MainContainer/VSplitContainer" instance=ExtResource("2_q62vd")]
 visible = true
 layout_mode = 2
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_pwbil")
+theme_override_styles/panel = SubResource("StyleBoxFlat_7fun3")
 current_tab = 0
 tabs_visible = false
 
@@ -144,19 +116,18 @@ split_offset = 250
 visible = true
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_qe3vh")
 current_tab = 0
 
-[node name="Characters" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection"]
+[node name="Characters" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection" instance=ExtResource("6_mei7o")]
+unique_name_in_owner = true
 layout_mode = 2
-script = ExtResource("6_mei7o")
-metadata/_tab_index = 0
+section_icon = ExtResource("7_xxwqg")
 
-[node name="Variables" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection"]
+[node name="Variables" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection" instance=ExtResource("6_mei7o")]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
-script = ExtResource("7_pwbil")
+section_icon = ExtResource("8_uvwqm")
 metadata/_tab_index = 1
 
 [node name="HSplitContainer" type="HSplitContainer" parent="MainContainer/VSplitContainer/HSplitContainer"]
@@ -168,8 +139,7 @@ split_offset = -250
 visible = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_pwbil")
+theme_override_styles/panel = SubResource("StyleBoxFlat_7fun3")
 current_tab = 0
 tabs_visible = false
 
@@ -249,8 +219,7 @@ size_flags_vertical = 3
 [node name="EditorSection" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
 visible = true
 layout_mode = 2
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_pwbil")
+theme_override_styles/panel = SubResource("StyleBoxFlat_7fun3")
 current_tab = 0
 tabs_visible = false
 

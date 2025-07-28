@@ -37,6 +37,7 @@ func add_item(item: Control, force_readable_name: bool = false) -> void:
 
 func _update():
 	var can_see: bool = show_add_button
+	%AddButtonContainer.visible = can_see
 
 	for child in vbox.get_children():
 		if not child.visible:

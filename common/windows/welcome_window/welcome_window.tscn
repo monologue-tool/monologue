@@ -11,7 +11,7 @@
 auto_translate_mode = 1
 transparent_bg = true
 initial_position = 2
-size = Vector2i(450, 297)
+size = Vector2i(1000, 300)
 wrap_controls = true
 transient = true
 transient_to_focused = true
@@ -26,13 +26,12 @@ script = ExtResource("1_hscvo")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 clip_children = 2
-anchors_preset = 15
-anchor_right = 1.0
+custom_minimum_size = Vector2(400, 300)
+anchors_preset = -1
+anchor_right = 0.4
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_horizontal = 4
+size_flags_vertical = 0
 theme_type_variation = &"OuterPanel"
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
@@ -42,8 +41,14 @@ layout_mode = 2
 layout_mode = 2
 theme_type_variation = &"VBoxContainer_Medium"
 
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 100)
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
 layout_mode = 2
 texture = ExtResource("2_ked33")
 expand_mode = 5

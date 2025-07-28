@@ -14,6 +14,7 @@ var get_callback: Callable = Constants.empty_callback
 var data_list: Array = []
 var flat: bool = false
 var expand: bool = false
+var is_section: bool = false
 
 
 func _ready() -> void:
@@ -21,6 +22,13 @@ func _ready() -> void:
 	collapsible_field.add_pressed.connect(_on_add_button_pressed)
 	collapsible_field.expand = expand
 	post_ready.call_deferred()
+	
+	if is_section:
+		collapsible_field.show_add_button = false
+		collapsible_field.expand = true
+		button.hide()
+		collapsible_container.add_theme_constant_override("margin_left", 0)
+		field_container.add_theme_constant_override("margin_left", 0)
 
 	if flat:
 		collapsible_field.separate_items = false

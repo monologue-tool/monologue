@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://mfdu320oy6ex"]
+
+[ext_resource type="Script" uid="uid://yglbu25x1rsy" path="res://common/layouts/editor/list_section/list_section.gd" id="1_coa1v"]
+[ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="3_j4mj2"]
+
+[node name="ListSection" type="VBoxContainer"]
+script = ExtResource("1_coa1v")
+metadata/_tab_index = 0
+
+[node name="ToolBar" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="ToolBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Filter"
+
+[node name="AddButton" type="Button" parent="ToolBar"]
+layout_mode = 2
+icon = ExtResource("3_j4mj2")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="pressed" from="ToolBar/AddButton" to="." method="_on_add_button_pressed"]

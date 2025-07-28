@@ -89,34 +89,38 @@ func get_root_dict(node_list: Array) -> Dictionary:
 
 func load_project(path: String, new_graph: bool = false) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
-	if file and not graph_switcher.is_file_opened(path):
-		if new_graph:
-			graph_switcher.new_graph_edit()
-		graph_switcher.current.file_path = path  # set path first before tab creation
+	if not file or graph_switcher.is_file_opened(path):
+		return
+		
+	if new_graph:
+		graph_switcher.new_graph_edit()
+	graph_switcher.current.file_path = path  # set path first before tab creation
 
-		var data = {}
-		var text = file.get_as_text()
-		if text:
-			data = JSON.parse_string(text)
-		if not data:
-			data = _to_dict()
-			save()
+	var data = {}
+	var text = file.get_as_text()
+	if text:
+		data = JSON.parse_string(text)
+	if not data:
+		data = _to_dict()
+		save()
 
-		var converter := NodeConverter.new()
-		graph_switcher.current.languages = data.get("Languages", [])  # load language before tab
-		graph_switcher.add_tab(path.get_file())
-		graph_switcher.current.clear()
-		graph_switcher.current.name = path.get_file().trim_suffix(".json")
-		graph_switcher.current.characters = converter.convert_characters(data.get("Characters"))
-		graph_switcher.current.variables = data.get("Variables")
-		graph_switcher.current.data = data
+	var converter := NodeConverter.new()
+	graph_switcher.current.languages = data.get("Languages", [])  # load language before tab
+	graph_switcher.add_tab(path.get_file())
+	graph_switcher.current.clear()
+	graph_switcher.current.name = path.get_file().trim_suffix(".json")
+	graph_switcher.current.characters = converter.convert_characters(data.get("Characters"))
+	graph_switcher.current.variables = data.get("Variables")
+	graph_switcher.current.data = data
 
-		var node_list = data.get("ListNodes")
-		_load_nodes(node_list)
-		_connect_nodes(node_list)
-		graph_switcher.add_root()
-		graph_switcher.current.update_node_positions()
-		GlobalSignal.emit("load_successful", [path])
+	var node_list = data.get("ListNodes")
+	_load_nodes(node_list)
+	_connect_nodes(node_list)
+	graph_switcher.add_root()
+	graph_switcher.current.update_node_positions()
+	GlobalSignal.emit("load_successful", [path])
+	
+	load_editor_sections()
 
 
 ## Reload the current graph edit and inspector panel.
@@ -143,8 +147,15 @@ func refresh(node: MonologueGraphNode = null, affected_properties: PackedStringA
 		if inspector_panel_node.visible:
 			var current_node = inspector_panel_node.selected_node
 			inspector_panel_node.on_graph_node_selected(current_node, true)
-	
-	$MainContainer/VSplitContainer/HSplitContainer/EditorSection/Characters.load_items(graph_switcher.current.get_root_node().characters)
+			
+	await get_tree().process_frame
+	load_editor_sections()
+
+
+func load_editor_sections() -> void:
+	var root_node: RootNode = graph_switcher.current.get_root_node()
+	%Characters.load_items(root_node.characters)
+	%Variables.load_items(root_node.variables)
 
 
 func save():

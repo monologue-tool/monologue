@@ -192,11 +192,6 @@ func _to_dict() -> Dictionary:
 	var base_dict = {"$type": node_type, "ID": id.value, "EditorPosition": editor_position.value}
 	_to_next(base_dict)
 	_to_fields(base_dict)
-
-	#base_dict["EditorPosition"] = {
-	#"x": int(position_offset.x),
-	#"y": int(position_offset.y)
-	#}
 	return base_dict
 
 
@@ -224,4 +219,15 @@ func _validate_id(text: String) -> bool:
 
 
 func _get_field_groups() -> Array:
+	return []
+
+
+func _get_inspector_property_list() -> Array:
+	return [
+		{"name": "ID", "property": "id", "type": LINE},
+		{"name": "EditorPosition", "property": "editor_position", "type": LINE},
+	] + get_inspector_property_list()
+
+
+func get_inspector_property_list() -> Array:
 	return []

@@ -1,6 +1,5 @@
 class_name MonologueCharacterField extends MonologueField
 
-
 @onready var name_edit := %NameEdit
 @onready var delete_button := $HBoxContainer/VBoxContainer/VBoxContainer/HBoxContainer/DeleteButton
 

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://rmul5j0wm0l8"]
+[gd_scene load_steps=7 format=3 uid="uid://rmul5j0wm0l8"]
 
 [ext_resource type="PackedScene" uid="uid://dfwf55ovgwir3" path="res://common/ui/buttons/delete_button.tscn" id="1_eutnh"]
 [ext_resource type="Script" uid="uid://cmvo3t5bngju6" path="res://common/ui/fields/character_field/monologue_character_field.gd" id="1_no1me"]
 [ext_resource type="Texture2D" uid="uid://ddah0eo1qhki4" path="res://common/ui/fields/character_field/assets/portrait_placeholder.svg" id="2_jkh4y"]
 [ext_resource type="Shader" uid="uid://bsso8dloc4bce" path="res://logic/shaders/texture_rect_clip.tres" id="2_nva25"]
+[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="4_uw7v4"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_q7tom"]
 shader = ExtResource("2_nva25")
@@ -39,10 +40,9 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="FieldLabel" type="Label" parent="HBoxContainer/VBoxContainer/NameContainer"]
-custom_minimum_size = Vector2(75, 0)
+[node name="FieldLabel" parent="HBoxContainer/VBoxContainer/NameContainer" instance=ExtResource("4_uw7v4")]
+custom_minimum_size = Vector2(50, 31)
 layout_mode = 2
-size_flags_vertical = 0
 text = "Name"
 
 [node name="InnerVBox" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/NameContainer"]
@@ -51,8 +51,8 @@ size_flags_horizontal = 3
 
 [node name="NameEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer/NameContainer/InnerVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+placeholder_text = "Character name"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
