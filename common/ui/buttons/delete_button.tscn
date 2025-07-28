@@ -3,10 +3,11 @@
 [ext_resource type="Texture2D" uid="uid://hmjhxdsk3pwj" path="res://ui/assets/icons/trash.svg" id="1_xsgmh"]
 
 [node name="DeleteButton" type="Button"]
-custom_minimum_size = Vector2(34, 29)
-offset_right = 34.0
+custom_minimum_size = Vector2(29, 29)
+offset_right = 29.0
 offset_bottom = 29.0
 size_flags_vertical = 0
 theme_type_variation = &"ButtonWarning"
 icon = ExtResource("1_xsgmh")
+icon_alignment = 1
 expand_icon = true

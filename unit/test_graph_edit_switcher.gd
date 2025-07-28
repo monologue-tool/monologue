@@ -9,7 +9,7 @@ func before_test():
 	switcher.graph_edits.add_child(auto_free(Control.new()))
 	switcher.tab_bar = auto_free(TabBar.new())
 	switcher.tab_bar.add_tab("+")
-	switcher.side_panel = mock(SidePanel)
+	switcher.inspector_panel = mock(InspectorPanel)
 
 
 func test_add_root():
@@ -42,21 +42,21 @@ func test_add_tab_with_previous():
 	assert_str(switcher.tab_bar.get_tab_title(2)).is_equal("two")
 
 
-func test_connect_side_panel():
+func test_connect_inspector_panel():
 	var ge = mock(MonologueGraphEdit, CALL_REAL_FUNC)
-	switcher.connect_side_panel(ge)
-	var select = switcher.side_panel.on_graph_node_selected
+	switcher.connect_inspector_panel(ge)
+	var select = switcher.inspector_panel.on_graph_node_selected
 	assert_bool(ge.is_connected("node_selected", select)).is_true()
-	var deselect = switcher.side_panel.on_graph_node_deselected
+	var deselect = switcher.inspector_panel.on_graph_node_deselected
 	assert_bool(ge.is_connected("node_deselected", deselect)).is_true()
 	var save = switcher.update_save_state
 	assert_bool(ge.undo_redo.is_connected("version_changed", save)).is_true()
 
 
-func test_commit_side_panel():
+func test_commit_inspector_panel():
 	var node = mock(MonologueGraphNode)
-	switcher.commit_side_panel(node)
-	verify(switcher.side_panel, 1).refocus(node)
+	switcher.commit_inspector_panel(node)
+	verify(switcher.inspector_panel, 1).refocus(node)
 
 
 func test_get_current_graph_edit():

@@ -1,14 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://bim51g1aibuw0"]
+[gd_scene load_steps=10 format=3 uid="uid://bim51g1aibuw0"]
 
-[ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="1_1u5fg"]
-[ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/main/graph.tscn" id="1_kiov6"]
-[ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="3_gcdaj"]
-[ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_f1t0i"]
+[ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/main/editor.tscn" id="1_kiov6"]
 [ext_resource type="Shader" uid="uid://de1ql8ahad2ts" path="res://common/blur.gdshader" id="5_1u5fg"]
 [ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.tscn" id="6_cqyrh"]
 [ext_resource type="Script" uid="uid://d0xgy6gflipxs" path="res://common/layouts/dimmer/dimmer.gd" id="6_nw038"]
 [ext_resource type="PackedScene" uid="uid://c7cf7rfwnhf77" path="res://common/layouts/character_edit/character_edit.tscn" id="7_7qdje"]
-[ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="7_nw038"]
 [ext_resource type="PackedScene" uid="uid://d3f7d4bb40iht" path="res://common/windows/preview_window/preview_window.tscn" id="8_7qdje"]
 [ext_resource type="PackedScene" uid="uid://bqqcww601rcx5" path="res://common/windows/welcome_window/welcome_window.tscn" id="9_fp7qq"]
 [ext_resource type="Script" uid="uid://b2l7hjfyrnr3x" path="res://common/windows/file_dialog/file_dialog.gd" id="10_r77hi"]
@@ -44,45 +40,9 @@ theme_type_variation = &"EditorBackground"
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="CustomTitleBar" type="HBoxContainer" parent="Frame/VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="MainPopupMenu" type="MenuButton" parent="Frame/VBoxContainer/CustomTitleBar"]
-custom_minimum_size = Vector2(43, 0)
-layout_mode = 2
-icon = ExtResource("1_1u5fg")
-icon_alignment = 1
-expand_icon = true
-script = ExtResource("4_f1t0i")
-
-[node name="VSeparator" type="VSeparator" parent="Frame/VBoxContainer/CustomTitleBar"]
-layout_mode = 2
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="Frame/VBoxContainer/CustomTitleBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="TabBar" type="TabBar" parent="Frame/VBoxContainer/CustomTitleBar/HBoxContainer2"]
-layout_mode = 2
-current_tab = 0
-clip_tabs = false
-tab_count = 1
-tab_0/icon = ExtResource("3_gcdaj")
-
-[node name="HSeparator" type="HSeparator" parent="Frame/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 1
-
-[node name="MonologueControl" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "graph_node_picker") instance=ExtResource("1_kiov6")]
+[node name="MonologueEditor" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window") instance=ExtResource("1_kiov6")]
 layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
-graph_node_picker = NodePath("../../../GraphNodePicker")
-
-[node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea" index="0" node_paths=PackedStringArray("tab_bar")]
-tab_bar = NodePath("../../../../CustomTitleBar/HBoxContainer2/TabBar")
 
 [node name="Dimmer" type="ColorRect" parent="."]
 visible = false
@@ -106,13 +66,6 @@ visible = false
 z_index = 2
 layout_mode = 1
 
-[node name="GraphNodePicker" parent="." node_paths=PackedStringArray("switcher") instance=ExtResource("7_nw038")]
-visible = false
-keep_title_visible = false
-content_scale_mode = 2
-content_scale_aspect = 1
-switcher = NodePath("../Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea/GraphEditSwitcher")
-
 [node name="PreviewWindow" parent="." instance=ExtResource("8_7qdje")]
 visible = false
 
@@ -130,4 +83,4 @@ script = ExtResource("10_r77hi")
 [connection signal="visibility_changed" from="CharacterEditContainer" to="CharacterEditContainer" method="_on_visibility_changed"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 
-[editable path="Frame/VBoxContainer/MonologueControl"]
+[editable path="Frame/VBoxContainer/MonologueEditor"]

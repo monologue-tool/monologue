@@ -4,7 +4,6 @@ class_name MonologueVector extends MonologueField
 @export var maximum: float = 9999999999
 @export var step: float = 1
 
-@onready var label = $FieldLabel
 @onready var x_spin_box := %XSpinBox
 @onready var y_spin_box := %YSpinBox
 
@@ -18,10 +17,6 @@ func _ready() -> void:
 	y_spin_box.max_value = maximum
 	x_spin_box.step = step
 	y_spin_box.step = step
-
-
-func set_label_text(text: String) -> void:
-	label.text = text
 
 
 func propagate(value: Variant) -> void:

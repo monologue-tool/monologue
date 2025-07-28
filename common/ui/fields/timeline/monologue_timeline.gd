@@ -60,6 +60,10 @@ func propagate(value: Variant) -> void:
 	_from_dict(value)
 
 
+func use_custom_field_label() -> bool:
+	return true
+
+
 func _from_dict(dict: Dictionary) -> void:
 	_clear()
 	cell_count = dict.get("FrameCount", 1)

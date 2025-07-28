@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://5ciquxsl5tw5"]
+[gd_scene load_steps=3 format=3 uid="uid://5ciquxsl5tw5"]
 
 [ext_resource type="Script" uid="uid://37empx7gweoa" path="res://common/ui/fields/vector/monologue_vector.gd" id="1_qpl0j"]
-[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_8olwg"]
 [ext_resource type="PackedScene" uid="uid://wiapsnoaoc44" path="res://common/ui/custom_spinbox/custom_spinbox.tscn" id="2_034ks"]
 
 [node name="MonologueVector" type="HBoxContainer"]
@@ -9,39 +8,32 @@ offset_right = 282.0
 offset_bottom = 29.0
 script = ExtResource("1_qpl0j")
 
-[node name="FieldLabel" parent="." instance=ExtResource("2_8olwg")]
+[node name="HBoxContainer2" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="HBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="HBoxContainer2"]
 layout_mode = 2
 text = "x"
 
-[node name="XSpinBox" parent="HBoxContainer/HBoxContainer" instance=ExtResource("2_034ks")]
+[node name="XSpinBox" parent="HBoxContainer2" instance=ExtResource("2_034ks")]
 unique_name_in_owner = true
 layout_mode = 2
 suffix = "px"
 
-[node name="VSeparator" type="VSeparator" parent="HBoxContainer"]
+[node name="VSeparator" type="VSeparator" parent="."]
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="HBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="HBoxContainer3"]
 layout_mode = 2
 text = "y"
 
-[node name="YSpinBox" parent="HBoxContainer/HBoxContainer2" instance=ExtResource("2_034ks")]
+[node name="YSpinBox" parent="HBoxContainer3" instance=ExtResource("2_034ks")]
 unique_name_in_owner = true
 layout_mode = 2
 suffix = "px"
 
-[connection signal="value_changed" from="HBoxContainer/HBoxContainer/XSpinBox" to="." method="_on_spin_box_value_changed"]
-[connection signal="value_changed" from="HBoxContainer/HBoxContainer2/YSpinBox" to="." method="_on_spin_box_value_changed"]
+[connection signal="value_changed" from="HBoxContainer2/XSpinBox" to="." method="_on_spin_box_value_changed"]
+[connection signal="value_changed" from="HBoxContainer3/YSpinBox" to="." method="_on_spin_box_value_changed"]

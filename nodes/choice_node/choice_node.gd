@@ -111,7 +111,7 @@ func _from_dict(dict: Dictionary) -> void:
 
 
 func _load_connections(_data: Dictionary, _key: String = "") -> void:
-	# called after _load_nodes() in MonologueControl, this is used to
+	# called after _load_nodes() in MonologueEditor, this is used to
 	# load embedded OptionNodes which automatically forms the connections
 	for option_id in _base_id_list:
 		var reference = get_parent().base_options[option_id]

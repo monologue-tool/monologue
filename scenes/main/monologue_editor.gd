@@ -1,10 +1,10 @@
-class_name MonologueControl extends Control
+class_name MonologueEditor extends Control
 
 @export var welcome_window: WelcomeWindow
-@export var graph_node_picker: GraphNodePicker
 
+@onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var graph_switcher: GraphEditSwitcher = %GraphEditSwitcher
-@onready var side_panel_node: SidePanel = %SidePanel
+@onready var inspector_panel_node: InspectorPanel = %InspectorPanel
 @onready var run_window := preload("res://scenes/run/run_window.tscn")
 @onready var dimmer := $"../../../Dimmer"
 
@@ -40,7 +40,7 @@ func _to_dict() -> Dictionary:
 
 		# if side panel is still open, release the focus so that some
 		# text controls trigger the focus_exited() signal to update
-		if side_panel_node.visible and side_panel_node.selected_node == node:
+		if inspector_panel_node.visible and inspector_panel_node.selected_node == node:
 			var refocus = get_viewport().gui_get_focus_owner()
 			if refocus:
 				refocus.release_focus()
@@ -116,21 +116,20 @@ func load_project(path: String, new_graph: bool = false) -> void:
 		_connect_nodes(node_list)
 		graph_switcher.add_root()
 		graph_switcher.current.update_node_positions()
-		graph_switcher.current.grab_focus()
 		GlobalSignal.emit("load_successful", [path])
 
 
-## Reload the current graph edit and side panel values.
+## Reload the current graph edit and inspector panel.
 func refresh(node: MonologueGraphNode = null, affected_properties: PackedStringArray = []) -> void:
 	# if there is a given node, refresh only the parts that were specified
 	if node:
 		node.reload_preview()
 		if node is not OptionNode:
 			node._update.call_deferred()
-		if side_panel_node.visible:
+		if inspector_panel_node.visible:
 			# actual property value updates are handled by PropertyHistory
 			for property_name in affected_properties:
-				var field = side_panel_node.collapsibles.get(property_name)
+				var field = inspector_panel_node.collapsibles.get(property_name)
 				if is_instance_valid(field):
 					field.open()
 		else:
@@ -141,9 +140,11 @@ func refresh(node: MonologueGraphNode = null, affected_properties: PackedStringA
 		for each_node in graph_switcher.current.get_nodes():
 			each_node.reload_preview()
 			#each_node._update.call_deferred()
-		if side_panel_node.visible:
-			var current_node = side_panel_node.selected_node
-			side_panel_node.on_graph_node_selected(current_node, true)
+		if inspector_panel_node.visible:
+			var current_node = inspector_panel_node.selected_node
+			inspector_panel_node.on_graph_node_selected(current_node, true)
+	
+	$MainContainer/VSplitContainer/HSplitContainer/EditorSection/Characters.load_items(graph_switcher.current.get_root_node().characters)
 
 
 func save():

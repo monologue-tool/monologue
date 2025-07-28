@@ -1,9 +1,7 @@
 class_name GraphNodePicker extends Window
 
 ## Reference to the tab switcher so that the picker knows which tab it is in.
-@export var switcher: GraphEditSwitcher
-
-@onready var dimmer := $"../Dimmer"
+@onready var switcher := %GraphEditSwitcher
 
 ## The node in which the picker was spawned/dragged from.
 var from_node: String
@@ -26,7 +24,7 @@ func _ready():
 func _on_enable_picker_mode(
 	node: String = "", port: int = -1, mouse_pos = null, graph_release_pos = null, center_pos = null, center_window: bool = false
 ):
-	if switcher.current.file_path and (not dimmer or not dimmer.visible):
+	if switcher.current.file_path:
 		from_node = node
 		from_port = port
 		release = mouse_pos

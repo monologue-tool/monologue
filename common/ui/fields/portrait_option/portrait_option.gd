@@ -96,3 +96,7 @@ func _on_button_gui_input(event: InputEvent) -> void:
 
 func _on_line_edit_text_submitted(_new_text: String) -> void:
 	line_edit_unfocus()
+
+
+func use_custom_field_label() -> bool:
+	return true

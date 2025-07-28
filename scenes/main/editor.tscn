@@ -1,0 +1,293 @@
+[gd_scene load_steps=24 format=3 uid="uid://bqjfdabrxujp7"]
+
+[ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/main/monologue_editor.gd" id="1_ovo1o"]
+[ext_resource type="PackedScene" uid="uid://dfkqf3wjdnj0m" path="res://common/layouts/editor/editor_section.tscn" id="2_q62vd"]
+[ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="3_mei7o"]
+[ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_pwbil"]
+[ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="5_4jbkx"]
+[ext_resource type="Script" uid="uid://yglbu25x1rsy" path="res://scenes/main/characters_section.gd" id="6_mei7o"]
+[ext_resource type="Script" uid="uid://bmku341x5gaoe" path="res://scenes/main/add_node_button.gd" id="6_sr1k3"]
+[ext_resource type="Script" uid="uid://44fcg1a4cs5" path="res://scenes/main/variables_section.gd" id="7_pwbil"]
+[ext_resource type="Texture2D" uid="uid://bfmsxfn26cvfn" path="res://ui/assets/icons/character.svg" id="7_xxwqg"]
+[ext_resource type="Texture2D" uid="uid://b46sqb5g0spae" path="res://ui/assets/icons/variables.svg" id="8_uvwqm"]
+[ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/layouts/language_switcher/language_switcher.tscn" id="9_kkjrq"]
+[ext_resource type="Texture2D" uid="uid://d4fesqfd2v8fd" path="res://ui/assets/icons/settings.svg" id="10_svwnc"]
+[ext_resource type="Texture2D" uid="uid://dd6wdpndndufl" path="res://ui/assets/icons/sparkles.svg" id="11_g5pcf"]
+[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="12_mvfhp"]
+[ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_edit_switcher.gd" id="13_armd7"]
+[ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/layouts/inspector_panel/inspector_panel.tscn" id="14_craj7"]
+[ext_resource type="Script" uid="uid://q0oqx6butjwn" path="res://scenes/main/search_bar_container.gd" id="15_35jwg"]
+[ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
+[ext_resource type="PackedScene" uid="uid://cvum3eaenloix" path="res://common/layouts/search_bar/search_bar.tscn" id="16_n4eqx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1u3ep"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.186303, 0.183362, 0.215088, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pwbil"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.225127, 0.224539, 0.257441, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qe3vh"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.225127, 0.224539, 0.257441, 1)
+border_width_left = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="GDScript" id="GDScript_lenro"]
+script/source = "extends Button
+
+
+func _on_pressed() -> void:
+	GlobalSignal.emit(\"test_trigger\")
+"
+
+[node name="MonologueEditor" type="Control"]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_ovo1o")
+
+[node name="MainContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="VSplitContainer" type="VSplitContainer" parent="MainContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+dragging_enabled = false
+
+[node name="EditorSection" parent="MainContainer/VSplitContainer" instance=ExtResource("2_q62vd")]
+visible = true
+layout_mode = 2
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
+theme_override_styles/panel = SubResource("StyleBoxFlat_pwbil")
+current_tab = 0
+tabs_visible = false
+
+[node name="TabBar" type="HBoxContainer" parent="MainContainer/VSplitContainer/EditorSection"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_constants/separation = 0
+metadata/_tab_index = 0
+
+[node name="MainPopupMenu" type="MenuButton" parent="MainContainer/VSplitContainer/EditorSection/TabBar"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+icon = ExtResource("3_mei7o")
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("4_pwbil")
+
+[node name="VSeparator" type="VSeparator" parent="MainContainer/VSplitContainer/EditorSection/TabBar"]
+layout_mode = 2
+theme_type_variation = &"VSeparatorGrow"
+
+[node name="HBox" type="HBoxContainer" parent="MainContainer/VSplitContainer/EditorSection/TabBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="TabBar" type="TabBar" parent="MainContainer/VSplitContainer/EditorSection/TabBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+current_tab = 0
+clip_tabs = false
+tab_count = 1
+tab_0/icon = ExtResource("5_4jbkx")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="MainContainer/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 250
+
+[node name="EditorSection" parent="MainContainer/VSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
+visible = true
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
+theme_override_styles/panel = SubResource("StyleBoxFlat_qe3vh")
+current_tab = 0
+
+[node name="Characters" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection"]
+layout_mode = 2
+script = ExtResource("6_mei7o")
+metadata/_tab_index = 0
+
+[node name="Variables" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection"]
+visible = false
+layout_mode = 2
+script = ExtResource("7_pwbil")
+metadata/_tab_index = 1
+
+[node name="HSplitContainer" type="HSplitContainer" parent="MainContainer/VSplitContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = -250
+
+[node name="GraphEditorSection" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
+visible = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
+theme_override_styles/panel = SubResource("StyleBoxFlat_pwbil")
+current_tab = 0
+tabs_visible = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="ToolBar" type="HBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer"]
+layout_mode = 2
+
+[node name="AddNodeBtn" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+text = "Add a node..."
+script = ExtResource("6_sr1k3")
+
+[node name="ButtonCharacters" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("7_xxwqg")
+icon_alignment = 1
+
+[node name="ButtonVariables" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("8_uvwqm")
+icon_alignment = 1
+
+[node name="LanguageSwitcher" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar" instance=ExtResource("9_kkjrq")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+disabled = true
+
+[node name="ButtonSettings" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("10_svwnc")
+icon_alignment = 1
+
+[node name="ButtonSparkle" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("11_g5pcf")
+
+[node name="RunButton" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("12_mvfhp")
+script = SubResource("GDScript_lenro")
+
+[node name="GraphEditSwitcher" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+script = ExtResource("13_armd7")
+
+[node name="GraphEditZone" type="Control" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/GraphEditSwitcher"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GraphEdits" type="Control" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/GraphEditSwitcher/GraphEditZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+
+[node name="EditorSection" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
+visible = true
+layout_mode = 2
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
+theme_override_styles/panel = SubResource("StyleBoxFlat_pwbil")
+current_tab = 0
+tabs_visible = false
+
+[node name="InspectorPanel" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/EditorSection" instance=ExtResource("14_craj7")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/_tab_index = 0
+
+[node name="GraphNodePicker" parent="." instance=ExtResource("15_q62vd")]
+unique_name_in_owner = true
+visible = false
+keep_title_visible = false
+content_scale_mode = 2
+content_scale_aspect = 1
+
+[node name="SearchBarContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("15_35jwg")
+
+[node name="SearchBar" parent="SearchBarContainer" node_paths=PackedStringArray("graph_edit_switcher") instance=ExtResource("16_n4eqx")]
+visible = false
+layout_mode = 2
+graph_edit_switcher = NodePath("../../MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/GraphEditSwitcher")
+
+[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/AddNodeBtn" to="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/AddNodeBtn" method="_on_pressed"]
+[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/ButtonSettings" to="." method="_on_button_settings_pressed"]
+[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/ButtonSparkle" to="." method="_on_button_sparkle_pressed"]
+[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/RunButton" to="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/RunButton" method="_on_pressed"]

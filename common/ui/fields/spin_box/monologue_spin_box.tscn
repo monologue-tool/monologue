@@ -1,14 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://c0d8fac8so0p0"]
+[gd_scene load_steps=3 format=3 uid="uid://c0d8fac8so0p0"]
 
 [ext_resource type="Script" uid="uid://catei6iaaw77f" path="res://common/ui/fields/spin_box/monologue_spin_box.gd" id="1_wmtop"]
-[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_1ivi1"]
 [ext_resource type="PackedScene" uid="uid://wiapsnoaoc44" path="res://common/ui/custom_spinbox/custom_spinbox.tscn" id="3_a42se"]
 
 [node name="MonologueSpinBox" type="HBoxContainer"]
 script = ExtResource("1_wmtop")
-
-[node name="Label" parent="." instance=ExtResource("2_1ivi1")]
-layout_mode = 2
 
 [node name="CustomSpinBox" parent="." instance=ExtResource("3_a42se")]
 layout_mode = 2

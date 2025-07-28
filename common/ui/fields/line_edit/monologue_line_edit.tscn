@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bw7thqdhujl41"]
+[gd_scene load_steps=3 format=3 uid="uid://bw7thqdhujl41"]
 
 [ext_resource type="Script" uid="uid://cdx8c5vk7f3jb" path="res://common/ui/fields/line_edit/monologue_line_edit.gd" id="1_toqtt"]
 [ext_resource type="Texture2D" uid="uid://dm2u0xqmmcorj" path="res://ui/assets/icons/copy.png" id="2_lbcco"]
-[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_v8fwd"]
 
 [node name="MonologueLineEdit" type="VBoxContainer"]
 offset_right = 40.0
@@ -12,9 +11,6 @@ script = ExtResource("1_toqtt")
 sublabel_prefix = "┗ "
 
 [node name="HBox" type="HBoxContainer" parent="."]
-layout_mode = 2
-
-[node name="FieldLabel" parent="HBox" instance=ExtResource("2_v8fwd")]
 layout_mode = 2
 
 [node name="InnerVBox" type="VBoxContainer" parent="HBox"]

@@ -6,10 +6,9 @@ class_name MonologueSlider extends MonologueField
 @export var step: float
 @export var suffix: String
 
-@onready var control_label = $FieldLabel
-@onready var spin_box = $HBoxContainer/SpinBox
-@onready var reset_button = $HBoxContainer/ResetButton
-@onready var slider = $HBoxContainer/HSlider
+@onready var spin_box = $SpinBox
+@onready var reset_button = $ResetButton
+@onready var slider = $HSlider
 
 var skip_spin_box_update: bool = false
 
@@ -23,10 +22,6 @@ func _ready():
 	spin_box.max_value = maximum
 	spin_box.step = step
 	spin_box.suffix = suffix
-
-
-func set_label_text(text: String) -> void:
-	control_label.text = text
 
 
 func propagate(value: Variant) -> void:

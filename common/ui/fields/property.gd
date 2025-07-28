@@ -37,6 +37,9 @@ var visible: bool:
 var custom_label: Variant
 
 
+var field_label := preload("res://common/ui/fields/field_label.tscn")
+
+
 func _init(
 	ui_scene: PackedScene,
 	ui_setters: Dictionary = {},
@@ -112,10 +115,20 @@ func show(panel: Control, child_index: int = -1, auto_margin: bool = true) -> Mo
 		field_container.add_theme_constant_override("margin_left", 0)
 		field_container.add_theme_constant_override("margin_top", 0)
 
+	var field_box := HBoxContainer.new()
+	field_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	field_box.add_theme_constant_override("separation", 0)
+	if field is MonologueField and not field.use_custom_field_label():
+		var label := field_label.instantiate()
+		field.field_label = label
+		field_box.add_child(label)
+
 	for property in setters.keys():
 		field.set(property, setters.get(property))
 
-	field_container.add_child(field)
+	field_box.add_child(field)
+	field_container.add_child(field_box)
 	panel.add_child(field_container)
 	_check_visibility()
 

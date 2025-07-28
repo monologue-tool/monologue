@@ -24,3 +24,7 @@ func _on_name_edit_text_submitted(new_text: String) -> void:
 
 func _on_edit_button_pressed() -> void:
 	GlobalSignal.emit("open_character_edit", [graph_edit, character_index])
+
+
+func use_custom_field_label() -> bool:
+	return true

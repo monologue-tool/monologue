@@ -11,7 +11,6 @@ var revert_text: String
 var validator: Callable = func(_text): return true
 
 @onready var copy_button = $HBox/InnerVBox/LineEdit/HBoxContainer/CopyButton
-@onready var label = $HBox/FieldLabel
 @onready var line_edit = $HBox/InnerVBox/LineEdit
 @onready var warning = $HBox/InnerVBox/WarnLabel
 @onready var note = $NoteLabel
@@ -20,26 +19,11 @@ var validator: Callable = func(_text): return true
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	copy_button.visible = copyable
-	label.add_theme_font_size_override("font_size", font_size)
 	line_edit.add_theme_font_size_override("font_size", font_size)
 	warning.add_theme_font_size_override("font_size", font_size)
 	warning.hide()
 	note.visible = !note_text.is_empty()
 	note.text = note_text
-
-
-func set_label_text(text: String) -> void:
-	if is_sublabel:
-		label.custom_minimum_size.x = 140
-		add_theme_constant_override("margin_left", 25)
-		label.add_theme_color_override("font_color", Color("858585"))
-		label.text = sublabel_prefix + text
-	else:
-		label.text = text
-
-
-func set_label_visible(can_see: bool) -> void:
-	label.visible = can_see
 
 
 func propagate(value: Variant) -> void:

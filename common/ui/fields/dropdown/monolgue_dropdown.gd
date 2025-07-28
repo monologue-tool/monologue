@@ -4,7 +4,6 @@ class_name MonologueDropdown extends MonologueField
 ## Usefull when items are set after the value is set.
 @export var late_items: bool
 
-@onready var label: Label = $Label
 @onready var option_button: OptionButton = $OptionButton
 
 var backup_value: Variant
@@ -86,10 +85,6 @@ func set_items(
 		propagate(backup_value)
 
 	validate()
-
-
-func set_label_text(text: String) -> void:
-	label.text = text
 
 
 func validate():

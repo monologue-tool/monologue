@@ -1,15 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://dh7yuosc0hhpp"]
+[gd_scene load_steps=2 format=3 uid="uid://dh7yuosc0hhpp"]
 
 [ext_resource type="Script" uid="uid://ctumcy1k8si7o" path="res://common/ui/fields/toggle/monologue_toggle.gd" id="1_0u5l0"]
-[ext_resource type="PackedScene" uid="uid://x0daq5tsejey" path="res://common/ui/fields/field_label.tscn" id="2_tj6ps"]
 
 [node name="MonologueCheckButton" type="HBoxContainer"]
 offset_right = 43.0
 offset_bottom = 29.0
 script = ExtResource("1_0u5l0")
-
-[node name="Label" parent="." instance=ExtResource("2_tj6ps")]
-layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2

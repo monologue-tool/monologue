@@ -1,12 +1,7 @@
 ## Consists of a TabBar which allows the user to switch between GraphEdits.
-## Saving and loading of GraphEdit data is handled by MonologueControl.
+## Saving and loading of GraphEdit data is handled by MonologueEditor.
 class_name GraphEditSwitcher extends VBoxContainer
 
-
-## Reference to the side panel control to connect graph edits to.
-@export var side_panel: SidePanel
-## Reference to the tab bar for switching graph edits.
-@export var tab_bar: TabBar
 
 var current: MonologueGraphEdit: get = get_current_graph_edit
 var graph_edit_scene = preload("res://common/layouts/graph_edit/monologue_graph_edit.tscn")
@@ -17,6 +12,8 @@ var root_scene = Constants.NODE_SCENES.get("Root")
 var last_selected_tab: int = 0
 var prevent_switching: bool = false
 
+@onready var inspector_panel: InspectorPanel = %InspectorPanel
+@onready var tab_bar: TabBar = %TabBar
 @onready var graph_edits: Control = $GraphEditZone/GraphEdits
 
 
@@ -35,7 +32,7 @@ func _input(event: InputEvent) -> void:
 		current.trigger_redo()
 	elif event.is_action_pressed("Undo"):
 		current.trigger_undo()
-	elif event.is_action_pressed("Delete") and not side_panel.visible:
+	elif event.is_action_pressed("Delete") and not inspector_panel.visible:
 		current.trigger_delete()
 
 
@@ -54,14 +51,14 @@ func add_tab(filename: String) -> void:
 	tab_bar.current_tab = tab_bar.tab_count - 2
 
 
-func connect_side_panel(graph_edit: MonologueGraphEdit) -> void:
-	graph_edit.connect("node_selected", side_panel.on_graph_node_selected)
-	graph_edit.connect("node_deselected", side_panel.on_graph_node_deselected)
+func connect_inspector_panel(graph_edit: MonologueGraphEdit) -> void:
+	graph_edit.connect("node_selected", inspector_panel.on_graph_node_selected)
+	graph_edit.connect("node_deselected", inspector_panel.on_graph_node_deselected)
 	graph_edit.undo_redo.connect("version_changed", update_save_state)
 
 
-func commit_side_panel(node: MonologueGraphNode) -> void:
-	side_panel.refocus(node)
+func commit_inspector_panel(node: MonologueGraphNode) -> void:
+	inspector_panel.refocus(node)
 
 
 func get_current_graph_edit() -> MonologueGraphEdit:
@@ -81,7 +78,7 @@ func new_graph_edit() -> MonologueGraphEdit:
 	var root_node = root_scene.instantiate()
 	
 	graph_edit.add_child(root_node)
-	connect_side_panel(graph_edit)
+	connect_inspector_panel(graph_edit)
 	graph_edits.add_child(graph_edit)
 	
 	for ge in graph_edits.get_children():
@@ -165,9 +162,7 @@ func _on_tab_changed(tab: int) -> void:
 				ge.visible = true
 				GlobalSignal.emit("load_languages", [ge.languages, ge])
 				if ge.active_graphnode:
-					side_panel.on_graph_node_selected(ge.active_graphnode, true)
-				else:
-					side_panel.hide()
+					inspector_panel.on_graph_node_selected(ge.active_graphnode, true)
 			else:
 				ge.visible = false
 		last_selected_tab = tab
@@ -176,4 +171,3 @@ func _on_tab_changed(tab: int) -> void:
 		pending_new_graph = new_graph_edit()
 		GlobalSignal.emit("show_welcome")
 		GlobalSignal.emit("disable_language_switcher")
-		side_panel.hide()

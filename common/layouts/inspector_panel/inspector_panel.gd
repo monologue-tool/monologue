@@ -1,12 +1,11 @@
 ## Side panel which displays graph node details. This panel should not contain
-## references to MonologueControl or GraphEditSwitcher.
-class_name SidePanel extends PanelContainer
+## references to MonologueEditor or GraphEditSwitcher.
+class_name InspectorPanel extends PanelContainer
 
 @onready var fields_container = %Fields
 @onready var topbox = %TopBox
 @onready var ribbon_scene = preload("res://common/ui/ribbon/ribbon.tscn")
-@onready
-var collapsible_field = preload("res://common/ui/fields/collapsible_field/collapsible_field.tscn")
+@onready var collapsible_field = preload("res://common/ui/fields/collapsible_field/collapsible_field.tscn")
 
 var collapsibles: Dictionary[String, CollapsibleField]
 var id_field_container: Control
@@ -15,7 +14,6 @@ var selected_node: MonologueGraphNode
 
 func _ready():
 	GlobalSignal.add_listener("close_panel", _on_close_button_pressed)
-	hide()
 
 
 func clear():
@@ -26,14 +24,17 @@ func clear():
 	collapsibles.clear()
 
 
-func on_graph_node_deselected(_node):
-	hide.call_deferred()
+func on_graph_node_deselected(_node: MonologueGraphNode) -> void:
+	pass
 
 
-func on_graph_node_selected(node: MonologueGraphNode, bypass: bool = false):
+func on_graph_node_selected(node: MonologueGraphNode, bypass: bool = false) -> void:
+	if not node:
+		return
+	
 	if not bypass:
 		var graph_edit = node.get_parent()
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().process_frame
 		if (
 			is_instance_valid(node)
 			and not graph_edit.moving_mode
@@ -81,9 +82,10 @@ func on_graph_node_selected(node: MonologueGraphNode, bypass: bool = false):
 			continue
 
 		if property_name == "id":
-			var field = node.get(property_name)
-			field.show(topbox, 0, false)
-			id_field_container = field.field_container
+			var property = node.get(property_name)
+			var field = property.show(topbox, 0, false)
+			field.set_label_visible(false)
+			id_field_container = property.field_container
 		else:
 			var field = node.get(property_name).show(fields_container)
 			field.set_label_text(property_name.capitalize())

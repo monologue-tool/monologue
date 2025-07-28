@@ -6,7 +6,6 @@ class_name MonologueSpinBox extends MonologueField
 @export var step: float = 1
 @export var suffix: String
 
-@onready var label = $Label
 @onready var spin_box = $CustomSpinBox
 
 
@@ -16,10 +15,6 @@ func _ready():
 	spin_box.step = step
 	spin_box.suffix = suffix
 	spin_box._update_settings()
-
-
-func set_label_text(text: String) -> void:
-	label.text = text
 
 
 func propagate(value: Variant) -> void:

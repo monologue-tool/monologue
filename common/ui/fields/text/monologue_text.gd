@@ -2,18 +2,13 @@ class_name MonologueText extends MonologueField
 
 @export var minimum_size := Vector2(200, 200)
 
-@onready var label = $Label
-@onready var text_edit = $HBoxContainer/TextEdit
-@onready var expand_container = $HBoxContainer/TextEdit/Button
-@onready var expand_button = $HBoxContainer/TextEdit/Button
+@onready var text_edit = $TextEdit
+@onready var expand_container = $TextEdit/Button
+@onready var expand_button = $TextEdit/Button
 
 
 func _ready():
 	text_edit.custom_minimum_size = minimum_size
-
-
-func set_label_text(text: String) -> void:
-	label.text = text
 
 
 func propagate(value: Variant) -> void:

@@ -4,8 +4,7 @@ class_name MonologueList extends MonologueField
 @onready var button := $CollapsibleField/Button
 @onready var collapsible_container := $CollapsibleField/CollapsibleContainer
 @onready var vbox := $CollapsibleField/CollapsibleContainer/PanelContainer/VBox
-@onready
-var field_container := $CollapsibleField/CollapsibleContainer/PanelContainer/VBox/FieldContainer
+@onready var field_container := $CollapsibleField/CollapsibleContainer/PanelContainer/VBox/FieldContainer
 
 var delete_scene = preload("res://common/ui/buttons/delete_button.tscn")
 
@@ -95,6 +94,10 @@ func set_label_text(text: String) -> void:
 
 func set_label_visible(_can_see: bool) -> void:
 	pass
+
+
+func use_custom_field_label() -> bool:
+	return true
 
 
 func propagate(data: Variant) -> void:
