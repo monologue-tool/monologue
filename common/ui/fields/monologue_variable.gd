@@ -5,13 +5,11 @@ var type := Property.new(MonologueGraphNode.DROPDOWN, {}, "Boolean")
 var value := Property.new(MonologueGraphNode.TOGGLE, {}, false)
 
 var index: int = -1
-var bound_node: MonologueGraphNode
 var graph: MonologueGraphEdit
 
 
-func _init(node: MonologueGraphNode) -> void:
-	bound_node = node
-	graph = node.get_graph_edit()
+func _init(graph_edit: MonologueGraphEdit) -> void:
+	graph = graph_edit
 
 	type.callers["set_items"] = [
 		[
@@ -30,23 +28,20 @@ func _init(node: MonologueGraphNode) -> void:
 
 	type.connect("shown", _type_morph)
 	type.connect("change", change.bind("type"))
-	type.connect("display", graph.set_selected.bind(bound_node))
 	name.connect("change", change.bind("name"))
-	name.connect("display", graph.set_selected.bind(bound_node))
 	value.connect("change", change.bind("value"))
-	value.connect("display", graph.set_selected.bind(bound_node))
 
 
 func change(_old_value: Variant, new_value: Variant, property: String) -> void:
-	var old_list = bound_node.variables.value.duplicate(true)
-	var new_list = bound_node.variables.value.duplicate(true)
+	var old_list = graph.variables.value.duplicate(true)
+	var new_list = graph.variables.value.duplicate(true)
 	new_list[index][property.capitalize()] = new_value
 
 	graph.undo_redo.create_action("Variables => %s" % new_value)
-	graph.undo_redo.add_do_property(bound_node.variables, "value", new_list)
-	graph.undo_redo.add_do_method(bound_node.variables.propagate.bind(new_list))
-	graph.undo_redo.add_undo_property(bound_node.variables, "value", old_list)
-	graph.undo_redo.add_undo_method(bound_node.variables.propagate.bind(old_list))
+	graph.undo_redo.add_do_property(graph.variables, "value", new_list)
+	graph.undo_redo.add_do_method(graph.variables.propagate.bind(new_list))
+	graph.undo_redo.add_undo_property(graph.variables, "value", old_list)
+	graph.undo_redo.add_undo_method(graph.variables.propagate.bind(old_list))
 	graph.undo_redo.commit_action()
 
 

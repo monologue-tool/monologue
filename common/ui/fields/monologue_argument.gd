@@ -7,21 +7,21 @@ var last_string: String
 
 
 func _init(node: MonologueGraphNode):
-	super(node)
+	super(node.get_parent())
 	type.callers["set_items"][0].append({"id": 3, "text": "Variable"})
 	#type.callers["set_icons"][0][3] = load("res://ui/assets/icons/bool_icon.png")
 	value.connect("preview", record_morph)
 
 
 func change(_old_value: Variant, new_value: Variant, property: String) -> void:
-	var old_list = bound_node.arguments.value.duplicate(true)
-	var new_list = bound_node.arguments.value.duplicate(true)
+	var old_list = graph.arguments.value.duplicate(true)
+	var new_list = graph.arguments.value.duplicate(true)
 	new_list[index][property.capitalize()] = new_value
 
 	# bound_node can be deleted, so we need to use PropertyChange here
 	graph.undo_redo.create_action("Arguments => %s" % new_value)
 	var pc = PropertyChange.new("arguments", old_list, new_list)
-	var ph = PropertyHistory.new(graph, graph.get_path_to(bound_node), [pc])
+	var ph = PropertyHistory.new(graph, graph.get_path(), [pc])
 	graph.undo_redo.add_prepared_history(ph)
 	graph.undo_redo.commit_action()
 
@@ -79,7 +79,7 @@ func _type_morph(selected_type: String = type.value):
 	if selected_type == "Variable":
 		value.callers["set_items"] = [graph.variables, "Name", "ID", "Type"]
 		if graph.variables and value.value is not String:
-			value.value = graph.variables[0].get("Name")
+			value.value = graph.variables.value[0].get("Name")
 		value.morph(MonologueGraphNode.DROPDOWN)
 	else:
 		value.callers.erase("set_items")

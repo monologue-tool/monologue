@@ -21,14 +21,6 @@ func reload_preview() -> void:
 	_preview.text = sentence.value
 
 
-func _from_dict(dict: Dictionary):
-	# special handling for backwards compatibility v2.x
-	speaker.value = dict.get("SpeakerID", 0)
-	display_name.value = dict.get("DisplaySpeakerName", "")
-	voiceline.value = dict.get("VoicelinePath", "")
-	super._from_dict(dict)
-
-
 func _on_text_preview(text: Variant):
 	_preview.text = str(text)
 
@@ -36,7 +28,7 @@ func _on_text_preview(text: Variant):
 func _update():
 	super._update()
 
-	var characters: Array = get_graph_edit().characters
+	var characters: Array = get_graph_edit().get_characters()
 	speaker.callers["set_items"] = [characters, "Character/Name", "EditorIndex"]
 	if speaker.value is String:
 		speaker.value = 0

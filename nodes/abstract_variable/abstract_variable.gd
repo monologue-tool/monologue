@@ -30,7 +30,7 @@ func get_variable_label() -> Label:
 
 ## Returns the variable's typestring from the graph edit.
 func get_variable_type(variable_name: String) -> String:
-	for data in get_graph_edit().variables:
+	for data in get_graph_edit().variables.value:
 		if data.get("Name") == variable_name:
 			return data.get("Type")
 	return ""
@@ -60,9 +60,9 @@ func get_value_label() -> Label:
 
 ## Reset the variable dropdown to the first value and return its type.
 func reset_variable() -> String:
-	if get_graph_edit().variables:
-		variable.value = get_graph_edit().variables[0].get("Name")
-		return get_graph_edit().variables[0].get("Type")
+	if get_graph_edit().variables.value:
+		variable.value = get_graph_edit().variables.value[0].get("Name")
+		return get_graph_edit().variables.value[0].get("Type")
 	else:
 		variable.value = ""
 		return ""
@@ -111,7 +111,7 @@ func value_morph(selected_name: Variant = variable.value) -> void:
 
 
 func _update() -> void:
-	variable.callers["set_items"] = [get_graph_edit().variables, "Name", "ID", "Type"]
+	variable.callers["set_items"] = [get_graph_edit().variables.value, "Name", "ID", "Type"]
 	value_morph(variable.value)
 	get_variable_label().text = get_default_text(variable.value, "variable")
 	get_operator_label().text = get_default_text(operator.value, "operator")

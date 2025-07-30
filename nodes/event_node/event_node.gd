@@ -36,7 +36,7 @@ func _from_dict(dict: Dictionary):
 	var condition = dict.get("Condition", {})
 	var morphing_value = dict.get("Value", "")
 	if condition:
-		for v in get_graph_edit().variables:
+		for v in get_graph_edit().variables.value:
 			if v.get("Name") == condition.get("Variable"):
 				variable.value = condition.get("Variable")
 				break

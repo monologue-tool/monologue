@@ -52,7 +52,7 @@ func _to_dict() -> Dictionary:
 				list_nodes.append(child._to_dict())
 
 	# build data for dialogue characters
-	var characters = graph_switcher.current.characters
+	var characters = graph_switcher.current.characters.value
 	if characters.size() <= 0:
 		characters.append(
 			{
@@ -68,7 +68,7 @@ func _to_dict() -> Dictionary:
 		"RootNodeID": get_root_dict(list_nodes).get("ID"),
 		"ListNodes": list_nodes,
 		"Characters": characters,
-		"Variables": graph_switcher.current.variables,
+		"Variables": graph_switcher.current.variables.value,
 		"Languages": GlobalVariables.language_switcher.get_languages().keys()
 	}
 
@@ -109,8 +109,8 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	graph_switcher.add_tab(path.get_file())
 	graph_switcher.current.clear()
 	graph_switcher.current.name = path.get_file().trim_suffix(".json")
-	graph_switcher.current.characters = converter.convert_characters(data.get("Characters"))
-	graph_switcher.current.variables = data.get("Variables")
+	graph_switcher.current.load_character(converter.convert_characters(data.get("Characters")))
+	graph_switcher.current.load_variables(data.get("Variables"))
 	graph_switcher.current.data = data
 
 	var node_list = data.get("ListNodes")
@@ -153,9 +153,9 @@ func refresh(node: MonologueGraphNode = null, affected_properties: PackedStringA
 
 
 func load_editor_sections() -> void:
-	var root_node: RootNode = graph_switcher.current.get_root_node()
-	%Characters.load_items(root_node.characters)
-	%Variables.load_items(root_node.variables)
+	var graph_edit: MonologueGraphEdit = graph_switcher.current
+	%Characters.load_items(graph_edit.characters)
+	%Variables.load_items(graph_edit.variables)
 
 
 func save():

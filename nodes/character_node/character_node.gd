@@ -28,7 +28,7 @@ var _control_groups = {
 func _ready():
 	node_type = "NodeCharacter"
 
-	var characters: Array = get_graph_edit().characters
+	var characters: Array = get_graph_edit().characters.value
 	character.callers["set_items"] = [characters, "Character/Name", "EditorIndex"]
 	character.connect("preview", _update)
 
@@ -101,7 +101,7 @@ func _update(_value: Variant = null) -> void:
 	super._update()
 
 	var action: Variant = action_type.value
-	var characters: Array = get_graph_edit().characters
+	var characters: Array = get_graph_edit().characters.value
 	character.callers["set_items"] = [characters, "Character/Name", "EditorIndex"]
 	if characters[character.value] and characters[character.value]["Character"].has("Portraits"):
 		if portrait.field:

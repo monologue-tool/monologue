@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ijejsk35dal" path="res://common/layouts/editor/editor_section.gd" id="1_1u3ep"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qd482"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1u3ep"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
@@ -15,7 +15,7 @@ border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1uy7d"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qe3vh"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
@@ -34,8 +34,8 @@ offset_right = 40.0
 offset_bottom = 40.0
 focus_mode = 1
 theme_type_variation = &"EditorSection"
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_qd482")
-theme_override_styles/panel = SubResource("StyleBoxFlat_1uy7d")
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
+theme_override_styles/panel = SubResource("StyleBoxFlat_qe3vh")
 script = ExtResource("1_1u3ep")
 
 [connection signal="child_entered_tree" from="." to="." method="_on_child_entered_tree"]
