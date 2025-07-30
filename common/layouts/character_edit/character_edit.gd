@@ -19,7 +19,7 @@ func open(graph: MonologueGraphEdit, index: int) -> void:
 		character_index = index
 		%PortraitSettingsSection.base_path = graph.file_path
 		%PortraitListSection.selected = -1
-		_from_dict(graph.characters[index])
+		_from_dict(graph.characters.value[index])
 		show()
 	else:
 		close()
@@ -28,7 +28,7 @@ func open(graph: MonologueGraphEdit, index: int) -> void:
 func close() -> void:
 	# also triggered when 'Done' button is pressed
 	if graph_edit:
-		graph_edit.characters[character_index]["Character"].merge(_to_dict(), true)
+		graph_edit.characters.value[character_index]["Character"].merge(_to_dict(), true)
 	hide()
 	graph_edit = null
 	character_index = -1

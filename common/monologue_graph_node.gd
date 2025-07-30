@@ -224,8 +224,8 @@ func _get_field_groups() -> Array:
 
 func _get_inspector_property_list() -> Array:
 	return [
-		{"name": "ID", "property": "id", "type": LINE},
-		{"name": "EditorPosition", "property": "editor_position", "type": LINE},
+		{"name": "id", "property": "id", "type": LINE},
+		{"name": "editor_position", "property": "editor_position", "type": LINE},
 	] + get_inspector_property_list()
 
 

@@ -167,5 +167,5 @@ func _update_portrait() -> void:
 	preview_section.visible = show_portrait_sections
 	timeline_section.visible = show_portrait_sections
 	if show_portrait_sections:
-		var character_dict = graph_edit.characters[character_index]["Character"]
+		var character_dict = graph_edit.characters.value[character_index]["Character"]
 		portrait_settings_section._from_dict(character_dict)

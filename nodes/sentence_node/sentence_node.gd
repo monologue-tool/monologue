@@ -28,11 +28,15 @@ func _on_text_preview(text: Variant):
 func _update():
 	super._update()
 
-	var characters: Array = get_graph_edit().get_characters()
+	var characters := get_graph_edit().characters.value as Array
 	speaker.callers["set_items"] = [characters, "Character/Name", "EditorIndex"]
 	if speaker.value is String:
 		speaker.value = 0
 	reload_preview()
+
+
+func get_inspector_property_list() -> Array:
+	return []
 
 
 func _get_field_groups() -> Array:

@@ -42,4 +42,4 @@ func _hide_unrelated_windows() -> void:
 
 func _update_character(property: String, value: Variant) -> void:
 	var key = Util.to_key_name(property)
-	graph_edit.characters[character_index]["Character"][key] = value
+	graph_edit.characters.value[character_index]["Character"][key] = value
