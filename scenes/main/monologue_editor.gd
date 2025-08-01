@@ -4,9 +4,11 @@ class_name MonologueEditor extends Control
 
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var graph_switcher: GraphEditSwitcher = %GraphEditSwitcher
-@onready var inspector_panel_node: InspectorPanel = %InspectorPanel
+@onready var inspector_panel_node: InspectorPanel = %Inspector
 @onready var run_window := preload("res://scenes/run/run_window.tscn")
 @onready var dimmer := $"../../../Dimmer"
+@onready var characters_section := %Characters
+@onready var variables_section := %Variables
 
 
 func _ready():
@@ -91,7 +93,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
 	if not file or graph_switcher.is_file_opened(path):
 		return
-		
+
 	if new_graph:
 		graph_switcher.new_graph_edit()
 	graph_switcher.current.file_path = path  # set path first before tab creation
@@ -119,7 +121,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	graph_switcher.add_root()
 	graph_switcher.current.update_node_positions()
 	GlobalSignal.emit("load_successful", [path])
-	
+
 	load_editor_sections()
 
 
@@ -147,15 +149,15 @@ func refresh(node: MonologueGraphNode = null, affected_properties: PackedStringA
 		if inspector_panel_node.visible:
 			var current_node = inspector_panel_node.selected_node
 			inspector_panel_node.on_graph_node_selected(current_node, true)
-			
+
 	await get_tree().process_frame
 	load_editor_sections()
 
 
 func load_editor_sections() -> void:
 	var graph_edit: MonologueGraphEdit = graph_switcher.current
-	%Characters.load_items(graph_edit.characters)
-	%Variables.load_items(graph_edit.variables)
+	characters_section.load_items(graph_edit.characters)
+	variables_section.load_items(graph_edit.variables)
 
 
 func save():

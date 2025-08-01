@@ -19,20 +19,20 @@ func _ready() -> void:
 
 
 
-func add_character(data: Dictionary = {}) -> MonologueCharacter:
+func add_character(dict: Dictionary = {}) -> MonologueCharacter:
 	var character = MonologueCharacter.new(self)
-	if data:
-		character._from_dict(data)
+	if dict:
+		character._from_dict(dict)
 	character.idx.value = _character_references.size()
 	character.character.setters["character_index"] = character.idx.value
 	_character_references.append(character)
 	return character
 
 
-func add_variable(data: Dictionary = {}) -> MonologueVariable:
+func add_variable(dict: Dictionary = {}) -> MonologueVariable:
 	var variable = MonologueVariable.new(self)
-	if data:
-		variable._from_dict(data)
+	if dict:
+		variable._from_dict(dict)
 	variable.index = _variable_references.size()
 	_variable_references.append(variable)
 	return variable

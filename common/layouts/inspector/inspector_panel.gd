@@ -44,6 +44,9 @@ func on_graph_node_selected(node: MonologueGraphNode, bypass: bool = false) -> v
 		else:
 			graph_edit.active_graphnode = null
 			return
+	
+	if node is BackgroundNode:
+		return on_new_graph_node_selected(node, bypass)
 
 	# hack to preserve focus if the side panel contains the same node paths
 	var focus_owner = get_viewport().gui_get_focus_owner()
@@ -94,6 +97,14 @@ func on_graph_node_selected(node: MonologueGraphNode, bypass: bool = false) -> v
 	restore_collapsible_state(uncollapse_paths)
 	# if focus was preserved, restore it
 	restore_focus(refocus_path, refocus_line, refocus_column)
+
+
+func on_new_graph_node_selected(node: MonologueGraphNode, bypass: bool = false) -> void:
+	var properties := node._get_inspector_property_list()
+	print(properties)
+	# Create a field in the inspector
+	# Link the field to the property and if any changes to the property is made, update the value of the property
+	# + Undo/Redo
 
 
 func _load_groups(item, graph_node: MonologueGraphNode, already_invoke) -> void:

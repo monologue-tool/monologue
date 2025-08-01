@@ -1,10 +1,13 @@
-[gd_scene load_steps=23 format=3 uid="uid://bqjfdabrxujp7"]
+[gd_scene load_steps=33 format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/main/monologue_editor.gd" id="1_ovo1o"]
-[ext_resource type="PackedScene" uid="uid://dfkqf3wjdnj0m" path="res://common/layouts/editor/editor_section.tscn" id="2_q62vd"]
+[ext_resource type="Script" uid="uid://k2o7qui1lr6l" path="res://addons/dockable_container/dockable_container.gd" id="2_xxwqg"]
 [ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="3_mei7o"]
+[ext_resource type="Script" uid="uid://bh202gagkdkar" path="res://addons/dockable_container/layout_panel.gd" id="3_uvwqm"]
+[ext_resource type="Script" uid="uid://dos02hjhrf1ws" path="res://addons/dockable_container/layout_split.gd" id="4_kkjrq"]
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_pwbil"]
 [ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="5_4jbkx"]
+[ext_resource type="Script" uid="uid://cylirj261q6ru" path="res://addons/dockable_container/layout.gd" id="5_svwnc"]
 [ext_resource type="PackedScene" uid="uid://mfdu320oy6ex" path="res://common/layouts/editor/list_section/list_section.tscn" id="6_mei7o"]
 [ext_resource type="Script" uid="uid://bmku341x5gaoe" path="res://scenes/main/add_node_button.gd" id="6_sr1k3"]
 [ext_resource type="Texture2D" uid="uid://bfmsxfn26cvfn" path="res://ui/assets/icons/character.svg" id="7_xxwqg"]
@@ -14,52 +17,73 @@
 [ext_resource type="Texture2D" uid="uid://dd6wdpndndufl" path="res://ui/assets/icons/sparkles.svg" id="11_g5pcf"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="12_mvfhp"]
 [ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_edit_switcher.gd" id="13_armd7"]
-[ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/layouts/inspector_panel/inspector_panel.tscn" id="14_craj7"]
+[ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/layouts/inspector/inspector_panel.tscn" id="14_craj7"]
 [ext_resource type="Script" uid="uid://q0oqx6butjwn" path="res://scenes/main/search_bar_container.gd" id="15_35jwg"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
 [ext_resource type="PackedScene" uid="uid://cvum3eaenloix" path="res://common/layouts/search_bar/search_bar.tscn" id="16_n4eqx"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1u3ep"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.186303, 0.183362, 0.215088, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
+[sub_resource type="Resource" id="Resource_g5pcf"]
+resource_name = "Tabs"
+script = ExtResource("3_uvwqm")
+names = PackedStringArray("_Tabs")
+current_tab = 0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mei7o"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.225127, 0.224539, 0.257441, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="Resource" id="Resource_xxwqg"]
+resource_name = "Tabs"
+script = ExtResource("3_uvwqm")
+names = PackedStringArray("Characters", "Variables")
+current_tab = 0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qe3vh"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.225127, 0.224539, 0.257441, 1)
-border_width_left = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.890196, 0.894118, 0.921569, 0.2)
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="Resource" id="Resource_uvwqm"]
+resource_name = "Tabs"
+script = ExtResource("3_uvwqm")
+names = PackedStringArray("Graph")
+current_tab = 0
+
+[sub_resource type="Resource" id="Resource_kkjrq"]
+resource_name = "Split"
+script = ExtResource("4_kkjrq")
+direction = 0
+percent = 0.0
+first = SubResource("Resource_xxwqg")
+second = SubResource("Resource_uvwqm")
+
+[sub_resource type="Resource" id="Resource_svwnc"]
+resource_name = "Tabs"
+script = ExtResource("3_uvwqm")
+names = PackedStringArray("Inspector")
+current_tab = 0
+
+[sub_resource type="Resource" id="Resource_mvfhp"]
+resource_name = "Split"
+script = ExtResource("4_kkjrq")
+direction = 0
+percent = 1.0
+first = SubResource("Resource_kkjrq")
+second = SubResource("Resource_svwnc")
+
+[sub_resource type="Resource" id="Resource_e6y6g"]
+resource_name = "Split"
+script = ExtResource("4_kkjrq")
+direction = 1
+percent = 0.0
+first = SubResource("Resource_g5pcf")
+second = SubResource("Resource_mvfhp")
+
+[sub_resource type="Resource" id="Resource_jojum"]
+resource_name = "Layout"
+script = ExtResource("5_svwnc")
+root = SubResource("Resource_e6y6g")
+hidden_tabs = {}
+windows = {}
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sr1k3"]
+
+[sub_resource type="GDScript" id="GDScript_sr1k3"]
+script/source = "extends PanelContainer
+
+var _static_container: bool = true
+"
 
 [sub_resource type="GDScript" id="GDScript_lenro"]
 script/source = "extends Button
@@ -81,35 +105,32 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ovo1o")
 
-[node name="MainContainer" type="VBoxContainer" parent="."]
+[node name="DockableContainer" type="Container" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 15
+script = ExtResource("2_xxwqg")
+tab_alignment = 0
+use_hidden_tabs_for_min_size = true
+layout = SubResource("Resource_jojum")
+metadata/_custom_type_script = "uid://k2o7qui1lr6l"
 
-[node name="VSplitContainer" type="VSplitContainer" parent="MainContainer"]
+[node name="_Tabs" type="PanelContainer" parent="DockableContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-dragging_enabled = false
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sr1k3")
+script = SubResource("GDScript_sr1k3")
 
-[node name="EditorSection" parent="MainContainer/VSplitContainer" instance=ExtResource("2_q62vd")]
-visible = true
-layout_mode = 2
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_mei7o")
-current_tab = 0
-tabs_visible = false
-
-[node name="TabBar" type="HBoxContainer" parent="MainContainer/VSplitContainer/EditorSection"]
+[node name="TabBar" type="HBoxContainer" parent="DockableContainer/_Tabs"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 theme_override_constants/separation = 0
-metadata/_tab_index = 0
 
-[node name="MainPopupMenu" type="MenuButton" parent="MainContainer/VSplitContainer/EditorSection/TabBar"]
+[node name="MainPopupMenu" type="MenuButton" parent="DockableContainer/_Tabs/TabBar"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 icon = ExtResource("3_mei7o")
@@ -117,16 +138,11 @@ icon_alignment = 1
 expand_icon = true
 script = ExtResource("4_pwbil")
 
-[node name="VSeparator" type="VSeparator" parent="MainContainer/VSplitContainer/EditorSection/TabBar"]
+[node name="VSeparator" type="VSeparator" parent="DockableContainer/_Tabs/TabBar"]
 layout_mode = 2
 theme_type_variation = &"VSeparatorGrow"
 
-[node name="HBox" type="HBoxContainer" parent="MainContainer/VSplitContainer/EditorSection/TabBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="TabBar" type="TabBar" parent="MainContainer/VSplitContainer/EditorSection/TabBar/HBox"]
+[node name="TabBar" type="TabBar" parent="DockableContainer/_Tabs/TabBar"]
 unique_name_in_owner = true
 layout_mode = 2
 current_tab = 0
@@ -134,98 +150,61 @@ clip_tabs = false
 tab_count = 1
 tab_0/icon = ExtResource("5_4jbkx")
 
-[node name="HSplitContainer" type="HSplitContainer" parent="MainContainer/VSplitContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-split_offset = 250
-
-[node name="EditorSection" parent="MainContainer/VSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
-visible = true
-custom_minimum_size = Vector2(250, 0)
-layout_mode = 2
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_qe3vh")
-current_tab = 0
-
-[node name="Characters" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection" instance=ExtResource("6_mei7o")]
-unique_name_in_owner = true
-layout_mode = 2
-section_icon = ExtResource("7_xxwqg")
-
-[node name="Variables" parent="MainContainer/VSplitContainer/HSplitContainer/EditorSection" instance=ExtResource("6_mei7o")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-section_icon = ExtResource("8_uvwqm")
-metadata/_tab_index = 1
-
-[node name="HSplitContainer" type="HSplitContainer" parent="MainContainer/VSplitContainer/HSplitContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-split_offset = -250
-
-[node name="GraphEditorSection" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
-visible = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_mei7o")
-current_tab = 0
-tabs_visible = false
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection"]
-layout_mode = 2
-metadata/_tab_index = 0
-
-[node name="ToolBar" type="HBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer"]
+[node name="Graph" type="PanelContainer" parent="DockableContainer"]
 layout_mode = 2
 
-[node name="AddNodeBtn" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+[node name="VBoxContainer" type="VBoxContainer" parent="DockableContainer/Graph"]
+layout_mode = 2
+
+[node name="ToolBar" type="HBoxContainer" parent="DockableContainer/Graph/VBoxContainer"]
+layout_mode = 2
+
+[node name="AddNodeBtn" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 text = "Add a node..."
 script = ExtResource("6_sr1k3")
 
-[node name="ButtonCharacters" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+[node name="ButtonCharacters" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("7_xxwqg")
 icon_alignment = 1
 
-[node name="ButtonVariables" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+[node name="ButtonVariables" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("8_uvwqm")
 icon_alignment = 1
 
-[node name="LanguageSwitcher" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar" instance=ExtResource("9_kkjrq")]
+[node name="LanguageSwitcher" parent="DockableContainer/Graph/VBoxContainer/ToolBar" instance=ExtResource("9_kkjrq")]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 disabled = true
 
-[node name="ButtonSettings" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+[node name="ButtonSettings" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("10_svwnc")
 icon_alignment = 1
 
-[node name="ButtonSparkle" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+[node name="ButtonSparkle" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("11_g5pcf")
 
-[node name="RunButton" type="Button" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar"]
+[node name="RunButton" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("12_mvfhp")
 script = SubResource("GDScript_lenro")
 
-[node name="GraphEditSwitcher" type="VBoxContainer" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer"]
+[node name="GraphEditSwitcher" type="VBoxContainer" parent="DockableContainer/Graph/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -233,11 +212,11 @@ mouse_filter = 2
 theme_override_constants/separation = 0
 script = ExtResource("13_armd7")
 
-[node name="GraphEditZone" type="Control" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/GraphEditSwitcher"]
+[node name="GraphEditZone" type="Control" parent="DockableContainer/Graph/VBoxContainer/GraphEditSwitcher"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GraphEdits" type="Control" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/GraphEditSwitcher/GraphEditZone"]
+[node name="GraphEdits" type="Control" parent="DockableContainer/Graph/VBoxContainer/GraphEditSwitcher/GraphEditZone"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -246,20 +225,20 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
 
-[node name="EditorSection" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer" instance=ExtResource("2_q62vd")]
-visible = true
-layout_mode = 2
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_1u3ep")
-theme_override_styles/panel = SubResource("StyleBoxFlat_mei7o")
-current_tab = 0
-tabs_visible = false
-
-[node name="InspectorPanel" parent="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/EditorSection" instance=ExtResource("14_craj7")]
+[node name="Inspector" parent="DockableContainer" instance=ExtResource("14_craj7")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-metadata/_tab_index = 0
+
+[node name="Characters" parent="DockableContainer" instance=ExtResource("6_mei7o")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Variables" parent="DockableContainer" instance=ExtResource("6_mei7o")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
 
 [node name="GraphNodePicker" parent="." instance=ExtResource("15_q62vd")]
 unique_name_in_owner = true
@@ -285,9 +264,14 @@ script = ExtResource("15_35jwg")
 [node name="SearchBar" parent="SearchBarContainer" node_paths=PackedStringArray("graph_edit_switcher") instance=ExtResource("16_n4eqx")]
 visible = false
 layout_mode = 2
-graph_edit_switcher = NodePath("../../MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/GraphEditSwitcher")
+graph_edit_switcher = NodePath("../../DockableContainer/Graph/VBoxContainer/GraphEditSwitcher")
 
-[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/AddNodeBtn" to="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/AddNodeBtn" method="_on_pressed"]
-[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/ButtonSettings" to="." method="_on_button_settings_pressed"]
-[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/ButtonSparkle" to="." method="_on_button_sparkle_pressed"]
-[connection signal="pressed" from="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/RunButton" to="MainContainer/VSplitContainer/HSplitContainer/HSplitContainer/GraphEditorSection/VBoxContainer/ToolBar/RunButton" method="_on_pressed"]
+[node name="SplitContainer" type="SplitContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/AddNodeBtn" to="DockableContainer/Graph/VBoxContainer/ToolBar/AddNodeBtn" method="_on_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/ButtonSettings" to="." method="_on_button_settings_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/ButtonSparkle" to="." method="_on_button_sparkle_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/RunButton" to="DockableContainer/Graph/VBoxContainer/ToolBar/RunButton" method="_on_pressed"]

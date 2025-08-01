@@ -56,3 +56,30 @@ func _update(_value: Variant = null):
 
 func _get_field_groups() -> Array:
 	return ["image", {"Transition": ["transition", "duration"]}]
+
+
+func get_node_type() -> String:
+	return "NodeBackground"
+
+
+func get_editor_property_list() -> Array:
+	return [
+		{"property": "image", "type": FILE, "default": "",
+			"setters": {"filters": FilePicker.IMAGE}
+		},
+		{"property": "transition", "type": DROPDOWN, "default": 0,
+			"setters": {
+				"set_items": [[
+					{"text": "No Transition"},
+					{"text": "Push Down"},
+					{"text": "Push Left"},
+					{"text": "Push Right"},
+					{"text": "Push Up"},
+					{"text": "Simple Fade"},
+				]]
+			}
+		},
+		{"property": "duration", "type": SPINBOX, "default": 0.0,
+			"setters": {"step": 0.1, "minimum": 0.0}
+		},
+	]

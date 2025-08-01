@@ -12,7 +12,7 @@ var root_scene = Constants.NODE_SCENES.get("Root")
 var last_selected_tab: int = 0
 var prevent_switching: bool = false
 
-@onready var inspector_panel: InspectorPanel = %InspectorPanel
+@onready var inspector_panel: InspectorPanel = %Inspector
 @onready var tab_bar: TabBar = %TabBar
 @onready var graph_edits: Control = $GraphEditZone/GraphEdits
 

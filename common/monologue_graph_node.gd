@@ -223,11 +223,18 @@ func _get_field_groups() -> Array:
 
 
 func _get_inspector_property_list() -> Array:
-	return [
-		{"name": "id", "property": "id", "type": LINE},
-		{"name": "editor_position", "property": "editor_position", "type": LINE},
-	] + get_inspector_property_list()
+	return (
+		[
+			{"property": "id", "type": LINE},
+			{"property": "editor_position", "type": VECTOR},
+		]
+		+ get_inspector_property_list()
+	)
 
 
 func get_inspector_property_list() -> Array:
 	return []
+
+
+func _setup_inspector(inspector: MonologueInspector) -> void:
+	pass

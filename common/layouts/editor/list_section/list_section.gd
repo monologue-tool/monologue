@@ -1,15 +1,15 @@
-extends VBoxContainer
+extends PanelContainer
 
 @export var section_icon: Texture2D
 
-@onready var vbox := $ScrollContainer/VBox
-@onready var search_bar: LineEdit = $ToolBar/LineEdit
+@onready var vbox := %VBox
+@onready var search_bar: LineEdit = %SearchLine
 
 var add_func: Callable
 
 
 func _ready() -> void:
-	search_bar.placeholder_text = "Filter %s" % name
+	search_bar.placeholder_text = "Filter %s" % name.to_lower()
 
 
 func clear() -> void:
