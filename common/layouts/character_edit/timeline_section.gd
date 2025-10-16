@@ -3,7 +3,7 @@ class_name TimelineSection extends PortraitEditSection
 @warning_ignore("unused_signal")
 signal changed
 
-var animation := Property.new(MonologueGraphNode.TIMELINE, {}, {})
+var animation := OldProperty.new(Field.TIMELINE, {}, {})
 
 var id: String
 var base_path: String:

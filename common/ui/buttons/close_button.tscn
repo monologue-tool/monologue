@@ -1,11 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://dspmmme0jspdx"]
+[gd_scene load_steps=3 format=3 uid="uid://dspmmme0jspdx"]
 
-[ext_resource type="Texture2D" uid="uid://c7vdr4e0mxst6" path="res://ui/assets/icons/close_icon.png" id="1_jkx7d"]
+[ext_resource type="Texture2D" uid="uid://kk5em170gn2b" path="res://ui/assets/icons/ui_close.svg" id="1_ai8vd"]
 
-[node name="CloseButton" type="TextureButton"]
-offset_right = 16.0
-offset_bottom = 16.0
-size_flags_vertical = 3
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("1_jkx7d")
-stretch_mode = 3
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tlp5i"]
+
+[node name="Button" type="Button"]
+anchors_preset = -1
+anchor_right = 0.017
+anchor_bottom = 0.03
+offset_right = 0.199999
+theme_override_constants/icon_max_width = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tlp5i")
+icon = ExtResource("1_ai8vd")
+flat = true

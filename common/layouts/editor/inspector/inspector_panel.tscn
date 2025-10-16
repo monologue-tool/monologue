@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=3 uid="uid://dgvhvxdrd58qp"]
+
+[ext_resource type="Script" uid="uid://dtf4ge38njewp" path="res://common/layouts/editor/inspector/inspector_panel.gd" id="1_haagr"]
+[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="2_34x8o"]
+
+[node name="InspectorPanel" type="PanelContainer"]
+offset_right = 158.0
+offset_bottom = 121.0
+theme_type_variation = &"InspectorPanel"
+script = ExtResource("1_haagr")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/VBox"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Inspector"
+horizontal_alignment = 1
+
+[node name="TopBox" type="HBoxContainer" parent="VBox/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HBoxContainer_Small"
+alignment = 2
+
+[node name="RFHButton" type="Button" parent="VBox/VBox/TopBox"]
+custom_minimum_size = Vector2(34, 29)
+layout_mode = 2
+icon = ExtResource("2_34x8o")
+icon_alignment = 1
+expand_icon = true
+
+[node name="FieldPanel" type="PanelContainer" parent="VBox"]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"FieldPanel"
+
+[node name="Scroller" type="ScrollContainer" parent="VBox/FieldPanel"]
+clip_contents = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Fields" type="VBoxContainer" parent="VBox/FieldPanel/Scroller"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="pressed" from="VBox/VBox/TopBox/RFHButton" to="." method="_on_rfh_button_pressed"]

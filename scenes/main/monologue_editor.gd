@@ -13,14 +13,15 @@ class_name MonologueEditor extends Control
 
 func _ready():
 	get_tree().auto_accept_quit = false  # quit handled by _close_tab()
-	welcome_window.show()
+	#welcome_window.show()
 
 	GlobalSignal.add_listener("add_graph_node", add_node_from_global)
 	GlobalSignal.add_listener("select_new_node", _select_new_node)
-	GlobalSignal.add_listener("refresh", refresh)
 	GlobalSignal.add_listener("load_project", load_project)
 	GlobalSignal.add_listener("test_trigger", test_project)
 	GlobalSignal.add_listener("save", save)
+
+	StorylineManager.create_storyline("Unnamed Storyline")
 
 
 func _select_new_node() -> void:
@@ -66,7 +67,7 @@ func _to_dict() -> Dictionary:
 		)
 
 	return {
-		"EditorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
+		"editorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
 		"RootNodeID": get_root_dict(list_nodes).get("ID"),
 		"ListNodes": list_nodes,
 		"Characters": characters,
@@ -78,8 +79,9 @@ func _to_dict() -> Dictionary:
 ## Function callback for when the user wants to add a node from global context.
 ## Used by header menu and graph node selector (picker).
 func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
-	var nodes: Array[MonologueGraphNode] = graph_switcher.current.add_node(node_type, true, picker)
-	graph_switcher.current.pick_and_center(nodes, picker)
+	#var nodes: Array[MonologueGraphNode] = graph_switcher.current.add_node(node_type, true, picker)
+	#graph_switcher.current.pick_and_center(nodes, picker)
+	pass
 
 
 func get_root_dict(node_list: Array) -> Dictionary:
@@ -122,35 +124,6 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	graph_switcher.current.update_node_positions()
 	GlobalSignal.emit("load_successful", [path])
 
-	load_editor_sections()
-
-
-## Reload the current graph edit and inspector panel.
-func refresh(node: MonologueGraphNode = null, affected_properties: PackedStringArray = []) -> void:
-	# if there is a given node, refresh only the parts that were specified
-	if node:
-		node.reload_preview()
-		if node is not OptionNode:
-			node._update.call_deferred()
-		if inspector_panel_node.visible:
-			# actual property value updates are handled by PropertyHistory
-			for property_name in affected_properties:
-				var field = inspector_panel_node.collapsibles.get(property_name)
-				if is_instance_valid(field):
-					field.open()
-		else:
-			var choice = node.choice_node if node is OptionNode else node
-			node.get_graph_edit().set_selected(choice)
-	# otherwise, remake the entire panel and refresh all node previews
-	else:
-		for each_node in graph_switcher.current.get_nodes():
-			each_node.reload_preview()
-			#each_node._update.call_deferred()
-		if inspector_panel_node.visible:
-			var current_node = inspector_panel_node.selected_node
-			inspector_panel_node.on_graph_node_selected(current_node, true)
-
-	await get_tree().process_frame
 	load_editor_sections()
 
 
@@ -209,8 +182,8 @@ func _load_nodes(node_list: Array) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		get_viewport().gui_release_focus()
-		graph_switcher.is_closing_all_tabs = true
-		graph_switcher._on_tab_close_pressed(0)
+		#graph_switcher.is_closing_all_tabs = true
+		#graph_switcher._on_tab_close_pressed(0)
 
 
 func _on_button_sparkle_pressed() -> void:

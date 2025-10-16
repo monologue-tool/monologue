@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_pwbil"]
 [ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="5_4jbkx"]
 [ext_resource type="Script" uid="uid://cylirj261q6ru" path="res://addons/dockable_container/layout.gd" id="5_svwnc"]
-[ext_resource type="PackedScene" uid="uid://mfdu320oy6ex" path="res://common/layouts/editor/list_section/list_section.tscn" id="6_mei7o"]
+[ext_resource type="PackedScene" uid="uid://mfdu320oy6ex" path="res://common/layouts/editor/editor_list_section.tscn" id="6_mei7o"]
 [ext_resource type="Script" uid="uid://bmku341x5gaoe" path="res://scenes/main/add_node_button.gd" id="6_sr1k3"]
 [ext_resource type="Texture2D" uid="uid://bfmsxfn26cvfn" path="res://ui/assets/icons/character.svg" id="7_xxwqg"]
 [ext_resource type="Texture2D" uid="uid://b46sqb5g0spae" path="res://ui/assets/icons/variables.svg" id="8_uvwqm"]
@@ -17,7 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://dd6wdpndndufl" path="res://ui/assets/icons/sparkles.svg" id="11_g5pcf"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="12_mvfhp"]
 [ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_edit_switcher.gd" id="13_armd7"]
-[ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/layouts/inspector/inspector_panel.tscn" id="14_craj7"]
+[ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/layouts/editor/inspector/inspector_panel.tscn" id="14_craj7"]
 [ext_resource type="Script" uid="uid://q0oqx6butjwn" path="res://scenes/main/search_bar_container.gd" id="15_35jwg"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
 [ext_resource type="PackedScene" uid="uid://cvum3eaenloix" path="res://common/layouts/search_bar/search_bar.tscn" id="16_n4eqx"]
@@ -26,24 +26,20 @@
 resource_name = "Tabs"
 script = ExtResource("3_uvwqm")
 names = PackedStringArray("_Tabs")
-current_tab = 0
 
 [sub_resource type="Resource" id="Resource_xxwqg"]
 resource_name = "Tabs"
 script = ExtResource("3_uvwqm")
 names = PackedStringArray("Characters", "Variables")
-current_tab = 0
 
 [sub_resource type="Resource" id="Resource_uvwqm"]
 resource_name = "Tabs"
 script = ExtResource("3_uvwqm")
 names = PackedStringArray("Graph")
-current_tab = 0
 
 [sub_resource type="Resource" id="Resource_kkjrq"]
 resource_name = "Split"
 script = ExtResource("4_kkjrq")
-direction = 0
 percent = 0.0
 first = SubResource("Resource_xxwqg")
 second = SubResource("Resource_uvwqm")
@@ -52,12 +48,10 @@ second = SubResource("Resource_uvwqm")
 resource_name = "Tabs"
 script = ExtResource("3_uvwqm")
 names = PackedStringArray("Inspector")
-current_tab = 0
 
 [sub_resource type="Resource" id="Resource_mvfhp"]
 resource_name = "Split"
 script = ExtResource("4_kkjrq")
-direction = 0
 percent = 1.0
 first = SubResource("Resource_kkjrq")
 second = SubResource("Resource_svwnc")
@@ -74,8 +68,6 @@ second = SubResource("Resource_mvfhp")
 resource_name = "Layout"
 script = ExtResource("5_svwnc")
 root = SubResource("Resource_e6y6g")
-hidden_tabs = {}
-windows = {}
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sr1k3"]
 
@@ -153,58 +145,7 @@ tab_0/icon = ExtResource("5_4jbkx")
 [node name="Graph" type="PanelContainer" parent="DockableContainer"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DockableContainer/Graph"]
-layout_mode = 2
-
-[node name="ToolBar" type="HBoxContainer" parent="DockableContainer/Graph/VBoxContainer"]
-layout_mode = 2
-
-[node name="AddNodeBtn" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-text = "Add a node..."
-script = ExtResource("6_sr1k3")
-
-[node name="ButtonCharacters" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
-visible = false
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("7_xxwqg")
-icon_alignment = 1
-
-[node name="ButtonVariables" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
-visible = false
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("8_uvwqm")
-icon_alignment = 1
-
-[node name="LanguageSwitcher" parent="DockableContainer/Graph/VBoxContainer/ToolBar" instance=ExtResource("9_kkjrq")]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-disabled = true
-
-[node name="ButtonSettings" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
-visible = false
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("10_svwnc")
-icon_alignment = 1
-
-[node name="ButtonSparkle" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
-visible = false
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("11_g5pcf")
-
-[node name="RunButton" type="Button" parent="DockableContainer/Graph/VBoxContainer/ToolBar"]
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("12_mvfhp")
-script = SubResource("GDScript_lenro")
-
-[node name="GraphEditSwitcher" type="VBoxContainer" parent="DockableContainer/Graph/VBoxContainer"]
+[node name="GraphEditSwitcher" type="VBoxContainer" parent="DockableContainer/Graph"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -212,22 +153,62 @@ mouse_filter = 2
 theme_override_constants/separation = 0
 script = ExtResource("13_armd7")
 
-[node name="GraphEditZone" type="Control" parent="DockableContainer/Graph/VBoxContainer/GraphEditSwitcher"]
+[node name="ToolBar" type="HBoxContainer" parent="DockableContainer/Graph/GraphEditSwitcher"]
 layout_mode = 2
-size_flags_vertical = 3
 
-[node name="GraphEdits" type="Control" parent="DockableContainer/Graph/VBoxContainer/GraphEditSwitcher/GraphEditZone"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="AddNodeBtn" type="Button" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar"]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+text = "Add a node..."
+script = ExtResource("6_sr1k3")
+
+[node name="ButtonCharacters" type="Button" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("7_xxwqg")
+icon_alignment = 1
+
+[node name="ButtonVariables" type="Button" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("8_uvwqm")
+icon_alignment = 1
+
+[node name="LanguageSwitcher" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar" instance=ExtResource("9_kkjrq")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+disabled = true
+
+[node name="ButtonSettings" type="Button" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("10_svwnc")
+icon_alignment = 1
+
+[node name="ButtonSparkle" type="Button" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("11_g5pcf")
+
+[node name="RunButton" type="Button" parent="DockableContainer/Graph/GraphEditSwitcher/ToolBar"]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("12_mvfhp")
+script = SubResource("GDScript_lenro")
+
+[node name="GraphEdits" type="Control" parent="DockableContainer/Graph/GraphEditSwitcher"]
+unique_name_in_owner = true
+layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Inspector" parent="DockableContainer" instance=ExtResource("14_craj7")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(330, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -264,14 +245,14 @@ script = ExtResource("15_35jwg")
 [node name="SearchBar" parent="SearchBarContainer" node_paths=PackedStringArray("graph_edit_switcher") instance=ExtResource("16_n4eqx")]
 visible = false
 layout_mode = 2
-graph_edit_switcher = NodePath("../../DockableContainer/Graph/VBoxContainer/GraphEditSwitcher")
+graph_edit_switcher = NodePath("../../DockableContainer/Graph/GraphEditSwitcher")
 
 [node name="SplitContainer" type="SplitContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/AddNodeBtn" to="DockableContainer/Graph/VBoxContainer/ToolBar/AddNodeBtn" method="_on_pressed"]
-[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/ButtonSettings" to="." method="_on_button_settings_pressed"]
-[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/ButtonSparkle" to="." method="_on_button_sparkle_pressed"]
-[connection signal="pressed" from="DockableContainer/Graph/VBoxContainer/ToolBar/RunButton" to="DockableContainer/Graph/VBoxContainer/ToolBar/RunButton" method="_on_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/GraphEditSwitcher/ToolBar/AddNodeBtn" to="DockableContainer/Graph/GraphEditSwitcher/ToolBar/AddNodeBtn" method="_on_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/GraphEditSwitcher/ToolBar/ButtonSettings" to="." method="_on_button_settings_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/GraphEditSwitcher/ToolBar/ButtonSparkle" to="." method="_on_button_sparkle_pressed"]
+[connection signal="pressed" from="DockableContainer/Graph/GraphEditSwitcher/ToolBar/RunButton" to="DockableContainer/Graph/GraphEditSwitcher/ToolBar/RunButton" method="_on_pressed"]

@@ -4,8 +4,8 @@ signal portrait_selected
 
 const DEFAULT_PORTRAIT_NAME = "new portrait %s"
 
-var portraits := Property.new(MonologueGraphNode.LIST, {}, [])
-var default_portrait := Property.new(MonologueGraphNode.LINE, {}, "")
+var portraits := OldProperty.new(Field.LIST, {}, [])
+var default_portrait := OldProperty.new(Field.LINE, {}, "")
 
 var selected: int = -1
 var references: Array[AbstractPortraitOption] = []

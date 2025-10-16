@@ -1,43 +1,21 @@
 @icon("res://ui/assets/icons/text.svg")
-class_name SentenceNode extends MonologueGraphNode
-
-var speaker := Property.new(DROPDOWN, {"store_index": true}, 0)
-var display_name := Property.new(LINE)
-var sentence := Localizable.new(TEXT)
-var voiceline := Localizable.new(FILE, {"filters": FilePicker.AUDIO})
-
-@onready var _preview = $TextLabelPreview
+class_name SentenceNode extends InspectableNode
 
 
-func _ready():
-	node_type = "NodeSentence"
-	sentence.connect("preview", _on_text_preview)
-	voiceline.setters["base_path"] = get_graph_edit().file_path
-	super._ready()
-	_update()
+func get_type() -> String:
+	return "sentence"
 
 
-func reload_preview() -> void:
-	_preview.text = sentence.value
+func initialize_properties() -> void:
+	define_property("speaker", "", "dropdown")
+	define_property("display_name", "", "text")
+	define_property("sentence", "", "text")
+	define_property("voiceline", "", "file")
 
 
-func _on_text_preview(text: Variant):
-	_preview.text = str(text)
+func preview() -> void:
+	pass
 
 
-func _update():
-	super._update()
-
-	var characters := get_graph_edit().characters.value as Array
-	speaker.callers["set_items"] = [characters, "Character/Name", "EditorIndex"]
-	if speaker.value is String:
-		speaker.value = 0
-	reload_preview()
-
-
-func get_inspector_property_list() -> Array:
-	return []
-
-
-func _get_field_groups() -> Array:
-	return [{"Speaker": ["speaker", "display_name"]}]
+func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
+	pass

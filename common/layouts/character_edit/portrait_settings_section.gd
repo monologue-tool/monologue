@@ -3,13 +3,11 @@ class_name PortraitSettingsSection extends PortraitEditSection
 @warning_ignore("unused_signal")
 signal changed
 
-var portrait_type := Property.new(MonologueGraphNode.DROPDOWN, {}, "Image", "PortraitType")
-var image_path := Property.new(
-	MonologueGraphNode.FILE, {"filters": FilePicker.IMAGE}, "", "ImagePath"
-)
-var offset := Property.new(MonologueGraphNode.VECTOR, {}, [0, 0], "Offset")
-var mirror := Property.new(MonologueGraphNode.TOGGLE, {}, false, "Mirror")
-var one_shot := Property.new(MonologueGraphNode.TOGGLE, {}, false, "OneShot")
+var portrait_type := OldProperty.new(Field.DROPDOWN, {}, "Image", "PortraitType")
+var image_path := OldProperty.new(Field.FILE, {"filters": FilePicker.IMAGE}, "", "ImagePath")
+var offset := OldProperty.new(Field.VECTOR, {}, [0, 0], "Offset")
+var mirror := OldProperty.new(Field.TOGGLE, {}, false, "Mirror")
+var one_shot := OldProperty.new(Field.TOGGLE, {}, false, "OneShot")
 
 @onready var preview_section := %PreviewSection
 @onready var timeline_section: TimelineSection = %TimelineSection

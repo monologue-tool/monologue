@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://be0xxn5gocqjo"]
+
+[node name="LineEdit" type="LineEdit"]
+offset_right = 76.5625
+offset_bottom = 29.0

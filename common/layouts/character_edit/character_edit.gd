@@ -1,8 +1,8 @@
 class_name CharacterEdit extends CharacterEditSection
 
-var nicknames := Property.new(MonologueGraphNode.LINE)
-var display_name := Property.new(MonologueGraphNode.LINE)
-var description := Property.new(MonologueGraphNode.TEXT)
+var nicknames := OldProperty.new(Field.LINE)
+var display_name := OldProperty.new(Field.LINE)
+var description := OldProperty.new(Field.TEXT)
 
 
 func _ready() -> void:

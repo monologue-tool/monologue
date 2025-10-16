@@ -54,9 +54,9 @@ static func save_an_open_script(script_path: String, close:=false) -> bool:
 			# select the script in the editor
 			EditorInterface.edit_script(open_script, 0);
 			# save and close
-			editor_popup.id_pressed.emit(FILE_SAVE)
+			editor_popup.id_pressed.emit(Field.FILE_SAVE)
 			if close:
-				editor_popup.id_pressed.emit(FILE_CLOSE)
+				editor_popup.id_pressed.emit(Field.FILE_CLOSE)
 			return true
 	return false
 
@@ -64,7 +64,7 @@ static func save_an_open_script(script_path: String, close:=false) -> bool:
 # Saves all opened script
 static func save_all_open_script() -> void:
 	if Engine.is_editor_hint():
-		_menu_popup().id_pressed.emit(FILE_SAVE_ALL)
+		_menu_popup().id_pressed.emit(Field.FILE_SAVE_ALL)
 
 
 static func close_open_editor_scripts() -> void:

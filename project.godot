@@ -20,10 +20,9 @@ config/tags=PackedStringArray("monologue")
 run/main_scene="res://scenes/splash/splash.tscn"
 run/print_header=false
 run/enable_alt_space_menu=true
-config/features=PackedStringArray("4.4")
+config/features=PackedStringArray("4.5")
 boot_splash/bg_color=Color(0.117647, 0.117647, 0.129412, 1)
 boot_splash/show_image=false
-config/icon="res://icon.png"
 
 [autoload]
 
@@ -37,6 +36,10 @@ Path="*res://autoloads/path.gd"
 IDGen="*res://autoloads/id_gen.gd"
 Cursor="*res://autoloads/cursor.gd"
 ImageLoader="*res://autoloads/image_loader.gd"
+Field="*res://autoloads/field.gd"
+UndoRedoService="*res://autoloads/undo_redo_service.gd"
+FieldBucket="*res://common/ui/editor_properties/field_bucket.gd"
+StorylineManager="*res://autoloads/storyline_manager.gd"
 
 [debug]
 
@@ -46,7 +49,6 @@ gdscript/warnings/integer_division=0
 
 window/size/viewport_width=1400
 window/size/viewport_height=800
-window/size/resizable=false
 window/size/transparent=true
 window/size/extend_to_title=true
 window/energy_saving/keep_screen_on=false
@@ -75,10 +77,10 @@ ui/inspector/tree_view_mode=1
 
 [gui]
 
-theme/custom="uid://budfhk1hudcfj"
-theme/custom_font="uid://xxjublydw27h"
 theme/default_font_hinting=2
 theme/lcd_subpixel_layout=0
+theme/custom="uid://budfhk1hudcfj"
+theme/custom_font="uid://xxjublydw27h"
 
 [input]
 

@@ -1,70 +1,64 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 
-var characters := Property.new(MonologueGraphNode.LIST, {}, [])
-var variables := Property.new(MonologueGraphNode.LIST, {}, [])
-var _character_references = []
-var _variable_references = []
+signal node_view_selected(node: InspectableNode)
+
+var characters := Property.new("characters", {}, "character", {})
+var variables := Property.new("variables", {}, "variable", {})
+
+var storyline_id: String
 
 
 func _ready() -> void:
 	super._ready()
 
-	characters.setters["add_callback"] = add_character
-	characters.setters["get_callback"] = get_characters
-	characters.connect("preview", load_character)
 
-	variables.setters["add_callback"] = add_variable
-	variables.setters["get_callback"] = get_variables
-	variables.connect("preview", load_variables)
+func refresh() -> void:
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 
+	for child: GraphElement in get_all_graph_nodes():
+		child.queue_free()
 
-
-func add_character(dict: Dictionary = {}) -> MonologueCharacter:
-	var character = MonologueCharacter.new(self)
-	if dict:
-		character._from_dict(dict)
-	character.idx.value = _character_references.size()
-	character.character.setters["character_index"] = character.idx.value
-	_character_references.append(character)
-	return character
+	for node: InspectableNode in storyline.nodes:
+		add_graph_node_view(node)
 
 
-func add_variable(dict: Dictionary = {}) -> MonologueVariable:
-	var variable = MonologueVariable.new(self)
-	if dict:
-		variable._from_dict(dict)
-	variable.index = _variable_references.size()
-	_variable_references.append(variable)
-	return variable
+func add_graph_node_view(node: InspectableNode) -> void:
+	var new_node: GraphNode = GraphNode.new()
+	new_node.title = node.get_title()
+	build_graph_node_view_content(new_node, node)
+	new_node.node_selected.connect(_on_node_view_selected.bind(node))
+	add_child(new_node)
 
 
-func get_characters() -> Array:
-	return _character_references
-	
-	
-func get_variables() -> Array:
-	return _variable_references
+func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode) -> void:
+	var rows: Array = node.get_rows()
+
+	for row: GraphNodeRow in rows:
+		var hbox: HBoxContainer = HBoxContainer.new()
+		var label: Label = Label.new()
+		var idx: int = rows.find(row)
+		label.text = row.get_content()
+
+		hbox.add_child(label)
+
+		graph_node.add_child(hbox)
+		graph_node.set_slot(
+			idx,
+			row._enable_left_port,
+			0,
+			Color.WHITE,
+			row._enable_right_port,
+			0,
+			Color.WHITE,
+			null,
+			null,
+			true
+		)
 
 
-## Perform initial loading of speakers and set indexes correctly.
-func load_character(new_character_list: Array):
-	_character_references.clear()
-	var ascending = func(a, b): return a.get("EditorIndex") < b.get("EditorIndex")
-	new_character_list.sort_custom(ascending)
-	for speaker_data in new_character_list:
-		add_character(speaker_data)
-
-	if _character_references.is_empty():
-		var narrator = add_character()
-		narrator.character.value["Name"] = "_NARRATOR"
-		narrator.protected.value = true
-		new_character_list.append(narrator._to_dict())
-
-	characters.value = new_character_list
+func _on_node_view_selected(node: InspectableNode) -> void:
+	node_view_selected.emit(node)
 
 
-func load_variables(new_variable_list: Array):
-	_variable_references.clear()
-	for variable in new_variable_list:
-		add_variable(variable)
-	variables.value = new_variable_list
+func get_all_graph_nodes() -> Array:
+	return get_children().filter(func(child) -> bool: return child is GraphNode)
