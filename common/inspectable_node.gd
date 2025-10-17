@@ -3,8 +3,9 @@ class_name InspectableNode extends InspectableObject
 
 
 func _init() -> void:
-	define_property("position", Vector2.ZERO, "vector2", {})
 	super._init()
+	define_property("position", Vector2.ZERO, "vector2", {})
+	define_property("notes", "", "string", {}, "Extra")
 
 
 @abstract func get_type() -> String

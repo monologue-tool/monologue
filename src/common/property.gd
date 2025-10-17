@@ -41,7 +41,7 @@ func _notify_change(old_value: Variant, new_value: Variant) -> void:
 
 
 func get_display_name() -> String:
-	return options.get("label", name)
+	return Util.to_readable_name(options.get("label", name))
 
 
 func get_category() -> String:

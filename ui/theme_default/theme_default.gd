@@ -1,12 +1,12 @@
 @tool
 class_name MonologueTheme extends Theme
 
-var scale: float
+var scale: float = 1.0
 var dark_theme: bool = true
 var contrast: float = 0.15
 # Colors
 var text_color: Color = Color("e3e4eb")
-var background_color: Color = Color(0.1299, 0.1299, 0.1523, 1.0)
+var background_color: Color = Color(0.097, 0.097, 0.12, 1.0)
 var primary_color: Color = Color("a9a8c0")
 var secondary_color: Color = Color("676278")
 var accent_color: Color = Color("d15050")
@@ -204,27 +204,16 @@ func _generate_theme() -> void:
 	# -----------------------
 	var graph_node_sb: StyleBoxFlat = button_sb.duplicate()
 	graph_node_sb.bg_color = _get_primary_color(contrast, false)
-	graph_node_sb.corner_radius_top_left = 0
-	graph_node_sb.corner_radius_top_right = 0
 	graph_node_sb.shadow_color = Color("#000000", contrast)
-	graph_node_sb.shadow_size = 30
+	graph_node_sb.shadow_size = 10
 	_set_border(graph_node_sb, base_border_color)
-	graph_node_sb.border_width_top = 0
 
 	var graph_node_selected_sb: StyleBoxFlat = graph_node_sb.duplicate()
 	graph_node_selected_sb.border_color.a += 0.1
 
-	var graph_node_titlebar_sb: StyleBoxFlat = button_sb.duplicate()
-	graph_node_titlebar_sb.corner_radius_bottom_left = 0
-	graph_node_titlebar_sb.corner_radius_bottom_right = 0
-	graph_node_titlebar_sb.shadow_color = Color("#000000", contrast)
-	graph_node_titlebar_sb.shadow_size = 30
-	_set_border(graph_node_titlebar_sb, base_border_color)
-	graph_node_titlebar_sb.border_width_bottom = 0
-
-	var graph_node_titlebar_selected_sb: StyleBoxFlat = graph_node_titlebar_sb.duplicate()
-	graph_node_titlebar_selected_sb.border_color.a += 0.1
-
+	var graph_node_titlebar_sb: StyleBoxEmpty = StyleBoxEmpty.new()
+	var graph_node_titlebar_selected_sb: StyleBoxEmpty = graph_node_titlebar_sb.duplicate()
+	
 	# -----------------------
 	# APPLY STYLES: Buttons
 	# -----------------------
@@ -487,7 +476,7 @@ func _generate_theme() -> void:
 	var popup_menu_hover_sb: StyleBoxFlat = base_field_sb.duplicate()
 	popup_menu_hover_sb.bg_color = _get_secondary_color(contrast)
 	separator_sb = separator_sb.duplicate()
-	separator_sb.color = text_color
+	separator_sb.color = _get_text_color(contrast)
 	separator_sb.vertical = true
 	separator_sb.grow_begin = 0
 	separator_sb.grow_end = 0
@@ -658,7 +647,7 @@ func _generate_theme() -> void:
 	sb.set_content_margin_all(0)
 	sb.set_corner_radius_all(0)
 	sb.set_border_width_all(0)
-	sb.bg_color = _get_secondary_color(contrast, false)
+	sb.bg_color = background_color
 	set_color("grid_major", "GraphEdit", _get_text_color(contrast))
 	set_color("grid_minor", "GraphEdit", _get_text_color(contrast))
 	set_stylebox("panel", "GraphEdit", sb)
@@ -670,6 +659,14 @@ func _generate_theme() -> void:
 	set_stylebox("titlebar", "GraphNode", graph_node_titlebar_sb)
 	set_stylebox("titlebar_selected", "GraphNode", graph_node_titlebar_selected_sb)
 	set_stylebox("slot", "GraphNode", StyleBoxEmpty.new())
+	
+	# GraphNodeTitleLabel
+	set_font_size("font_size", "GraphNodeTitleLabel", 1)
+	
+	# GraphNodeViewTitleLabel
+	set_type_variation("GraphNodeViewTitleLabel", "Label")
+	set_color("font_color", "GraphNodeViewTitleLabel", text_color)
+	set_font_size("font_size", "GraphNodeViewTitleLabel", 18)
 
 	# GraphNodePicker
 	set_type_variation("GraphNodePicker", "PanelContainer")

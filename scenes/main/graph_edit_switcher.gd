@@ -43,7 +43,7 @@ func refresh_graph(graph_id: String) -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(graph_id)
 
 	for node in storyline.nodes:
-		var graph_preview
+		var graph_view
 
 
 func on_storyline_change() -> void:

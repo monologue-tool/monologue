@@ -49,6 +49,10 @@ func to_key_name(snake_case_name: String, delimiter: String = "") -> String:
 	for word in words:
 		capitalized_list.append("ID" if word.to_lower() == "id" else word)
 	return delimiter.join(capitalized_list)
+	
+## Converts a snake_case name to readable string with capitalized "ID".
+func to_readable_name(snake_case_name: String) -> String:
+	return to_key_name(snake_case_name, " ")
 
 
 ## Left-truncate a filename string based on MAX_FILENAME_LENGTH.

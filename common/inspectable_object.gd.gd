@@ -10,8 +10,10 @@ func _init() -> void:
 
 
 func define_property(
-	pname: String, default_value: Variant, type: String, options: Dictionary = {}
+	pname: String, default_value: Variant, type: String, options: Dictionary = {}, category: String = "General"
 ) -> void:
+	options["category"] = category
+	
 	var property: Property = Property.new(pname, default_value, type, options)
 	_properties.set(pname, property)
 

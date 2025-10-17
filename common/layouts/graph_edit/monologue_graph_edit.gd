@@ -24,14 +24,17 @@ func refresh() -> void:
 
 func add_graph_node_view(node: InspectableNode) -> void:
 	var new_node: GraphNode = GraphNode.new()
-	new_node.title = node.get_title()
 	build_graph_node_view_content(new_node, node)
 	new_node.node_selected.connect(_on_node_view_selected.bind(node))
 	add_child(new_node)
 
 
 func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode) -> void:
+	var title_bar: HBoxContainer = graph_node.get_titlebar_hbox()
+	title_bar.hide()
+	
 	var rows: Array = node.get_rows()
+	rows.push_front(GraphNodeRow.new(node.get_title(), true, false))
 
 	for row: GraphNodeRow in rows:
 		var hbox: HBoxContainer = HBoxContainer.new()
@@ -40,10 +43,17 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		label.text = row.get_content()
 
 		hbox.add_child(label)
+		
+		# If is title row
+		if idx <= 0:
+			label.theme_type_variation = "GraphNodeViewTitleLabel"
+		else:
+			var separator: HSeparator = HSeparator.new()
+			graph_node.add_child(separator)
 
 		graph_node.add_child(hbox)
 		graph_node.set_slot(
-			idx,
+			hbox.get_index(),
 			row._enable_left_port,
 			0,
 			Color.WHITE,
