@@ -1,19 +1,33 @@
 @abstract
 class_name InspectableObject extends RefCounted
 
+const NextRowValue: String = "[Node]"
+
 var _properties: Dictionary[String, Property] = {}
 var _observers: Array[Object] = []
+var settings: Dictionary = {}
 
 
 func _init() -> void:
 	define_property("id", IDGen.generate(), "text", {})
+	_load_settings()
+
+
+func _load_settings() -> void:
+	var new_settings: Dictionary = {"origin": false}
+	new_settings.merge(get_settings(), true)
+	settings = new_settings
 
 
 func define_property(
-	pname: String, default_value: Variant, type: String, options: Dictionary = {}, category: String = "General"
+	pname: String,
+	default_value: Variant,
+	type: String,
+	options: Dictionary = {},
+	category: String = "General"
 ) -> void:
 	options["category"] = category
-	
+
 	var property: Property = Property.new(pname, default_value, type, options)
 	_properties.set(pname, property)
 
@@ -71,6 +85,10 @@ func _to_dict() -> Dictionary:
 		dict[property.name] = property.value
 
 	return dict
+
+
+func get_settings() -> Dictionary:
+	return {}
 
 
 @abstract func get_type() -> String

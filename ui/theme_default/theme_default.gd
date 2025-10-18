@@ -213,7 +213,7 @@ func _generate_theme() -> void:
 
 	var graph_node_titlebar_sb: StyleBoxEmpty = StyleBoxEmpty.new()
 	var graph_node_titlebar_selected_sb: StyleBoxEmpty = graph_node_titlebar_sb.duplicate()
-	
+
 	# -----------------------
 	# APPLY STYLES: Buttons
 	# -----------------------
@@ -659,14 +659,23 @@ func _generate_theme() -> void:
 	set_stylebox("titlebar", "GraphNode", graph_node_titlebar_sb)
 	set_stylebox("titlebar_selected", "GraphNode", graph_node_titlebar_selected_sb)
 	set_stylebox("slot", "GraphNode", StyleBoxEmpty.new())
-	
+
 	# GraphNodeTitleLabel
 	set_font_size("font_size", "GraphNodeTitleLabel", 1)
-	
+
 	# GraphNodeViewTitleLabel
 	set_type_variation("GraphNodeViewTitleLabel", "Label")
 	set_color("font_color", "GraphNodeViewTitleLabel", text_color)
 	set_font_size("font_size", "GraphNodeViewTitleLabel", 18)
+
+	# GraphNodeViewValueLabel
+	set_type_variation("GraphNodeViewValueLabel", "Label")
+	set_color("font_color", "GraphNodeViewValueLabel", _get_text_color(0.5))
+	set_font_size("font_size", "GraphNodeViewValueLabel", 16)
+
+	# GraphNodeViewRownHBox
+	set_type_variation("GraphNodeViewRownHBox", "HBoxContainer")
+	set_constant("separation", "GraphNodeViewRownHBox", base_spacing * 5)
 
 	# GraphNodePicker
 	set_type_variation("GraphNodePicker", "PanelContainer")

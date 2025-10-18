@@ -10,6 +10,10 @@ func get_type() -> String:
 	return "root"
 
 
+func get_settings() -> Dictionary:
+	return {"origin": false}
+
+
 func get_title() -> String:
 	return "Root"
 
@@ -23,7 +27,7 @@ func get_color() -> Color:
 
 
 func get_rows() -> Array[GraphNodeRow]:
-	return [GraphNodeRow.new("Starting point", false, true)]
+	return [GraphNodeRow.new("Beginning", NextRowValue, false, true)]
 
 
 func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
