@@ -25,6 +25,11 @@ func refresh() -> void:
 func add_graph_node_view(node: InspectableNode) -> void:
 	var new_node: GraphNode = GraphNode.new()
 	build_graph_node_view_content(new_node, node)
+
+	var new_node_title_bar: HBoxContainer = new_node.get_titlebar_hbox()
+	var new_node_label: Label = new_node_title_bar.get_child(0)
+	new_node_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
 	new_node.node_selected.connect(_on_node_view_selected.bind(node))
 	add_child(new_node)
 
@@ -37,12 +42,10 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 	rows.push_front(GraphNodeRow.new(node.get_title(), true, false))
 
 	for row: GraphNodeRow in rows:
-		var hbox: HBoxContainer = HBoxContainer.new()
-		var label: Label = Label.new()
 		var idx: int = rows.find(row)
-		label.text = row.get_content()
+		var control: Control = create_row_control(row)
 
-		hbox.add_child(label)
+		control.add_child(label)
 		
 		# If is title row
 		if idx <= 0:
@@ -51,9 +54,10 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 			var separator: HSeparator = HSeparator.new()
 			graph_node.add_child(separator)
 
-		graph_node.add_child(hbox)
+		graph_node.add_child(control)
+		
 		graph_node.set_slot(
-			hbox.get_index(),
+			control.get_index(),
 			row._enable_left_port,
 			0,
 			Color.WHITE,
@@ -64,6 +68,19 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 			null,
 			true
 		)
+
+
+func create_row_control(row: GraphNodeRow) -> Control:
+	var container: PanelContainer = PanelContainer.new()
+	var hbox: HBoxContainer = HBoxContainer.new()
+	var label: Label = Label.new()
+
+	container.add_child(hbox)
+	hbox.add_child(label)
+
+	label.text = row.get_content()
+
+	return container
 
 
 func _on_node_view_selected(node: InspectableNode) -> void:
