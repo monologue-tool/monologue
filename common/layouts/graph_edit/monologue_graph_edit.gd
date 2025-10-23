@@ -38,8 +38,23 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 	var title_bar: HBoxContainer = graph_node.get_titlebar_hbox()
 	title_bar.hide()
 
-	var rows: Array = node.get_rows()
-	rows.push_front(GraphNodeRow.new(node.get_title(), "", not node.settings.get("origin"), false))
+	var properties: Array = node.get_properties()
+	var rows: Array = []
+	# => not node.settings.get("origin") <= not sure
+	rows.append(
+		GraphNodeRow.new(
+			node.get_title(),
+			"next" if node.settings.get("continuous") else "",
+			not node.settings.get("origin"),
+			node.settings.get("continuous")
+		)
+	)
+
+	for prop: Property in properties:
+		if prop.options.get("private"):
+			continue
+
+		rows.append(GraphNodeRow.new(prop.name, "[%s]" % prop.type, false, false))
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)

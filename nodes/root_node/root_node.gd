@@ -11,7 +11,7 @@ func get_type() -> String:
 
 
 func get_settings() -> Dictionary:
-	return {"origin": false}
+	return {"origin": true, "continuous": true}
 
 
 func get_title() -> String:
@@ -24,10 +24,6 @@ func get_icon() -> Texture2D:
 
 func get_color() -> Color:
 	return Color.WHITE
-
-
-func get_rows() -> Array[GraphNodeRow]:
-	return [GraphNodeRow.new("Beginning", NextRowValue, false, true)]
 
 
 func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:

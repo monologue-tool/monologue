@@ -15,6 +15,9 @@ func _init(sname: String, sfile_path: String = "") -> void:
 	var root_node: RootNode = RootNode.new()
 	nodes.append(root_node)
 
+	var sentence_node: SentenceNode = SentenceNode.new()
+	nodes.append(sentence_node)
+
 
 func add_node(node: InspectableNode) -> void:
 	node.add_observer(self)

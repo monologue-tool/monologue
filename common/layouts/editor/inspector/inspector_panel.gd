@@ -2,6 +2,7 @@ class_name InspectorPanel extends PanelContainer
 
 @onready var property_container: VBoxContainer = %Fields
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
+@onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
 var current_object: InspectableObject
 
@@ -57,11 +58,15 @@ func _create_property_editor(property: Property) -> Control:
 		# return _create_list_property_editor(property)
 
 	var p_container: PanelContainer = PanelContainer.new()
-	var p_vbox: VBoxContainer = VBoxContainer.new()
+	var p_hbox: HBoxContainer = HBoxContainer.new()
+	var p_expose_button: TextureButton = expose_button.instantiate()
 	var p_label: Label = Label.new()
 	p_label.text = property.get_display_name()
-	p_vbox.add_child(p_label)
-	p_container.add_child(p_vbox)
+	p_hbox.add_child(p_expose_button)
+	p_hbox.add_child(p_label)
+	p_container.add_child(p_hbox)
+
+	p_expose_button.disabled = property.options.get("private", false)
 
 	# TODO: Input field
 	return p_container

@@ -9,12 +9,12 @@ var settings: Dictionary = {}
 
 
 func _init() -> void:
-	define_property("id", IDGen.generate(), "text", {})
+	initialize_properties()
 	_load_settings()
 
 
 func _load_settings() -> void:
-	var new_settings: Dictionary = {"origin": false}
+	var new_settings: Dictionary = {"origin": false, "continuous": false}
 	new_settings.merge(get_settings(), true)
 	settings = new_settings
 
