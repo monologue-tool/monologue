@@ -28,13 +28,19 @@ func _search_fields() -> void:
 			_bucket.set(fname, script)
 
 
-func get_field_indexer(field_name: String) -> PackedScene:
+func get_field_indexer(field_name: String) -> RefCounted:
 	return _bucket.get(field_name)
 
 
 func get_scene(field_name: String) -> PackedScene:
-	return get_field_indexer(field_name).call("get_scene")
+	var indexer: RefCounted = get_field_indexer(field_name)
+	if indexer:
+		return indexer.call("get_scene")
+	return null
 
 
-func get_metadata(field_name: String) -> PackedScene:
-	return get_field_indexer(field_name).call("get_metadata")
+func get_metadata(field_name: String) -> Dictionary:
+	var indexer: RefCounted = get_field_indexer(field_name)
+	if indexer:
+		return indexer.call("get_metadata")
+	return {}

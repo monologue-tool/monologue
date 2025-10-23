@@ -8,9 +8,11 @@ var _exposed_properies: Array = []  # The exposed properties are displayed in th
 func _init() -> void:
 	# `private` properties are not exposable.
 	# `protected` properties cannot be edited from the inspector.
-	define_property("id", IDGen.generate(), "text", {"private": true})
+	define_property("id", IDGen.generate(), "text", {"private": true}, "Special:Header")
 	super._init()
-	define_property("position", Vector2.ZERO, "vector2", {"private": true, "protected": true})
+	define_property(
+		"position", Vector2.ZERO, "vector2", {"private": true, "protected": true}, "Extra"
+	)
 	define_property("notes", "", "string", {"private": true}, "Extra")
 
 

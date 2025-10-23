@@ -59,12 +59,26 @@ func _create_property_editor(property: Property) -> Control:
 
 	var p_container: PanelContainer = PanelContainer.new()
 	var p_hbox: HBoxContainer = HBoxContainer.new()
+	var p_vbox: VBoxContainer = VBoxContainer.new()
 	var p_expose_button: TextureButton = expose_button.instantiate()
 	var p_label: Label = Label.new()
+	var p_field_scene: PackedScene = FieldBucket.get_scene(property.type)
+
 	p_label.text = property.get_display_name()
 	p_hbox.add_child(p_expose_button)
 	p_hbox.add_child(p_label)
-	p_container.add_child(p_hbox)
+	p_vbox.add_child(p_hbox)
+
+	var p_field: Control
+	if p_field_scene:
+		p_field = p_field_scene.instantiate()
+	else:
+		p_field = Label.new()
+		p_field.theme_type_variation = "WarnLabel"
+		p_field.text = "Unknown property type"
+
+	p_vbox.add_child(p_field)
+	p_container.add_child(p_vbox)
 
 	p_expose_button.disabled = property.options.get("private", false)
 
