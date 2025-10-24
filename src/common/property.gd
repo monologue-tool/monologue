@@ -1,17 +1,17 @@
 class_name Property extends RefCounted
 
-var name: String = ""
+var name: String = ""  # Protected
 var value: Variant = 0
-var type: String = ""
-var options: Dictionary = {}
+var type: String = ""  # Protected
+var settings: Dictionary = {}
 var _observers: Array = []
 
 
-func _init(pname: String, pvalue: Variant, ptype: String, poptions: Dictionary = {}) -> void:
+func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary = {}) -> void:
 	name = pname
 	value = pvalue
 	type = ptype
-	options = poptions
+	settings = psettings
 
 
 func set_value(new_value: Variant) -> void:
@@ -41,8 +41,8 @@ func _notify_change(old_value: Variant, new_value: Variant) -> void:
 
 
 func get_display_name() -> String:
-	return Util.to_readable_name(options.get("label", name))
+	return Util.to_readable_name(settings.get("label", name))
 
 
 func get_category() -> String:
-	return options.get("category", "General")
+	return settings.get("category", "General")

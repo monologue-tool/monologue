@@ -52,7 +52,7 @@ func _notify_change(pname: String, old_value: Variant, new_value: Variant) -> vo
 			push_warning("Object doesn't have method 'on_property_changed'.")
 			return
 
-		observer.call("on_property_changed", pname, old_value, new_value)
+		observer.call("on_property_changed", self, pname, old_value, new_value)
 
 
 func get_properties() -> Array[Property]:
@@ -75,8 +75,23 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 	if not _properties.has(pname):
 		return
 
+	var old_value: Variant = get_property_value(pname)
+
 	var property: Property = get_property(pname)
 	property.set_value(pvalue)
+	_notify_change(pname, old_value, pvalue)
+
+
+func set_property_settings_value(pname: String, skey: Variant, svalue: Variant) -> void:
+	if not _properties.has(pname):
+		return
+
+	var property: Property = get_property(pname)
+	property.settings[skey] = svalue
+
+	# Maybe a bit hard-coded ?
+	var pvalue: Variant = get_property_value(pname)
+	_notify_change(pname, pvalue, pvalue)
 
 
 func _to_dict() -> Dictionary:

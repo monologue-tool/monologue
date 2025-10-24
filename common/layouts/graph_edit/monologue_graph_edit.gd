@@ -22,6 +22,11 @@ func refresh() -> void:
 		add_graph_node_view(node)
 
 
+func refresh_node(node: InspectableNode) -> void:
+	if node.graph_view:
+		build_graph_node_view_content(node.graph_view, node)
+
+
 func add_graph_node_view(node: InspectableNode) -> void:
 	var new_node: GraphNode = GraphNode.new()
 	new_node.custom_minimum_size.x = 192
@@ -32,9 +37,17 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 	new_node.node_selected.connect(_on_node_view_selected.bind(node))
 	add_child(new_node)
+	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(new_node))
+
+	node.graph_view = new_node
+	node.add_observer(self)
 
 
 func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode) -> void:
+	for child: Control in graph_node.get_children():
+		graph_node.remove_child(child)
+		child.queue_free()
+
 	var title_bar: HBoxContainer = graph_node.get_titlebar_hbox()
 	title_bar.hide()
 
@@ -51,10 +64,16 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 	)
 
 	for prop: Property in properties:
-		if prop.options.get("private"):
+		if prop.settings.get("private"):
 			continue
 
-		rows.append(GraphNodeRow.new(prop.name, "[%s]" % prop.type, false, false))
+		prop.get("exposed")
+
+		rows.append(
+			GraphNodeRow.new(
+				prop.name, "[%s]" % prop.type, prop.settings.get("exposed", false), false
+			)
+		)
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)
@@ -96,6 +115,16 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 func _on_node_view_selected(node: InspectableNode) -> void:
 	node_view_selected.emit(node)
+
+
+func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
+	pass
+
+
+func on_property_changed(
+	node: InspectableNode, pname: String, _old_value: Variant, _new_value: Variant
+) -> void:
+	refresh_node(node)
 
 
 func get_all_graph_nodes() -> Array:

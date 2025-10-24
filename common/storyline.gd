@@ -24,7 +24,11 @@ func add_node(node: InspectableNode) -> void:
 
 
 # Called by InspectableNode
-func on_property_changed(pname: String, _old_value: Variant, _new_value: Variant) -> void:
-	print(pname)
+func on_property_changed(
+	pnode: InspectableNode, pname: String, _old_value: Variant, _new_value: Variant
+) -> void:
+	var node_id: String = pnode.get_property_value("id")
+	print("Property %s of node %s changed." % [pname, node_id])
+	#var action = history.create_action("Property %s changed of node %s" % [pname, pnode.get_property_value("id")], UndoRedo.MERGE_ENDS, )
 
 	is_dirty = true

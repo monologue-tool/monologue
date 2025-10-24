@@ -3,6 +3,7 @@ class_name InspectableNode extends InspectableObject
 
 var _displayed_properies: Array = []  # Displayed properties are displayed by default in the GraphNode.
 var _exposed_properies: Array = []  # The exposed properties are displayed in the graph node and their values can be overwritten by connecting to their slot on the GraphNode.
+var graph_view: GraphNode
 
 
 func _init() -> void:
