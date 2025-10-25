@@ -11,6 +11,8 @@ var storyline_id: String
 func _ready() -> void:
 	super._ready()
 
+	connection_request.connect(_on_connection_request)
+
 
 func refresh() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
@@ -37,7 +39,7 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 	new_node.node_selected.connect(_on_node_view_selected.bind(node))
 	add_child(new_node)
-	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(new_node))
+	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(node))
 
 	node.graph_view = new_node
 	node.add_observer(self)
@@ -57,7 +59,7 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 	rows.append(
 		GraphNodeRow.new(
 			node.get_title(),
-			"next" if node.settings.get("continuous") else "",
+			"context" if node.settings.get("continuous") else "",
 			not node.settings.get("origin"),
 			node.settings.get("continuous")
 		)
@@ -70,9 +72,7 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		prop.get("exposed")
 
 		rows.append(
-			GraphNodeRow.new(
-				prop.name, "[%s]" % prop.type, prop.settings.get("exposed", false), false
-			)
+			GraphNodeRow.new(prop.name, prop.type, prop.settings.get("exposed", false), false)
 		)
 
 	for row: GraphNodeRow in rows:
@@ -87,30 +87,38 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 		key_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		key_label.text = row.get_key()
-		value_label.text = row.get_value()
+		value_label.text = "[%s]" % row.get_type()
+
+		var field_metadata: Dictionary = FieldBucket.get_metadata(row.get_type())
+		var slot_in_texture: Texture2D = preload("res://ui/assets/icons/slot_in.svg")
+		var slot_out_texture: Texture2D = preload("res://ui/assets/icons/slot_out.svg")
+
+		var slot_color: Color = field_metadata.get("color", Color.WHITE)
+		value_label.label_settings = LabelSettings.new()
+		value_label.label_settings.font_color = slot_color
 
 		# If is title row
 		if idx <= 0:
 			key_label.theme_type_variation = "GraphNodeViewTitleLabel"
-		else:
-			var separator: HSeparator = HSeparator.new()
-			graph_node.add_child(separator)
 		value_label.theme_type_variation = "GraphNodeViewValueLabel"
 
 		graph_node.add_child(hbox)
 
 		graph_node.set_slot(
-			hbox.get_index(),
+			idx,
 			row._enable_left_port,
 			0,
-			Color.WHITE,
+			slot_color,
 			row._enable_right_port,
 			0,
-			Color.WHITE,
-			null,
-			null,
+			slot_color,
+			slot_in_texture,
+			slot_out_texture,
 			true
 		)
+
+		graph_node.set_slot_custom_icon_left(idx, slot_in_texture)
+		graph_node.set_slot_custom_icon_right(idx, slot_out_texture)
 
 
 func _on_node_view_selected(node: InspectableNode) -> void:
@@ -125,6 +133,40 @@ func on_property_changed(
 	node: InspectableNode, pname: String, _old_value: Variant, _new_value: Variant
 ) -> void:
 	refresh_node(node)
+
+
+## Connects/disconnects and updates a given connection's NextID if possible.
+## If [param next] is true, establish connection and propagate NextIDs.
+## If it is false, destroy connection and clear all linked NextIDs.
+func propagate_connection(from_node: StringName, from_port, to_node, to_port, next = true) -> void:
+	if next:
+		connect_node(from_node, from_port, to_node, to_port)
+	else:
+		disconnect_node(from_node, from_port, to_node, to_port)
+
+	# TODO: Rework this
+
+	var graph_node = get_node_or_null(NodePath(from_node))
+	if graph_node and graph_node.has_method("update_next_id"):
+		if next:
+			var next_node = get_node_or_null(NodePath(to_node))
+			graph_node.update_next_id(from_port, next_node)
+		else:
+			graph_node.update_next_id(from_port, null)
+
+
+func _on_connection_request(from_node: StringName, from_port, to_node, to_port) -> void:
+	var stoyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var history: UndoRedo = stoyline.history
+
+	# so check to make sure there are no other connections before connecting
+	if get_all_connections_from_slot(from_node, from_port).size() <= 0:
+		var arguments = [from_node, from_port, to_node, to_port]
+		var message = "Connect %s port %d to %s port %d"
+		history.create_action(message % arguments)
+		history.add_do_method(propagate_connection.bindv(arguments))
+		history.add_undo_method(propagate_connection.bindv(arguments + [false]))
+		history.commit_action()
 
 
 func get_all_graph_nodes() -> Array:

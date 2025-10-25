@@ -22,25 +22,33 @@ func _ready():
 
 
 func _on_enable_picker_mode(
-	node: String = "", port: int = -1, mouse_pos = null, graph_release_pos = null, center_pos = null, center_window: bool = false
+	node: String = "",
+	port: int = -1,
+	mouse_pos = null,
+	graph_release_pos = null,
+	center_pos = null,
+	center_window: bool = false
 ):
-	if switcher.current.file_path:
-		from_node = node
-		from_port = port
-		release = mouse_pos
-		graph_release = graph_release_pos
-		center = center_pos
+	return
+	#if switcher.current.file_path:
+	#from_node = node
+	#from_port = port
+	#release = mouse_pos
+	#graph_release = graph_release_pos
+	#center = center_pos
 
-		if from_node != "":
-			position = Vector2i(release) + get_tree().get_root().position
-		else:
-			var mouse_position = Vector2i(get_parent().get_global_mouse_position())
-			position = get_tree().get_root().position + mouse_position
-		current_screen = get_tree().get_root().current_screen
-		show()
-		
-		if center_window:
-			move_to_center()
+
+#
+#if from_node != "":
+#position = Vector2i(release) + get_tree().get_root().position
+#else:
+#var mouse_position = Vector2i(get_parent().get_global_mouse_position())
+#position = get_tree().get_root().position + mouse_position
+#current_screen = get_tree().get_root().current_screen
+#show()
+#
+#if center_window:
+#move_to_center()
 
 
 func close() -> void:

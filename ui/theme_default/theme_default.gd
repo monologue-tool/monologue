@@ -652,7 +652,6 @@ func _generate_theme() -> void:
 	set_color("grid_minor", "GraphEdit", _get_text_color(contrast))
 	set_stylebox("panel", "GraphEdit", sb)
 
-	set_icon("port", "GraphNode", preload("res://ui/assets/icons/slot.svg"))
 	set_constant("separation", "GraphNode", base_spacing)
 	set_stylebox("panel", "GraphNode", graph_node_sb)
 	set_stylebox("panel_selected", "GraphNode", graph_node_selected_sb)
