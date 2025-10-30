@@ -59,6 +59,6 @@ func notify_change() -> void:
 	for observer: Object in _observers:
 		if not observer.has_method("on_storyline_change"):
 			push_warning("Object doesn't have method 'on_storyline_change'.")
-			return
+			continue
 
 		observer.call("on_storyline_change")
