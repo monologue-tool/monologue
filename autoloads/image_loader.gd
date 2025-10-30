@@ -1,16 +1,42 @@
+## Image loading and caching singleton.
+##
+## Provides efficient image loading with automatic caching and thumbnail generation.
+## Images are loaded once and stored in memory to avoid repeated disk access.
 extends Node
 
+## Internal cache storing loaded images and their thumbnails.
+## Keys are image file paths, values are dictionaries with "raw" and "thumbnail_128" entries.
 var _cache: Dictionary = {}
 
 
+## Loads and returns a thumbnail version of an image.
+##
+## Returns a cached 128px wide thumbnail if available, otherwise loads and caches it.
+## [br][br]
+## [param image_path] The file system path to the image file.
+## [br][br]
+## Returns an ImageTexture of the thumbnail, or an empty texture if loading fails.
 func load_thumbnail(image_path: String) -> ImageTexture:
 	return _get_thumbnail(image_path)
 
 
+## Loads and returns the full-size image.
+##
+## Returns a cached full-resolution image if available, otherwise loads and caches it.
+## [br][br]
+## [param image_path] The file system path to the image file.
+## [br][br]
+## Returns an ImageTexture of the image, or an empty texture if loading fails.
 func load_image(image_path: String) -> ImageTexture:
 	return _get_image(image_path)
 
 
+## Loads an image from disk and stores both full and thumbnail versions in cache.
+##
+## Creates a 128px wide thumbnail using cubic interpolation. If the image fails to load,
+## creates a placeholder 128x128 image instead.
+## [br][br]
+## [param image_path] The file system path to the image file.
 func _load_image_to_cache(image_path: String) -> void:
 	var dir_access: DirAccess = DirAccess.open("")
 	if not dir_access.file_exists(image_path):
@@ -31,6 +57,7 @@ func _load_image_to_cache(image_path: String) -> void:
 	_cache[image_path] = {"raw": tx, "thumbnail_128": thumbnail_tx}
 
 
+## Internal method to retrieve or load a thumbnail from cache.
 func _get_thumbnail(image_path: String) -> ImageTexture:
 	var tx: ImageTexture = ImageTexture.new()
 
@@ -44,6 +71,7 @@ func _get_thumbnail(image_path: String) -> ImageTexture:
 	return tx
 
 
+## Internal method to retrieve or load a full-size image from cache.
 func _get_image(image_path: String) -> ImageTexture:
 	var tx: ImageTexture = ImageTexture.new()
 
