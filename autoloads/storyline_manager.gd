@@ -14,7 +14,10 @@ func create_storyline(fname: String) -> StorylineDocument:
 
 
 func close_storyline(id: String) -> void:
-	if _documents.get(id).is_dirty:
+	var doc = _documents.get(id, null)
+	if doc == null:
+		return
+	if doc.is_dirty:
 		# Save changes ?
 		return
 	_documents.erase(id)
