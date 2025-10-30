@@ -24,8 +24,10 @@ func close_storyline(id: String) -> void:
 
 	if _active_document_id == id:
 		var remaining = _documents.keys()
-		_active_document_id = remaining[0]
-
+		if remaining.size() > 0:
+			_active_document_id = remaining[0]
+		else:
+			_active_document_id = null
 	notify_change()
 
 
