@@ -32,6 +32,12 @@ func _input(event):
 	if event.is_action_pressed("Save"):
 		save()
 
+	if event.is_action_pressed("ui_undo"):
+		StorylineManager.get_active_storyline().history.undo()
+
+	if event.is_action_pressed("ui_redo"):
+		StorylineManager.get_active_storyline().history.redo()
+
 
 func _to_dict() -> Dictionary:
 	var list_nodes: Array[Dictionary] = []

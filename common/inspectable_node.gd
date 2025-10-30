@@ -6,11 +6,11 @@ var _exposed_properies: Array = []  # The exposed properties are displayed in th
 var graph_view: GraphNode
 
 
-func _init() -> void:
+func _init(command_manager: CommandManager) -> void:
 	# `private` properties are not exposable.
 	# `protected` properties cannot be edited from the inspector.
 	define_property("id", IDGen.generate(), "text", {"private": true}, "Special:Header")
-	super._init()
+	super._init(command_manager)
 	define_property(
 		"position", Vector2.ZERO, "vector2", {"private": true, "protected": true}, "Extra"
 	)

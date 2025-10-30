@@ -1,34 +1,61 @@
 class_name StorylineDocument extends RefCounted
 
+signal content_changed
+signal undo_redo_changed
+
 var id: String = IDGen.generate()
 var name: String = ""
 var nodes: Array[InspectableNode] = []
-var is_dirty: bool = false
 var file_path: String = ""
-var history: UndoRedo = UndoRedo.new()
+var is_dirty: bool = false
+var history: CommandManager
 
 
 func _init(sname: String, sfile_path: String = "") -> void:
 	name = sname
 	file_path = sfile_path
 
-	var root_node: RootNode = RootNode.new()
+	history = CommandManager.new()
+
+	history.command_executed.connect(_on_command_executed)
+	history.undone.connect(_on_undo)
+	history.redone.connect(_on_redo)
+
+	var root_node: RootNode = RootNode.new(history)
 	nodes.append(root_node)
 
-	var sentence_node: SentenceNode = SentenceNode.new()
+	var sentence_node: SentenceNode = SentenceNode.new(history)
 	nodes.append(sentence_node)
 
 
 func add_node(node: InspectableNode) -> void:
-	node.add_observer(self)
+	node.add_observer(on_node_changed)
+
+
+func _on_command_executed():
+	is_dirty = true
+	content_changed.emit()
+	undo_redo_changed.emit()
+
+
+func _on_undo():
+	content_changed.emit()
+	undo_redo_changed.emit()
+
+
+func _on_redo():
+	is_dirty = true
+	content_changed.emit()
+	undo_redo_changed.emit()
+
+
+func save():
+	# TODO: Save logic
+	is_dirty = false
 
 
 # Called by InspectableNode
-func on_property_changed(
-	pnode: InspectableNode, pname: String, _old_value: Variant, _new_value: Variant
+func on_node_changed(
+	_pnode: InspectableNode, _pname: String, _old_value: Variant, _new_value: Variant
 ) -> void:
-	var node_id: String = pnode.get_property_value("id")
-	print("Property %s of node %s changed." % [pname, node_id])
-	#var action = history.create_action("Property %s changed of node %s" % [pname, pnode.get_property_value("id")], UndoRedo.MERGE_ENDS, )
-
 	is_dirty = true

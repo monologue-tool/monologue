@@ -42,7 +42,7 @@ func add_graph_node_view(node: InspectableNode) -> void:
 	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(node))
 
 	node.graph_view = new_node
-	node.add_observer(self)
+	node.add_observer(on_property_changed)
 
 
 func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode) -> void:
@@ -55,7 +55,6 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 	var properties: Array = node.get_properties()
 	var rows: Array = []
-	# => not node.settings.get("origin") <= not sure
 	rows.append(
 		GraphNodeRow.new(
 			node.get_title(),
@@ -69,11 +68,8 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		if prop.settings.get("private"):
 			continue
 
-		prop.get("exposed")
-
-		rows.append(
-			GraphNodeRow.new(prop.name, prop.type, prop.settings.get("exposed", false), false)
-		)
+		var exposed: bool = prop.get_settings_value("exposed", false) or false
+		rows.append(GraphNodeRow.new(prop.name, prop.type, exposed, false))
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)
@@ -129,9 +125,7 @@ func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
 	pass
 
 
-func on_property_changed(
-	node: InspectableNode, pname: String, _old_value: Variant, _new_value: Variant
-) -> void:
+func on_property_changed(node: InspectableNode, pname: String) -> void:
 	refresh_node(node)
 
 
@@ -155,18 +149,17 @@ func propagate_connection(from_node: StringName, from_port, to_node, to_port, ne
 			graph_node.update_next_id(from_port, null)
 
 
-func _on_connection_request(from_node: StringName, from_port, to_node, to_port) -> void:
-	var stoyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	var history: UndoRedo = stoyline.history
+func _on_connection_request(
+	from_node: StringName, from_port: int, to_node: StringName, to_port: int
+) -> void:
+	if get_all_connections_from_slot(from_node, from_port).size() >= 0:
+		return
 
-	# so check to make sure there are no other connections before connecting
-	if get_all_connections_from_slot(from_node, from_port).size() <= 0:
-		var arguments = [from_node, from_port, to_node, to_port]
-		var message = "Connect %s port %d to %s port %d"
-		history.create_action(message % arguments)
-		history.add_do_method(propagate_connection.bindv(arguments))
-		history.add_undo_method(propagate_connection.bindv(arguments + [false]))
-		history.commit_action()
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var command: NodeConnectionCommand = NodeConnectionCommand.new(
+		self, from_node, to_node, from_port, to_port
+	)
+	storyline.history.execute(command)
 
 
 func get_all_graph_nodes() -> Array:

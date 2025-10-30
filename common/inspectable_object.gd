@@ -1,14 +1,15 @@
 @abstract
 class_name InspectableObject extends RefCounted
 
-const NextRowValue: String = "[Node]"
-
 var _properties: Dictionary[String, Property] = {}
-var _observers: Array[Object] = []
+var _observers: Array[Callable] = []
+var _history: CommandManager
 var settings: Dictionary = {}
 
 
-func _init() -> void:
+func _init(command_manager: CommandManager = null) -> void:
+	_history = command_manager
+
 	initialize_properties()
 	_load_settings()
 
@@ -31,28 +32,20 @@ func define_property(
 	var property: Property = Property.new(pname, default_value, type, options)
 	_properties.set(pname, property)
 
-	property.add_observer(
-		func(opname: String, old_value: Variant, new_value: Variant) -> void:
-			_notify_change(opname, old_value, new_value)
-			_on_property_changed(opname, old_value, new_value)
-	)
+	property.changed.connect(_notify_change.bind())
 
 
-func add_observer(object: Object) -> void:
-	if object in _observers:
+func add_observer(callable: Callable) -> void:
+	if callable in _observers:
 		push_warning("Observer is already registered.")
 		return
 
-	_observers.append(object)
+	_observers.append(callable)
 
 
-func _notify_change(pname: String, old_value: Variant, new_value: Variant) -> void:
-	for observer: Object in _observers:
-		if not observer.has_method("on_property_changed"):
-			push_warning("Object doesn't have method 'on_property_changed'.")
-			return
-
-		observer.call("on_property_changed", self, pname, old_value, new_value)
+func _notify_change(pname: String) -> void:
+	for observer: Callable in _observers:
+		observer.call(self, pname)
 
 
 func get_properties() -> Array[Property]:
@@ -71,27 +64,34 @@ func get_property_value(pname: String) -> Variant:
 	return get_property(pname).get_value()
 
 
+func get_property_settings_value(pname: String, skey: String) -> Variant:
+	var property: Property = get_property(pname)
+	return property.settings.get(skey)
+
+
 func set_property_value(pname: String, pvalue: Variant) -> void:
 	if not _properties.has(pname):
 		return
 
 	var old_value: Variant = get_property_value(pname)
 
-	var property: Property = get_property(pname)
-	property.set_value(pvalue)
-	_notify_change(pname, old_value, pvalue)
+	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)
+	_history.execute(command)
+
+	#_notify_change(pname, old_value, pvalue)
+	_notify_change(pname)
 
 
 func set_property_settings_value(pname: String, skey: Variant, svalue: Variant) -> void:
 	if not _properties.has(pname):
 		return
 
-	var property: Property = get_property(pname)
-	property.settings[skey] = svalue
+	var old_value: Variant = get_property_settings_value(pname, skey)
 
-	# Maybe a bit hard-coded ?
-	var pvalue: Variant = get_property_value(pname)
-	_notify_change(pname, pvalue, pvalue)
+	var command: PropertySettingsChangeCommand = PropertySettingsChangeCommand.new(
+		self, pname, skey, old_value, svalue
+	)
+	_history.execute(command)
 
 
 func _to_dict() -> Dictionary:

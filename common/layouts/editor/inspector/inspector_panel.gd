@@ -10,7 +10,7 @@ var current_object: InspectableObject
 func inspect(object: InspectableObject) -> void:
 	current_object = object
 	rebuild()
-	object.add_observer(self)
+	object.add_observer(on_property_changed)
 
 
 func rebuild() -> void:
@@ -80,8 +80,8 @@ func _create_property_editor(property: Property) -> Control:
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)
 
-	p_expose_button.disabled = property.settings.get("private", false)
-	p_expose_button.button_pressed = property.settings.get("exposed", false)
+	p_expose_button.disabled = property.settings.get("private", false) or false
+	p_expose_button.button_pressed = property.settings.get("exposed", false) or false
 	p_expose_button.toggled.connect(
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
@@ -112,10 +112,5 @@ func _on_property_expose_state_changed(
 	node.set_property_settings_value(property_name, "exposed", toggled_on)
 
 
-func on_property_changed(
-	node: InspectableNode, property_name: String, _old_value: Variant, _new_value: Variant
-) -> void:
-	if _is_list_property(
-		node.get_properties().filter(func(p: Property): return p.name == property_name)[0]
-	):
-		rebuild()
+func on_property_changed(node: InspectableNode, property_name: String) -> void:
+	rebuild()
