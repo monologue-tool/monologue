@@ -1,6 +1,11 @@
 extends GdUnitTestSuite
 
 
+func test_get_title_type():
+	var node = auto_free(SentenceNode.new())
+	assert_str(node.get_title_type()).is_equal("context")
+
+
 func test_backwards_compatibility():
 	var node = auto_free(SentenceNode.new())
 	var ge = mock(MonologueGraphEdit, CALL_REAL_FUNC)

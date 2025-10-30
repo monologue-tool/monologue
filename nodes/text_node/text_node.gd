@@ -18,6 +18,10 @@ func get_title() -> String:
 	return "Text"
 
 
+func get_title_type() -> String:
+	return ""
+
+
 func get_icon() -> Texture2D:
 	return Texture2D.new()
 

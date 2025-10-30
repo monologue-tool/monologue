@@ -58,7 +58,7 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 	rows.append(
 		GraphNodeRow.new(
 			node.get_title(),
-			"context" if node.settings.get("continuous") else "",
+			node.get_title_type(),
 			not node.settings.get("origin"),
 			node.settings.get("continuous")
 		)

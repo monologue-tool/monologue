@@ -21,6 +21,10 @@ func get_title() -> String:
 	return "Sentence"
 
 
+func get_title_type() -> String:
+	return "context"
+
+
 func get_icon() -> Texture2D:
 	return Texture2D.new()
 
