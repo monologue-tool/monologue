@@ -1,20 +1,45 @@
+## Inspector panel for viewing and editing object properties.
+##
+## Displays all properties of an InspectableObject grouped by category.
+## Supports special categories like "Header" for placement in specific areas.
+## Properties can be exposed/hidden and edited through dynamically created fields.
 class_name InspectorPanel extends PanelContainer
 
+## Reference to the header container for special header properties.
 @onready var header_container: VBoxContainer = %Header
+
+## Reference to the main property fields container.
 @onready var property_container: VBoxContainer = %Fields
+
+## Scene for inspector category containers.
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
+
+## Scene for property expose toggle buttons.
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
+## The currently inspected object.
 var current_object: InspectableObject
+
+## Array of special field controls (e.g., header fields).
 var _special_fields: Array[Control] = []
 
 
+## Inspects an object and displays its properties.
+##
+## Rebuilds the inspector with the object's properties and registers
+## as an observer for property changes.
+## [br][br]
+## [param object] The InspectableObject to inspect.
 func inspect(object: InspectableObject) -> void:
 	current_object = object
 	rebuild()
 	object.add_observer(on_property_changed)
 
 
+## Rebuilds the inspector display with current object properties.
+##
+## Clears existing property editors and recreates them based on the
+## current object's properties, grouped by category.
 func rebuild() -> void:
 	for prop: Control in property_container.get_children():
 		prop.queue_free()
@@ -40,6 +65,11 @@ func rebuild() -> void:
 		_create_category_section(category_name, props)
 
 
+## Groups properties by their category setting.
+##
+## [param properties] Array of Property objects to group.
+## [br][br]
+## Returns a dictionary mapping category names to arrays of properties.
 func _group_by_category(properties: Array) -> Dictionary:
 	var groups: Dictionary = {}
 	for prop in properties:
@@ -53,6 +83,11 @@ func _group_by_category(properties: Array) -> Dictionary:
 	return groups
 
 
+## Creates a category section with property editors.
+##
+## [param category_name] The name of the category section.
+## [br][br]
+## [param properties] Array of properties to include in this category.
 func _create_category_section(category_name: String, properties: Array) -> void:
 	var container: FoldableContainer = inspector_category_container.instantiate()
 	container.title = category_name
@@ -63,6 +98,13 @@ func _create_category_section(category_name: String, properties: Array) -> void:
 		container.add_control(property_editor)
 
 
+## Handles special category sections like "Header".
+##
+## Places properties in specific containers based on the special category name.
+## [br][br]
+## [param category_name] The special category name (without "Special:" prefix).
+## [br][br]
+## [param properties] Array of properties for this special category.
 func _handle_special_category_section(category_name: String, properties: Array) -> void:
 	var container: Control
 
@@ -83,6 +125,14 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 		container.add_child(property_editor)
 
 
+## Creates an editor control for a property.
+##
+## Builds a property editor with label, expose button, and appropriate
+## input field based on the property type.
+## [br][br]
+## [param property] The Property to create an editor for.
+## [br][br]
+## Returns a Control containing the property editor.
 func _create_property_editor(property: Property) -> Control:
 	if _is_list_property(property):
 		pass  # TODO
@@ -138,16 +188,37 @@ func _create_property_editor(property: Property) -> Control:
 #pass
 
 
+## Checks if a property is a list type.
+##
+## [param property] The property to check.
+## [br][br]
+## Returns true if the property type is "list".
 func _is_list_property(property: Property) -> bool:
 	return property.type == "list"
 
 
+## Handles property expose state changes.
+##
+## Updates the property's exposed setting when the expose button is toggled.
+## [br][br]
+## [param toggled_on] Whether the expose button is now on.
+## [br][br]
+## [param node] The node containing the property.
+## [br][br]
+## [param property_name] The name of the property being toggled.
 func _on_property_expose_state_changed(
 	toggled_on: bool, node: InspectableNode, property_name: String
 ) -> void:
 	node.set_property_settings_value(property_name, "exposed", toggled_on)
 
 
+## Observer callback for property changes.
+##
+## Rebuilds the inspector when any property changes.
+## [br][br]
+## [param node] The node whose property changed.
+## [br][br]
+## [param property_name] The name of the changed property.
 func on_property_changed(node: InspectableNode, property_name: String) -> void:
 	print(property_name)
 	rebuild()
