@@ -1,24 +1,57 @@
+## Custom theme for the Monologue editor.
+##
+## Defines a comprehensive dark theme with consistent styling across all
+## UI controls. Includes colors, styleboxes, fonts, and constants for
+## buttons, panels, inputs, graphs, and more.
 @tool
 class_name MonologueTheme extends Theme
 
+## UI scale factor for high-DPI displays.
 var scale: float = 1.0
+
+## Whether to use dark theme colors.
 var dark_theme: bool = true
+
+## Contrast level for color variations.
 var contrast: float = 0.15
-# Colors
+
+# Color palette
+## Default text color.
 var text_color: Color = Color("e3e4eb")
+
+## Background color for the editor.
 var background_color: Color = Color(0.097, 0.097, 0.12, 1.0)
+
+## Primary UI element color.
 var primary_color: Color = Color("a9a8c0")
+
+## Secondary UI element color.
 var secondary_color: Color = Color("676278")
+
+## Accent color for highlights and selections.
 var accent_color: Color = Color("d15050")
+
+## Warning/error color.
 var warn_color: Color = Color("c42e40")
-# Constants
+
+# Layout constants
+## Base spacing unit in pixels.
 var base_spacing: int = 4
+
+## Corner radius for rounded UI elements.
 var corner_radius: int = 3
+
+## Opacity for graph relationship lines.
 var relationship_line_opacity: float = 0.2
+
+## Default border width.
 var border_width: int = 1
+
+## Base font size.
 var base_font_size: int = 14
 
 
+## Initializes the theme and generates all UI styles.
 func _init() -> void:
 	scale = 1.0
 	var _use_high_ppi: bool = scale >= 1.0
@@ -26,6 +59,10 @@ func _init() -> void:
 	_generate_theme()
 
 
+## Generates all theme styleboxes, colors, fonts, and constants.
+##
+## Creates a comprehensive theme by defining styles for all UI controls
+## including buttons, panels, inputs, graphs, and more.
 func _generate_theme() -> void:
 	# -----------------------
 	# Globals / base helpers
@@ -868,36 +905,61 @@ func _generate_theme() -> void:
 	set_stylebox("panel", "OuterPanel", sb)
 
 
-# -----------------------
-# Color helpers (kept as-is but commented)
-# -----------------------
+## Returns the primary color with specified alpha.
+##
+## [param alpha] The alpha/opacity value. Default is 1.0.
+## [br][br]
+## [param transparent] If true, uses transparency; if false, blends with background. Default is true.
 func _get_primary_color(alpha: float = 1.0, transparent: bool = true) -> Color:
-	# Primary color helper
 	return _get_color(primary_color, alpha, transparent)
 
 
+## Returns the secondary color with specified alpha.
+##
+## [param alpha] The alpha/opacity value. Default is 1.0.
+## [br][br]
+## [param transparent] If true, uses transparency; if false, blends with background. Default is true.
 func _get_secondary_color(alpha: float = 1.0, transparent: bool = true) -> Color:
-	# Secondary color helper
 	return _get_color(secondary_color, alpha, transparent)
 
 
+## Returns the text color with specified alpha.
+##
+## [param alpha] The alpha/opacity value. Default is 1.0.
+## [br][br]
+## [param transparent] If true, uses transparency; if false, blends with background. Default is true.
 func _get_text_color(alpha: float = 1.0, transparent: bool = true) -> Color:
 	return _get_color(text_color, alpha, transparent)
 
 
+## Returns a color with specified alpha, either transparent or blended.
+##
+## [param color] The base color to modify.
+## [br][br]
+## [param alpha] The alpha/opacity value. Default is 1.0.
+## [br][br]
+## [param transparent] If true, uses transparency; if false, blends with blend_with. Default is true.
+## [br][br]
+## [param blend_with] The color to blend with when transparent is false. Default is background_color.
 func _get_color(
 	color: Color, alpha: float = 1.0, transparent: bool = true, blend_with: Color = background_color
 ) -> Color:
-	# If transparent flag is true, return the color with its alpha.
-	# Otherwise blend it with `blend_with` to get an opaque-looking result.
 	if transparent:
 		return Color(color, alpha)
 	return Color(blend_with).blend(Color(color, alpha))
 
 
-# -----------------------
-# Shorthand content margin setter
-# -----------------------
+## Sets content margins on a StyleBox.
+##
+## [param sb] The StyleBox to modify.
+## [br][br]
+## [param left] Left margin value.
+## [br][br]
+## [param top] Top margin value.
+## [br][br]
+## [param right] Right margin value (defaults to left if not specified).
+## [br][br]
+## [param bottom] Bottom margin value (defaults to top if not specified).
 func _set_margin(
 	sb: StyleBox, left: float, top: float, right: float = left, bottom: float = top
 ) -> void:
@@ -907,9 +969,15 @@ func _set_margin(
 	sb.content_margin_bottom = bottom * scale
 
 
-# -----------------------
-# Shorthand border setter
-# -----------------------
+## Sets border properties on a StyleBoxFlat.
+##
+## [param sb] The StyleBoxFlat to modify.
+## [br][br]
+## [param color] The border color.
+## [br][br]
+## [param width] The border width. Default is 1.
+## [br][br]
+## [param blend] Whether to blend the border. Default is false.
 func _set_border(sb: StyleBoxFlat, color: Color, width: float = 1, blend: bool = false) -> void:
 	sb.border_color = color
 	sb.border_blend = blend

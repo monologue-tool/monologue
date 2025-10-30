@@ -1,8 +1,16 @@
+## Main menu bar for the Monologue editor.
+##
+## Creates and manages the application menu with File, Edit, View, Node,
+## and Help submenus. Handles menu item actions and keyboard shortcuts.
 extends MenuButton
 
+## Preloaded search icon for the search menu item.
 @onready var search_icon = preload("res://ui/assets/icons/search.svg")
 
 
+## Initializes the menu structure and items.
+##
+## Creates all menu items, submenus, shortcuts, and connects signals.
 func _ready() -> void:
 	var popup: PopupMenu = get_popup()
 	popup.transparent = true
@@ -58,6 +66,9 @@ func _ready() -> void:
 	popup.set_item_shortcut(7, create_shortcut("Exit"))
 
 
+## Creates a new transparent popup menu.
+##
+## Returns a PopupMenu configured with transparent background.
 func create_popup_menu() -> PopupMenu:
 	var popup: PopupMenu = PopupMenu.new()
 	popup.transparent = true
@@ -65,6 +76,11 @@ func create_popup_menu() -> PopupMenu:
 	return popup
 
 
+## Creates a keyboard shortcut from an action name.
+##
+## [param action_name] The name of the input action to create a shortcut for.
+## [br][br]
+## Returns a Shortcut configured for the specified action.
 func create_shortcut(action_name: StringName) -> Shortcut:
 	var _shortcut := Shortcut.new()
 	var inputevent := InputEventAction.new()
@@ -73,6 +89,9 @@ func create_shortcut(action_name: StringName) -> Shortcut:
 	return _shortcut
 
 
+## Adjusts popup position when about to show.
+##
+## Positions the popup menu correctly relative to the window.
 func _on_about_to_popup() -> void:
 	var popup: PopupMenu = get_popup()
 	await get_tree().process_frame
