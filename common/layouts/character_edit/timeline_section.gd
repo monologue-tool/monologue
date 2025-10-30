@@ -1,3 +1,6 @@
+## Timeline section for editing character portrait animations.
+##
+## Extends PortraitEditSection to provide timeline-based portrait animation editing.
 class_name TimelineSection extends PortraitEditSection
 
 @warning_ignore("unused_signal")

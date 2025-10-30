@@ -1,5 +1,10 @@
+## Character editor for managing character properties and portraits.
+##
+## Provides a comprehensive interface for editing character details including
+## names, portraits, and other character-specific properties.
 class_name CharacterEdit extends CharacterEditSection
 
+## Property for managing character nicknames.
 var nicknames := OldProperty.new(Field.LINE)
 var display_name := OldProperty.new(Field.LINE)
 var description := OldProperty.new(Field.TEXT)

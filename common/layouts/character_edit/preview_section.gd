@@ -1,5 +1,9 @@
+## Preview section for character portraits in the character editor.
+##
+## Displays a preview of the selected character portrait with rendering options.
 extends VBoxContainer
 
+## Reference to the sprite displaying the preview texture.
 @onready var preview_texture: Sprite2D = %ViewportSprite
 @onready var preview_anim: Node2D = %ASContainer
 @onready var preview_camera: Camera2D = %ViewportCamera
