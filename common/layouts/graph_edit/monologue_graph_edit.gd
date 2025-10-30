@@ -69,10 +69,11 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 			continue
 
 		var exposed: bool = prop.get_settings_value("exposed", false) or false
-		if not prop.settings.get("display") and not exposed:
+		var export: bool = prop.get_settings_value("export", false) or false
+		if not prop.settings.get("display") and not exposed and not export:
 			continue
 
-		rows.append(GraphNodeRow.new(prop.name, prop.type, exposed, false))
+		rows.append(GraphNodeRow.new(prop.name, prop.type, exposed, export))
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)
@@ -86,9 +87,11 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 		key_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		key_label.text = row.get_key()
-		value_label.text = "[%s]" % row.get_type()
+		if row.get_type():
+			value_label.text = "[%s]" % row.get_type()
 
 		var field_metadata: Dictionary = FieldBucket.get_metadata(row.get_type())
+		var type_id: int = FieldBucket.get_type_id(row.get_type())
 		var slot_in_texture: Texture2D = preload("res://ui/assets/icons/slot_in.svg")
 		var slot_out_texture: Texture2D = preload("res://ui/assets/icons/slot_out.svg")
 
@@ -106,10 +109,10 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		graph_node.set_slot(
 			idx,
 			row._enable_left_port,
-			0,
+			type_id,
 			slot_color,
 			row._enable_right_port,
-			0,
+			type_id,
 			slot_color,
 			slot_in_texture,
 			slot_out_texture,
@@ -157,7 +160,15 @@ func propagate_connection(from_node: StringName, from_port, to_node, to_port, ne
 func _on_connection_request(
 	from_node: StringName, from_port: int, to_node: StringName, to_port: int
 ) -> void:
-	if get_all_connections_from_slot(from_node, from_port).size() >= 0:
+	if get_all_connections_from_slot(from_node, from_port).size() > 0:
+		return
+
+	var from_graph_node: GraphNode = get_node(from_node as String)
+	var to_graph_node: GraphNode = get_node(to_node as String)
+	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
+	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
+
+	if from_port_type != to_port_type:
 		return
 
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)

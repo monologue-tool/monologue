@@ -27,6 +27,9 @@ func _init(sname: String, sfile_path: String = "") -> void:
 	var sentence_node: SentenceNode = SentenceNode.new(history)
 	nodes.append(sentence_node)
 
+	var text_node: TextNode = TextNode.new(history)
+	nodes.append(text_node)
+
 
 func add_node(node: InspectableNode) -> void:
 	node.add_observer(on_node_changed)

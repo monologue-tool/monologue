@@ -1,10 +1,12 @@
 class_name InspectorPanel extends PanelContainer
 
+@onready var header_container: VBoxContainer = %Header
 @onready var property_container: VBoxContainer = %Fields
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
 var current_object: InspectableObject
+var _special_fields: Array[Control] = []
 
 
 func inspect(object: InspectableObject) -> void:
@@ -17,6 +19,10 @@ func rebuild() -> void:
 	for prop: Control in property_container.get_children():
 		prop.queue_free()
 
+	for field: Control in _special_fields:
+		field.queue_free()
+	_special_fields.clear()
+
 	if !current_object:
 		var label: Label = Label.new()
 		label.text = "No node selected"
@@ -26,13 +32,18 @@ func rebuild() -> void:
 	var categories: Dictionary = _group_by_category(properties)
 	for category_name: String in categories.keys():
 		var props = categories[category_name]
+
+		if category_name.begins_with("Special"):
+			var special_category: String = category_name.trim_prefix("Special:")
+			_handle_special_category_section(special_category, props)
+			continue
 		_create_category_section(category_name, props)
 
 
 func _group_by_category(properties: Array) -> Dictionary:
 	var groups: Dictionary = {}
 	for prop in properties:
-		var category = "General"
+		var category: String = "General"
 		if prop.settings.has("category"):
 			category = prop.settings.category
 
@@ -43,13 +54,33 @@ func _group_by_category(properties: Array) -> Dictionary:
 
 
 func _create_category_section(category_name: String, properties: Array) -> void:
-	var container: Control = inspector_category_container.instantiate()
+	var container: FoldableContainer = inspector_category_container.instantiate()
 	container.title = category_name
 	property_container.add_child(container)
 
 	for property: Property in properties:
 		var property_editor: Control = _create_property_editor(property)
 		container.add_control(property_editor)
+
+
+func _handle_special_category_section(category_name: String, properties: Array) -> void:
+	var container: Control
+
+	match category_name:
+		"Header":
+			container = header_container
+
+	for property: Property in properties:
+		var index: int = properties.find(property)
+		var property_editor: Control = _create_property_editor(property)
+		_special_fields.append(property_editor)
+
+		if container.get_child_count() >= index:
+			var sub_container: Control = container.get_child(index - 1)
+			sub_container.add_child(property_editor)
+			sub_container.move_child(property_editor, 0)
+			continue
+		container.add_child(property_editor)
 
 
 func _create_property_editor(property: Property) -> Control:
@@ -69,9 +100,13 @@ func _create_property_editor(property: Property) -> Control:
 	p_hbox.add_child(p_label)
 	p_vbox.add_child(p_hbox)
 
+	if property.settings.get("flat"):
+		p_hbox.hide()
+
 	var p_field: Control
 	if p_field_scene:
 		p_field = p_field_scene.instantiate()
+
 	else:
 		p_field = Label.new()
 		p_field.theme_type_variation = "WarnLabel"
@@ -79,6 +114,7 @@ func _create_property_editor(property: Property) -> Control:
 
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)
+	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	p_expose_button.disabled = property.settings.get("private", false) or false
 	p_expose_button.button_pressed = property.settings.get("exposed", false) or false
@@ -113,4 +149,5 @@ func _on_property_expose_state_changed(
 
 
 func on_property_changed(node: InspectableNode, property_name: String) -> void:
+	print(property_name)
 	rebuild()

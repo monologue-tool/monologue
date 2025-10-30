@@ -22,25 +22,30 @@ func _search_fields() -> void:
 			var script_path: String = dir_path.path_join(file)
 			var script: MonologueIndexer = load(script_path).new()
 
-			var fdata: Dictionary = script.call("get_metadata")
-			var fname: String = fdata.get("name")
+			var fmeta: Dictionary = script.call("get_metadata")
+			var fname: String = fmeta.get("name")
+			var fdata: Dictionary = {"indexer": script, "type": _bucket.size()}
 
-			_bucket.set(fname, script)
+			_bucket.set(fname, fdata)
 
 
-func get_field_indexer(field_name: String) -> RefCounted:
-	return _bucket.get(field_name)
+func _get_field_data(field_name: String) -> Dictionary:
+	return _bucket.get(field_name, {})
 
 
 func get_scene(field_name: String) -> PackedScene:
-	var indexer: RefCounted = get_field_indexer(field_name)
+	var indexer: RefCounted = _get_field_data(field_name).get("indexer")
 	if indexer:
 		return indexer.call("get_scene")
 	return null
 
 
 func get_metadata(field_name: String) -> Dictionary:
-	var indexer: RefCounted = get_field_indexer(field_name)
+	var indexer: RefCounted = _get_field_data(field_name).get("indexer")
 	if indexer:
 		return indexer.call("get_metadata")
 	return {}
+
+
+func get_type_id(field_name: String) -> int:
+	return _get_field_data(field_name).get("type", -1)

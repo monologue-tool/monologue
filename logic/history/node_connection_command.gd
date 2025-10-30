@@ -22,7 +22,6 @@ func _init(
 
 
 func execute() -> void:
-	# TODO: Maybe use `propagate_connection`
 	graph_view.connect_node(from_node, from_port, to_node, to_port)
 
 

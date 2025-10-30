@@ -1,5 +1,9 @@
 [gd_scene format=3 uid="uid://be0xxn5gocqjo"]
 
-[node name="LineEdit" type="LineEdit"]
-offset_right = 76.5625
+[node name="VBoxContainer" type="VBoxContainer"]
+offset_right = 76.0
 offset_bottom = 29.0
+size_flags_horizontal = 3
+
+[node name="LineEdit" type="LineEdit" parent="."]
+layout_mode = 2

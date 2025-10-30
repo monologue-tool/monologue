@@ -14,23 +14,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBox" type="VBoxContainer" parent="VBox"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="VBox/VBox"]
-visible = false
-layout_mode = 2
-theme_type_variation = &"HeaderSmall"
-text = "Inspector"
-horizontal_alignment = 1
-
-[node name="TopBox" type="HBoxContainer" parent="VBox/VBox"]
+[node name="Header" type="VBoxContainer" parent="VBox"]
 unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FirstField" type="HBoxContainer" parent="VBox/Header"]
 layout_mode = 2
 theme_type_variation = &"HBoxContainer_Small"
 alignment = 2
 
-[node name="RFHButton" type="Button" parent="VBox/VBox/TopBox"]
+[node name="RFHButton" type="Button" parent="VBox/Header/FirstField"]
 custom_minimum_size = Vector2(34, 29)
 layout_mode = 2
 icon = ExtResource("2_34x8o")
@@ -54,4 +47,4 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[connection signal="pressed" from="VBox/VBox/TopBox/RFHButton" to="." method="_on_rfh_button_pressed"]
+[connection signal="pressed" from="VBox/Header/FirstField/RFHButton" to="." method="_on_rfh_button_pressed"]

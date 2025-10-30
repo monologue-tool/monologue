@@ -27,7 +27,7 @@ func close_storyline(id: String) -> void:
 		if remaining.size() > 0:
 			_active_document_id = remaining[0]
 		else:
-			_active_document_id = null
+			_active_document_id = ""
 	notify_change()
 
 

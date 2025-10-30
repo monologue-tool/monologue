@@ -32,6 +32,7 @@ func define_property(
 	default_settings["exposed"] = false
 	default_settings["private"] = false
 	default_settings["protected"] = false
+	default_settings["export"] = false
 
 	psettings["category"] = category
 	psettings.merge(default_settings)
