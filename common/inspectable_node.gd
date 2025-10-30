@@ -34,6 +34,7 @@ func define_property(
 
 
 @abstract func get_type() -> String
+@abstract func setup_main_property() -> void
 
 @abstract func get_color() -> Color
 @abstract func get_icon() -> Texture2D

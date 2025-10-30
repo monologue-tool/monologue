@@ -3,7 +3,12 @@ class_name RootNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	define_property("title", "Root", "context", {}, "General", true)
+	setup_main_property()
+
+
+func setup_main_property() -> void:
+	# Main property is not editable for RootNode
+	define_property("title", "Root", "context", {"protected": true}, "General", true)
 
 
 func get_type() -> String:

@@ -3,8 +3,13 @@ class_name TextNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	define_property("title", "Text", "text", {}, "General", true)
+	setup_main_property()
 	define_property("text", "", "text", {"export": true})
+
+
+func setup_main_property() -> void:
+	# Main property is editable for TextNode
+	define_property("title", "Text", "text", {}, "General", true)
 
 
 func get_type() -> String:
