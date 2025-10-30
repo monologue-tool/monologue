@@ -1,22 +1,13 @@
-## A checkered background pattern for displaying alpha transparency.
-##
-## Creates a gray checkered pattern commonly used to visualize transparent
-## areas in images, similar to image editing software.
 extends ColorRect
 
-## Scale factor for the checkered square size.
 @export var square_scale: float = 1.0
 
 
-## Initializes the alpha background and connects to resize events.
 func _ready() -> void:
 	resized.connect(queue_redraw)
 	queue_redraw()
 
 
-## Draws the checkered pattern.
-##
-## Creates alternating light and dark gray squares to represent transparency.
 func _draw() -> void:
 	var square_size: float = 5.0 * square_scale
 

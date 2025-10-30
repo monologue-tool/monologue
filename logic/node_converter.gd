@@ -1,9 +1,7 @@
-## Converts v2.x node data into v3.x node data for loading old projects.
+## Converts v2.x dialogue node format to v3.x for backwards compatibility
 class_name NodeConverter extends RefCounted
 
 
-## Reads raw node data and returns a node instance of the new type.
-## Returns the original dictionary if nothing to convert.
 func convert_node(node_dict: Dictionary) -> Dictionary:
 	match node_dict.get("$type"):
 		"NodeAction":

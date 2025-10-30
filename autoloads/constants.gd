@@ -1,6 +1,6 @@
 extends Node
 
-## Dictionary of Monologue node types and their corresponding scenes.
+# All node scenes currently commented out - loaded dynamically instead
 const NODE_SCENES = {
 #"Root": preload("res://nodes/root_node/root_node.tscn"),
 #"Audio": preload("res://nodes/audio_node/audio_node.tscn"),

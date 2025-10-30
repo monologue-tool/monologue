@@ -1,41 +1,21 @@
-## Text box display for dialogue playback.
-##
-## Manages dialogue text display with auto-scrolling and typing effects.
-## Displays speaker names and dialogue text progressively.
 extends VBoxContainer
 
-## Reference to the scroll container holding text boxes.
 @onready var scroll_container = %ScrollContainer
-
-## Reference to the vertical scrollbar for auto-scroll.
 @onready var scroll_bar: ScrollBar = scroll_container.get_v_scroll_bar()
 
-## Preloaded text box scene for dialogue lines.
 @onready var text_box = preload("res://scenes/run/common/text_box/text_box.tscn")
 
-## Currently active text box for displaying text.
 var current_text_box: RichTextLabel
 
-## Current dialogue text being displayed.
 var text = ""
-
-## Speaker name to display.
 var speaker_display = ""
-
-## Speed of text typing effect.
 var text_speed = 5
-
-## Whether text display is complete.
 var complete: bool = false
-
-## Whether to display text.
 var _display: bool = false
 
-## Tick counter for text typing animation.
 var tick = 0
 
 
-## Initializes the text box and connects signals.
 func _ready():
 	scroll_bar.connect("changed", handle_scrollbar_changed)
 	reset()

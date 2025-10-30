@@ -1,9 +1,8 @@
+## Main application singleton handling window scaling and preferences
 extends Node
 
-# Reference DPI for a 23.8" 1920x1080 display
-const BASE_SCALE_DPI: float = 92.56
+const BASE_SCALE_DPI: float = 92.56  # Reference for 23.8" 1920x1080 display
 
-# Application preferences config
 var preferences: ConfigFile = ConfigFile.new()
 
 

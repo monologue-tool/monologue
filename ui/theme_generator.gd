@@ -1,19 +1,10 @@
-## Editor script for generating and saving the Monologue theme.
-##
-## This tool script generates the MonologueTheme and saves it to disk.
-## It also updates the existing theme instance in memory to avoid requiring
-## an editor restart to see theme changes.
+## Editor script to generate and save the Monologue theme
 @tool
 extends EditorScript
 
-## Path where the generated theme will be saved.
 var _save_path: String = "res://ui/theme_default/main.tres"
 
 
-## Runs the theme generation process.
-##
-## Creates a new MonologueTheme, updates any existing cached instance,
-## and saves it to disk.
 func _run() -> void:
 	var theme := MonologueTheme.new()
 	_update_existing_theme_instance(theme)
@@ -21,13 +12,7 @@ func _run() -> void:
 	print("Theme generated!")
 
 
-## Updates the existing theme instance in memory with the new theme.
-##
-## When the editor uses a theme file, it loads it into memory. This method
-## fetches the cached resource and updates it in-place to reflect changes
-## without requiring an editor restart.
-## [br][br]
-## [param new_theme] The newly generated theme to apply.
+## Updates the cached theme resource in memory to avoid needing editor restart
 func _update_existing_theme_instance(new_theme: Theme):
 	# When the editor uses the generated theme file, it loads the resource into
 	# memory. This means that when the new theme is saved, the existing one in

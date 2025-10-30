@@ -1,10 +1,5 @@
-## History command for deleting a language (old history system).
-##
-## Extends AddLanguageHistory to provide undo/redo for language deletion.
-## Part of the legacy history system.
 class_name DeleteLanguageHistory extends AddLanguageHistory
 
-## Dictionary storing restoration data for undoing the deletion.
 var restoration: Dictionary = {}
 var choices: Dictionary = {}
 

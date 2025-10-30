@@ -1,6 +1,3 @@
-## Settings section for configuring portrait display options.
-##
-## Extends PortraitEditSection to provide configuration options for portrait rendering.
 class_name PortraitSettingsSection extends PortraitEditSection
 
 @warning_ignore("unused_signal")
