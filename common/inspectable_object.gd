@@ -24,12 +24,19 @@ func define_property(
 	pname: String,
 	default_value: Variant,
 	type: String,
-	options: Dictionary = {},
+	psettings: Dictionary = {},
 	category: String = "General"
 ) -> void:
-	options["category"] = category
+	var default_settings: Dictionary = {}
+	default_settings["display"] = true
+	default_settings["exposed"] = false
+	default_settings["private"] = false
+	default_settings["protected"] = false
 
-	var property: Property = Property.new(pname, default_value, type, options)
+	psettings["category"] = category
+	psettings.merge(default_settings)
+
+	var property: Property = Property.new(pname, default_value, type, psettings)
 	_properties.set(pname, property)
 
 	property.changed.connect(_notify_change.bind())

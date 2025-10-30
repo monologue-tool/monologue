@@ -69,6 +69,9 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 			continue
 
 		var exposed: bool = prop.get_settings_value("exposed", false) or false
+		if not prop.settings.get("display") and not exposed:
+			continue
+
 		rows.append(GraphNodeRow.new(prop.name, prop.type, exposed, false))
 
 	for row: GraphNodeRow in rows:
@@ -116,6 +119,8 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		graph_node.set_slot_custom_icon_left(idx, slot_in_texture)
 		graph_node.set_slot_custom_icon_right(idx, slot_out_texture)
 
+	graph_node.set_size(Vector2.ZERO)
+
 
 func _on_node_view_selected(node: InspectableNode) -> void:
 	node_view_selected.emit(node)
@@ -125,7 +130,7 @@ func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
 	pass
 
 
-func on_property_changed(node: InspectableNode, pname: String) -> void:
+func on_property_changed(node: InspectableNode, _pname: String) -> void:
 	refresh_node(node)
 
 

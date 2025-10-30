@@ -7,6 +7,7 @@ var graph_view: GraphNode
 
 
 func _init(command_manager: CommandManager) -> void:
+	# `display` properties are not displayed by default in the node view.
 	# `private` properties are not exposable.
 	# `protected` properties cannot be edited from the inspector.
 	define_property("id", IDGen.generate(), "text", {"private": true}, "Special:Header")

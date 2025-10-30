@@ -6,7 +6,7 @@ func initialize_properties() -> void:
 	define_property("speaker", "", "dropdown")
 	define_property("display_name", "", "text")
 	define_property("sentence", "", "text")
-	define_property("voiceline", "", "file")
+	define_property("voiceline", "", "file", {"display": false})
 
 
 func get_type() -> String:
