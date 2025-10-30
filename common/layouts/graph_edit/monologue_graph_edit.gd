@@ -55,14 +55,6 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 	var properties: Array = node.get_properties()
 	var rows: Array = []
-	rows.append(
-		GraphNodeRow.new(
-			node.get_title(),
-			node.get_title_type(),
-			not node.settings.get("origin"),
-			node.settings.get("continuous")
-		)
-	)
 
 	for prop: Property in properties:
 		if prop.settings.get("private"):
@@ -70,10 +62,19 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 		var exposed: bool = prop.get_settings_value("exposed", false) or false
 		var export: bool = prop.get_settings_value("export", false) or false
-		if not prop.settings.get("display") and not exposed and not export:
+		var display: bool = prop.settings.get("display", false)
+		
+		if not display and not exposed and not export:
 			continue
 
-		rows.append(GraphNodeRow.new(prop.name, prop.type, exposed, export))
+		# For the title property (first displayed property), use node settings for ports
+		var enable_left: bool = exposed
+		var enable_right: bool = export
+		if prop.name == "title":
+			enable_left = not node.settings.get("origin")
+			enable_right = node.settings.get("continuous")
+
+		rows.append(GraphNodeRow.new(prop.get_value(), prop.type, enable_left, enable_right))
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)

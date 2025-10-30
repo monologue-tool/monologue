@@ -3,7 +3,7 @@ class_name RootNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	pass
+	define_property("title", "Root", "context", {}, "General", true)
 
 
 func get_type() -> String:
@@ -12,14 +12,6 @@ func get_type() -> String:
 
 func get_settings() -> Dictionary:
 	return {"origin": true, "continuous": true}
-
-
-func get_title() -> String:
-	return "Root"
-
-
-func get_title_type() -> String:
-	return "context"
 
 
 func get_icon() -> Texture2D:

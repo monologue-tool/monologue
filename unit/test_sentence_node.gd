@@ -1,9 +1,11 @@
 extends GdUnitTestSuite
 
 
-func test_get_title_type():
+func test_title_property():
 	var node = auto_free(SentenceNode.new())
-	assert_str(node.get_title_type()).is_equal("context")
+	var title_prop = node.get_property("title")
+	assert_str(title_prop.get_value()).is_equal("Sentence")
+	assert_str(title_prop.type).is_equal("context")
 
 
 func test_backwards_compatibility():

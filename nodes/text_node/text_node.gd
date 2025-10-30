@@ -3,6 +3,7 @@ class_name TextNode extends InspectableNode
 
 
 func initialize_properties() -> void:
+	define_property("title", "Text", "text", {}, "General", true)
 	define_property("text", "", "text", {"export": true})
 
 
@@ -12,14 +13,6 @@ func get_type() -> String:
 
 func get_settings() -> Dictionary:
 	return {"origin": true}
-
-
-func get_title() -> String:
-	return "Text"
-
-
-func get_title_type() -> String:
-	return ""
 
 
 func get_icon() -> Texture2D:
