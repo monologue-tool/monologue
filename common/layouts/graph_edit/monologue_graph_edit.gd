@@ -198,31 +198,19 @@ func get_all_graph_nodes() -> Array:
 	return get_children().filter(func(child) -> bool: return child is GraphNode)
 
 
-## Get the port index for a specific property by name
-## This allows connections to be maintained even when ports are reordered
-func get_port_index_for_property(node_id: String, property_name: String) -> int:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	var node: InspectableNode = null
-	
-	# Find the node by ID
-	for n: InspectableNode in storyline.nodes:
-		if n.get_property_value("id") == node_id:
-			node = n
-			break
-	
-	if not node:
-		return -1
-	
-	var properties = node.get_properties()
+## Get visible properties in the same order as displayed in graph
+func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 	var visible_props: Array[Property] = []
+	var properties = node.get_properties()
 	
-	# Build list of visible properties in graph (matching graph display logic)
 	for prop: Property in properties:
 		if not prop.settings.get("visible_in_graph", true):
 			continue
-		var has_input = prop.settings.get("has_input_port", false)
-		var has_output = prop.settings.get("has_output_port", false)
-		if not has_input and not has_output:
+		var exposed = prop.get_settings_value("exposed", false) or false
+		var export = prop.get_settings_value("export", false) or false
+		
+		# Skip if no ports
+		if not exposed and not export:
 			continue
 		
 		# Main property goes first
@@ -231,10 +219,23 @@ func get_port_index_for_property(node_id: String, property_name: String) -> int:
 		else:
 			visible_props.append(prop)
 	
-	# Find the property by name and return its index
-	for i in range(visible_props.size()):
-		if visible_props[i].name == property_name:
-			return i
+	return visible_props
+
+
+## Get the port index for a specific property by name
+func get_port_index_for_property(node_id: String, property_name: String) -> int:
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	
+	# Find the node by ID
+	for node: InspectableNode in storyline.nodes:
+		if node.get_property_value("id") == node_id:
+			var visible_props = _get_visible_properties(node)
+			
+			# Find the property by name and return its index
+			for i in range(visible_props.size()):
+				if visible_props[i].name == property_name:
+					return i
+			break
 	
 	return -1
 
@@ -242,36 +243,14 @@ func get_port_index_for_property(node_id: String, property_name: String) -> int:
 ## Get property name at a specific port index
 func get_property_name_at_port(node_id: String, port_index: int) -> String:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	var node: InspectableNode = null
 	
 	# Find the node by ID
-	for n: InspectableNode in storyline.nodes:
-		if n.get_property_value("id") == node_id:
-			node = n
+	for node: InspectableNode in storyline.nodes:
+		if node.get_property_value("id") == node_id:
+			var visible_props = _get_visible_properties(node)
+			
+			if port_index >= 0 and port_index < visible_props.size():
+				return visible_props[port_index].name
 			break
-	
-	if not node:
-		return ""
-	
-	var properties = node.get_properties()
-	var visible_props: Array[Property] = []
-	
-	# Build list of visible properties in graph (matching graph display logic)
-	for prop: Property in properties:
-		if not prop.settings.get("visible_in_graph", true):
-			continue
-		var has_input = prop.settings.get("has_input_port", false)
-		var has_output = prop.settings.get("has_output_port", false)
-		if not has_input and not has_output:
-			continue
-		
-		# Main property goes first
-		if prop.settings.get("is_main_property"):
-			visible_props.push_front(prop)
-		else:
-			visible_props.append(prop)
-	
-	if port_index >= 0 and port_index < visible_props.size():
-		return visible_props[port_index].name
 	
 	return ""
