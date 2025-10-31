@@ -18,8 +18,8 @@ var connected_to: Array[Dictionary] = []  # [{node_id: String, property_name: St
 ## - visible_in_graph: Whether property shows as a row in graph node view
 ## - visible_in_inspector: Whether property shows in inspector panel
 ## - editable: Whether property value can be edited (enforced in inspector)
-## - has_input_port: Whether property has input port (left side) for receiving connections
-## - has_output_port: Whether property has output port (right side) for sending connections
+## - exposed: Whether property has input port (left side) for receiving connections
+## - export: Whether property has output port (right side) for sending connections
 ## - is_main_property: Whether this is the main connectable property of the node
 
 
@@ -54,7 +54,7 @@ func get_category() -> String:
 	return settings.get("category", "General")
 
 
-func is_connected() -> bool:
+func is_port_connected() -> bool:
 	return connected_from.size() > 0 or connected_to.size() > 0
 
 

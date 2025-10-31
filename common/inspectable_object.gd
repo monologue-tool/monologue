@@ -8,6 +8,8 @@ var settings: Dictionary = {}
 
 
 func _init(command_manager: CommandManager = null) -> void:
+	if not command_manager:
+		push_warning("InspectableObject does not have a command manager.")
 	_history = command_manager
 
 	initialize_properties()
@@ -31,8 +33,9 @@ func define_property(
 	default_settings["visible_in_graph"] = true
 	default_settings["visible_in_inspector"] = true
 	default_settings["editable"] = true
-	default_settings["has_input_port"] = false
-	default_settings["has_output_port"] = false
+	default_settings["exposable"] = true
+	default_settings["exposed"] = false
+	default_settings["export"] = false
 
 	psettings["category"] = category
 	psettings.merge(default_settings)

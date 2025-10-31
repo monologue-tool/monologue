@@ -59,15 +59,8 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		if not prop.settings.get("visible_in_graph", true):
 			continue
 
-		var has_input: bool = prop.get_settings_value("has_input_port", false) or false
-		var has_output: bool = prop.get_settings_value("has_output_port", false) or false
-
-		# Show property if it has ports or is explicitly visible
-		if not has_input and not has_output:
-			continue
-
-		var enable_left: bool = has_input
-		var enable_right: bool = has_output
+		var enable_left: bool = prop.get_settings_value("exposed", false) or false
+		var enable_right: bool = prop.get_settings_value("export", false) or false
 		if prop.settings.get("is_main_property"):
 			rows.push_front(
 				GraphNodeRow.new(prop.get_display_name(), prop.type, enable_left, enable_right)

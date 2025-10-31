@@ -39,13 +39,13 @@ func test_connection_tracking():
 	var main_prop = node.get_property("sentence")
 	
 	# Initially no connections
-	assert_bool(main_prop.is_connected()).is_false()
+	assert_bool(main_prop.is_port_connected()).is_false()
 	
 	# Add a connection
 	main_prop.add_connection_to("node2", "prop2", 0)
-	assert_bool(main_prop.is_connected()).is_true()
+	assert_bool(main_prop.is_port_connected()).is_true()
 	assert_int(main_prop.connected_to.size()).is_equal(1)
 	
 	# Remove connection
 	main_prop.remove_connection_to("node2", 0)
-	assert_bool(main_prop.is_connected()).is_false()
+	assert_bool(main_prop.is_port_connected()).is_false()
