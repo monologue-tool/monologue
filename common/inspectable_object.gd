@@ -28,11 +28,11 @@ func define_property(
 	category: String = "General"
 ) -> void:
 	var default_settings: Dictionary = {}
-	default_settings["display"] = true
-	default_settings["exposed"] = false
-	default_settings["private"] = false
-	default_settings["protected"] = false
-	default_settings["export"] = false
+	default_settings["visible_in_graph"] = true
+	default_settings["visible_in_inspector"] = true
+	default_settings["editable"] = true
+	default_settings["has_input_port"] = false
+	default_settings["has_output_port"] = false
 
 	psettings["category"] = category
 	psettings.merge(default_settings)

@@ -1,41 +1,51 @@
 extends GdUnitTestSuite
 
 
-func test_sentence_node_title_property():
+func test_sentence_node_main_property():
 	var node = auto_free(SentenceNode.new())
-	var title_prop = node.get_property("title")
-	assert_object(title_prop).is_not_null()
-	assert_str(title_prop.get_value()).is_equal("Sentence")
-	assert_str(title_prop.type).is_equal("context")
-	assert_bool(title_prop.settings.get("display")).is_true()
-	# SentenceNode title should not be editable
-	assert_bool(title_prop.settings.get("protected")).is_true()
+	var main_prop = node.get_property("sentence")
+	assert_object(main_prop).is_not_null()
+	assert_str(main_prop.type).is_equal("context")
+	assert_bool(main_prop.settings.get("visible_in_graph")).is_true()
+	assert_bool(main_prop.settings.get("is_main_property")).is_true()
+	# SentenceNode main property should not be editable
+	assert_bool(main_prop.settings.get("editable")).is_false()
 
 
-func test_text_node_title_property():
+func test_text_node_main_property():
 	var node = auto_free(TextNode.new())
-	var title_prop = node.get_property("title")
-	assert_object(title_prop).is_not_null()
-	assert_str(title_prop.get_value()).is_equal("Text")
-	assert_str(title_prop.type).is_equal("text")
-	assert_bool(title_prop.settings.get("display")).is_true()
-	# TextNode title should be editable
-	assert_bool(title_prop.settings.get("protected")).is_false()
+	var main_prop = node.get_property("text")
+	assert_object(main_prop).is_not_null()
+	assert_str(main_prop.type).is_equal("text")
+	assert_bool(main_prop.settings.get("visible_in_graph")).is_true()
+	assert_bool(main_prop.settings.get("is_main_property")).is_true()
+	# TextNode main property should be editable
+	assert_bool(main_prop.settings.get("editable")).is_true()
 
 
-func test_root_node_title_property():
+func test_root_node_main_property():
 	var node = auto_free(RootNode.new())
-	var title_prop = node.get_property("title")
-	assert_object(title_prop).is_not_null()
-	assert_str(title_prop.get_value()).is_equal("Root")
-	assert_str(title_prop.type).is_equal("context")
-	assert_bool(title_prop.settings.get("display")).is_true()
-	# RootNode title should not be editable
-	assert_bool(title_prop.settings.get("protected")).is_true()
+	var main_prop = node.get_property("root")
+	assert_object(main_prop).is_not_null()
+	assert_str(main_prop.type).is_equal("context")
+	assert_bool(main_prop.settings.get("visible_in_graph")).is_true()
+	assert_bool(main_prop.settings.get("is_main_property")).is_true()
+	# RootNode main property should not be editable
+	assert_bool(main_prop.settings.get("editable")).is_false()
 
 
-func test_title_property_can_be_changed():
+func test_connection_tracking():
 	var node = auto_free(SentenceNode.new())
-	var title_prop = node.get_property("title")
-	title_prop.set_value("Custom Title")
-	assert_str(title_prop.get_value()).is_equal("Custom Title")
+	var main_prop = node.get_property("sentence")
+	
+	# Initially no connections
+	assert_bool(main_prop.is_connected()).is_false()
+	
+	# Add a connection
+	main_prop.add_connection_to("node2", "prop2", 0)
+	assert_bool(main_prop.is_connected()).is_true()
+	assert_int(main_prop.connected_to.size()).is_equal(1)
+	
+	# Remove connection
+	main_prop.remove_connection_to("node2", 0)
+	assert_bool(main_prop.is_connected()).is_false()

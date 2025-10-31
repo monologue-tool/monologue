@@ -55,19 +55,20 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 	var rows: Array = []
 
 	for prop: Property in properties:
-		if prop.settings.get("private"):
+		# Skip properties not visible in graph
+		if not prop.settings.get("visible_in_graph", true):
 			continue
 
-		var exposed: bool = prop.get_settings_value("exposed", false) or false
-		var export: bool = prop.get_settings_value("export", false) or false
-		var display: bool = prop.settings.get("display", false)
+		var has_input: bool = prop.get_settings_value("has_input_port", false) or false
+		var has_output: bool = prop.get_settings_value("has_output_port", false) or false
 
-		if not display and not exposed and not export:
+		# Show property if it has ports or is explicitly visible
+		if not has_input and not has_output:
 			continue
 
-		var enable_left: bool = exposed
-		var enable_right: bool = export
-		if prop.settings.get("is_main"):
+		var enable_left: bool = has_input
+		var enable_right: bool = has_output
+		if prop.settings.get("is_main_property"):
 			rows.push_front(
 				GraphNodeRow.new(prop.get_display_name(), prop.type, enable_left, enable_right)
 			)

@@ -48,6 +48,10 @@ func rebuild() -> void:
 func _group_by_category(properties: Array) -> Dictionary:
 	var groups: Dictionary = {}
 	for prop in properties:
+		# Skip properties not visible in inspector
+		if not prop.settings.get("visible_in_inspector", true):
+			continue
+			
 		var category: String = "General"
 		if prop.settings.has("category"):
 			category = prop.settings.category
@@ -124,11 +128,17 @@ func _create_property_editor(property: Property) -> Control:
 	p_container.add_child(p_vbox)
 	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	p_expose_button.disabled = property.settings.get("private", false) or false
-	p_expose_button.button_pressed = property.settings.get("exposed", false) or false
+	# Disable expose button if property doesn't have input port capability
+	p_expose_button.disabled = not property.settings.get("has_input_port", false)
+	p_expose_button.button_pressed = property.settings.get("has_input_port", false)
 	p_expose_button.toggled.connect(
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
+	
+	# Make field read-only if property is not editable or is connected
+	if p_field.has_method("set_editable"):
+		var is_editable = property.settings.get("editable", true) and not property.is_connected()
+		p_field.set_editable(is_editable)
 
 	# TODO: Input field
 	return p_container
@@ -159,7 +169,7 @@ func _is_list_property(property: Property) -> bool:
 func _on_property_expose_state_changed(
 	toggled_on: bool, node: InspectableNode, property_name: String
 ) -> void:
-	node.set_property_settings_value(property_name, "exposed", toggled_on)
+	node.set_property_settings_value(property_name, "has_input_port", toggled_on)
 
 
 func on_property_changed(node: InspectableNode, property_name: String) -> void:
