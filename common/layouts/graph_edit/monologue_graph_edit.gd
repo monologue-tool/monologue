@@ -20,11 +20,17 @@ func refresh() -> void:
 	if not connection_manager:
 		connection_manager = ConnectionManager.new(storyline)
 
+	# Disconnect all existing graph connections
+	clear_connections()
+
 	for child: GraphElement in get_all_graph_nodes():
 		child.queue_free()
 
 	for node: InspectableNode in storyline.nodes:
 		add_graph_node_view(node)
+	
+	# Reconnect all tracked connections after rebuilding nodes
+	_reconnect_all_slots()
 
 
 func refresh_node(node: InspectableNode) -> void:
@@ -196,6 +202,28 @@ func _on_connection_request(
 
 func get_all_graph_nodes() -> Array:
 	return get_children().filter(func(child) -> bool: return child is GraphNode)
+
+
+## Reconnect all slots based on tracked connections in connection_manager
+func _reconnect_all_slots() -> void:
+	if not connection_manager:
+		return
+	
+	var connections = connection_manager.get_all_connections()
+	
+	for conn in connections:
+		var from_node_name = conn["from_node_name"]
+		var from_property = conn["from_property"]
+		var to_node_name = conn["to_node_name"]
+		var to_property = conn["to_property"]
+		
+		# Get port indices for the properties
+		var from_port = get_port_index_for_property(from_node_name, from_property)
+		var to_port = get_port_index_for_property(to_node_name, to_property)
+		
+		# Only connect if both ports are valid
+		if from_port >= 0 and to_port >= 0:
+			connect_node(from_node_name, from_port, to_node_name, to_port)
 
 
 ## Get visible properties in the same order as displayed in graph

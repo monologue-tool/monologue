@@ -102,6 +102,30 @@ func unregister_connection(
 	unregister_connection_by_property(from_node_name, from_prop.name, to_node_name, to_prop.name)
 
 
+## Gets all connections tracked by properties
+## Returns array of {from_node_name, from_property, to_node_name, to_property}
+func get_all_connections() -> Array[Dictionary]:
+	var connections: Array[Dictionary] = []
+	var processed_connections = {}  # To avoid duplicates
+	
+	for node: InspectableNode in _storyline.nodes:
+		var node_name = node.get_property_value("id")
+		for prop: Property in node.get_properties():
+			# Only process outgoing connections to avoid duplicates
+			for conn in prop.connected_to:
+				var key = "%s.%s->%s.%s" % [node_name, prop.name, conn["node_id"], conn["property_name"]]
+				if key not in processed_connections:
+					connections.append({
+						"from_node_name": node_name,
+						"from_property": prop.name,
+						"to_node_name": conn["node_id"],
+						"to_property": conn["property_name"]
+					})
+					processed_connections[key] = true
+	
+	return connections
+
+
 ## Gets all properties that are connected (have at least one connection)
 func get_connected_properties() -> Array[Property]:
 	var connected: Array[Property] = []
