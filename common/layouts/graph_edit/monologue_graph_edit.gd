@@ -15,7 +15,7 @@ func _ready() -> void:
 
 func refresh() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	
+
 	# Initialize connection manager if not already done
 	if not connection_manager:
 		connection_manager = ConnectionManager.new(storyline)
@@ -182,7 +182,7 @@ func _on_connection_request(
 	# Get property names at the port indices
 	var from_property_name = get_property_name_at_port(String(from_node), from_port)
 	var to_property_name = get_property_name_at_port(String(to_node), to_port)
-	
+
 	if from_property_name.is_empty() or to_property_name.is_empty():
 		push_warning("Cannot create connection: property not found at port")
 		return
@@ -202,55 +202,55 @@ func get_all_graph_nodes() -> Array:
 func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 	var visible_props: Array[Property] = []
 	var properties = node.get_properties()
-	
+
 	for prop: Property in properties:
 		if not prop.settings.get("visible_in_graph", true):
 			continue
 		var exposed = prop.get_settings_value("exposed", false) or false
 		var export = prop.get_settings_value("export", false) or false
-		
+
 		# Skip if no ports
 		if not exposed and not export:
 			continue
-		
+
 		# Main property goes first
 		if prop.settings.get("is_main_property"):
 			visible_props.push_front(prop)
 		else:
 			visible_props.append(prop)
-	
+
 	return visible_props
 
 
 ## Get the port index for a specific property by name
-func get_port_index_for_property(node_id: String, property_name: String) -> int:
+func get_port_index_for_property(node_name: String, property_name: String) -> int:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	
+
 	# Find the node by ID
 	for node: InspectableNode in storyline.nodes:
-		if node.get_property_value("id") == node_id:
+		if node.graph_view.name == node_name:
 			var visible_props = _get_visible_properties(node)
-			
+
 			# Find the property by name and return its index
 			for i in range(visible_props.size()):
 				if visible_props[i].name == property_name:
 					return i
 			break
-	
+
 	return -1
 
 
 ## Get property name at a specific port index
-func get_property_name_at_port(node_id: String, port_index: int) -> String:
+func get_property_name_at_port(node_name: String, port_index: int) -> String:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	
+
 	# Find the node by ID
 	for node: InspectableNode in storyline.nodes:
-		if node.get_property_value("id") == node_id:
+		if node.graph_view.name == node_name:
 			var visible_props = _get_visible_properties(node)
-			
+
 			if port_index >= 0 and port_index < visible_props.size():
 				return visible_props[port_index].name
 			break
-	
+
 	return ""
