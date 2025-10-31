@@ -6,6 +6,7 @@ var characters := Property.new("characters", {}, "character", {})
 var variables := Property.new("variables", {}, "variable", {})
 
 var storyline_id: String
+var connection_manager: ConnectionManager
 
 
 func _ready() -> void:
@@ -14,6 +15,10 @@ func _ready() -> void:
 
 func refresh() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	
+	# Initialize connection manager if not already done
+	if not connection_manager:
+		connection_manager = ConnectionManager.new(storyline)
 
 	for child: GraphElement in get_all_graph_nodes():
 		child.queue_free()
@@ -143,8 +148,18 @@ func on_property_changed(node: InspectableNode, _pname: String) -> void:
 func propagate_connection(from_node: StringName, from_port, to_node, to_port, next = true) -> void:
 	if next:
 		connect_node(from_node, from_port, to_node, to_port)
+		# Register connection in connection manager
+		if connection_manager:
+			connection_manager.register_connection(
+				String(from_node), from_port, String(to_node), to_port
+			)
 	else:
 		disconnect_node(from_node, from_port, to_node, to_port)
+		# Unregister connection from connection manager
+		if connection_manager:
+			connection_manager.unregister_connection(
+				String(from_node), from_port, String(to_node), to_port
+			)
 
 	# TODO: Rework this
 
