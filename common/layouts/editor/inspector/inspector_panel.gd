@@ -10,6 +10,9 @@ var _special_fields: Array[Control] = []
 
 
 func inspect(object: InspectableObject) -> void:
+	if object:
+		object.remove_observer(on_property_changed)
+
 	current_object = object
 	rebuild()
 	object.add_observer(on_property_changed)
@@ -38,6 +41,8 @@ func rebuild() -> void:
 			_handle_special_category_section(special_category, props)
 			continue
 		_create_category_section(category_name, props)
+
+	post_build()
 
 
 func _group_by_category(properties: Array) -> Dictionary:
@@ -84,6 +89,9 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 
 
 func _create_property_editor(property: Property) -> Control:
+	if not property.settings.get("editable", true):
+		return
+
 	if _is_list_property(property):
 		pass  # TODO
 		# return _create_list_property_editor(property)
@@ -136,6 +144,12 @@ func _create_property_editor(property: Property) -> Control:
 #
 #func _create_nested_property_editor(property: Property, parent: Control) -> Control:
 #pass
+
+
+func post_build() -> void:
+	for child: Control in property_container.get_children():
+		if child is FoldableContainer and child.is_empty():
+			child.queue_free()
 
 
 func _is_list_property(property: Property) -> bool:

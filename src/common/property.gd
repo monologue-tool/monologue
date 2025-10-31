@@ -7,6 +7,9 @@ var name: String = ""  # Protected
 var value: Variant = 0
 var type: String = ""  # Protected
 var settings: Dictionary = {}
+# `display` properties are not displayed by default in the node view.
+# `private` properties are not exposable.
+# `protected` properties cannot be edited from the inspector.
 
 
 func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary = {}) -> void:

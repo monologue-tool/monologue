@@ -3,12 +3,7 @@ class_name RootNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	setup_main_property()
-
-
-func setup_main_property() -> void:
-	# Main property is not editable for RootNode
-	define_property("title", "Root", "context", {"protected": true}, "General", true)
+	define_main_property("root", "context", false, null, {"exposed": false})
 
 
 func get_type() -> String:
@@ -16,7 +11,7 @@ func get_type() -> String:
 
 
 func get_settings() -> Dictionary:
-	return {"origin": true, "continuous": true}
+	return {}
 
 
 func get_icon() -> Texture2D:

@@ -15,7 +15,7 @@ func _init(command_manager: CommandManager = null) -> void:
 
 
 func _load_settings() -> void:
-	var new_settings: Dictionary = {"origin": false, "continuous": false}
+	var new_settings: Dictionary = {}
 	new_settings.merge(get_settings(), true)
 	settings = new_settings
 
@@ -49,6 +49,10 @@ func add_observer(callable: Callable) -> void:
 		return
 
 	_observers.append(callable)
+
+
+func remove_observer(callable: Callable) -> void:
+	_observers.erase(callable)
 
 
 func _notify_change(pname: String) -> void:

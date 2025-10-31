@@ -11,8 +11,6 @@ var storyline_id: String
 func _ready() -> void:
 	super._ready()
 
-	connection_request.connect(_on_connection_request)
-
 
 func refresh() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
@@ -63,18 +61,18 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 		var exposed: bool = prop.get_settings_value("exposed", false) or false
 		var export: bool = prop.get_settings_value("export", false) or false
 		var display: bool = prop.settings.get("display", false)
-		
+
 		if not display and not exposed and not export:
 			continue
 
-		# For the title property (first displayed property), use node settings for ports
 		var enable_left: bool = exposed
 		var enable_right: bool = export
-		if prop.name == "title":
-			enable_left = not node.settings.get("origin")
-			enable_right = node.settings.get("continuous")
-
-		rows.append(GraphNodeRow.new(prop.get_value(), prop.type, enable_left, enable_right))
+		if prop.settings.get("is_main"):
+			rows.push_front(
+				GraphNodeRow.new(prop.get_display_name(), prop.type, enable_left, enable_right)
+			)
+			continue
+		rows.append(GraphNodeRow.new(prop.name, prop.type, enable_left, enable_right))
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)
