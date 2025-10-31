@@ -11,10 +11,13 @@ func _init(storyline: StorylineDocument) -> void:
 
 ## Updates property connection tracking when a connection is made (using property names)
 func register_connection_by_property(
-	from_node_name: String, from_property_name: String, to_node_name: String, to_property_name: String
+	from_node_name: String,
+	from_property_name: String,
+	to_node_name: String,
+	to_property_name: String
 ) -> void:
-	var from_node = _get_node_by_id(from_node_name)
-	var to_node = _get_node_by_id(to_node_name)
+	var from_node = _get_node_view(from_node_name)
+	var to_node = _get_node_view(to_node_name)
 
 	if not from_node or not to_node:
 		push_warning("Cannot register connection: node not found")
@@ -36,8 +39,8 @@ func register_connection_by_property(
 func register_connection(
 	from_node_name: String, from_port: int, to_node_name: String, to_port: int
 ) -> void:
-	var from_node = _get_node_by_id(from_node_name)
-	var to_node = _get_node_by_id(to_node_name)
+	var from_node = _get_node_view(from_node_name)
+	var to_node = _get_node_view(to_node_name)
 
 	if not from_node or not to_node:
 		push_warning("Cannot register connection: node not found")
@@ -45,8 +48,6 @@ func register_connection(
 
 	var from_prop = _get_property_at_port(from_node, from_port)
 	var to_prop = _get_property_at_port(to_node, to_port)
-
-	print(from_prop)
 
 	if not from_prop or not to_prop:
 		push_warning("Cannot register connection: property not found")
@@ -58,10 +59,13 @@ func register_connection(
 
 ## Updates property connection tracking when a connection is removed (using property names)
 func unregister_connection_by_property(
-	from_node_name: String, from_property_name: String, to_node_name: String, to_property_name: String
+	from_node_name: String,
+	from_property_name: String,
+	to_node_name: String,
+	to_property_name: String
 ) -> void:
-	var from_node = _get_node_by_id(from_node_name)
-	var to_node = _get_node_by_id(to_node_name)
+	var from_node = _get_node_view(from_node_name)
+	var to_node = _get_node_view(to_node_name)
 
 	if not from_node or not to_node:
 		return
@@ -74,11 +78,14 @@ func unregister_connection_by_property(
 
 	# Remove the connection from both properties using property names
 	from_prop.connected_to = from_prop.connected_to.filter(
-		func(c): return not (c["node_id"] == to_node_name and c["property_name"] == to_property_name)
+		func(c):
+			return not (c["node_name"] == to_node_name and c["property_name"] == to_property_name)
 	)
 	to_prop.connected_from = to_prop.connected_from.filter(
 		func(c):
-			return not (c["node_id"] == from_node_name and c["property_name"] == from_property_name)
+			return not (
+				c["node_name"] == from_node_name and c["property_name"] == from_property_name
+			)
 	)
 
 
@@ -86,8 +93,8 @@ func unregister_connection_by_property(
 func unregister_connection(
 	from_node_name: String, from_port: int, to_node_name: String, to_port: int
 ) -> void:
-	var from_node = _get_node_by_id(from_node_name)
-	var to_node = _get_node_by_id(to_node_name)
+	var from_node = _get_node_view(from_node_name)
+	var to_node = _get_node_view(to_node_name)
 
 	if not from_node or not to_node:
 		return
@@ -107,22 +114,27 @@ func unregister_connection(
 func get_all_connections() -> Array[Dictionary]:
 	var connections: Array[Dictionary] = []
 	var processed_connections = {}  # To avoid duplicates
-	
+
 	for node: InspectableNode in _storyline.nodes:
-		var node_name = node.get_property_value("id")
+		var node_name = node.graph_view.name
 		for prop: Property in node.get_properties():
 			# Only process outgoing connections to avoid duplicates
 			for conn in prop.connected_to:
-				var key = "%s.%s->%s.%s" % [node_name, prop.name, conn["node_id"], conn["property_name"]]
+				var key = (
+					"%s.%s->%s.%s"
+					% [node_name, prop.name, conn["node_name"], conn["property_name"]]
+				)
 				if key not in processed_connections:
-					connections.append({
-						"from_node_name": node_name,
-						"from_property": prop.name,
-						"to_node_name": conn["node_id"],
-						"to_property": conn["property_name"]
-					})
+					connections.append(
+						{
+							"from_node_name": node_name,
+							"from_property": prop.name,
+							"to_node_name": conn["node_name"],
+							"to_property": conn["property_name"]
+						}
+					)
 					processed_connections[key] = true
-	
+
 	return connections
 
 
@@ -150,7 +162,7 @@ func get_connected_node(node: InspectableNode, property_name: String) -> Inspect
 		connection = prop.connected_from[0]
 
 	if connection:
-		return _get_node_by_id(connection["node_id"])
+		return _get_node_view(connection["node_name"])
 
 	return null
 
@@ -162,7 +174,7 @@ func validate_connections() -> bool:
 		for prop: Property in node.get_properties():
 			# Check outgoing connections
 			for conn in prop.connected_to:
-				var target_node = _get_node_by_id(conn["node_id"])
+				var target_node = _get_node_view(conn["node_name"])
 				if not target_node or not target_node.get_property(conn["property_name"]):
 					push_warning(
 						(
@@ -174,7 +186,7 @@ func validate_connections() -> bool:
 
 			# Check incoming connections
 			for conn in prop.connected_from:
-				var source_node = _get_node_by_id(conn["node_id"])
+				var source_node = _get_node_view(conn["node_name"])
 				if not source_node or not source_node.get_property(conn["property_name"]):
 					push_warning(
 						(
@@ -187,10 +199,9 @@ func validate_connections() -> bool:
 	return all_valid
 
 
-## Helper: Get node by ID
-func _get_node_by_id(node_id: String) -> InspectableNode:
+func _get_node_view(node_name: String) -> InspectableNode:
 	for node: InspectableNode in _storyline.nodes:
-		if node.get_property_value("id") == node_id:
+		if node.graph_view.name == node_name:
 			return node
 	return null
 

@@ -9,10 +9,10 @@ var type: String = ""
 var settings: Dictionary = {}
 
 ## Tracks input connections to this property (nodes connecting TO this property)
-var connected_from: Array[Dictionary] = []  # [{node_id: String, property_name: String, port: int}]
+var connected_from: Array[Dictionary] = []  # [{node_name: String, property_name: String, port: int}]
 
 ## Tracks output connections from this property (nodes this property connects TO)
-var connected_to: Array[Dictionary] = []  # [{node_id: String, property_name: String, port: int}]
+var connected_to: Array[Dictionary] = []  # [{node_name: String, property_name: String, port: int}]
 
 ## Property Settings:
 ## - visible_in_graph: Whether property shows as a row in graph node view
@@ -58,27 +58,27 @@ func is_port_connected() -> bool:
 	return connected_from.size() > 0 or connected_to.size() > 0
 
 
-func add_connection_from(node_id: String, property_name: String, port: int) -> void:
-	var conn = {"node_id": node_id, "property_name": property_name, "port": port}
+func add_connection_from(node_name: String, property_name: String, port: int) -> void:
+	var conn = {"node_name": node_name, "property_name": property_name, "port": port}
 	if conn not in connected_from:
 		connected_from.append(conn)
 
 
-func add_connection_to(node_id: String, property_name: String, port: int) -> void:
-	var conn = {"node_id": node_id, "property_name": property_name, "port": port}
+func add_connection_to(node_name: String, property_name: String, port: int) -> void:
+	var conn = {"node_name": node_name, "property_name": property_name, "port": port}
 	if conn not in connected_to:
 		connected_to.append(conn)
 
 
-func remove_connection_from(node_id: String, port: int) -> void:
+func remove_connection_from(node_name: String, port: int) -> void:
 	connected_from = connected_from.filter(
-		func(c): return not (c["node_id"] == node_id and c["port"] == port)
+		func(c): return not (c["node_name"] == node_name and c["port"] == port)
 	)
 
 
-func remove_connection_to(node_id: String, port: int) -> void:
+func remove_connection_to(node_name: String, port: int) -> void:
 	connected_to = connected_to.filter(
-		func(c): return not (c["node_id"] == node_id and c["port"] == port)
+		func(c): return not (c["node_name"] == node_name and c["port"] == port)
 	)
 
 

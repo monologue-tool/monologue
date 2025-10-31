@@ -28,14 +28,16 @@ func refresh() -> void:
 
 	for node: InspectableNode in storyline.nodes:
 		add_graph_node_view(node)
-	
+
 	# Reconnect all tracked connections after rebuilding nodes
 	_reconnect_all_slots()
 
 
 func refresh_node(node: InspectableNode) -> void:
+	clear_connections()
 	if node.graph_view:
 		build_graph_node_view_content(node.graph_view, node)
+	_reconnect_all_slots()
 
 
 func add_graph_node_view(node: InspectableNode) -> void:
@@ -133,42 +135,12 @@ func _on_node_view_selected(node: InspectableNode) -> void:
 	node_view_selected.emit(node)
 
 
-func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
+func _on_node_view_position_offset_changed(_node: InspectableNode) -> void:
 	pass
 
 
 func on_property_changed(node: InspectableNode, _pname: String) -> void:
 	refresh_node(node)
-
-
-## Connects/disconnects and updates a given connection's NextID if possible.
-## If [param next] is true, establish connection and propagate NextIDs.
-## If it is false, destroy connection and clear all linked NextIDs.
-func propagate_connection(from_node: StringName, from_port, to_node, to_port, next = true) -> void:
-	if next:
-		connect_node(from_node, from_port, to_node, to_port)
-		# Register connection in connection manager
-		if connection_manager:
-			connection_manager.register_connection(
-				String(from_node), from_port, String(to_node), to_port
-			)
-	else:
-		disconnect_node(from_node, from_port, to_node, to_port)
-		# Unregister connection from connection manager
-		if connection_manager:
-			connection_manager.unregister_connection(
-				String(from_node), from_port, String(to_node), to_port
-			)
-
-	# TODO: Rework this
-
-	var graph_node = get_node_or_null(NodePath(from_node))
-	if graph_node and graph_node.has_method("update_next_id"):
-		if next:
-			var next_node = get_node_or_null(NodePath(to_node))
-			graph_node.update_next_id(from_port, next_node)
-		else:
-			graph_node.update_next_id(from_port, null)
 
 
 func _on_connection_request(
@@ -208,19 +180,19 @@ func get_all_graph_nodes() -> Array:
 func _reconnect_all_slots() -> void:
 	if not connection_manager:
 		return
-	
-	var connections = connection_manager.get_all_connections()
-	
-	for conn in connections:
+
+	var all_connections = connection_manager.get_all_connections()
+
+	for conn in all_connections:
 		var from_node_name = conn["from_node_name"]
 		var from_property = conn["from_property"]
 		var to_node_name = conn["to_node_name"]
 		var to_property = conn["to_property"]
-		
+
 		# Get port indices for the properties
 		var from_port = get_port_index_for_property(from_node_name, from_property)
 		var to_port = get_port_index_for_property(to_node_name, to_property)
-		
+
 		# Only connect if both ports are valid
 		if from_port >= 0 and to_port >= 0:
 			connect_node(from_node_name, from_port, to_node_name, to_port)
@@ -254,7 +226,6 @@ func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 func get_port_index_for_property(node_name: String, property_name: String) -> int:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 
-	# Find the node by ID
 	for node: InspectableNode in storyline.nodes:
 		if node.graph_view.name == node_name:
 			var visible_props = _get_visible_properties(node)
@@ -272,7 +243,6 @@ func get_port_index_for_property(node_name: String, property_name: String) -> in
 func get_property_name_at_port(node_name: String, port_index: int) -> String:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 
-	# Find the node by ID
 	for node: InspectableNode in storyline.nodes:
 		if node.graph_view.name == node_name:
 			var visible_props = _get_visible_properties(node)

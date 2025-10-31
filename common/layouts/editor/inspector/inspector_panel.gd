@@ -177,6 +177,5 @@ func _on_property_expose_state_changed(
 	node.set_property_settings_value(property_name, "exposed", toggled_on)
 
 
-func on_property_changed(node: InspectableNode, property_name: String) -> void:
-	print(property_name)
+func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
 	rebuild()
