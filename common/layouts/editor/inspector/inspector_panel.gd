@@ -114,6 +114,16 @@ func _create_property_editor(property: Property) -> Control:
 	p_label.text = property.get_display_name()
 	p_hbox.add_child(p_expose_button)
 	p_hbox.add_child(p_label)
+	
+	# Add inspect connected node button if property is connected
+	if property.is_port_connected():
+		var inspect_button: Button = Button.new()
+		inspect_button.text = "→"
+		inspect_button.tooltip_text = "Inspect connected node"
+		inspect_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
+		p_hbox.add_child(inspect_button)
+	
 	p_vbox.add_child(p_hbox)
 
 	if property.settings.get("flat"):
@@ -175,6 +185,30 @@ func _on_property_expose_state_changed(
 	toggled_on: bool, node: InspectableNode, property_name: String
 ) -> void:
 	node.set_property_settings_value(property_name, "exposed", toggled_on)
+
+
+func _on_inspect_connected_node(property: Property) -> void:
+	if not current_object or not current_object is InspectableNode:
+		return
+	
+	var node: InspectableNode = current_object as InspectableNode
+	
+	# Get the graph edit from the node's graph view
+	if not node.graph_view or not node.graph_view.get_parent():
+		return
+	
+	var graph_edit = node.graph_view.get_parent()
+	if not graph_edit.has("connection_manager") or not graph_edit.connection_manager:
+		return
+	
+	# Get the connected node from the connection manager
+	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
+	
+	if connected_node and connected_node.graph_view:
+		# Select the connected node in the graph view
+		connected_node.graph_view.selected = true
+		# Emit signal to notify that this node was selected
+		graph_edit.node_view_selected.emit(connected_node)
 
 
 func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
