@@ -9,7 +9,33 @@ func _init(storyline: StorylineDocument) -> void:
 	_storyline = storyline
 
 
-## Updates property connection tracking when a connection is made
+## Updates property connection tracking when a connection is made (using property names)
+func register_connection_by_property(
+	from_node_id: String,
+	from_property_name: String,
+	to_node_id: String,
+	to_property_name: String
+) -> void:
+	var from_node = _get_node_by_id(from_node_id)
+	var to_node = _get_node_by_id(to_node_id)
+
+	if not from_node or not to_node:
+		push_warning("Cannot register connection: node not found")
+		return
+
+	var from_prop = from_node.get_property(from_property_name)
+	var to_prop = to_node.get_property(to_property_name)
+
+	if not from_prop or not to_prop:
+		push_warning("Cannot register connection: property not found")
+		return
+
+	# Track the connection in both properties using property names
+	from_prop.add_connection_to(to_node_id, to_property_name, -1)
+	to_prop.add_connection_from(from_node_id, from_property_name, -1)
+
+
+## Updates property connection tracking when a connection is made (using port indices - legacy)
 func register_connection(
 	from_node_id: String, from_port: int, to_node_id: String, to_port: int
 ) -> void:
@@ -27,12 +53,39 @@ func register_connection(
 		push_warning("Cannot register connection: property not found")
 		return
 
-	# Track the connection in both properties
-	from_prop.add_connection_to(to_node_id, to_prop.name, to_port)
-	to_prop.add_connection_from(from_node_id, from_prop.name, from_port)
+	# Track the connection using property names
+	register_connection_by_property(from_node_id, from_prop.name, to_node_id, to_prop.name)
 
 
-## Updates property connection tracking when a connection is removed
+## Updates property connection tracking when a connection is removed (using property names)
+func unregister_connection_by_property(
+	from_node_id: String,
+	from_property_name: String,
+	to_node_id: String,
+	to_property_name: String
+) -> void:
+	var from_node = _get_node_by_id(from_node_id)
+	var to_node = _get_node_by_id(to_node_id)
+
+	if not from_node or not to_node:
+		return
+
+	var from_prop = from_node.get_property(from_property_name)
+	var to_prop = to_node.get_property(to_property_name)
+
+	if not from_prop or not to_prop:
+		return
+
+	# Remove the connection from both properties using property names
+	from_prop.connected_to = from_prop.connected_to.filter(
+		func(c): return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name)
+	)
+	to_prop.connected_from = to_prop.connected_from.filter(
+		func(c): return not (c["node_id"] == from_node_id and c["property_name"] == from_property_name)
+	)
+
+
+## Updates property connection tracking when a connection is removed (using port indices - legacy)
 func unregister_connection(
 	from_node_id: String, from_port: int, to_node_id: String, to_port: int
 ) -> void:
@@ -48,9 +101,8 @@ func unregister_connection(
 	if not from_prop or not to_prop:
 		return
 
-	# Remove the connection from both properties
-	from_prop.remove_connection_to(to_node_id, to_port)
-	to_prop.remove_connection_from(from_node_id, from_port)
+	# Remove the connection using property names
+	unregister_connection_by_property(from_node_id, from_prop.name, to_node_id, to_prop.name)
 
 
 ## Gets all properties that are connected (have at least one connection)
