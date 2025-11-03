@@ -1,9 +1,6 @@
 class_name FieldDescriptor extends RefCounted
 
 const FIELD_OBJECT_TYPE := 1
-const FieldValidationResult := preload(
-	"res://common/ui/editor_properties/field_validation_result.gd"
-)
 
 var name: String
 var scene: PackedScene
