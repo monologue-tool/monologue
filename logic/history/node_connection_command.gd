@@ -34,6 +34,8 @@ func execute() -> void:
 				from_node_name, from_property_name, to_node_name, to_property_name
 			)
 
+	_notify_node_changes()
+
 
 func undo() -> void:
 	# Recalculate port indices in case they changed
@@ -47,6 +49,26 @@ func undo() -> void:
 			graph_view.connection_manager.unregister_connection_by_property(
 				from_node_name, from_property_name, to_node_name, to_property_name
 			)
+
+	_notify_node_changes()
+
+
+func _notify_node_changes() -> void:
+	var storyline: StorylineDocument = StorylineManager.get_storyline(graph_view.storyline_id)
+	var from_nodes: Array = storyline.nodes.filter(
+		func(n: InspectableNode) -> bool: return n.graph_view.name == from_node_name
+	)
+	var to_nodes: Array = storyline.nodes.filter(
+		func(n: InspectableNode) -> bool: return n.graph_view.name == to_node_name
+	)
+
+	if not from_nodes.is_empty():
+		var from_node: InspectableNode = from_nodes[0]
+		from_node._notify_change(from_property_name)
+
+	if not to_nodes.is_empty():
+		var to_node: InspectableNode = to_nodes[0]
+		to_node._notify_change(to_property_name)
 
 
 func get_description() -> String:

@@ -10,6 +10,9 @@ var _special_fields: Array[Control] = []
 
 
 func inspect(object: InspectableObject) -> void:
+	if current_object:
+		current_object.graph_view.selected = false
+
 	if object:
 		object.remove_observer(on_property_changed)
 
@@ -201,10 +204,7 @@ func _on_inspect_connected_node(property: Property) -> void:
 	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
 
 	if connected_node and connected_node.graph_view:
-		# Select the connected node in the graph view
-		connected_node.graph_view.selected = true
-		# Emit signal to notify that this node was selected
-		graph_edit.node_view_selected.emit(connected_node)
+		inspect(connected_node)
 
 
 func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
