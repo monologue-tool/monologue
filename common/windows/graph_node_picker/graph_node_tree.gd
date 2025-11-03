@@ -1,99 +1,86 @@
+class_name GraphNodeTree
 extends Tree
 
 @onready var create_btn: Button = %CreateButton
 @onready var window: GraphNodePicker = $"../../.."
-
-## The data to build the tree
-## An oject can contain keys with name "text", "value", icon" and "children".
-var _data = [
-	{
-		"text": "Narration",
-		"children":
-		[
-			{"text": "Sentence", "icon": "text.svg"},
-			{"text": "Choice", "icon": "choice.svg"},
-		]
-	},
-	{
-		"text": "Logic",
-		"children":
-		[
-			{"text": "Action", "icon": "action.svg"},
-			{"text": "Condition", "icon": "condition.svg"},
-			{"text": "Random", "icon": "dice.svg"},
-			{"text": "Setter", "icon": "toggle.svg"},
-		]
-	},
-	{
-		"text": "Flow",
-		"children":
-		[
-			{"text": "Event", "icon": "calendar.svg"},
-			{"text": "Bridge", "icon": "link.svg"},
-			{"text": "EndPath", "icon": "exit.svg"},
-			{"text": "Wait", "icon": "time.svg"},
-		]
-	},
-	{
-		"text": "Audio and Visuals",
-		"children":
-		[
-			{"text": "Audio", "icon": "recording.svg"},
-			{"text": "Background", "icon": "picture.svg"},
-			{"text": "Character", "icon": "character.svg"},
-		]
-	},
-	{
-		"text": "Helpers",
-		"children":
-		[
-			{"text": "Comment", "icon": "comment.svg"},
-			{"text": "Reroute", "icon": "path.svg"},
-		]
-	}
-]
 
 var _first_item_found: bool = false
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	var root = create_item()
-	_recusive_load_data(_data, root)
+	_reload_tree()
 	deselect_all()
 
 
-func _recusive_load_data(items: Array, tree_parent: TreeItem) -> void:
-	for obj: Dictionary in items:
-		var tree_item = create_item(tree_parent)
-		tree_item.collapsed = true
+func _reload_tree() -> void:
+	clear()
+	var root: TreeItem = create_item()
+	var node_bucket = _get_node_bucket()
+	if node_bucket == null:
+		var placeholder := create_item(root)
+		placeholder.set_text(0, "No nodes available")
+		placeholder.set_selectable(0, false)
+		create_btn.disabled = true
+		return
 
-		if obj.has("text"):
-			tree_item.set_text(0, obj.get("text"))
-		if obj.has("icon"):
-			var icon_texture = load("res://ui/assets/icons/" + obj.get("icon"))
-			tree_item.set_icon(0, icon_texture)
-		if obj.has("children"):
-			_recusive_load_data(obj.get("children"), tree_item)
+	var categories: PackedStringArray = node_bucket.get_categories()
+	create_btn.disabled = true
+	if categories.is_empty():
+		var placeholder := create_item(root)
+		placeholder.set_text(0, "No nodes available")
+		placeholder.set_selectable(0, false)
+		return
+	for category in categories:
+		var category_item := create_item(root)
+		category_item.set_text(0, category)
+		category_item.collapsed = true
+		category_item.set_selectable(0, false)
+		var descriptors: Array = node_bucket.get_descriptors_by_category(category)
+		for descriptor in descriptors:
+			_create_descriptor_item(category_item, descriptor)
 
 
-func _create() -> void:
-	var node_type = get_selected().get_text(0)
-	GlobalSignal.emit("add_graph_node", [node_type, window])
+func _create_descriptor_item(parent: TreeItem, descriptor) -> void:
+	var item := create_item(parent)
+	item.set_text(0, descriptor.display_name)
+	if descriptor.icon:
+		item.set_icon(0, descriptor.icon)
+	item.set_metadata(0, descriptor.name)
+
+
+func _create() -> bool:
+	var selected := get_selected()
+	if selected == null:
+		return false
+	var descriptor_name = selected.get_metadata(0)
+	if descriptor_name == null:
+		return false
+	GlobalSignal.emit("add_graph_node", [String(descriptor_name), window])
+	return true
+
+
+func create_selected_descriptor() -> bool:
+	return _create()
 
 
 func _on_item_activated() -> void:
 	var item: TreeItem = get_selected()
+	if item == null:
+		return
 	if item.get_child_count() > 0:
 		item.collapsed = !item.collapsed
 	else:
-		_create()
-		window.close()
+		if _create():
+			window.close()
 
 
 func _on_item_selected() -> void:
 	var item: TreeItem = get_selected()
-	create_btn.disabled = item.get_child_count() > 0
+	if item == null:
+		create_btn.disabled = true
+		return
+	create_btn.disabled = item.get_metadata(0) == null
 
 
 func _on_search_bar_text_changed(new_text: String) -> void:
@@ -132,3 +119,10 @@ func _recursive_show_item(item: TreeItem) -> void:
 		item.collapsed = true
 	for child in item.get_children():
 		_recursive_show_item(child)
+
+
+func _get_node_bucket():
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		return tree.root.get_node_or_null("/root/NodeBucket")
+	return null

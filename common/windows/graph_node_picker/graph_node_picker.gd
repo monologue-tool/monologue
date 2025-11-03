@@ -2,6 +2,7 @@ class_name GraphNodePicker extends Window
 
 ## Reference to the tab switcher so that the picker knows which tab it is in.
 @onready var switcher := %GraphEditSwitcher
+@onready var node_tree := %GraphNodeTree
 
 ## The node in which the picker was spawned/dragged from.
 var from_node: String
@@ -22,12 +23,12 @@ func _ready():
 
 
 func _on_enable_picker_mode(
-	node: String = "",
-	port: int = -1,
-	mouse_pos = null,
-	graph_release_pos = null,
-	center_pos = null,
-	center_window: bool = false
+	_node: String = "",
+	_port: int = -1,
+	_mouse_pos = null,
+	_graph_release_pos = null,
+	_center_pos = null,
+	_center_window: bool = false
 ):
 	return
 	#if switcher.current.file_path:
@@ -72,7 +73,8 @@ func _on_cancel_button_pressed() -> void:
 
 
 func _on_create_button_pressed() -> void:
-	close()
+	if node_tree.create_selected_descriptor():
+		close()
 
 
 func _on_visibility_changed() -> void:

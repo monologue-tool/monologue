@@ -1,5 +1,7 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 
+const GraphNodeViewFactory := preload("res://common/layouts/graph_edit/graph_node_view_factory.gd")
+
 signal node_view_selected(node: InspectableNode)
 
 var characters := Property.new("characters", {}, "character", {})
@@ -7,6 +9,7 @@ var variables := Property.new("variables", {}, "variable", {})
 
 var storyline_id: String
 var connection_manager: ConnectionManager
+var _suppress_position_signal: bool = false
 
 
 func _ready() -> void:
@@ -34,113 +37,64 @@ func refresh() -> void:
 
 
 func refresh_node(node: InspectableNode) -> void:
+	if not node or not is_instance_valid(node.graph_view):
+		return
+
 	clear_connections()
-	if node.graph_view:
-		build_graph_node_view_content(node.graph_view, node)
+	GraphNodeViewFactory.populate(node.graph_view, node)
+	_apply_node_position(node)
 	_reconnect_all_slots()
 
 
 func add_graph_node_view(node: InspectableNode) -> void:
-	var new_node: GraphNode = GraphNode.new()
-	new_node.custom_minimum_size.x = 192
-	build_graph_node_view_content(new_node, node)
-
-	var new_node_title_bar: HBoxContainer = new_node.get_titlebar_hbox()
-	new_node_title_bar.hide()
-
+	var new_node: GraphNode = GraphNodeViewFactory.build(node)
 	new_node.node_selected.connect(_on_node_view_selected.bind(node))
 	add_child(new_node)
 	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(node))
 
 	node.graph_view = new_node
 	node.add_observer(on_property_changed)
-
-
-func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode) -> void:
-	for child: Control in graph_node.get_children():
-		graph_node.remove_child(child)
-		child.queue_free()
-
-	var title_bar: HBoxContainer = graph_node.get_titlebar_hbox()
-	title_bar.hide()
-
-	var properties: Array = node.get_properties()
-	var rows: Array = []
-
-	for prop: Property in properties:
-		# Skip properties not visible in graph
-		if not prop.settings.get("visible_in_graph", true):
-			continue
-
-		var enable_left: bool = prop.get_settings_value("exposed", false) or false
-		var enable_right: bool = prop.get_settings_value("export", false) or false
-		if prop.settings.get("is_main_property"):
-			rows.push_front(
-				GraphNodeRow.new(prop.get_display_name(), prop.type, enable_left, enable_right)
-			)
-			continue
-		rows.append(GraphNodeRow.new(prop.name, prop.type, enable_left, enable_right))
-
-	for row: GraphNodeRow in rows:
-		var idx: int = rows.find(row)
-		var hbox: HBoxContainer = HBoxContainer.new()
-		var key_label: Label = Label.new()
-		var value_label: Label = Label.new()
-
-		hbox.theme_type_variation = "GraphNodeViewRownHBox"
-		hbox.add_child(key_label)
-		hbox.add_child(value_label)
-
-		key_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		key_label.text = row.get_key()
-		if row.get_type():
-			value_label.text = "[%s]" % row.get_type()
-
-		var field_metadata: Dictionary = FieldBucket.get_metadata(row.get_type())
-		var type_id: int = FieldBucket.get_type_id(row.get_type())
-		var slot_in_texture: Texture2D = preload("res://ui/assets/icons/slot_in.svg")
-		var slot_out_texture: Texture2D = preload("res://ui/assets/icons/slot_out.svg")
-
-		var slot_color: Color = field_metadata.get("color", Color.WHITE)
-		value_label.label_settings = LabelSettings.new()
-		value_label.label_settings.font_color = slot_color
-
-		# If is title row
-		if idx <= 0:
-			key_label.theme_type_variation = "GraphNodeViewTitleLabel"
-		value_label.theme_type_variation = "GraphNodeViewValueLabel"
-
-		graph_node.add_child(hbox)
-
-		graph_node.set_slot(
-			idx,
-			row._enable_left_port,
-			type_id,
-			slot_color,
-			row._enable_right_port,
-			type_id,
-			slot_color,
-			slot_in_texture,
-			slot_out_texture,
-			true
-		)
-
-		graph_node.set_slot_custom_icon_left(idx, slot_in_texture)
-		graph_node.set_slot_custom_icon_right(idx, slot_out_texture)
-
-	graph_node.set_size(Vector2.ZERO)
+	_apply_node_position(node)
 
 
 func _on_node_view_selected(node: InspectableNode) -> void:
 	node_view_selected.emit(node)
 
 
-func _on_node_view_position_offset_changed(_node: InspectableNode) -> void:
-	pass
+func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
+	if _suppress_position_signal:
+		return
+	if not node or not is_instance_valid(node.graph_view):
+		return
+	var new_position: Vector2 = node.graph_view.position_offset
+	var position_property := node.get_property("position")
+	if position_property == null:
+		return
+	var current_position: Vector2 = position_property.get_value()
+	if new_position == current_position:
+		return
+	node.set_property_value("position", new_position)
 
 
-func on_property_changed(node: InspectableNode, _pname: String) -> void:
+func on_property_changed(node: InspectableNode, property_name: String) -> void:
+	if property_name == "position":
+		_apply_node_position(node)
+		return
 	refresh_node(node)
+
+
+func _apply_node_position(node: InspectableNode) -> void:
+	if not node or not is_instance_valid(node.graph_view):
+		return
+	var position_property := node.get_property("position")
+	var desired_position: Vector2 = (
+		position_property.get_value() if position_property else Vector2.ZERO
+	)
+	if node.graph_view.position_offset == desired_position:
+		return
+	_suppress_position_signal = true
+	node.graph_view.position_offset = desired_position
+	_suppress_position_signal = false
 
 
 func _on_connection_request(

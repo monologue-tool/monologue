@@ -30,7 +30,8 @@ func _select_new_node() -> void:
 
 func _input(event):
 	if event.is_action_pressed("Save"):
-		save()
+		pass
+		#save()
 
 	if event.is_action_pressed("ui_undo"):
 		StorylineManager.get_active_storyline().history.undo()
@@ -85,9 +86,35 @@ func _to_dict() -> Dictionary:
 ## Function callback for when the user wants to add a node from global context.
 ## Used by header menu and graph node selector (picker).
 func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
-	#var nodes: Array[MonologueGraphNode] = graph_switcher.current.add_node(node_type, true, picker)
-	#graph_switcher.current.pick_and_center(nodes, picker)
-	pass
+	var storyline := StorylineManager.get_active_storyline()
+	if storyline == null:
+		push_warning("No active storyline available to add node.")
+		return
+
+	var graph_edit: MonologueGraphEdit = graph_switcher.graph_edits.get(storyline.id)
+	if graph_edit == null:
+		graph_switcher.refresh()
+		graph_edit = graph_switcher.graph_edits.get(storyline.id)
+	if graph_edit == null:
+		push_warning("Graph edit not initialized for the active storyline.")
+		return
+
+	var node := storyline.create_node(node_type)
+	if node == null:
+		push_warning("Unable to create node of type '%s'." % node_type)
+		return
+
+	var target_position := Vector2.ZERO
+	if picker and picker.graph_release is Vector2:
+		target_position = picker.graph_release
+	else:
+		target_position = graph_edit.scroll_offset / graph_edit.zoom
+
+	var position_property := node.get_property("position")
+	if position_property:
+		position_property.set_value(target_position)
+
+	graph_edit.add_graph_node_view(node)
 
 
 func get_root_dict(node_list: Array) -> Dictionary:

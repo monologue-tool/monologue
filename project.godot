@@ -39,6 +39,7 @@ Cursor="*res://autoloads/cursor.gd"
 ImageLoader="*res://autoloads/image_loader.gd"
 UndoRedoService="*res://autoloads/undo_redo_service.gd"
 FieldBucket="*res://common/ui/editor_properties/field_bucket.gd"
+NodeBucket="*res://common/nodes/node_bucket.gd"
 StorylineManager="*res://autoloads/storyline_manager.gd"
 
 [debug]

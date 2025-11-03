@@ -21,18 +21,21 @@ func _init(sname: String, sfile_path: String = "") -> void:
 	history.undone.connect(_on_undo)
 	history.redone.connect(_on_redo)
 
-	var root_node: RootNode = RootNode.new(history)
-	nodes.append(root_node)
-
-	var sentence_node: SentenceNode = SentenceNode.new(history)
-	nodes.append(sentence_node)
-
-	var text_node: TextNode = TextNode.new(history)
-	nodes.append(text_node)
+	_create_default_nodes()
 
 
 func add_node(node: InspectableNode) -> void:
-	node.add_observer(on_node_changed)
+	_register_node(node)
+
+
+func create_node(node_type: String) -> InspectableNode:
+	var node_bucket = _get_node_bucket()
+	if node_bucket == null:
+		push_warning("NodeBucket service unavailable.")
+		return null
+	var node = node_bucket.create_node(node_type, history)
+	_register_node(node)
+	return node
 
 
 func _on_command_executed():
@@ -57,8 +60,38 @@ func save():
 	is_dirty = false
 
 
-# Called by InspectableNode
-func on_node_changed(
-	_pnode: InspectableNode, _pname: String, _old_value: Variant, _new_value: Variant
-) -> void:
+func _create_default_nodes() -> void:
+	var defaults := ["root", "sentence", "text"]
+	var node_bucket = _get_node_bucket()
+	if node_bucket == null:
+		push_warning("NodeBucket service unavailable; default nodes not created.")
+		return
+	for node_type: String in defaults:
+		var node = node_bucket.create_node(node_type, history)
+		_register_node(node)
+
+
+func _register_node(node: InspectableNode) -> void:
+	if node == null:
+		return
+	if node not in nodes:
+		nodes.append(node)
+	node.add_observer(_on_node_property_changed)
 	is_dirty = true
+
+
+func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
+	is_dirty = true
+
+
+var _node_bucket_cache
+
+
+func _get_node_bucket():
+	if _node_bucket_cache:
+		return _node_bucket_cache
+	var main_loop := Engine.get_main_loop()
+	if main_loop is SceneTree:
+		var tree: SceneTree = main_loop
+		_node_bucket_cache = tree.root.get_node_or_null("/root/NodeBucket")
+	return _node_bucket_cache
