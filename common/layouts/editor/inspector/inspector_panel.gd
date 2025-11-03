@@ -114,25 +114,22 @@ func _create_property_editor(property: Property) -> Control:
 	p_label.text = property.get_display_name()
 	p_hbox.add_child(p_expose_button)
 	p_hbox.add_child(p_label)
-	
-	# Add inspect connected node button if property is connected
-	if property.is_port_connected():
-		var inspect_button: Button = Button.new()
-		inspect_button.text = "→"
-		inspect_button.tooltip_text = "Inspect connected node"
-		inspect_button.size_flags_horizontal = Control.SIZE_SHRINK_END
-		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
-		p_hbox.add_child(inspect_button)
-	
+
 	p_vbox.add_child(p_hbox)
 
 	if property.settings.get("flat"):
 		p_hbox.hide()
 
 	var p_field: Control
-	if p_field_scene:
+	if property.is_intput_connected():  # Add inspect connected node button if property is connected
+		var inspect_button: Button = Button.new()
+		inspect_button.text = "Go to connected node"
+		inspect_button.tooltip_text = "Inspect connected node"
+		inspect_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
+		p_field = inspect_button
+	elif p_field_scene:
 		p_field = p_field_scene.instantiate()
-
 	else:
 		p_field = Label.new()
 		p_field.theme_type_variation = "WarnLabel"
@@ -148,14 +145,13 @@ func _create_property_editor(property: Property) -> Control:
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
 
-	# Make field read-only if property is not editable or is connected
-	if p_field and p_field.has_method("set_editable"):
-		var is_editable = (
-			property.settings.get("editable", true) and not property.is_port_connected()
-		)
-		p_field.set_editable(is_editable)
+	# TODO: Make field read-only if property is not editable or is connected
+	#if p_field and p_field.has_method("set_editable"):
+	#var is_editable = (
+	#property.settings.get("editable", true) and not property.is_intput_connected()
+	#)
+	#p_field.set_editable(is_editable)
 
-	# TODO: Input field
 	return p_container
 
 
@@ -190,20 +186,20 @@ func _on_property_expose_state_changed(
 func _on_inspect_connected_node(property: Property) -> void:
 	if not current_object or not current_object is InspectableNode:
 		return
-	
+
 	var node: InspectableNode = current_object as InspectableNode
-	
+
 	# Get the graph edit from the node's graph view
 	if not node.graph_view or not node.graph_view.get_parent():
 		return
-	
+
 	var graph_edit = node.graph_view.get_parent()
-	if not graph_edit.has("connection_manager") or not graph_edit.connection_manager:
+	if not graph_edit.connection_manager:
 		return
-	
+
 	# Get the connected node from the connection manager
 	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
-	
+
 	if connected_node and connected_node.graph_view:
 		# Select the connected node in the graph view
 		connected_node.graph_view.selected = true

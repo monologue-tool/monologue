@@ -17,7 +17,7 @@ func _init(command_manager: CommandManager = null) -> void:
 	define_property(
 		"notes",
 		"",
-		"string",
+		"textarea",
 		{"visible_in_graph": false, "visible_in_inspector": true, "exposable": false},
 		"Extra"
 	)

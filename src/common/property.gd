@@ -54,8 +54,16 @@ func get_category() -> String:
 	return settings.get("category", "General")
 
 
+func is_intput_connected() -> bool:
+	return connected_from.size() > 0
+
+
+func is_output_connected() -> bool:
+	return connected_to.size() > 0
+
+
 func is_port_connected() -> bool:
-	return connected_from.size() > 0 or connected_to.size() > 0
+	return is_intput_connected() or is_output_connected()
 
 
 func add_connection_from(node_name: String, property_name: String, port: int) -> void:
