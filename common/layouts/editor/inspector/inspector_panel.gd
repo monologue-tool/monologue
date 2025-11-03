@@ -115,7 +115,6 @@ func _create_property_editor(property: Property) -> Control:
 	var p_vbox: VBoxContainer = VBoxContainer.new()
 	var p_expose_button: TextureButton = expose_button.instantiate()
 	var p_label: Label = Label.new()
-	var p_field_scene: PackedScene = FieldBucket.get_scene(property.type)
 
 	p_label.text = property.get_display_name()
 	p_hbox.add_child(p_expose_button)
@@ -134,14 +133,15 @@ func _create_property_editor(property: Property) -> Control:
 		inspect_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
 		p_field = inspect_button
-	elif p_field_scene:
-		var new_field: Field = p_field_scene.instantiate()
-		property.bind_field.call_deferred(new_field)
-		p_field = new_field
 	else:
-		p_field = Label.new()
-		p_field.theme_type_variation = "WarnLabel"
-		p_field.text = "Unknown property type"
+		var new_field: Field = FieldBucket.create_field(property.type)
+		if new_field:
+			property.call_deferred("bind_field", new_field, current_object)
+			p_field = new_field
+		else:
+			p_field = Label.new()
+			p_field.theme_type_variation = "WarnLabel"
+			p_field.text = "Unknown property type"
 
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)
@@ -215,5 +215,5 @@ func _on_inspect_connected_node(property: Property) -> void:
 		inspect(connected_node)
 
 
-func on_property_changed(_node: InspectableNode, property_name: String) -> void:
+func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
 	rebuild()

@@ -10,7 +10,6 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-scroll_offset = Vector2(466.66663, 266.66663)
 grid_pattern = 1
 snapping_enabled = false
 snapping_distance = 30

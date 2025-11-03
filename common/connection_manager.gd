@@ -3,6 +3,7 @@ class_name ConnectionManager extends RefCounted
 ## Manages connections between node properties for easy access and validation
 
 var _storyline: StorylineDocument
+var _suspended_connections: Dictionary = {}
 
 
 func _init(storyline: StorylineDocument) -> void:
@@ -197,6 +198,64 @@ func validate_connections() -> bool:
 					all_valid = false
 
 	return all_valid
+
+
+func suspend_property_connections(node_name: String, property_name: String) -> void:
+	var key: String = _connection_key(node_name, property_name)
+	if _suspended_connections.has(key):
+		return
+	var node := _get_node_view(node_name)
+	if not node:
+		return
+	var prop := node.get_property(property_name)
+	if not prop:
+		return
+	var outgoing := prop.connected_to.duplicate(true)
+	var incoming := prop.connected_from.duplicate(true)
+	if outgoing.is_empty() and incoming.is_empty():
+		return
+	_suspended_connections[key] = {
+		"outgoing": outgoing,
+		"incoming": incoming,
+	}
+	for conn_dict in outgoing:
+		var target_node: String = conn_dict.get("node_name", "")
+		var target_property: String = conn_dict.get("property_name", "")
+		if target_node.is_empty() or target_property.is_empty():
+			continue
+		unregister_connection_by_property(node_name, property_name, target_node, target_property)
+	for conn_dict in incoming:
+		var source_node: String = conn_dict.get("node_name", "")
+		var source_property: String = conn_dict.get("property_name", "")
+		if source_node.is_empty() or source_property.is_empty():
+			continue
+		unregister_connection_by_property(source_node, source_property, node_name, property_name)
+
+
+func restore_property_connections(node_name: String, property_name: String) -> void:
+	var key: String = _connection_key(node_name, property_name)
+	if not _suspended_connections.has(key):
+		return
+	var snapshot: Dictionary = _suspended_connections[key]
+	_suspended_connections.erase(key)
+	var incoming: Array = snapshot.get("incoming", [])
+	var outgoing: Array = snapshot.get("outgoing", [])
+	for conn_dict in incoming:
+		var source_node: String = conn_dict.get("node_name", "")
+		var source_property: String = conn_dict.get("property_name", "")
+		if source_node.is_empty() or source_property.is_empty():
+			continue
+		register_connection_by_property(source_node, source_property, node_name, property_name)
+	for conn_dict in outgoing:
+		var target_node: String = conn_dict.get("node_name", "")
+		var target_property: String = conn_dict.get("property_name", "")
+		if target_node.is_empty() or target_property.is_empty():
+			continue
+		register_connection_by_property(node_name, property_name, target_node, target_property)
+
+
+func _connection_key(node_name: String, property_name: String) -> String:
+	return "%s::%s" % [node_name, property_name]
 
 
 func _get_node_view(node_name: String) -> InspectableNode:

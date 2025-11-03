@@ -1,13 +1,24 @@
 class_name Property extends RefCounted
 
-signal changed
 signal value_changed(old_value: Variant, new_value: Variant)
 
 var name: String = ""
 var value: Variant = 0
 var type: String = ""
 var settings: Dictionary = {}
-var _field: Field
+var descriptor
+var _bindings: Array = []
+
+const DEFAULT_SETTINGS := {
+	"visible_in_graph": true,
+	"visible_in_inspector": true,
+	"editable": true,
+	"exposable": true,
+	"exposed": false,
+	"export": false,
+	"category": "General",
+	"label": "",
+}
 
 ## Tracks input connections to this property (nodes connecting TO this property)
 var connected_from: Array[Dictionary] = []  # [{node_name: String, property_name: String, port: int}]
@@ -28,20 +39,41 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 	name = pname
 	value = pvalue
 	type = ptype
-	settings = psettings
+	descriptor = FieldBucket.get_descriptor(ptype)
+	settings = DEFAULT_SETTINGS.duplicate(true)
+	if descriptor and descriptor.default_settings:
+		settings.merge(descriptor.default_settings, true)
+	if psettings:
+		settings.merge(psettings, true)
+	if not settings.get("category"):
+		settings["category"] = DEFAULT_SETTINGS["category"]
+	if settings.get("label", "") == "":
+		settings.erase("label")
 
 
-func bind_field(field: Field) -> void:
-	_field = field
-	_field.set_value(value)
-	_field.field_changed.connect(on_field_changed)
+func bind_field(field: Field, target_owner: InspectableObject = null):
+	if not is_instance_valid(field):
+		return null
+	if not field.is_inside_tree():
+		field.tree_entered.connect(
+			_on_field_tree_entered.bind(field, target_owner), CONNECT_ONE_SHOT
+		)
+		return null
+	var binding = FieldBucket.bind(self, field, target_owner)
+	if binding:
+		_bindings.append(binding)
+	return binding
+
+
+func _on_field_tree_entered(field: Field, target_owner: InspectableObject) -> void:
+	bind_field(field, target_owner)
 
 
 func set_value(new_value: Variant) -> void:
+	if value == new_value:
+		return
 	var old_value: Variant = value
 	value = new_value
-
-	#changed.emit()
 	value_changed.emit(old_value, new_value)
 
 
@@ -54,14 +86,17 @@ func get_settings_value(skey: String, default_value: Variant) -> Variant:
 
 
 func get_display_name() -> String:
-	return Util.to_readable_name(settings.get("label", name))
+	var label: String = settings.get("label", "")
+	if label.is_empty():
+		label = name
+	return Util.to_readable_name(label)
 
 
 func get_category() -> String:
 	return settings.get("category", "General")
 
 
-func is_intput_connected() -> bool:
+func is_input_connected() -> bool:
 	return connected_from.size() > 0
 
 
@@ -70,7 +105,11 @@ func is_output_connected() -> bool:
 
 
 func is_port_connected() -> bool:
-	return is_intput_connected() or is_output_connected()
+	return is_input_connected() or is_output_connected()
+
+
+func is_intput_connected() -> bool:
+	return is_input_connected()
 
 
 func add_connection_from(node_name: String, property_name: String, port: int) -> void:
@@ -102,5 +141,17 @@ func clear_connections() -> void:
 	connected_to.clear()
 
 
-func on_field_changed() -> void:
-	set_value(_field.get_value())
+func refresh_bindings() -> void:
+	_bindings = _bindings.filter(func(binding): return binding and binding.is_active())
+	for binding in _bindings:
+		binding.refresh()
+
+
+func get_effective_settings() -> Dictionary:
+	return settings.duplicate(true)
+
+
+func get_descriptor():
+	if descriptor == null:
+		descriptor = FieldBucket.get_descriptor(type)
+	return descriptor

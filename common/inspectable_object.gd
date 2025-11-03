@@ -29,21 +29,13 @@ func define_property(
 	psettings: Dictionary = {},
 	category: String = "General"
 ) -> void:
-	var default_settings: Dictionary = {}
-	default_settings["visible_in_graph"] = true
-	default_settings["visible_in_inspector"] = true
-	default_settings["editable"] = true
-	default_settings["exposable"] = true
-	default_settings["exposed"] = false
-	default_settings["export"] = false
+	var merged_settings: Dictionary = psettings.duplicate(true)
+	merged_settings["category"] = category
 
-	psettings["category"] = category
-	psettings.merge(default_settings)
-
-	var property: Property = Property.new(pname, default_value, type, psettings)
+	var property: Property = Property.new(pname, default_value, type, merged_settings)
 	_properties.set(pname, property)
 
-	property.changed.connect(_notify_change.bind(pname))
+	property.value_changed.connect(func(_old, _new): _notify_change(pname))
 
 
 func add_observer(callable: Callable) -> void:
