@@ -85,6 +85,9 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 	for property: Property in properties:
 		var index: int = properties.find(property)
 		var property_editor: Control = _create_property_editor(property)
+		if not property_editor:
+			continue
+
 		_special_fields.append(property_editor)
 
 		if container.get_child_count() >= index:
@@ -196,7 +199,10 @@ func _on_inspect_connected_node(property: Property) -> void:
 	if not node.graph_view or not node.graph_view.get_parent():
 		return
 
-	var graph_edit = node.graph_view.get_parent()
+	var graph_edit := node.graph_view.get_parent()
+	if not (graph_edit is GraphEdit):
+		return
+
 	if not graph_edit.connection_manager:
 		return
 

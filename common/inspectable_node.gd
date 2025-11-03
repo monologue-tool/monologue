@@ -59,9 +59,10 @@ func define_main_property(
 	default_settings["export"] = true
 	default_settings["is_main_property"] = true
 
-	psettings.merge(default_settings)
+	var merged_settings: Dictionary = default_settings.duplicate()
+	merged_settings.merge(psettings, true)
 
-	define_property(pname, default_value, type, psettings, category)
+	define_property(pname, default_value, type, merged_settings, category)
 	_main_property_defined = true
 
 

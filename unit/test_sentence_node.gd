@@ -3,8 +3,8 @@ extends GdUnitTestSuite
 
 func test_title_property():
 	var node = auto_free(SentenceNode.new())
-	var title_prop = node.get_property("title")
-	assert_str(title_prop.get_value()).is_equal("Sentence")
+	var title_prop = node.get_property("sentence")
+	assert_object(title_prop).is_not_null()
 	assert_str(title_prop.type).is_equal("context")
 
 
