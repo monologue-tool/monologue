@@ -1,7 +1,5 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 
-const GraphNodeViewFactory := preload("res://common/layouts/graph_edit/graph_node_view_factory.gd")
-
 signal node_view_selected(node: InspectableNode)
 
 var characters := Property.new("characters", {}, "character", {})
@@ -51,6 +49,7 @@ func add_graph_node_view(node: InspectableNode) -> void:
 	new_node.node_selected.connect(_on_node_view_selected.bind(node))
 	add_child(new_node)
 	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(node))
+	new_node.dragged.connect(_on_node_view_dragged.bind(node))
 
 	node.graph_view = new_node
 	node.add_observer(on_property_changed)
@@ -59,6 +58,12 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 func _on_node_view_selected(node: InspectableNode) -> void:
 	node_view_selected.emit(node)
+
+
+func _on_node_view_dragged(_from: Vector2, _to: Vector2, node: InspectableNode) -> void:
+	if node and is_instance_valid(node.graph_view):
+		node.graph_view.selected = true
+		_on_node_view_selected(node)
 
 
 func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
