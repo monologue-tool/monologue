@@ -43,7 +43,7 @@ func define_property(
 	var property: Property = Property.new(pname, default_value, type, psettings)
 	_properties.set(pname, property)
 
-	property.changed.connect(_notify_change.bind())
+	property.changed.connect(_notify_change.bind(pname))
 
 
 func add_observer(callable: Callable) -> void:

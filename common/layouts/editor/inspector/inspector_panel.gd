@@ -135,7 +135,9 @@ func _create_property_editor(property: Property) -> Control:
 		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
 		p_field = inspect_button
 	elif p_field_scene:
-		p_field = p_field_scene.instantiate()
+		var new_field: Field = p_field_scene.instantiate()
+		property.bind_field.call_deferred(new_field)
+		p_field = new_field
 	else:
 		p_field = Label.new()
 		p_field.theme_type_variation = "WarnLabel"
@@ -213,5 +215,5 @@ func _on_inspect_connected_node(property: Property) -> void:
 		inspect(connected_node)
 
 
-func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
+func on_property_changed(_node: InspectableNode, property_name: String) -> void:
 	rebuild()

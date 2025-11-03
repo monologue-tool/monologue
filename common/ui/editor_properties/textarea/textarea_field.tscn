@@ -9,5 +9,6 @@ size_flags_horizontal = 3
 script = ExtResource("1_17mni")
 
 [node name="TextEdit" type="TextEdit" parent="."]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2

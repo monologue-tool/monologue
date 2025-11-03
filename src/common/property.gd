@@ -7,6 +7,7 @@ var name: String = ""
 var value: Variant = 0
 var type: String = ""
 var settings: Dictionary = {}
+var _field: Field
 
 ## Tracks input connections to this property (nodes connecting TO this property)
 var connected_from: Array[Dictionary] = []  # [{node_name: String, property_name: String, port: int}]
@@ -30,11 +31,17 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 	settings = psettings
 
 
+func bind_field(field: Field) -> void:
+	_field = field
+	_field.set_value(value)
+	_field.field_changed.connect(on_field_changed)
+
+
 func set_value(new_value: Variant) -> void:
 	var old_value: Variant = value
 	value = new_value
 
-	changed.emit()
+	#changed.emit()
 	value_changed.emit(old_value, new_value)
 
 
@@ -93,3 +100,7 @@ func remove_connection_to(node_name: String, port: int) -> void:
 func clear_connections() -> void:
 	connected_from.clear()
 	connected_to.clear()
+
+
+func on_field_changed() -> void:
+	set_value(_field.get_value())
