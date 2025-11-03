@@ -25,7 +25,7 @@ func _ready():
 
 
 func _select_new_node() -> void:
-	graph_node_picker.show()
+	graph_node_picker.open_for_node("", -1, null, null, null, true)
 
 
 func _input(event):

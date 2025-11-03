@@ -23,20 +23,14 @@ func _ready():
 
 
 func _on_enable_picker_mode(
-	_node: String = "",
-	_port: int = -1,
-	_mouse_pos = null,
-	_graph_release_pos = null,
-	_center_pos = null,
-	_center_window: bool = false
+	node: String = "",
+	port: int = -1,
+	mouse_pos = null,
+	graph_release_pos = null,
+	center_pos = null,
+	center_window: bool = false
 ):
-	return
-	#if switcher.current.file_path:
-	#from_node = node
-	#from_port = port
-	#release = mouse_pos
-	#graph_release = graph_release_pos
-	#center = center_pos
+	open_for_node(node, port, mouse_pos, graph_release_pos, center_pos, center_window)
 
 
 #
@@ -62,6 +56,35 @@ func flush() -> void:
 	release = null
 	graph_release = null
 	center = null
+
+
+func open_for_node(
+	node: String = "",
+	port: int = -1,
+	mouse_pos = null,
+	graph_release_pos = null,
+	center_pos = null,
+	_center_window: bool = false
+) -> void:
+	flush()
+	from_node = node
+	from_port = port
+	release = mouse_pos
+	graph_release = graph_release_pos
+	center = center_pos
+
+	if node_tree:
+		node_tree.reload_tree()
+		node_tree.grab_focus()
+
+	popup()
+	move_to_center()
+
+	var root_window := get_tree().get_root()
+	if root_window:
+		current_screen = root_window.current_screen
+
+	grab_focus()
 
 
 func _on_close_requested() -> void:

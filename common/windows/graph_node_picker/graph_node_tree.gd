@@ -7,38 +7,37 @@ extends Tree
 var _first_item_found: bool = false
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	_reload_tree()
-	deselect_all()
+	reload_tree()
 
 
-func _reload_tree() -> void:
+func reload_tree() -> void:
 	clear()
-	var root: TreeItem = create_item()
-	var node_bucket = _get_node_bucket()
-	if node_bucket == null:
-		var placeholder := create_item(root)
-		placeholder.set_text(0, "No nodes available")
-		placeholder.set_selectable(0, false)
-		create_btn.disabled = true
+	_first_item_found = false
+	var root := create_item()
+	create_btn.disabled = true
+
+	var categories: PackedStringArray = NodeBucket.get_categories()
+	if categories.is_empty():
+		_add_placeholder(root, "No nodes available")
 		return
 
-	var categories: PackedStringArray = node_bucket.get_categories()
-	create_btn.disabled = true
-	if categories.is_empty():
-		var placeholder := create_item(root)
-		placeholder.set_text(0, "No nodes available")
-		placeholder.set_selectable(0, false)
-		return
 	for category in categories:
 		var category_item := create_item(root)
 		category_item.set_text(0, category)
 		category_item.collapsed = true
 		category_item.set_selectable(0, false)
-		var descriptors: Array = node_bucket.get_descriptors_by_category(category)
+		var descriptors: Array = NodeBucket.get_descriptors_by_category(category)
 		for descriptor in descriptors:
 			_create_descriptor_item(category_item, descriptor)
+
+	deselect_all()
+
+
+func _add_placeholder(parent: TreeItem, text: String) -> void:
+	var placeholder := create_item(parent)
+	placeholder.set_text(0, text)
+	placeholder.set_selectable(0, false)
 
 
 func _create_descriptor_item(parent: TreeItem, descriptor) -> void:
@@ -70,9 +69,9 @@ func _on_item_activated() -> void:
 		return
 	if item.get_child_count() > 0:
 		item.collapsed = !item.collapsed
-	else:
-		if _create():
-			window.close()
+		return
+	if _create():
+		window.close()
 
 
 func _on_item_selected() -> void:
@@ -119,10 +118,3 @@ func _recursive_show_item(item: TreeItem) -> void:
 		item.collapsed = true
 	for child in item.get_children():
 		_recursive_show_item(child)
-
-
-func _get_node_bucket():
-	var tree := Engine.get_main_loop()
-	if tree is SceneTree:
-		return tree.root.get_node_or_null("/root/NodeBucket")
-	return null
