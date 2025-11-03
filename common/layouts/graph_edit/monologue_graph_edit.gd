@@ -6,16 +6,22 @@ var characters := Property.new("characters", {}, "character", {})
 var variables := Property.new("variables", {}, "variable", {})
 
 var storyline_id: String
+var connection_manager: ConnectionManager
 
 
 func _ready() -> void:
 	super._ready()
 
-	connection_request.connect(_on_connection_request)
-
 
 func refresh() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+
+	# Initialize connection manager if not already done
+	if not connection_manager:
+		connection_manager = ConnectionManager.new(storyline)
+
+	# Disconnect all existing graph connections
+	clear_connections()
 
 	for child: GraphElement in get_all_graph_nodes():
 		child.queue_free()
@@ -23,10 +29,15 @@ func refresh() -> void:
 	for node: InspectableNode in storyline.nodes:
 		add_graph_node_view(node)
 
+	# Reconnect all tracked connections after rebuilding nodes
+	_reconnect_all_slots()
+
 
 func refresh_node(node: InspectableNode) -> void:
+	clear_connections()
 	if node.graph_view:
 		build_graph_node_view_content(node.graph_view, node)
+	_reconnect_all_slots()
 
 
 func add_graph_node_view(node: InspectableNode) -> void:
@@ -55,25 +66,20 @@ func build_graph_node_view_content(graph_node: GraphNode, node: InspectableNode)
 
 	var properties: Array = node.get_properties()
 	var rows: Array = []
-	rows.append(
-		GraphNodeRow.new(
-			node.get_title(),
-			"context" if node.settings.get("continuous") else "",
-			not node.settings.get("origin"),
-			node.settings.get("continuous")
-		)
-	)
 
 	for prop: Property in properties:
-		if prop.settings.get("private"):
+		# Skip properties not visible in graph
+		if not prop.settings.get("visible_in_graph", true):
 			continue
 
-		var exposed: bool = prop.get_settings_value("exposed", false) or false
-		var export: bool = prop.get_settings_value("export", false) or false
-		if not prop.settings.get("display") and not exposed and not export:
+		var enable_left: bool = prop.get_settings_value("exposed", false) or false
+		var enable_right: bool = prop.get_settings_value("export", false) or false
+		if prop.settings.get("is_main_property"):
+			rows.push_front(
+				GraphNodeRow.new(prop.get_display_name(), prop.type, enable_left, enable_right)
+			)
 			continue
-
-		rows.append(GraphNodeRow.new(prop.name, prop.type, exposed, export))
+		rows.append(GraphNodeRow.new(prop.name, prop.type, enable_left, enable_right))
 
 	for row: GraphNodeRow in rows:
 		var idx: int = rows.find(row)
@@ -129,32 +135,12 @@ func _on_node_view_selected(node: InspectableNode) -> void:
 	node_view_selected.emit(node)
 
 
-func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
+func _on_node_view_position_offset_changed(_node: InspectableNode) -> void:
 	pass
 
 
 func on_property_changed(node: InspectableNode, _pname: String) -> void:
 	refresh_node(node)
-
-
-## Connects/disconnects and updates a given connection's NextID if possible.
-## If [param next] is true, establish connection and propagate NextIDs.
-## If it is false, destroy connection and clear all linked NextIDs.
-func propagate_connection(from_node: StringName, from_port, to_node, to_port, next = true) -> void:
-	if next:
-		connect_node(from_node, from_port, to_node, to_port)
-	else:
-		disconnect_node(from_node, from_port, to_node, to_port)
-
-	# TODO: Rework this
-
-	var graph_node = get_node_or_null(NodePath(from_node))
-	if graph_node and graph_node.has_method("update_next_id"):
-		if next:
-			var next_node = get_node_or_null(NodePath(to_node))
-			graph_node.update_next_id(from_port, next_node)
-		else:
-			graph_node.update_next_id(from_port, null)
 
 
 func _on_connection_request(
@@ -171,12 +157,105 @@ func _on_connection_request(
 	if from_port_type != to_port_type:
 		return
 
+	# Get property names at the port indices
+	var from_property_name = get_property_name_at_port(String(from_node), from_port, true)
+	var to_property_name = get_property_name_at_port(String(to_node), to_port, false)
+
+	if from_property_name.is_empty() or to_property_name.is_empty():
+		push_warning("Cannot create connection: property not found at port")
+		return
+
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
-		self, from_node, to_node, from_port, to_port
+		self, String(from_node), String(to_node), from_property_name, to_property_name
 	)
 	storyline.history.execute(command)
 
 
 func get_all_graph_nodes() -> Array:
 	return get_children().filter(func(child) -> bool: return child is GraphNode)
+
+
+## Reconnect all slots based on tracked connections in connection_manager
+func _reconnect_all_slots() -> void:
+	if not connection_manager:
+		return
+
+	var all_connections = connection_manager.get_all_connections()
+
+	for conn in all_connections:
+		var from_node_name = conn["from_node_name"]
+		var from_property = conn["from_property"]
+		var to_node_name = conn["to_node_name"]
+		var to_property = conn["to_property"]
+
+		# Get port indices for the properties
+		var from_port = get_port_index_for_property(from_node_name, from_property)
+		var to_port = get_port_index_for_property(to_node_name, to_property)
+
+		# Only connect if both ports are valid
+		if from_port >= 0 and to_port >= 0:
+			connect_node(from_node_name, from_port, to_node_name, to_port)
+
+
+## Get visible properties in the same order as displayed in graph
+func _get_visible_properties(node: InspectableNode) -> Array[Property]:
+	var visible_props: Array[Property] = []
+	var properties = node.get_properties()
+
+	for prop: Property in properties:
+		if not prop.settings.get("visible_in_graph", true):
+			continue
+		var exposed = prop.get_settings_value("exposed", false) or false
+		var export = prop.get_settings_value("export", false) or false
+
+		# Skip if no ports
+		if not exposed and not export:
+			continue
+
+		# Main property goes first
+		if prop.settings.get("is_main_property"):
+			visible_props.push_front(prop)
+		else:
+			visible_props.append(prop)
+
+	return visible_props
+
+
+## Get the port index for a specific property by name
+func get_port_index_for_property(node_name: String, property_name: String) -> int:
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+
+	for node: InspectableNode in storyline.nodes:
+		if node.graph_view.name == node_name:
+			var visible_props = _get_visible_properties(node)
+
+			# Find the property by name and return its index
+			for i in range(visible_props.size()):
+				if visible_props[i].name == property_name:
+					return i
+			break
+
+	return -1
+
+
+## Get property name at a specific port index
+func get_property_name_at_port(node_name: String, port_index: int, is_output: bool) -> String:
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+
+	for node: InspectableNode in storyline.nodes:
+		if node.graph_view.name == node_name:
+			var count := 0
+			for prop: Property in node.get_properties():
+				var has_port: bool = (
+					prop.get_settings_value("export", false)
+					if is_output
+					else prop.get_settings_value("exposed", false)
+				)
+				if not has_port:
+					continue
+				if count == port_index:
+					return prop.name
+				count += 1
+
+	return ""

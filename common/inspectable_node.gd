@@ -1,40 +1,82 @@
 @abstract
 class_name InspectableNode extends InspectableObject
 
-var _displayed_properies: Array = []  # Displayed properties are displayed by default in the GraphNode.
 var graph_view: GraphNode
+var _main_property_defined: bool = false
 
 
-func _init(command_manager: CommandManager) -> void:
-	# `display` properties are not displayed by default in the node view.
-	# `private` properties are not exposable.
-	# `protected` properties cannot be edited from the inspector.
+func _init(command_manager: CommandManager = null) -> void:
 	define_property(
-		"id", IDGen.generate(), "text", {"private": true, "flat": true}, "Special:Header"
+		"id",
+		IDGen.generate(),
+		"text",
+		{"visible_in_graph": false, "visible_in_inspector": false, "flat": true},
+		"Special:Header"
 	)
 	super._init(command_manager)
 	define_property(
-		"position", Vector2.ZERO, "vector2", {"private": true, "protected": true}, "Extra"
+		"notes",
+		"",
+		"textarea",
+		{"visible_in_graph": false, "visible_in_inspector": true, "exposable": false},
+		"Extra"
 	)
-	define_property("notes", "", "string", {"private": true}, "Extra")
+	define_property(
+		"position",
+		Vector2.ZERO,
+		"vector2",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": false,
+			"editable": false,
+			"exposable": false
+		},
+		"Extra"
+	)
+
+	if not _main_property_defined:
+		push_error("Main property not defined")
+
+
+func define_main_property(
+	pname: String,
+	type: String,
+	editable: bool = false,
+	default_value: Variant = null,
+	psettings: Dictionary = {},
+	category: String = "General"
+) -> void:
+	if _main_property_defined:
+		push_error("Main property already defined")
+		return
+
+	var default_settings: Dictionary = {}
+	default_settings["visible_in_graph"] = true
+	default_settings["visible_in_inspector"] = editable
+	default_settings["editable"] = editable
+	default_settings["exposable"] = true
+	default_settings["exposed"] = true
+	default_settings["export"] = true
+	default_settings["is_main_property"] = true
+
+	var merged_settings: Dictionary = default_settings.duplicate()
+	merged_settings.merge(psettings, true)
+
+	define_property(pname, default_value, type, merged_settings, category)
+	_main_property_defined = true
 
 
 func define_property(
 	pname: String,
 	default_value: Variant,
-	type: String,
-	options: Dictionary = {},
-	category: String = "General",
-	display: bool = false
+	ptype: String,
+	psettings: Dictionary = {},
+	category: String = "General"
 ) -> void:
-	super.define_property(pname, default_value, type, options, category)
-
-	if display:
-		_displayed_properies.append(pname)
+	super.define_property(pname, default_value, ptype, psettings, category)
 
 
 @abstract func get_type() -> String
 
-@abstract func get_title() -> String
 @abstract func get_color() -> Color
 @abstract func get_icon() -> Texture2D

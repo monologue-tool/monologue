@@ -3,10 +3,11 @@ class_name SentenceNode extends InspectableNode
 
 
 func initialize_properties() -> void:
+	define_main_property("sentence", "context", false, null, {"export": true})
 	define_property("speaker", "", "dropdown")
 	define_property("display_name", "", "text")
-	define_property("sentence", "", "text")
-	define_property("voiceline", "", "file", {"display": false})
+	define_property("line", "", "text")
+	define_property("voiceline", "", "file", {"visible_in_graph": false})
 
 
 func get_type() -> String:
@@ -14,11 +15,7 @@ func get_type() -> String:
 
 
 func get_settings() -> Dictionary:
-	return {"continuous": true}
-
-
-func get_title() -> String:
-	return "Sentence"
+	return {}
 
 
 func get_icon() -> Texture2D:

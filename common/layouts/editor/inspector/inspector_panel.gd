@@ -10,6 +10,12 @@ var _special_fields: Array[Control] = []
 
 
 func inspect(object: InspectableObject) -> void:
+	if current_object:
+		current_object.graph_view.selected = false
+
+	if object:
+		object.remove_observer(on_property_changed)
+
 	current_object = object
 	rebuild()
 	object.add_observer(on_property_changed)
@@ -39,10 +45,16 @@ func rebuild() -> void:
 			continue
 		_create_category_section(category_name, props)
 
+	post_build()
+
 
 func _group_by_category(properties: Array) -> Dictionary:
 	var groups: Dictionary = {}
 	for prop in properties:
+		# Skip properties not visible in inspector
+		if not prop.settings.get("visible_in_inspector", true):
+			continue
+
 		var category: String = "General"
 		if prop.settings.has("category"):
 			category = prop.settings.category
@@ -73,6 +85,9 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 	for property: Property in properties:
 		var index: int = properties.find(property)
 		var property_editor: Control = _create_property_editor(property)
+		if not property_editor:
+			continue
+
 		_special_fields.append(property_editor)
 
 		if container.get_child_count() >= index:
@@ -84,6 +99,13 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 
 
 func _create_property_editor(property: Property) -> Control:
+	if (
+		not property.settings.get("editable", true)
+		and not property.settings.get("exposed", false)
+		and not property.settings.get("export", false)
+	):
+		return
+
 	if _is_list_property(property):
 		pass  # TODO
 		# return _create_list_property_editor(property)
@@ -98,15 +120,22 @@ func _create_property_editor(property: Property) -> Control:
 	p_label.text = property.get_display_name()
 	p_hbox.add_child(p_expose_button)
 	p_hbox.add_child(p_label)
+
 	p_vbox.add_child(p_hbox)
 
 	if property.settings.get("flat"):
 		p_hbox.hide()
 
 	var p_field: Control
-	if p_field_scene:
+	if property.is_intput_connected():  # Add inspect connected node button if property is connected
+		var inspect_button: Button = Button.new()
+		inspect_button.text = "Go to connected node"
+		inspect_button.tooltip_text = "Inspect connected node"
+		inspect_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
+		p_field = inspect_button
+	elif p_field_scene:
 		p_field = p_field_scene.instantiate()
-
 	else:
 		p_field = Label.new()
 		p_field.theme_type_variation = "WarnLabel"
@@ -116,13 +145,19 @@ func _create_property_editor(property: Property) -> Control:
 	p_container.add_child(p_vbox)
 	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	p_expose_button.disabled = property.settings.get("private", false) or false
-	p_expose_button.button_pressed = property.settings.get("exposed", false) or false
+	p_expose_button.disabled = not property.settings.get("exposable", false)
+	p_expose_button.button_pressed = property.settings.get("exposed", false)
 	p_expose_button.toggled.connect(
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
 
-	# TODO: Input field
+	# TODO: Make field read-only if property is not editable or is connected
+	#if p_field and p_field.has_method("set_editable"):
+	#var is_editable = (
+	#property.settings.get("editable", true) and not property.is_intput_connected()
+	#)
+	#p_field.set_editable(is_editable)
+
 	return p_container
 
 
@@ -138,6 +173,12 @@ func _create_property_editor(property: Property) -> Control:
 #pass
 
 
+func post_build() -> void:
+	for child: Control in property_container.get_children():
+		if child is FoldableContainer and child.is_empty():
+			child.queue_free()
+
+
 func _is_list_property(property: Property) -> bool:
 	return property.type == "list"
 
@@ -148,6 +189,29 @@ func _on_property_expose_state_changed(
 	node.set_property_settings_value(property_name, "exposed", toggled_on)
 
 
-func on_property_changed(node: InspectableNode, property_name: String) -> void:
-	print(property_name)
+func _on_inspect_connected_node(property: Property) -> void:
+	if not current_object or not current_object is InspectableNode:
+		return
+
+	var node: InspectableNode = current_object as InspectableNode
+
+	# Get the graph edit from the node's graph view
+	if not node.graph_view or not node.graph_view.get_parent():
+		return
+
+	var graph_edit := node.graph_view.get_parent()
+	if not (graph_edit is GraphEdit):
+		return
+
+	if not graph_edit.connection_manager:
+		return
+
+	# Get the connected node from the connection manager
+	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
+
+	if connected_node and connected_node.graph_view:
+		inspect(connected_node)
+
+
+func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
 	rebuild()
