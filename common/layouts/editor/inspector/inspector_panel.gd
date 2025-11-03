@@ -70,9 +70,13 @@ func _create_category_section(category_name: String, properties: Array) -> void:
 	container.title = category_name
 	property_container.add_child(container)
 
+	if not property_container.is_node_ready():
+		await property_container.ready
+
 	for property: Property in properties:
 		var property_editor: Control = _create_property_editor(property)
-		container.add_control(property_editor)
+		if property_editor:
+			container.add_control(property_editor)
 
 
 func _handle_special_category_section(category_name: String, properties: Array) -> void:

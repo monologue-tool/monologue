@@ -146,7 +146,10 @@ func on_property_changed(node: InspectableNode, _pname: String) -> void:
 func _on_connection_request(
 	from_node: StringName, from_port: int, to_node: StringName, to_port: int
 ) -> void:
-	if get_all_connections_from_slot(from_node, from_port).size() > 0:
+	if (
+		_has_connection_at_slot(from_node, from_port, true)
+		or _has_connection_at_slot(to_node, to_port, false)
+	):
 		return
 
 	var from_graph_node: GraphNode = get_node(from_node as String)
@@ -170,6 +173,20 @@ func _on_connection_request(
 		self, String(from_node), String(to_node), from_property_name, to_property_name
 	)
 	storyline.history.execute(command)
+
+
+func _has_connection_at_slot(node_name: StringName, port_index: int, is_output: bool) -> bool:
+	var node_key := "from_node" if is_output else "to_node"
+	var port_key := "from_port" if is_output else "to_port"
+	var target_name := String(node_name)
+
+	for connection: Dictionary in get_connection_list():
+		if String(connection.get(node_key, "")) != target_name:
+			continue
+		if int(connection.get(port_key, -1)) == port_index:
+			return true
+
+	return false
 
 
 func get_all_graph_nodes() -> Array:
