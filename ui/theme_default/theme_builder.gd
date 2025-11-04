@@ -2,6 +2,8 @@
 class_name ThemeBuilder extends RefCounted
 ## Modular theme builder that constructs the Monologue theme using semantic colors
 
+const Styles = preload("res://ui/theme_default/theme_styles.gd")
+
 var theme: Theme
 var palette: ThemeColorPalette
 var styles: ThemeStyles
@@ -10,7 +12,7 @@ var styles: ThemeStyles
 func _init(target_theme: Theme, color_palette: ThemeColorPalette) -> void:
 	theme = target_theme
 	palette = color_palette
-	styles = ThemeStyles.new(palette)
+	styles = Styles.new(palette)
 
 
 ## Build all theme components
