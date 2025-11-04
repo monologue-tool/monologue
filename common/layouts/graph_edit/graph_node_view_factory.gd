@@ -7,6 +7,9 @@ const SLOT_OUT_TEXTURE := preload("res://ui/assets/icons/slot_out.svg")
 static func build(node: InspectableNode) -> GraphNode:
 	var graph_node := GraphNode.new()
 	graph_node.custom_minimum_size.x = 192
+	graph_node.draggable = true
+	graph_node.selectable = true
+	graph_node.resizable = false
 	apply_metadata(graph_node, node)
 	populate(graph_node, node)
 	return graph_node
@@ -33,13 +36,16 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 	for idx in rows.size():
 		var row: GraphNodeRow = rows[idx]
 		var container := HBoxContainer.new()
+		container.mouse_filter = Control.MOUSE_FILTER_PASS
 		container.theme_type_variation = "GraphNodeViewRownHBox"
 
 		var key_label := Label.new()
+		key_label.mouse_filter = Control.MOUSE_FILTER_PASS
 		key_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		key_label.text = row.get_key()
 
 		var value_label := Label.new()
+		value_label.mouse_filter = Control.MOUSE_FILTER_PASS
 		if row.get_type():
 			value_label.text = "[%s]" % row.get_type()
 

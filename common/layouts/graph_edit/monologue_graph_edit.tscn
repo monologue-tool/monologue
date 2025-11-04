@@ -30,6 +30,7 @@ script = ExtResource("1_ivjsb")
 [connection signal="connection_request" from="." to="." method="_on_connection_request"]
 [connection signal="connection_to_empty" from="." to="." method="_on_connection_to_empty"]
 [connection signal="disconnection_request" from="." to="." method="_on_disconnection_request"]
+[connection signal="end_node_move" from="." to="." method="_on_end_node_move"]
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

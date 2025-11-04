@@ -1,5 +1,4 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
-
 signal node_view_selected(node: InspectableNode)
 
 var characters := Property.new("characters", {}, "character", {})
@@ -7,11 +6,14 @@ var variables := Property.new("variables", {}, "variable", {})
 
 var storyline_id: String
 var connection_manager: ConnectionManager
-var _suppress_position_signal: bool = false
+var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
+var _pending_positions: Dictionary = {}  # GraphNode -> Vector2 captured during drag
+var _is_applying_position: bool = false
 
 
 func _ready() -> void:
 	super._ready()
+	connect("end_node_move", _on_end_node_move)
 
 
 func refresh() -> void:
@@ -21,7 +23,9 @@ func refresh() -> void:
 	if not connection_manager:
 		connection_manager = ConnectionManager.new(storyline)
 
-	# Disconnect all existing graph connections
+	# Clear node map and connections
+	_node_map.clear()
+	_pending_positions.clear()
 	clear_connections()
 
 	for child: GraphElement in get_all_graph_nodes():
@@ -40,66 +44,74 @@ func refresh_node(node: InspectableNode) -> void:
 
 	clear_connections()
 	GraphNodeViewFactory.populate(node.graph_view, node)
-	_apply_node_position(node)
+	_sync_position_from_property(node)
 	_reconnect_all_slots()
 
 
 func add_graph_node_view(node: InspectableNode) -> void:
-	var new_node: GraphNode = GraphNodeViewFactory.build(node)
-	new_node.node_selected.connect(_on_node_view_selected.bind(node))
-	add_child(new_node)
-	new_node.position_offset_changed.connect(_on_node_view_position_offset_changed.bind(node))
-	new_node.dragged.connect(_on_node_view_dragged.bind(node))
+	var graph_node: GraphNode = GraphNodeViewFactory.build(node)
 
-	node.graph_view = new_node
-	node.add_observer(on_property_changed)
-	_apply_node_position(node)
+	# Store bidirectional mapping
+	_node_map[graph_node] = node
+	node.graph_view = graph_node
 
+	# Connect signals
+	graph_node.position_offset_changed.connect(_on_graph_node_position_changed.bind(graph_node))
 
-func _on_node_view_selected(node: InspectableNode) -> void:
-	node_view_selected.emit(node)
+	# Add to scene and set initial position
+	add_child(graph_node)
+	node.add_observer(_on_inspectable_node_property_changed)
 
-
-func _on_node_view_dragged(_from: Vector2, _to: Vector2, node: InspectableNode) -> void:
-	if node and is_instance_valid(node.graph_view):
-		node.graph_view.selected = true
-		_on_node_view_selected(node)
+	# Apply initial position from property
+	_sync_position_from_property(node)
 
 
-func _on_node_view_position_offset_changed(node: InspectableNode) -> void:
-	if _suppress_position_signal:
-		return
-	if not node or not is_instance_valid(node.graph_view):
-		return
-	var new_position: Vector2 = node.graph_view.position_offset
-	var position_property := node.get_property("position")
-	if position_property == null:
-		return
-	var current_position: Vector2 = position_property.get_value()
-	if new_position == current_position:
-		return
-	node.set_property_value("position", new_position)
-
-
-func on_property_changed(node: InspectableNode, property_name: String) -> void:
+## Called when InspectableNode property changes (undo/redo, programmatic)
+func _on_inspectable_node_property_changed(node: InspectableNode, property_name: String) -> void:
 	if property_name == "position":
-		_apply_node_position(node)
-		return
-	refresh_node(node)
+		if not _is_applying_position:
+			_sync_position_from_property(node)
+	else:
+		refresh_node(node)
 
 
-func _apply_node_position(node: InspectableNode) -> void:
+## Sync GraphNode position from InspectableNode property
+func _sync_position_from_property(node: InspectableNode) -> void:
 	if not node or not is_instance_valid(node.graph_view):
 		return
+
 	var position_property := node.get_property("position")
 	var desired_position: Vector2 = (
 		position_property.get_value() if position_property else Vector2.ZERO
 	)
+
 	if node.graph_view.position_offset == desired_position:
 		return
-	_suppress_position_signal = true
+
+	_is_applying_position = true
 	node.graph_view.position_offset = desired_position
-	_suppress_position_signal = false
+	_is_applying_position = false
+	_pending_positions.erase(node.graph_view)
+	_pending_positions.erase(node.graph_view)
+
+
+## Called when GraphNode position changes (user drag)
+func _on_graph_node_position_changed(graph_node: GraphNode) -> void:
+	if _is_applying_position:
+		return
+
+	_pending_positions[graph_node] = graph_node.position_offset
+
+
+# GraphEdit signals (from .tscn) - handle selection
+func _on_node_selected(graph_node: Node) -> void:
+	var node: InspectableNode = _node_map.get(graph_node)
+	if node:
+		node_view_selected.emit(node)
+
+
+func _on_node_deselected(_graph_node: Node) -> void:
+	pass  # Nothing to do on deselect
 
 
 func _on_connection_request(
@@ -235,3 +247,42 @@ func get_property_name_at_port(node_name: String, port_index: int, is_output: bo
 				count += 1
 
 	return ""
+
+
+func _on_end_node_move() -> void:
+	if _pending_positions.is_empty():
+		return
+
+	_is_applying_position = true
+
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var history: CommandManager = storyline.history if storyline else null
+	if not history:
+		_is_applying_position = false
+		_pending_positions.clear()
+		return
+
+	for graph_node in _pending_positions.keys():
+		if not is_instance_valid(graph_node):
+			continue
+
+		var node: InspectableNode = _node_map.get(graph_node)
+		if not node:
+			continue
+
+		var target_position: Vector2 = _pending_positions[graph_node]
+		var position_property := node.get_property("position")
+		if not position_property:
+			continue
+
+		var current_position: Vector2 = position_property.get_value()
+		if current_position == target_position:
+			continue
+
+		var command := PropertyChangeCommand.new(
+			node, "position", current_position, target_position
+		)
+		history.execute(command, UndoRedo.MERGE_DISABLE)
+
+	_is_applying_position = false
+	_pending_positions.clear()

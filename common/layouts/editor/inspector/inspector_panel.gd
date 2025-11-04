@@ -10,15 +10,18 @@ var _special_fields: Array[Control] = []
 
 
 func inspect(object: InspectableObject) -> void:
-	if current_object:
-		current_object.graph_view.selected = false
-
-	if object:
-		object.remove_observer(on_property_changed)
+	if current_object and current_object != object:
+		if is_instance_valid(current_object.graph_view):
+			current_object.graph_view.selected = false
+		current_object.remove_observer(on_property_changed)
+	elif current_object:
+		current_object.remove_observer(on_property_changed)
 
 	current_object = object
 	rebuild()
-	object.add_observer(on_property_changed)
+
+	if current_object:
+		current_object.add_observer(on_property_changed)
 
 
 func rebuild() -> void:
