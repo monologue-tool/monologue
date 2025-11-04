@@ -3,7 +3,6 @@ class_name MonologueTheme extends Theme
 ## Modern, modular theme for Monologue with semantic color usage
 
 # Explicit preloads to ensure dependencies are loaded in correct order
-const ColorPalette = preload("res://ui/theme_default/color_palette.gd")
 const Styles = preload("res://ui/theme_default/theme_styles.gd")
 const Builder = preload("res://ui/theme_default/theme_builder.gd")
 
@@ -18,7 +17,7 @@ var builder: ThemeBuilder
 
 func _init() -> void:
 	# Initialize color palette
-	palette = ColorPalette.new()
+	palette = ThemeColorPalette.new()
 	
 	# Initialize theme builder
 	builder = Builder.new(self, palette)
