@@ -2,6 +2,7 @@
 class_name InspectableNode extends InspectableObject
 
 var graph_view: GraphNode
+var storyline_id: String = ""
 var _main_property_defined: bool = false
 
 

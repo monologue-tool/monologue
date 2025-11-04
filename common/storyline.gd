@@ -68,6 +68,7 @@ func _register_node(node: InspectableNode) -> void:
 		return
 	if node not in nodes:
 		nodes.append(node)
+	node.storyline_id = id
 	node.add_observer(_on_node_property_changed)
 	is_dirty = true
 

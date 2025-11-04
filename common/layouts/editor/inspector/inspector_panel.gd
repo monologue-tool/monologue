@@ -9,6 +9,14 @@ var current_object: InspectableObject
 var _special_fields: Array[Control] = []
 
 
+func _ready() -> void:
+	GlobalSignal.add_listener("inspector_property_changed", _on_external_property_changed)
+
+
+func _exit_tree() -> void:
+	GlobalSignal.remove_listener("inspector_property_changed", _on_external_property_changed)
+
+
 func inspect(object: InspectableObject) -> void:
 	if current_object and current_object != object:
 		if is_instance_valid(current_object.graph_view):
@@ -219,8 +227,33 @@ func _on_inspect_connected_node(property: Property) -> void:
 	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
 
 	if connected_node and connected_node.graph_view:
-		inspect(connected_node)
+		GlobalSignal.emit(
+			"request_node_inspection", [connected_node, connected_node.storyline_id]
+		)
 
 
-func on_property_changed(_node: InspectableNode, _property_name: String) -> void:
+func on_property_changed(node: InspectableNode, _property_name: String) -> void:
+	if not node:
+		return
+
 	rebuild()
+
+
+func _on_external_property_changed(
+	node: InspectableNode, property_name: String, _is_undo: bool
+) -> void:
+	if not node:
+		return
+
+	var property: Property = node.get_property(property_name)
+	if not property:
+		return
+
+	if not property.settings.get("visible_in_inspector", true):
+		return
+
+	if node == current_object:
+		rebuild()
+		return
+
+	inspect(node)
