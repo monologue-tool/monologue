@@ -562,7 +562,7 @@ func _build_tree() -> void:
 ## Build graph-related styles
 func _build_graph_elements() -> void:
 	# GraphEdit
-	var graph_bg := styles.create_panel(palette.panel_background)
+	var graph_bg := styles.create_panel(palette.graph_bg)
 	graph_bg.set_content_margin_all(0)
 	graph_bg.set_corner_radius_all(0)
 	graph_bg.set_border_width_all(0)

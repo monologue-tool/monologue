@@ -5,8 +5,9 @@ class_name ThemeColorPalette extends RefCounted
 # Base colors - defined by user preference
 #var background: Color = Color("2c2c2c")
 var text: Color = Color("e3e4eb")
-var primary: Color = Color("212121ff")
-var secondary: Color = Color("313131ff") # Fields etc..
+var primary: Color = Color("272727ff")
+var secondary: Color = Color("353535ff") # Fields etc..
+var graph_bg: Color = Color("1e1e1eff")
 var accent: Color = Color("c45a5a")
 var warning: Color = Color("c42e40")
 
