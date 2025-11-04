@@ -200,7 +200,7 @@ func _build_inputs() -> void:
 	var po_input := input_normal.duplicate()
 	var po_focus := po_input.duplicate()
 	po_focus.draw_center = true
-	po_focus.bg_color = palette.background
+	po_focus.bg_color = palette.panel_background
 	po_focus.set_border_width_all(1)
 	
 	theme.set_color("font_uneditable_color", "LineEditPortraitOption", palette.text)
@@ -268,7 +268,7 @@ func _build_panels() -> void:
 	
 	# EditorBackground
 	theme.set_type_variation("EditorBackground", "PanelContainer")
-	var bg := styles.create_panel(palette.background)
+	var bg := styles.create_panel(palette.panel_background)
 	bg.set_corner_radius_all(0)
 	theme.set_stylebox("panel", "EditorBackground", bg)
 	
@@ -296,7 +296,7 @@ func _build_panels() -> void:
 	
 	# FieldPanel
 	theme.set_type_variation("FieldPanel", "PanelContainer")
-	var field_panel := styles.create_panel(palette.background, true)
+	var field_panel := styles.create_panel(palette.panel_background, true)
 	field_panel.set_content_margin_all(styles.base_spacing * 2)
 	theme.set_stylebox("panel", "FieldPanel", field_panel)
 	
@@ -338,7 +338,7 @@ func _build_panels() -> void:
 	theme.set_stylebox("panel", "TreeContainer", tree_container)
 	
 	# TooltipPanel
-	var tooltip := styles.create_panel(palette.with_alpha(palette.background, 0.5))
+	var tooltip := styles.create_panel(palette.with_alpha(palette.panel_background, 0.5))
 	tooltip.set_corner_radius_all(0)
 	theme.set_stylebox("panel", "TooltipPanel", tooltip)
 	
@@ -562,7 +562,7 @@ func _build_tree() -> void:
 ## Build graph-related styles
 func _build_graph_elements() -> void:
 	# GraphEdit
-	var graph_bg := styles.create_panel(palette.background)
+	var graph_bg := styles.create_panel(palette.panel_background)
 	graph_bg.set_content_margin_all(0)
 	graph_bg.set_corner_radius_all(0)
 	graph_bg.set_border_width_all(0)
