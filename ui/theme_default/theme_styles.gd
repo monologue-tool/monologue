@@ -5,7 +5,7 @@ class_name ThemeStyles extends RefCounted
 var palette: ThemeColorPalette
 var base_spacing: int = 4
 var corner_radius: int = 3
-var border_width: int = 1
+var border_width: int = 2
 
 
 func _init(color_palette: ThemeColorPalette) -> void:
@@ -18,11 +18,11 @@ func create_panel(bg_color: Color, with_border: bool = false) -> StyleBoxFlat:
 	style.bg_color = bg_color
 	style.set_corner_radius_all(corner_radius)
 	style.set_content_margin_all(base_spacing)
-	
+
 	if with_border:
 		style.set_border_width_all(border_width)
 		style.border_color = palette.border
-	
+
 	return style
 
 
@@ -32,8 +32,8 @@ func create_button(bg_color: Color) -> StyleBoxFlat:
 	style.bg_color = bg_color
 	style.set_corner_radius_all(corner_radius)
 	style.content_margin_left = base_spacing * 2.0
-	style.content_margin_top = base_spacing
 	style.content_margin_right = base_spacing * 2.0
+	style.content_margin_top = base_spacing
 	style.content_margin_bottom = base_spacing
 	return style
 

@@ -1,0 +1,83 @@
+[gd_scene load_steps=10 format=3 uid="uid://c8525nhvwt1y0"]
+
+[ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_edit_switcher.gd" id="1_nykfi"]
+[ext_resource type="Script" uid="uid://bmku341x5gaoe" path="res://scenes/main/add_node_button.gd" id="2_4vw8t"]
+[ext_resource type="Texture2D" uid="uid://bfmsxfn26cvfn" path="res://ui/assets/icons/character.svg" id="3_fbi2i"]
+[ext_resource type="Texture2D" uid="uid://b46sqb5g0spae" path="res://ui/assets/icons/variables.svg" id="4_4hcgi"]
+[ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/layouts/language_switcher/language_switcher.tscn" id="5_l617j"]
+[ext_resource type="Texture2D" uid="uid://d4fesqfd2v8fd" path="res://ui/assets/icons/settings.svg" id="6_p1o4h"]
+[ext_resource type="Texture2D" uid="uid://dd6wdpndndufl" path="res://ui/assets/icons/sparkles.svg" id="7_lhc65"]
+[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="8_7526h"]
+
+[sub_resource type="GDScript" id="GDScript_lenro"]
+script/source = "extends Button
+
+
+func _on_pressed() -> void:
+	GlobalSignal.emit(\"test_trigger\")
+"
+
+[node name="Graph" type="PanelContainer"]
+
+[node name="GraphEditSwitcher" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("1_nykfi")
+
+[node name="ToolBar" type="HBoxContainer" parent="GraphEditSwitcher"]
+layout_mode = 2
+
+[node name="AddNodeBtn" type="Button" parent="GraphEditSwitcher/ToolBar"]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+text = "Add a node..."
+script = ExtResource("2_4vw8t")
+
+[node name="ButtonCharacters" type="Button" parent="GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("3_fbi2i")
+icon_alignment = 1
+
+[node name="ButtonVariables" type="Button" parent="GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("4_4hcgi")
+icon_alignment = 1
+
+[node name="LanguageSwitcher" parent="GraphEditSwitcher/ToolBar" instance=ExtResource("5_l617j")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+disabled = true
+
+[node name="ButtonSettings" type="Button" parent="GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("6_p1o4h")
+icon_alignment = 1
+
+[node name="ButtonSparkle" type="Button" parent="GraphEditSwitcher/ToolBar"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("7_lhc65")
+
+[node name="RunButton" type="Button" parent="GraphEditSwitcher/ToolBar"]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("8_7526h")
+script = SubResource("GDScript_lenro")
+
+[node name="GraphEdits" type="Control" parent="GraphEditSwitcher"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[connection signal="pressed" from="GraphEditSwitcher/ToolBar/AddNodeBtn" to="GraphEditSwitcher/ToolBar/AddNodeBtn" method="_on_pressed"]
+[connection signal="pressed" from="GraphEditSwitcher/ToolBar/RunButton" to="GraphEditSwitcher/ToolBar/RunButton" method="_on_pressed"]

@@ -5,10 +5,10 @@ class_name ThemeColorPalette extends RefCounted
 # Base colors - defined by user preference
 #var background: Color = Color("2c2c2c")
 var text: Color = Color("e3e4eb")
-var primary: Color = Color("272727ff")
-var secondary: Color = Color("353535ff") # Fields etc..
-var graph_bg: Color = Color("1e1e1eff")
-var accent: Color = Color("c45a5a")
+var primary: Color = Color.from_hsv(0.667, 0.12, 0.14, 1.0)
+var secondary: Color = Color.from_hsv(0.661, 0.15, 0.19, 1.0)  # Fields etc..
+var graph_bg: Color = Color.from_hsv(0.656, 0.10, 0.10, 1.0)
+var accent: Color = Color("af4548")
 var warning: Color = Color("c42e40")
 
 # Semantic colors - derived from base colors for specific purposes
@@ -40,24 +40,24 @@ func _calculate_semantic_colors() -> void:
 	# Surface colors - lighter than background for elevation with better distinction
 	surface = primary
 	surface_variant = secondary
-	
+
 	# Border color - slightly more visible for better UI definition
-	border = secondary
-	
+	border = primary
+
 	# Text variations - adjusted for better readability hierarchy
 	text_secondary = Color(text, 0.75)
 	text_disabled = Color(text, 0.35)
-	
+
 	# Interactive overlays - subtle but noticeable
 	hover_overlay = secondary.lightened(0.02)
 	pressed_overlay = secondary.lightened(0.05)
 	disabled_overlay = secondary.lightened(0.25)
-	
+
 	# UI element colors - harmonized with better visual feedback
 	button_background = secondary
 	button_hover = secondary.lightened(0.02)
 	button_pressed = secondary.lightened(0.05)
-	
+
 	input_background = surface_variant
 	panel_background = surface
 

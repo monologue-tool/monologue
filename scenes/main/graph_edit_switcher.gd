@@ -6,8 +6,8 @@ var graph_edit_scene = preload("res://common/layouts/graph_edit/monologue_graph_
 var prompt_scene = preload("res://common/windows/prompt_window/prompt_window.tscn")
 const NodeSelectionCommandResource := preload("res://logic/history/node_selection_command.gd")
 
-@onready var inspector_panel: InspectorPanel = %Inspector
-@onready var tab_bar: TabBar = %TabBar
+@export var inspector_panel: InspectorPanel
+@export var tab_bar: TabBar
 @onready var graph_container: Control = %GraphEdits
 
 var graph_edits: Dictionary = {}
