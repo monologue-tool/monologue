@@ -4,15 +4,21 @@ This directory contains the modular theme system for Monologue, designed to be r
 
 ## Architecture
 
-The theme system is split into four main components:
+The theme system is split into multiple components:
 
-### 1. `color_palette.gd` - ThemeColorPalette
-The semantic color palette that defines all colors used in the theme. Instead of using messy opacity and contrast calculations, colors are defined clearly and semantically:
+### 1. Color Palettes
+Two semantic color palettes define all colors used in the themes:
 
-- **Base Colors**: `background`, `text`, `primary`, `secondary`, `accent`, `warning`
+**`color_palette.gd` - ThemeColorPalette (Dark Theme)**
+- **Base Colors**: `text`, `primary`, `secondary`, `graph_bg`, `accent`, `warning`
 - **Semantic Colors**: `surface`, `surface_variant`, `border`, `text_secondary`, `text_disabled`
 - **Interactive States**: `hover_overlay`, `pressed_overlay`, `disabled_overlay`
 - **Component Colors**: `button_background`, `button_hover`, `button_pressed`, `input_background`, `panel_background`
+
+**`color_palette_light.gd` - ThemeColorPaletteLight (Light Theme)**
+- Same structure as dark theme but with inverted color relationships
+- Light backgrounds with dark text
+- Adjusted interactive overlays for light theme
 
 ### 2. `theme_styles.gd` - ThemeStyles
 Utility class for creating consistent StyleBox objects. Provides factory methods for common UI patterns:
@@ -40,7 +46,7 @@ Modular theme builder that constructs all theme components. Each UI category has
 - `_build_labels()` - Label variants
 
 ### 4. `theme_default.gd` - MonologueTheme
-The main theme class that coordinates everything. Reduced from 916 lines to just 27 lines by delegating to the modular components.
+The main theme class that coordinates everything. Reduced from 916 lines to ~60 lines by delegating to the modular components. Supports both light and dark themes.
 
 ## Key Improvements
 
@@ -59,13 +65,33 @@ The main theme class that coordinates everything. Reduced from 916 lines to just
 
 ## Customizing the Theme
 
-### Changing Colors
-Edit `color_palette.gd` to change the base colors. All derived colors will be automatically calculated:
+### Switching Between Light and Dark Themes
+The theme system now supports both light and dark themes:
 
 ```gdscript
-var background: Color = Color("1a1a1f")  # Dark background
-var primary: Color = Color("a9a8c0")     # Purple-gray
-var accent: Color = Color("d15050")      # Red accent
+# Create dark theme (default)
+var dark_theme = MonologueTheme.new(false)
+
+# Create light theme
+var light_theme = MonologueTheme.new(true)
+
+# Regenerate existing theme with different mode
+theme.regenerate(true)  # Switch to light theme
+```
+
+### Changing Colors
+Edit `color_palette.gd` (dark) or `color_palette_light.gd` (light) to change the base colors:
+
+```gdscript
+# Dark theme (color_palette.gd)
+var text: Color = Color("e3e4eb")
+var primary: Color = Color.from_hsv(0.667, 0.12, 0.14, 1.0)
+var accent: Color = Color("af4548")
+
+# Light theme (color_palette_light.gd)
+var text: Color = Color("1a1a1f")  # Dark text for light background
+var primary: Color = Color.from_hsv(0.667, 0.08, 0.92, 1.0)
+var accent: Color = Color("d86568")  # Lighter accent
 ```
 
 ### Adding New Components
@@ -78,10 +104,20 @@ Edit the factory methods in `theme_styles.gd` to change default spacing, radius,
 
 ## Generating the Theme
 
-The theme is automatically generated when Godot loads. To manually regenerate:
+The theme is automatically generated when Godot loads. To manually regenerate both themes:
 
 1. Open the project in Godot Editor
 2. Open `ui/theme_generator.gd` in the script editor
 3. Run the script (File → Run)
 
-This will save the generated theme to `ui/theme_default/main.tres`.
+This will:
+- Generate and save the dark theme to `ui/theme_default/main.tres`
+- Generate and save the light theme to `ui/theme_default/main_light.tres`
+- Refresh the theme cache to ensure UI updates immediately
+
+### Theme Cache Refresh
+
+The generator now automatically refreshes the theme cache when regenerating themes. This ensures that:
+1. The existing theme instance in memory is updated
+2. Resource cache is cleared and refreshed
+3. UI updates reflect the new theme immediately without requiring editor restart
