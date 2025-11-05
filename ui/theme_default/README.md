@@ -104,7 +104,7 @@ Edit the factory methods in `theme_styles.gd` to change default spacing, radius,
 
 ## Generating the Theme
 
-The theme is automatically generated when Godot loads. To manually regenerate both themes:
+The theme is automatically loaded and applied when the application starts via the `ThemeManager` autoload. To manually regenerate both themes:
 
 1. Open the project in Godot Editor
 2. Open `ui/theme_generator.gd` in the script editor
@@ -114,10 +114,36 @@ This will:
 - Generate and save the dark theme to `ui/theme_default/main.tres`
 - Generate and save the light theme to `ui/theme_default/main_light.tres`
 - Refresh the theme cache to ensure UI updates immediately
+- Apply the theme globally to the scene tree
+
+### Theme Application System
+
+The theme system now includes a `ThemeManager` autoload (`autoloads/theme_manager.gd`) that:
+1. Loads the theme at application startup
+2. Applies the theme globally to all Control nodes in the scene tree
+3. Provides methods to switch between light and dark themes
+4. Ensures themes are properly applied to new scenes
 
 ### Theme Cache Refresh
 
-The generator now automatically refreshes the theme cache when regenerating themes. This ensures that:
-1. The existing theme instance in memory is updated
+The generator automatically refreshes the theme cache when regenerating themes. This ensures that:
+1. The existing theme instance in memory is updated via `merge_with()`
 2. Resource cache is cleared and refreshed
-3. UI updates reflect the new theme immediately without requiring editor restart
+3. Theme is applied globally to the entire scene tree
+4. UI updates reflect the new theme immediately without requiring editor restart
+
+### Using ThemeManager
+
+```gdscript
+# Switch to light theme
+ThemeManager.load_and_apply_theme(true)
+
+# Switch to dark theme
+ThemeManager.load_and_apply_theme(false)
+
+# Toggle between themes
+ThemeManager.toggle_theme()
+
+# Get current theme
+var current_theme = ThemeManager.get_current_theme()
+```

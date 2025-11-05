@@ -21,6 +21,10 @@ func _run() -> void:
 	# Force resource cache refresh
 	_refresh_theme_cache()
 	print("Theme cache refreshed!")
+	
+	# Apply theme globally to the scene tree
+	_apply_theme_to_scene_tree(theme_dark)
+	print("Theme applied globally to scene tree!")
 
 
 func _update_existing_theme_instance(new_theme: Theme, save_path: String):
@@ -55,3 +59,32 @@ func _refresh_theme_cache():
 		var _reloaded_dark = load(_save_path_dark)
 	if ResourceLoader.exists(_save_path_light):
 		var _reloaded_light = load(_save_path_light)
+
+
+func _apply_theme_to_scene_tree(theme: Theme):
+	# Apply theme to the root of the editor scene tree
+	var editor_interface = get_editor_interface()
+	if editor_interface:
+		var base_control = editor_interface.get_base_control()
+		if base_control:
+			base_control.theme = theme
+			print("Applied theme to editor base control")
+	
+	# Also try to apply to the main viewport
+	var scene_tree = Engine.get_main_loop()
+	if scene_tree and scene_tree is SceneTree:
+		var root = scene_tree.root
+		if root:
+			# Apply to root viewport's GUI
+			_apply_theme_recursively(root, theme)
+			print("Applied theme recursively to scene tree")
+
+
+func _apply_theme_recursively(node: Node, theme: Theme):
+	# Apply theme to Control nodes
+	if node is Control:
+		node.theme = theme
+	
+	# Recursively apply to children
+	for child in node.get_children():
+		_apply_theme_recursively(child, theme)
