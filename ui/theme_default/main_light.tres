@@ -1,0 +1,6 @@
+[gd_resource type="Theme" script_class="MonologueTheme" load_steps=2 format=3 uid="uid://dqonphj15f5go"]
+
+[ext_resource type="Script" uid="uid://c2nmcbo0pbk5u" path="res://ui/theme_default/theme_default.gd" id="1_8ridp"]
+
+[resource]
+script = ExtResource("1_8ridp")

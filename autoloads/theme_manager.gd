@@ -10,7 +10,7 @@ var is_light_theme: bool = false
 
 func _ready() -> void:
 	# Load and apply the default theme
-	load_and_apply_theme(false)
+	load_and_apply_theme(true)
 
 
 ## Load and apply a theme (dark or light)
@@ -34,19 +34,9 @@ func load_and_apply_theme(light: bool = false) -> void:
 
 ## Apply theme to all Control nodes in the scene tree
 func apply_theme_to_tree(theme: Theme) -> void:
-	var root = get_tree().root
-	if root:
-		_apply_theme_recursively(root, theme)
-
-
-## Recursively apply theme to all Control nodes
-func _apply_theme_recursively(node: Node, theme: Theme) -> void:
-	if node is Control:
-		node.theme = theme
+	var root: Window = get_tree().root
+	root.set_theme(theme)
 	
-	for child in node.get_children():
-		_apply_theme_recursively(child, theme)
-
 
 ## Switch between light and dark themes
 func toggle_theme() -> void:

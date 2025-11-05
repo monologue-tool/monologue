@@ -11,7 +11,7 @@ const Builder = preload("res://ui/theme_default/theme_builder.gd")
 # Theme configuration
 var scale: float = 1.0
 var base_font_size: int = 14
-var is_light_theme: bool = false  # Toggle between light and dark theme
+var is_light_theme: bool = true  # Toggle between light and dark theme
 
 # Core theme components
 var palette: RefCounted  # Can be either ThemeColorPalette or ThemeColorPaletteLight
