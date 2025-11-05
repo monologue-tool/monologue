@@ -1,19 +1,25 @@
 @tool
 extends EditorScript
 
+const PaletteDark = preload("res://ui/theme_default/theme_palette_dark.gd")
+const PaletteLight = preload("res://ui/theme_default/theme_palette_light.gd")
+const ThemeBuilder = preload("res://ui/theme_default/theme_builder.gd")
+
 var _save_path_dark: String = "res://ui/theme_default/main.tres"
 var _save_path_light: String = "res://ui/theme_default/main_light.tres"
 
 
 func _run() -> void:
-	# Generate dark theme
-	var theme_dark := MonologueTheme.new(false)
+	# Generate dark theme from dark palette
+	var palette_dark = PaletteDark.new()
+	var theme_dark = ThemeBuilder.build_theme(palette_dark)
 	_update_existing_theme_instance(theme_dark, _save_path_dark)
 	ResourceSaver.save(theme_dark, _save_path_dark)
 	print("Dark theme generated and saved to: ", _save_path_dark)
 	
-	# Generate light theme
-	var theme_light := MonologueTheme.new(true)
+	# Generate light theme from light palette
+	var palette_light = PaletteLight.new()
+	var theme_light = ThemeBuilder.build_theme(palette_light)
 	_update_existing_theme_instance(theme_light, _save_path_light)
 	ResourceSaver.save(theme_light, _save_path_light)
 	print("Light theme generated and saved to: ", _save_path_light)

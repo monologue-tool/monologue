@@ -1,14 +1,15 @@
 @tool
-class_name ThemeColorPaletteLight extends RefCounted
-## A light semantic color palette for the Monologue theme.
+class_name ThemePaletteDark extends RefCounted
+## Dark theme palette for Monologue with semantic color definitions
 
-# Base colors - light theme variant
-var text: Color = Color("1a1a1f")  # Dark text for light background
-var primary: Color = Color.from_hsv(0.667, 0.08, 0.92, 1.0)  # Light purple-gray
-var secondary: Color = Color.from_hsv(0.661, 0.10, 0.88, 1.0)  # Slightly darker for contrast
-var graph_bg: Color = Color.from_hsv(0.656, 0.05, 0.95, 1.0)  # Very light background
-var accent: Color = Color("d86568")  # Lighter red for light theme
-var warning: Color = Color("e84454")  # Brighter warning color
+# Base colors - defined by user preference
+#var background: Color = Color("2c2c2c")
+var text: Color = Color("e3e4eb")
+var primary: Color = Color.from_hsv(0.667, 0.12, 0.14, 1.0)
+var secondary: Color = Color.from_hsv(0.661, 0.15, 0.19, 1.0)  # Fields etc..
+var graph_bg: Color = Color.from_hsv(0.656, 0.10, 0.10, 1.0)
+var accent: Color = Color("af4548")
+var warning: Color = Color("c42e40")
 
 # Semantic colors - derived from base colors for specific purposes
 var surface: Color  # Primary surface (panels, containers)
@@ -36,27 +37,27 @@ func _init() -> void:
 
 ## Calculates semantic colors from base colors
 func _calculate_semantic_colors() -> void:
-	# Surface colors - slightly darker than background for definition
+	# Surface colors - lighter than background for elevation with better distinction
 	surface = primary
 	surface_variant = secondary
-	
-	# Border color - more visible in light theme
+
+	# Border color - slightly more visible for better UI definition
 	border = primary
-	
-	# Text variations - adjusted for light background
-	text_secondary = Color(text, 0.65)
-	text_disabled = Color(text, 0.4)
-	
-	# Interactive overlays - darkening for light theme
-	hover_overlay = secondary.darkened(0.05)
-	pressed_overlay = secondary.darkened(0.1)
-	disabled_overlay = secondary.lightened(0.2)
-	
-	# UI element colors - harmonized for light theme
+
+	# Text variations - adjusted for better readability hierarchy
+	text_secondary = Color(text, 0.75)
+	text_disabled = Color(text, 0.35)
+
+	# Interactive overlays - subtle but noticeable
+	hover_overlay = secondary.lightened(0.02)
+	pressed_overlay = secondary.lightened(0.05)
+	disabled_overlay = secondary.lightened(0.25)
+
+	# UI element colors - harmonized with better visual feedback
 	button_background = secondary
-	button_hover = secondary.darkened(0.05)
-	button_pressed = secondary.darkened(0.1)
-	
+	button_hover = secondary.lightened(0.02)
+	button_pressed = secondary.lightened(0.05)
+
 	input_background = surface_variant
 	panel_background = surface
 

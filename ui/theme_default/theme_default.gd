@@ -1,62 +1,24 @@
 @tool
 class_name MonologueTheme extends Theme
-## Modern, modular theme for Monologue with semantic color usage
+## Wrapper class for Monologue themes - uses ThemeBuilder to generate from palettes
+## This class exists for compatibility with saved .tres resources
 
-# Explicit preloads to ensure dependencies are loaded in correct order
-const ColorPaletteDark = preload("res://ui/theme_default/color_palette.gd")
-const ColorPaletteLight = preload("res://ui/theme_default/color_palette_light.gd")
-const Styles = preload("res://ui/theme_default/theme_styles.gd")
+const PaletteDark = preload("res://ui/theme_default/theme_palette_dark.gd")
+const PaletteLight = preload("res://ui/theme_default/theme_palette_light.gd")
 const Builder = preload("res://ui/theme_default/theme_builder.gd")
-
-# Theme configuration
-var scale: float = 1.0
-var base_font_size: int = 14
-var is_light_theme: bool = true  # Toggle between light and dark theme
-
-# Core theme components
-var palette: RefCounted  # Can be either ThemeColorPalette or ThemeColorPaletteLight
-var builder: ThemeBuilder
 
 
 func _init(light_theme: bool = false) -> void:
-	is_light_theme = light_theme
-	
-	# Initialize color palette based on theme type
-	if is_light_theme:
-		palette = ColorPaletteLight.new()
+	# Select the appropriate palette
+	var palette: RefCounted
+	if light_theme:
+		palette = PaletteLight.new()
 	else:
-		palette = ColorPaletteDark.new()
+		palette = PaletteDark.new()
 	
-	# Initialize theme builder
-	builder = Builder.new(self, palette)
+	# Build theme using ThemeBuilder
+	var generated_theme = Builder.build_theme(palette)
 	
-	# Generate the complete theme
-	_generate_theme()
-
-
-func _generate_theme() -> void:
-	# Clear existing theme to ensure fresh generation
-	clear()
-	
-	# Build all theme components using the modular builder
-	builder.build()
-
-
-## Regenerate the theme with a different color scheme
-func regenerate(light_theme: bool = false) -> void:
-	is_light_theme = light_theme
-	
-	# Reinitialize color palette
-	if is_light_theme:
-		palette = ColorPaletteLight.new()
-	else:
-		palette = ColorPaletteDark.new()
-	
-	# Reinitialize builder with new palette
-	builder = Builder.new(self, palette)
-	
-	# Regenerate theme
-	_generate_theme()
-	
-	# Emit change signal to notify UI
-	emit_changed()
+	# Merge the generated theme into this instance
+	if generated_theme:
+		merge_with(generated_theme)

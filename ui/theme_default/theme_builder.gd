@@ -1,38 +1,34 @@
 @tool
 class_name ThemeBuilder extends RefCounted
-## Modular theme builder that constructs the Monologue theme using semantic colors
+## Modular theme builder that constructs Monologue themes from theme palettes
+## Usage: var theme = ThemeBuilder.build_theme(palette)
 
 const Styles = preload("res://ui/theme_default/theme_styles.gd")
 
-var theme: Theme
-var palette: ThemeColorPalette
-var styles: ThemeStyles
 
-
-func _init(target_theme: Theme, color_palette: ThemeColorPalette) -> void:
-	theme = target_theme
-	palette = color_palette
-	styles = Styles.new(palette)
-
-
-## Build all theme components
-func build() -> void:
-	_build_buttons()
-	_build_checkboxes()
-	_build_inputs()
-	_build_panels()
-	_build_scrollbars()
-	_build_separators()
-	_build_sliders()
-	_build_tabs()
-	_build_tree()
-	_build_graph_elements()
-	_build_popup_menu()
-	_build_labels()
+## Build a complete theme from a theme palette
+static func build_theme(palette: RefCounted) -> Theme:
+	var theme := Theme.new()
+	var styles := Styles.new(palette)
+	
+	_build_buttons(theme, palette, styles)
+	_build_checkboxes(theme, palette, styles)
+	_build_inputs(theme, palette, styles)
+	_build_panels(theme, palette, styles)
+	_build_scrollbars(theme, palette, styles)
+	_build_separators(theme, palette, styles)
+	_build_sliders(theme, palette, styles)
+	_build_tabs(theme, palette, styles)
+	_build_tree(theme, palette, styles)
+	_build_graph_elements(theme, palette, styles)
+	_build_popup_menu(theme, palette, styles)
+	_build_labels(theme, palette, styles)
+	
+	return theme
 
 
 ## Build button styles
-func _build_buttons() -> void:
+static func _build_buttons(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	# Regular Button
 	var btn_normal := styles.create_button(palette.button_background)
 	var btn_hover := styles.create_button(palette.button_hover)
@@ -178,7 +174,7 @@ func _build_buttons() -> void:
 
 
 ## Build checkbox and toggle styles
-func _build_checkboxes() -> void:
+static func _build_checkboxes(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var empty := styles.create_empty()
 	empty.set_content_margin_all(0)
 
@@ -245,7 +241,7 @@ func _build_checkboxes() -> void:
 
 
 ## Build input field styles (LineEdit, TextEdit, SpinBox)
-func _build_inputs() -> void:
+static func _build_inputs(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var input_normal := styles.create_input(palette.input_background)
 	var input_focus := input_normal.duplicate()
 	input_focus.draw_center = false
@@ -322,7 +318,7 @@ func _build_inputs() -> void:
 
 
 ## Build panel and container styles
-func _build_panels() -> void:
+static func _build_panels(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	# Base Panel/PanelContainer
 	var panel := styles.create_panel(palette.panel_background)
 	theme.set_stylebox("panel", "Panel", panel)
@@ -417,7 +413,7 @@ func _build_panels() -> void:
 
 
 ## Build scrollbar styles
-func _build_scrollbars() -> void:
+static func _build_scrollbars(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var scroll_empty := styles.create_empty()
 	scroll_empty.border_color = palette.border
 	scroll_empty.set_content_margin_all(2)
@@ -445,7 +441,7 @@ func _build_scrollbars() -> void:
 
 
 ## Build separator styles
-func _build_separators() -> void:
+static func _build_separators(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var sep_h := styles.create_separator(false)
 	var sep_v := styles.create_separator(true)
 
@@ -487,7 +483,7 @@ func _build_separators() -> void:
 
 
 ## Build slider styles
-func _build_sliders() -> void:
+static func _build_sliders(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var slider_track := StyleBoxFlat.new()
 	slider_track.content_margin_top = 5
 	slider_track.set_corner_radius_all(5)
@@ -509,7 +505,7 @@ func _build_sliders() -> void:
 
 
 ## Build tab styles
-func _build_tabs() -> void:
+static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	# TabBar
 	var tab_unselected := styles.create_button(palette.secondary)
 	tab_unselected.draw_center = false
@@ -598,7 +594,7 @@ func _build_tabs() -> void:
 
 
 ## Build tree styles
-func _build_tree() -> void:
+static func _build_tree(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var tree_panel := styles.create_panel(palette.panel_background)
 	var tree_empty := styles.create_empty()
 	var tree_hover := styles.create_button(palette.button_hover)
@@ -636,7 +632,7 @@ func _build_tree() -> void:
 
 
 ## Build graph-related styles
-func _build_graph_elements() -> void:
+static func _build_graph_elements(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	# GraphEdit
 	var graph_bg := styles.create_panel(palette.graph_bg)
 	graph_bg.set_content_margin_all(0)
@@ -683,7 +679,7 @@ func _build_graph_elements() -> void:
 
 
 ## Build popup menu styles
-func _build_popup_menu() -> void:
+static func _build_popup_menu(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var menu_panel := styles.create_panel(palette.panel_background, true)
 	var menu_hover := styles.create_input(palette.surface_variant)
 	var menu_sep := styles.create_separator(true)
@@ -750,7 +746,7 @@ func _build_popup_menu() -> void:
 
 
 ## Build label styles
-func _build_labels() -> void:
+static func _build_labels(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
 	var label_bg := styles.create_panel(palette.panel_background)
 	label_bg.content_margin_top = styles.base_spacing / 2
 	label_bg.content_margin_bottom = styles.base_spacing / 2
