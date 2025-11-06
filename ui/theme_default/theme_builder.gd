@@ -1,39 +1,50 @@
 @tool
 class_name ThemeBuilder extends RefCounted
-## Modular theme builder that constructs Monologue themes from theme palettes
-## Usage: var theme = ThemeBuilder.build_theme(palette)
+## Modular theme builder that constructs Monologue themes from theme settingss
 
-const Styles = preload("res://ui/theme_default/theme_styles.gd")
+const ICON_CHECKED := preload("res://ui/theme_default/assets/checked.svg")
+const ICON_UNCHECKED := preload("res://ui/theme_default/assets/unchecked.svg")
+const ICON_CHECKED_DISABLED := preload("res://ui/theme_default/assets/checked_disabled.svg")
+const ICON_UNCHECKED_DISABLED := preload("res://ui/theme_default/assets/unchecked_disabled.svg")
+const ICON_RADIO_CHECKED := preload("res://ui/theme_default/assets/radio_checked.svg")
+const ICON_RADIO_UNCHECKED := preload("res://ui/theme_default/assets/radio_unchecked.svg")
+const ICON_RADIO_CHECKED_DISABLED := preload(
+	"res://ui/theme_default/assets/radio_checked_disabled.svg"
+)
+const ICON_RADIO_UNCHECKED_DISABLED := preload(
+	"res://ui/theme_default/assets/radio_unchecked_disabled.svg"
+)
+const ICON_SLIDER_GRABBER := preload("res://ui/theme_default/assets/grabber.svg")
 
 
-## Build a complete theme from a theme palette
-static func build_theme(palette: RefCounted) -> Theme:
+## Build a complete theme from a theme settings
+static func build_theme(settings: ThemeSettings) -> Theme:
 	var theme := Theme.new()
-	var styles := Styles.new(palette)
-	
-	_build_buttons(theme, palette, styles)
-	_build_checkboxes(theme, palette, styles)
-	_build_inputs(theme, palette, styles)
-	_build_panels(theme, palette, styles)
-	_build_scrollbars(theme, palette, styles)
-	_build_separators(theme, palette, styles)
-	_build_sliders(theme, palette, styles)
-	_build_tabs(theme, palette, styles)
-	_build_tree(theme, palette, styles)
-	_build_graph_elements(theme, palette, styles)
-	_build_popup_menu(theme, palette, styles)
-	_build_labels(theme, palette, styles)
-	
+	var styles := ThemeStyles.new(settings)
+
+	_build_buttons(theme, settings, styles)
+	_build_checkboxes(theme, settings, styles)
+	_build_inputs(theme, settings, styles)
+	_build_panels(theme, settings, styles)
+	_build_scrollbars(theme, settings, styles)
+	_build_separators(theme, settings, styles)
+	_build_sliders(theme, settings, styles)
+	_build_tabs(theme, settings, styles)
+	_build_tree(theme, settings, styles)
+	_build_graph_elements(theme, settings, styles)
+	_build_popup_menu(theme, settings, styles)
+	_build_labels(theme, settings, styles)
+
 	return theme
 
 
 ## Build button styles
-static func _build_buttons(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_buttons(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	# Regular Button
-	var btn_normal := styles.create_button(palette.button_background)
-	var btn_hover := styles.create_button(palette.button_hover)
-	var btn_pressed := styles.create_button(palette.button_pressed)
-	var btn_disabled := styles.create_button(palette.darken(palette.button_background, 0.3))
+	var btn_normal := styles.create_button(settings.button_background)
+	var btn_hover := styles.create_button(settings.button_hover)
+	var btn_pressed := styles.create_button(settings.button_pressed)
+	var btn_disabled := styles.create_button(settings.darken(settings.button_background, 0.3))
 	var btn_empty := styles.create_empty()
 
 	theme.set_stylebox("normal", "Button", btn_normal)
@@ -51,14 +62,14 @@ static func _build_buttons(theme: Theme, palette: RefCounted, styles: ThemeStyle
 	theme.set_stylebox("disabled_mirrored", "Button", btn_disabled)
 
 	# Button colors
-	theme.set_color("font_color", "Button", palette.text_secondary)
-	theme.set_color("font_disabled_color", "Button", palette.text_disabled)
-	theme.set_color("font_focus_color", "Button", palette.text)
-	theme.set_color("font_hover_color", "Button", palette.text)
-	theme.set_color("font_hover_pressed_color", "Button", palette.text)
-	theme.set_color("font_pressed_color", "Button", palette.text)
-	theme.set_color("icon_disabled_color", "Button", palette.text_disabled)
-	theme.set_color("icon_normal_color", "Button", palette.text_secondary)
+	theme.set_color("font_color", "Button", settings.text_secondary)
+	theme.set_color("font_disabled_color", "Button", settings.text_disabled)
+	theme.set_color("font_focus_color", "Button", settings.text)
+	theme.set_color("font_hover_color", "Button", settings.text)
+	theme.set_color("font_hover_pressed_color", "Button", settings.text)
+	theme.set_color("font_pressed_color", "Button", settings.text)
+	theme.set_color("icon_disabled_color", "Button", settings.text_disabled)
+	theme.set_color("icon_normal_color", "Button", settings.text_secondary)
 
 	# Button constants
 	theme.set_constant("outline_size", "Button", 0)
@@ -67,74 +78,78 @@ static func _build_buttons(theme: Theme, palette: RefCounted, styles: ThemeStyle
 
 	# ButtonAccent variation
 	theme.set_type_variation("ButtonAccent", "Button")
-	var btn_accent := styles.create_button(palette.accent)
+	var btn_accent := styles.create_button(settings.accent)
 	theme.set_stylebox("normal", "ButtonAccent", btn_accent)
 	theme.set_stylebox(
-		"hover", "ButtonAccent", styles.create_button(palette.lighten(palette.accent, 0.1))
+		"hover", "ButtonAccent", styles.create_button(settings.lighten(settings.accent, 0.1))
 	)
 	theme.set_stylebox(
-		"pressed", "ButtonAccent", styles.create_button(palette.lighten(palette.accent, 0.15))
+		"pressed", "ButtonAccent", styles.create_button(settings.lighten(settings.accent, 0.15))
 	)
 	theme.set_stylebox("disabled", "ButtonAccent", btn_accent)
 	theme.set_stylebox("normal_mirrored", "ButtonAccent", btn_accent)
 	theme.set_stylebox(
-		"hover_mirrored", "ButtonAccent", styles.create_button(palette.lighten(palette.accent, 0.1))
+		"hover_mirrored",
+		"ButtonAccent",
+		styles.create_button(settings.lighten(settings.accent, 0.1))
 	)
 	theme.set_stylebox(
 		"pressed_mirrored",
 		"ButtonAccent",
-		styles.create_button(palette.lighten(palette.accent, 0.15))
+		styles.create_button(settings.lighten(settings.accent, 0.15))
 	)
 	theme.set_stylebox("disabled_mirrored", "ButtonAccent", btn_accent)
 	theme.set_stylebox("focus", "ButtonAccent", btn_accent)
 	theme.set_stylebox(
-		"hover_pressed", "ButtonAccent", styles.create_button(palette.lighten(palette.accent, 0.15))
+		"hover_pressed",
+		"ButtonAccent",
+		styles.create_button(settings.lighten(settings.accent, 0.15))
 	)
 	theme.set_stylebox(
 		"hover_pressed_mirrored",
 		"ButtonAccent",
-		styles.create_button(palette.lighten(palette.accent, 0.15))
+		styles.create_button(settings.lighten(settings.accent, 0.15))
 	)
 
 	# ButtonWarning variation
 	theme.set_type_variation("ButtonWarning", "Button")
-	var btn_warning := styles.create_button(palette.warning)
+	var btn_warning := styles.create_button(settings.warning)
 	theme.set_stylebox("normal", "ButtonWarning", btn_warning)
 	theme.set_stylebox(
-		"hover", "ButtonWarning", styles.create_button(palette.lighten(palette.warning, 0.1))
+		"hover", "ButtonWarning", styles.create_button(settings.lighten(settings.warning, 0.1))
 	)
 	theme.set_stylebox(
-		"pressed", "ButtonWarning", styles.create_button(palette.lighten(palette.warning, 0.15))
+		"pressed", "ButtonWarning", styles.create_button(settings.lighten(settings.warning, 0.15))
 	)
 	theme.set_stylebox(
-		"disabled", "ButtonWarning", styles.create_button(palette.darken(palette.warning, 0.3))
+		"disabled", "ButtonWarning", styles.create_button(settings.darken(settings.warning, 0.3))
 	)
 	theme.set_stylebox("normal_mirrored", "ButtonWarning", btn_warning)
 	theme.set_stylebox(
 		"hover_mirrored",
 		"ButtonWarning",
-		styles.create_button(palette.lighten(palette.warning, 0.1))
+		styles.create_button(settings.lighten(settings.warning, 0.1))
 	)
 	theme.set_stylebox(
 		"pressed_mirrored",
 		"ButtonWarning",
-		styles.create_button(palette.lighten(palette.warning, 0.15))
+		styles.create_button(settings.lighten(settings.warning, 0.15))
 	)
 	theme.set_stylebox(
 		"disabled_mirrored",
 		"ButtonWarning",
-		styles.create_button(palette.darken(palette.warning, 0.3))
+		styles.create_button(settings.darken(settings.warning, 0.3))
 	)
 	theme.set_stylebox("focus", "ButtonWarning", btn_empty)
 	theme.set_stylebox(
 		"hover_pressed",
 		"ButtonWarning",
-		styles.create_button(palette.lighten(palette.warning, 0.15))
+		styles.create_button(settings.lighten(settings.warning, 0.15))
 	)
 	theme.set_stylebox(
 		"hover_pressed_mirrored",
 		"ButtonWarning",
-		styles.create_button(palette.lighten(palette.warning, 0.15))
+		styles.create_button(settings.lighten(settings.warning, 0.15))
 	)
 	theme.set_constant("outline_size", "ButtonWarning", 0)
 
@@ -142,24 +157,24 @@ static func _build_buttons(theme: Theme, palette: RefCounted, styles: ThemeStyle
 	var flat_btn_normal := styles.create_empty()
 	flat_btn_normal.bg_color = Color.TRANSPARENT
 	flat_btn_normal.set_border_width_all(styles.border_width)
-	flat_btn_normal.border_color = palette.with_alpha(palette.text, 0.3)
+	flat_btn_normal.border_color = settings.with_alpha(settings.text, 0.3)
 
 	var flat_btn_hover := flat_btn_normal.duplicate()
-	flat_btn_hover.bg_color = palette.hover_overlay
-	flat_btn_hover.border_color = palette.with_alpha(palette.text, 0.5)
+	flat_btn_hover.bg_color = settings.hover_overlay
+	flat_btn_hover.border_color = settings.with_alpha(settings.text, 0.5)
 
 	var flat_btn_pressed := flat_btn_normal.duplicate()
-	flat_btn_pressed.bg_color = palette.pressed_overlay
-	flat_btn_pressed.border_color = palette.with_alpha(palette.text, 0.6)
+	flat_btn_pressed.bg_color = settings.pressed_overlay
+	flat_btn_pressed.border_color = settings.with_alpha(settings.text, 0.6)
 
-	theme.set_color("font_color", "FlatButton", palette.text_secondary)
-	theme.set_color("font_disabled_color", "FlatButton", palette.text_disabled)
-	theme.set_color("font_focus_color", "FlatButton", palette.text)
-	theme.set_color("font_hover_color", "FlatButton", palette.text)
-	theme.set_color("font_hover_pressed_color", "FlatButton", palette.text)
-	theme.set_color("font_pressed_color", "FlatButton", palette.text)
-	theme.set_color("icon_disabled_color", "FlatButton", palette.text_disabled)
-	theme.set_color("icon_normal_color", "FlatButton", palette.text_secondary)
+	theme.set_color("font_color", "FlatButton", settings.text_secondary)
+	theme.set_color("font_disabled_color", "FlatButton", settings.text_disabled)
+	theme.set_color("font_focus_color", "FlatButton", settings.text)
+	theme.set_color("font_hover_color", "FlatButton", settings.text)
+	theme.set_color("font_hover_pressed_color", "FlatButton", settings.text)
+	theme.set_color("font_pressed_color", "FlatButton", settings.text)
+	theme.set_color("icon_disabled_color", "FlatButton", settings.text_disabled)
+	theme.set_color("icon_normal_color", "FlatButton", settings.text_secondary)
 	theme.set_constant("outline_size", "FlatButton", 0)
 	theme.set_stylebox("disabled", "FlatButton", btn_disabled)
 	theme.set_stylebox("disabled_mirrored", "FlatButton", btn_disabled)
@@ -174,41 +189,21 @@ static func _build_buttons(theme: Theme, palette: RefCounted, styles: ThemeStyle
 
 
 ## Build checkbox and toggle styles
-static func _build_checkboxes(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_checkboxes(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var empty := styles.create_empty()
 	empty.set_content_margin_all(0)
 
-	theme.set_color("font_hover_pressed_color", "CheckBox", palette.text)
-	theme.set_color("font_pressed_color", "CheckBox", palette.text_secondary)
+	theme.set_color("font_hover_pressed_color", "CheckBox", settings.text)
+	theme.set_color("font_pressed_color", "CheckBox", settings.text_secondary)
 	theme.set_constant("h_separation", "CheckBox", styles.base_spacing)
-	theme.set_icon("checked", "CheckBox", preload("res://ui/theme_default/assets/checked.svg"))
-	theme.set_icon("unchecked", "CheckBox", preload("res://ui/theme_default/assets/unchecked.svg"))
-	theme.set_icon(
-		"radio_checked", "CheckBox", preload("res://ui/theme_default/assets/radio_checked.svg")
-	)
-	theme.set_icon(
-		"radio_unchecked", "CheckBox", preload("res://ui/theme_default/assets/radio_unchecked.svg")
-	)
-	theme.set_icon(
-		"checked_disabled",
-		"CheckBox",
-		preload("res://ui/theme_default/assets/checked_disabled.svg")
-	)
-	theme.set_icon(
-		"unchecked_disabled",
-		"CheckBox",
-		preload("res://ui/theme_default/assets/unchecked_disabled.svg")
-	)
-	theme.set_icon(
-		"radio_checked_disabled",
-		"CheckBox",
-		preload("res://ui/theme_default/assets/radio_checked_disabled.svg")
-	)
-	theme.set_icon(
-		"radio_unchecked_disabled",
-		"CheckBox",
-		preload("res://ui/theme_default/assets/radio_unchecked_disabled.svg")
-	)
+	theme.set_icon("checked", "CheckBox", ICON_CHECKED)
+	theme.set_icon("unchecked", "CheckBox", ICON_UNCHECKED)
+	theme.set_icon("radio_checked", "CheckBox", ICON_RADIO_CHECKED)
+	theme.set_icon("radio_unchecked", "CheckBox", ICON_RADIO_UNCHECKED)
+	theme.set_icon("checked_disabled", "CheckBox", ICON_CHECKED_DISABLED)
+	theme.set_icon("unchecked_disabled", "CheckBox", ICON_UNCHECKED_DISABLED)
+	theme.set_icon("radio_checked_disabled", "CheckBox", ICON_RADIO_CHECKED_DISABLED)
+	theme.set_icon("radio_unchecked_disabled", "CheckBox", ICON_RADIO_UNCHECKED_DISABLED)
 	theme.set_stylebox("focus", "CheckBox", empty)
 	theme.set_stylebox("disabled", "CheckBox", empty)
 	theme.set_stylebox("disabled_mirrored", "CheckBox", empty)
@@ -222,9 +217,9 @@ static func _build_checkboxes(theme: Theme, palette: RefCounted, styles: ThemeSt
 	theme.set_stylebox("normal_mirrored", "CheckBox", empty)
 
 	# CheckButton (toggle)
-	theme.set_color("font_focus_color", "CheckButton", palette.text_secondary)
-	theme.set_color("font_hover_pressed_color", "CheckButton", palette.text)
-	theme.set_color("font_pressed_color", "CheckButton", palette.text)
+	theme.set_color("font_focus_color", "CheckButton", settings.text_secondary)
+	theme.set_color("font_hover_pressed_color", "CheckButton", settings.text)
+	theme.set_color("font_pressed_color", "CheckButton", settings.text)
 	theme.set_icon("checked", "CheckButton", preload("res://ui/assets/icons/toggle_on.svg"))
 	theme.set_icon("unchecked", "CheckButton", preload("res://ui/assets/icons/toggle_off.svg"))
 	theme.set_stylebox("focus", "CheckButton", empty)
@@ -241,12 +236,12 @@ static func _build_checkboxes(theme: Theme, palette: RefCounted, styles: ThemeSt
 
 
 ## Build input field styles (LineEdit, TextEdit, SpinBox)
-static func _build_inputs(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
-	var input_normal := styles.create_input(palette.input_background)
+static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
+	var input_normal := styles.create_input(settings.input_background)
 	var input_focus := input_normal.duplicate()
 	input_focus.draw_center = false
 	input_focus.set_border_width_all(1)
-	var input_disabled := styles.create_input(palette.darken(palette.input_background, 0.2))
+	var input_disabled := styles.create_input(settings.darken(settings.input_background, 0.2))
 
 	# LineEdit
 	theme.set_stylebox("normal", "LineEdit", input_normal)
@@ -258,11 +253,11 @@ static func _build_inputs(theme: Theme, palette: RefCounted, styles: ThemeStyles
 	var po_input := input_normal.duplicate()
 	var po_focus := po_input.duplicate()
 	po_focus.draw_center = true
-	po_focus.bg_color = palette.panel_background
+	po_focus.bg_color = settings.panel_background
 	po_focus.set_border_width_all(1)
 
-	theme.set_color("font_uneditable_color", "LineEditPortraitOption", palette.text)
-	theme.set_color("font_color", "LineEditPortraitOption", palette.text)
+	theme.set_color("font_uneditable_color", "LineEditPortraitOption", settings.text)
+	theme.set_color("font_color", "LineEditPortraitOption", settings.text)
 	theme.set_stylebox("normal", "LineEditPortraitOption", po_input)
 	theme.set_stylebox("focus", "LineEditPortraitOption", po_focus)
 	theme.set_stylebox("disabled", "LineEditPortraitOption", input_disabled)
@@ -280,7 +275,7 @@ static func _build_inputs(theme: Theme, palette: RefCounted, styles: ThemeStyles
 
 	var spin_btn := styles.create_empty()
 	spin_btn.set_content_margin_all(styles.base_spacing / 2)
-	var spin_btn_pressed := styles.create_panel(palette.button_background)
+	var spin_btn_pressed := styles.create_panel(settings.button_background)
 	spin_btn_pressed.set_content_margin_all(styles.base_spacing / 2)
 
 	var spin_btn_pressed_left := spin_btn_pressed.duplicate()
@@ -304,12 +299,14 @@ static func _build_inputs(theme: Theme, palette: RefCounted, styles: ThemeStyles
 	theme.set_stylebox("disabled", "SpinBoxButtonRight", spin_btn)
 
 	# SpinBoxLineEdit variation
+	# FIXME: A type associated with a built-in class cannot be marked as a variation
+	# of another type (variation: "SpinBoxLineEdit", base: "LineEdit").
 	theme.set_type_variation("SpinBoxLineEdit", "LineEdit")
-	var spin_input := styles.create_input(palette.input_background)
+	var spin_input := styles.create_input(settings.input_background)
 	spin_input.draw_center = false
 	spin_input.set_content_margin_all(0)
 	var spin_input_focus := spin_input.duplicate()
-	spin_input_focus.bg_color = palette.button_background
+	spin_input_focus.bg_color = settings.button_background
 	spin_input_focus.set_corner_radius_all(0)
 
 	theme.set_stylebox("normal", "SpinBoxLineEdit", spin_input)
@@ -318,28 +315,28 @@ static func _build_inputs(theme: Theme, palette: RefCounted, styles: ThemeStyles
 
 
 ## Build panel and container styles
-static func _build_panels(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	# Base Panel/PanelContainer
-	var panel := styles.create_panel(palette.panel_background)
+	var panel := styles.create_panel(settings.panel_background)
 	theme.set_stylebox("panel", "Panel", panel)
 	theme.set_stylebox("panel", "PanelContainer", panel)
 
 	# EditorBackground
 	theme.set_type_variation("EditorBackground", "PanelContainer")
-	var bg := styles.create_panel(palette.secondary)
+	var bg := styles.create_panel(settings.secondary)
 	bg.set_corner_radius_all(0)
 	theme.set_stylebox("panel", "EditorBackground", bg)
 
 	# InspectorPanel
 	theme.set_type_variation("InspectorPanel", "PanelContainer")
-	var inspector := styles.create_panel(palette.panel_background)
+	var inspector := styles.create_panel(settings.panel_background)
 	inspector.set_corner_radius_all(0)
 	inspector.set_border_width_all(0)
 	theme.set_stylebox("panel", "InspectorPanel", inspector)
 
 	# InspectorPanelTopBox
 	theme.set_type_variation("InspectorPanelTopBox", "PanelContainer")
-	var top_box := styles.create_panel(palette.panel_background)
+	var top_box := styles.create_panel(settings.panel_background)
 	top_box.set_corner_radius_all(0)
 	top_box.set_border_width_all(0)
 	top_box.set_content_margin_all(0)
@@ -349,18 +346,18 @@ static func _build_panels(theme: Theme, palette: RefCounted, styles: ThemeStyles
 
 	# CollapsibleFieldPanel
 	theme.set_type_variation("CollapsibleFieldPanel", "PanelContainer")
-	var collapsible := styles.create_panel(palette.lighten(palette.panel_background, 0.05))
+	var collapsible := styles.create_panel(settings.lighten(settings.panel_background, 0.05))
 	theme.set_stylebox("panel", "CollapsibleFieldPanel", collapsible)
 
 	# FieldPanel
 	theme.set_type_variation("FieldPanel", "PanelContainer")
-	var field_panel := styles.create_panel(palette.panel_background, true)
+	var field_panel := styles.create_panel(settings.panel_background, true)
 	field_panel.set_content_margin_all(styles.base_spacing * 2)
 	theme.set_stylebox("panel", "FieldPanel", field_panel)
 
 	# OuterPanel
 	theme.set_type_variation("OuterPanel", "PanelContainer")
-	var outer := styles.create_panel(palette.panel_background, true)
+	var outer := styles.create_panel(settings.panel_background, true)
 	outer.set_corner_radius_all(styles.base_spacing + styles.corner_radius)
 	theme.set_stylebox("panel", "OuterPanel", outer)
 
@@ -376,14 +373,14 @@ static func _build_panels(theme: Theme, palette: RefCounted, styles: ThemeStyles
 
 	# Timeline panels
 	theme.set_type_variation("TimelineCellNumber", "PanelContainer")
-	var timeline_cell := styles.create_panel(palette.panel_background)
+	var timeline_cell := styles.create_panel(settings.panel_background)
 	timeline_cell.set_corner_radius_all(0)
 	timeline_cell.border_width_right = styles.border_width
 	timeline_cell.border_color = Color.BLACK
 	theme.set_stylebox("panel", "TimelineCellNumber", timeline_cell)
 
 	theme.set_type_variation("TimelineLayerPanel", "PanelContainer")
-	var timeline_layer := styles.create_panel(palette.panel_background)
+	var timeline_layer := styles.create_panel(settings.panel_background)
 	timeline_layer.set_corner_radius_all(0)
 	timeline_layer.border_width_bottom = styles.border_width
 	timeline_layer.border_color = Color.BLACK
@@ -391,12 +388,12 @@ static func _build_panels(theme: Theme, palette: RefCounted, styles: ThemeStyles
 
 	# TreeContainer
 	theme.set_type_variation("TreeContainer", "PanelContainer")
-	var tree_container := styles.create_panel(palette.panel_background)
+	var tree_container := styles.create_panel(settings.panel_background)
 	tree_container.set_corner_radius_all(0)
 	theme.set_stylebox("panel", "TreeContainer", tree_container)
 
 	# TooltipPanel
-	var tooltip := styles.create_panel(palette.with_alpha(palette.panel_background, 0.5))
+	var tooltip := styles.create_panel(settings.with_alpha(settings.panel_background, 0.5))
 	tooltip.set_corner_radius_all(0)
 	theme.set_stylebox("panel", "TooltipPanel", tooltip)
 
@@ -413,16 +410,16 @@ static func _build_panels(theme: Theme, palette: RefCounted, styles: ThemeStyles
 
 
 ## Build scrollbar styles
-static func _build_scrollbars(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_scrollbars(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var scroll_empty := styles.create_empty()
-	scroll_empty.border_color = palette.border
+	scroll_empty.border_color = settings.border
 	scroll_empty.set_content_margin_all(2)
 	scroll_empty.set_corner_radius_all(0)
 
 	var scroll_focus := scroll_empty.duplicate()
 	scroll_focus.draw_center = true
 
-	var grabber := styles.create_panel(palette.border)
+	var grabber := styles.create_panel(settings.border)
 	grabber.set_corner_radius_all(5)
 
 	# VScrollBar
@@ -441,7 +438,7 @@ static func _build_scrollbars(theme: Theme, palette: RefCounted, styles: ThemeSt
 
 
 ## Build separator styles
-static func _build_separators(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_separators(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var sep_h := styles.create_separator(false)
 	var sep_v := styles.create_separator(true)
 
@@ -456,7 +453,7 @@ static func _build_separators(theme: Theme, palette: RefCounted, styles: ThemeSt
 
 	var dotted := StyleBoxTexture.new()
 	dotted.texture = preload("res://ui/theme_default/assets/dash.svg")
-	dotted.modulate_color = palette.border
+	dotted.modulate_color = settings.border
 	dotted.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
 	dotted.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
 	dotted.texture_margin_top = 1
@@ -483,31 +480,27 @@ static func _build_separators(theme: Theme, palette: RefCounted, styles: ThemeSt
 
 
 ## Build slider styles
-static func _build_sliders(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_sliders(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var slider_track := StyleBoxFlat.new()
-	slider_track.content_margin_top = 5
+	slider_track.content_margin_top = styles.base_spacing
 	slider_track.set_corner_radius_all(5)
-	slider_track.bg_color = palette.button_background
+	slider_track.bg_color = settings.button_background
 
 	var grabber_area := slider_track.duplicate()
-	grabber_area.bg_color = palette.accent
+	grabber_area.bg_color = settings.accent
 
-	theme.set_icon("grabber", "HSlider", preload("res://ui/theme_default/assets/grabber.svg"))
-	theme.set_icon(
-		"grabber_highlight", "HSlider", preload("res://ui/theme_default/assets/grabber.svg")
-	)
-	theme.set_icon(
-		"grabber_disabled", "HSlider", preload("res://ui/theme_default/assets/grabber.svg")
-	)
+	theme.set_icon("grabber", "HSlider", ICON_SLIDER_GRABBER)
+	theme.set_icon("grabber_highlight", "HSlider", ICON_SLIDER_GRABBER)
+	theme.set_icon("grabber_disabled", "HSlider", ICON_SLIDER_GRABBER)
 	theme.set_stylebox("slider", "HSlider", slider_track)
 	theme.set_stylebox("grabber_area", "HSlider", grabber_area)
 	theme.set_stylebox("grabber_area_highlight", "HSlider", grabber_area)
 
 
 ## Build tab styles
-static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	# TabBar
-	var tab_unselected := styles.create_button(palette.secondary)
+	var tab_unselected := styles.create_button(settings.secondary)
 	tab_unselected.draw_center = false
 	tab_unselected.set_border_width_all(0)
 	tab_unselected.border_width_right = 1
@@ -515,12 +508,12 @@ static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 
 	var tab_selected := tab_unselected.duplicate()
 	tab_selected.draw_center = true
-	tab_selected.bg_color = palette.accent
+	tab_selected.bg_color = settings.accent
 
-	theme.set_color("font_disabled_color", "TabBar", palette.text_disabled)
-	theme.set_color("font_unselected_color", "TabBar", palette.text_secondary)
-	theme.set_color("font_hovered_color", "TabBar", palette.text)
-	theme.set_color("font_selected_color", "TabBar", palette.text)
+	theme.set_color("font_disabled_color", "TabBar", settings.text_disabled)
+	theme.set_color("font_unselected_color", "TabBar", settings.text_secondary)
+	theme.set_color("font_hovered_color", "TabBar", settings.text)
+	theme.set_color("font_selected_color", "TabBar", settings.text)
 	theme.set_constant("h_separation", "TabBar", styles.base_spacing)
 	#theme.set_font_size("font_size", "TabBar", 16)
 	theme.set_stylebox("button_highlight", "TabBar", StyleBoxEmpty.new())
@@ -533,10 +526,10 @@ static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 
 	# EditorSection (TabContainer variation)
 	theme.set_type_variation("EditorSection", "TabContainer")
-	var section_unfocus := styles.create_panel(palette.panel_background, true)
+	var section_unfocus := styles.create_panel(settings.panel_background, true)
 	var section_focus := section_unfocus.duplicate()
-	section_focus.border_color = palette.border
-	#section_focus.border_color = palette.accent
+	section_focus.border_color = settings.border
+	#section_focus.border_color = settings.accent
 
 	theme.set_stylebox("panel_unfocus", "EditorSection", section_unfocus)
 	theme.set_stylebox("panel_focus", "EditorSection", section_focus)
@@ -547,13 +540,13 @@ static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 	#tab_panel_unfocus.corner_radius_top_right = 0
 
 	var tab_panel_focus := tab_panel_unfocus.duplicate()
-	tab_panel_focus.border_color = palette.border
-	#tab_panel_focus.border_color = palette.accent
+	tab_panel_focus.border_color = settings.border
+	#tab_panel_focus.border_color = settings.accent
 
 	theme.set_stylebox("tab_panel_unfocus", "EditorSection", tab_panel_unfocus)
 	theme.set_stylebox("tab_panel_focus", "EditorSection", tab_panel_focus)
 
-	var tabbar_bg_unfocus := styles.create_panel(palette.secondary, true)
+	var tabbar_bg_unfocus := styles.create_panel(settings.secondary, true)
 	tabbar_bg_unfocus.set_border_width_all(0)
 	tabbar_bg_unfocus.set_corner_radius_all(0)
 	tabbar_bg_unfocus.content_margin_bottom = 0
@@ -561,20 +554,20 @@ static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 	#tabbar_bg_unfocus.corner_radius_top_right = styles.corner_radius
 
 	var tabbar_bg_focus := tabbar_bg_unfocus.duplicate()
-	tabbar_bg_focus.border_color = palette.border
-	#tabbar_bg_focus.border_color = palette.accent
+	tabbar_bg_focus.border_color = settings.border
+	#tabbar_bg_focus.border_color = settings.accent
 
 	theme.set_stylebox("tabbar_background_unfocus", "EditorSection", tabbar_bg_unfocus)
 	theme.set_stylebox("tabbar_background_focus", "EditorSection", tabbar_bg_focus)
 
-	var tab_sel := styles.create_button(palette.panel_background)
+	var tab_sel := styles.create_button(settings.panel_background)
 	tab_sel.set_corner_radius_all(0)
 	tab_sel.corner_radius_top_left = styles.corner_radius - 1
 	tab_sel.corner_radius_top_right = styles.corner_radius - 1
 	tab_sel.border_color = Color.TRANSPARENT
 	tab_sel.border_width_top = 1
 
-	var tab_unsel := styles.create_button(palette.secondary)
+	var tab_unsel := styles.create_button(settings.secondary)
 	tab_unsel.draw_center = false
 
 	theme.set_stylebox("tab_selected", "EditorSection", tab_sel)
@@ -583,10 +576,10 @@ static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 	theme.set_stylebox("tab_hovered", "EditorSection", tab_unsel)
 	theme.set_stylebox("tab_disabled", "EditorSection", tab_unsel)
 
-	theme.set_color("font_unselected_color", "EditorSection", palette.text_secondary)
-	theme.set_color("font_disabled_color", "EditorSection", palette.text_disabled)
-	theme.set_color("font_hover_color", "EditorSection", palette.text)
-	theme.set_color("font_selected_color", "EditorSection", palette.text)
+	theme.set_color("font_unselected_color", "EditorSection", settings.text_secondary)
+	theme.set_color("font_disabled_color", "EditorSection", settings.text_disabled)
+	theme.set_color("font_hover_color", "EditorSection", settings.text)
+	theme.set_color("font_selected_color", "EditorSection", settings.text)
 	theme.set_constant("side_margin", "EditorSection", 1)
 	theme.set_constant("icon_separation", "EditorSection", styles.base_spacing)
 	theme.set_constant("icon_max_width", "EditorSection", 16)
@@ -594,13 +587,13 @@ static func _build_tabs(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 
 
 ## Build tree styles
-static func _build_tree(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
-	var tree_panel := styles.create_panel(palette.panel_background)
+static func _build_tree(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
+	var tree_panel := styles.create_panel(settings.panel_background)
 	var tree_empty := styles.create_empty()
-	var tree_hover := styles.create_button(palette.button_hover)
-	var tree_selected := styles.create_button(palette.button_pressed)
+	var tree_hover := styles.create_button(settings.button_hover)
+	var tree_selected := styles.create_button(settings.button_pressed)
 
-	theme.set_color("relationship_line_color", "Tree", palette.with_alpha(palette.border, 0.5))
+	theme.set_color("relationship_line_color", "Tree", settings.with_alpha(settings.border, 0.5))
 	theme.set_constant("icon_max_width", "Tree", 14)
 	theme.set_constant("h_separation", "Tree", styles.base_spacing)
 	theme.set_constant("v_separation", "Tree", styles.base_spacing / 2)
@@ -613,16 +606,10 @@ static func _build_tree(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 	theme.set_constant("relationship_line_width", "Tree", 0)
 	theme.set_constant("parent_hl_line_width", "Tree", styles.border_width)
 	theme.set_constant("children_hl_line_width", "Tree", 0)
-	theme.set_icon("checked", "Tree", preload("res://ui/theme_default/assets/checked.svg"))
-	theme.set_icon("unchecked", "Tree", preload("res://ui/theme_default/assets/unchecked.svg"))
-	theme.set_icon(
-		"checked_disabled", "Tree", preload("res://ui/theme_default/assets/checked_disabled.svg")
-	)
-	theme.set_icon(
-		"unchecked_disabled",
-		"Tree",
-		preload("res://ui/theme_default/assets/unchecked_disabled.svg")
-	)
+	theme.set_icon("checked", "Tree", ICON_CHECKED)
+	theme.set_icon("unchecked", "Tree", ICON_UNCHECKED)
+	theme.set_icon("checked_disabled", "Tree", ICON_CHECKED_DISABLED)
+	theme.set_icon("unchecked_disabled", "Tree", ICON_UNCHECKED_DISABLED)
 	theme.set_stylebox("panel", "Tree", tree_panel)
 	theme.set_stylebox("focus", "Tree", tree_empty)
 	theme.set_stylebox("hovered", "Tree", tree_hover)
@@ -632,24 +619,26 @@ static func _build_tree(theme: Theme, palette: RefCounted, styles: ThemeStyles) 
 
 
 ## Build graph-related styles
-static func _build_graph_elements(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
+static func _build_graph_elements(
+	theme: Theme, settings: ThemeSettings, styles: ThemeStyles
+) -> void:
 	# GraphEdit
-	var graph_bg := styles.create_panel(palette.graph_bg)
+	var graph_bg := styles.create_panel(settings.graph_bg)
 	graph_bg.set_content_margin_all(0)
 	graph_bg.set_corner_radius_all(0)
 	graph_bg.set_border_width_all(0)
 
-	theme.set_color("grid_major", "GraphEdit", palette.with_alpha(palette.text, 0.15))
-	theme.set_color("grid_minor", "GraphEdit", palette.with_alpha(palette.text, 0.15))
+	theme.set_color("grid_major", "GraphEdit", settings.with_alpha(settings.text, 0.15))
+	theme.set_color("grid_minor", "GraphEdit", settings.with_alpha(settings.text, 0.15))
 	theme.set_stylebox("panel", "GraphEdit", graph_bg)
 
 	# GraphNode
-	var node_panel := styles.create_panel(palette.panel_background, true)
-	node_panel.shadow_color = palette.with_alpha(Color.BLACK, 0.15)
+	var node_panel := styles.create_panel(settings.panel_background, true)
+	node_panel.shadow_color = settings.with_alpha(Color.BLACK, 0.15)
 	node_panel.shadow_size = 10
 
 	var node_selected := node_panel.duplicate()
-	node_selected.border_color = palette.lighten(palette.border, 0.1)
+	node_selected.border_color = settings.lighten(settings.border, 0.1)
 
 	theme.set_constant("separation", "GraphNode", styles.base_spacing)
 	theme.set_stylebox("panel", "GraphNode", node_panel)
@@ -662,11 +651,13 @@ static func _build_graph_elements(theme: Theme, palette: RefCounted, styles: The
 	theme.set_font_size("font_size", "GraphNodeTitleLabel", 1)
 
 	theme.set_type_variation("GraphNodeViewTitleLabel", "Label")
-	theme.set_color("font_color", "GraphNodeViewTitleLabel", palette.text)
+	theme.set_color("font_color", "GraphNodeViewTitleLabel", settings.text)
 	theme.set_font_size("font_size", "GraphNodeViewTitleLabel", 18)
 
 	theme.set_type_variation("GraphNodeViewValueLabel", "Label")
-	theme.set_color("font_color", "GraphNodeViewValueLabel", palette.with_alpha(palette.text, 0.5))
+	theme.set_color(
+		"font_color", "GraphNodeViewValueLabel", settings.with_alpha(settings.text, 0.5)
+	)
 	theme.set_font_size("font_size", "GraphNodeViewValueLabel", 16)
 
 	theme.set_type_variation("GraphNodeViewRownHBox", "HBoxContainer")
@@ -674,16 +665,16 @@ static func _build_graph_elements(theme: Theme, palette: RefCounted, styles: The
 
 	# GraphNodePicker
 	theme.set_type_variation("GraphNodePicker", "PanelContainer")
-	var picker := styles.create_panel(palette.panel_background)
+	var picker := styles.create_panel(settings.panel_background)
 	theme.set_stylebox("panel", "GraphNodePicker", picker)
 
 
 ## Build popup menu styles
-static func _build_popup_menu(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
-	var menu_panel := styles.create_panel(palette.panel_background, true)
-	var menu_hover := styles.create_input(palette.surface_variant)
+static func _build_popup_menu(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
+	var menu_panel := styles.create_panel(settings.panel_background, true)
+	var menu_hover := styles.create_input(settings.surface_variant)
 	var menu_sep := styles.create_separator(true)
-	menu_sep.color = palette.with_alpha(palette.text, 0.15)
+	menu_sep.color = settings.with_alpha(settings.text, 0.15)
 
 	theme.set_constant("icon_max_width", "PopupMenu", 14)
 	theme.set_constant("item_end_padding", "PopupMenu", styles.base_spacing)
@@ -691,43 +682,23 @@ static func _build_popup_menu(theme: Theme, palette: RefCounted, styles: ThemeSt
 	theme.set_constant("h_separation", "PopupMenu", styles.base_spacing)
 	theme.set_constant("v_separation", "PopupMenu", 4)
 	theme.set_font_size("font_size", "PopupMenu", 16)
-	theme.set_icon("checked", "PopupMenu", preload("res://ui/theme_default/assets/checked.svg"))
-	theme.set_icon("unchecked", "PopupMenu", preload("res://ui/theme_default/assets/unchecked.svg"))
-	theme.set_icon(
-		"radio_checked", "PopupMenu", preload("res://ui/theme_default/assets/radio_checked.svg")
-	)
-	theme.set_icon(
-		"radio_unchecked", "PopupMenu", preload("res://ui/theme_default/assets/radio_unchecked.svg")
-	)
-	theme.set_icon(
-		"checked_disabled",
-		"PopupMenu",
-		preload("res://ui/theme_default/assets/checked_disabled.svg")
-	)
-	theme.set_icon(
-		"unchecked_disabled",
-		"PopupMenu",
-		preload("res://ui/theme_default/assets/unchecked_disabled.svg")
-	)
-	theme.set_icon(
-		"radio_checked_disabled",
-		"PopupMenu",
-		preload("res://ui/theme_default/assets/radio_checked_disabled.svg")
-	)
-	theme.set_icon(
-		"radio_unchecked_disabled",
-		"PopupMenu",
-		preload("res://ui/theme_default/assets/radio_unchecked_disabled.svg")
-	)
+	theme.set_icon("checked", "PopupMenu", ICON_CHECKED)
+	theme.set_icon("unchecked", "PopupMenu", ICON_UNCHECKED)
+	theme.set_icon("radio_checked", "PopupMenu", ICON_RADIO_CHECKED)
+	theme.set_icon("radio_unchecked", "PopupMenu", ICON_RADIO_UNCHECKED)
+	theme.set_icon("checked_disabled", "PopupMenu", ICON_CHECKED_DISABLED)
+	theme.set_icon("unchecked_disabled", "PopupMenu", ICON_UNCHECKED_DISABLED)
+	theme.set_icon("radio_checked_disabled", "PopupMenu", ICON_RADIO_CHECKED_DISABLED)
+	theme.set_icon("radio_unchecked_disabled", "PopupMenu", ICON_RADIO_UNCHECKED_DISABLED)
 	theme.set_stylebox("panel", "PopupMenu", menu_panel)
 	theme.set_stylebox("hover", "PopupMenu", menu_hover)
 	theme.set_stylebox("separator", "PopupMenu", menu_sep)
 
 	# OptionButton
-	var option_normal := styles.create_input(palette.surface_variant)
-	var option_hover := styles.create_input(palette.lighten(palette.surface_variant, 0.05))
-	var option_pressed := styles.create_input(palette.lighten(palette.surface_variant, 0.1))
-	var option_disabled := styles.create_input(palette.darken(palette.surface_variant, 0.2))
+	var option_normal := styles.create_input(settings.surface_variant)
+	var option_hover := styles.create_input(settings.lighten(settings.surface_variant, 0.05))
+	var option_pressed := styles.create_input(settings.lighten(settings.surface_variant, 0.1))
+	var option_disabled := styles.create_input(settings.darken(settings.surface_variant, 0.2))
 	var option_empty := styles.create_empty()
 
 	theme.set_constant("arrow_margin", "OptionButton", styles.base_spacing)
@@ -746,19 +717,19 @@ static func _build_popup_menu(theme: Theme, palette: RefCounted, styles: ThemeSt
 
 
 ## Build label styles
-static func _build_labels(theme: Theme, palette: RefCounted, styles: ThemeStyles) -> void:
-	var label_bg := styles.create_panel(palette.panel_background)
+static func _build_labels(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
+	var label_bg := styles.create_panel(settings.panel_background)
 	label_bg.content_margin_top = styles.base_spacing / 2
 	label_bg.content_margin_bottom = styles.base_spacing / 2
 
-	theme.set_color("font_color", "Label", palette.text)
+	theme.set_color("font_color", "Label", settings.text)
 
 	theme.set_type_variation("NodeValue", "Label")
-	theme.set_color("font_color", "NodeValue", palette.text)
+	theme.set_color("font_color", "NodeValue", settings.text)
 	theme.set_stylebox("normal", "NodeValue", label_bg)
 
 	theme.set_type_variation("NoteLabel", "Label")
-	theme.set_color("font_color", "NoteLabel", palette.with_alpha(palette.text, 0.6))
+	theme.set_color("font_color", "NoteLabel", settings.with_alpha(settings.text, 0.6))
 
 	theme.set_type_variation("WarnLabel", "Label")
-	theme.set_color("font_color", "WarnLabel", palette.warning)
+	theme.set_color("font_color", "WarnLabel", settings.warning)

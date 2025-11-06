@@ -2,14 +2,14 @@
 class_name ThemeStyles extends RefCounted
 ## Utility class for creating common StyleBox objects with consistent parameters
 
-var palette: ThemeColorPalette
+var settings: ThemeSettings
 var base_spacing: int = 4
 var corner_radius: int = 3
 var border_width: int = 2
 
 
-func _init(color_palette: ThemeColorPalette) -> void:
-	palette = color_palette
+func _init(color_settings: ThemeSettings) -> void:
+	settings = color_settings
 
 
 ## Creates a basic panel StyleBoxFlat
@@ -21,7 +21,7 @@ func create_panel(bg_color: Color, with_border: bool = false) -> StyleBoxFlat:
 
 	if with_border:
 		style.set_border_width_all(border_width)
-		style.border_color = palette.border
+		style.border_color = settings.border
 
 	return style
 
@@ -48,7 +48,7 @@ func create_input(bg_color: Color) -> StyleBoxFlat:
 	style.content_margin_top = base_spacing
 	style.content_margin_bottom = base_spacing
 	style.set_border_width_all(border_width)
-	style.border_color = palette.border
+	style.border_color = settings.border
 	return style
 
 
@@ -64,7 +64,7 @@ func create_empty() -> StyleBoxFlat:
 ## Creates a separator StyleBoxLine
 func create_separator(vertical: bool = false) -> StyleBoxLine:
 	var style := StyleBoxLine.new()
-	style.color = palette.border
+	style.color = settings.border
 	style.vertical = vertical
 	style.grow_begin = 0
 	style.grow_end = 0
