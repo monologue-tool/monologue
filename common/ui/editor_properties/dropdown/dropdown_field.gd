@@ -107,6 +107,11 @@ func _get_options_from_source(source: String) -> Array:
 		if item is Dictionary:
 			# Try to get a name field (supports both lowercase and capitalized for backward compatibility)
 			var name = item.get("name", item.get("Name", ""))
+			# Also support old format with Character.Name structure
+			if name.is_empty() and item.has("Character"):
+				var character_dict = item.get("Character", {})
+				if character_dict is Dictionary:
+					name = character_dict.get("Name", "")
 			if not name.is_empty():
 				result.append(name)
 		else:

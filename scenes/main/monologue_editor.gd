@@ -67,7 +67,20 @@ func _to_dict() -> Dictionary:
 
 	# build data for dialogue characters
 	var storyline = StorylineManager.get_active_storyline()
-	var characters = storyline.get_property_value("characters") if storyline else []
+	var simple_characters = storyline.get_property_value("characters") if storyline else []
+	
+	# Convert simple format back to complex format for compatibility
+	var characters = []
+	for i in range(simple_characters.size()):
+		var simple_char = simple_characters[i]
+		if simple_char is Dictionary:
+			characters.append({
+				"ID": IDGen.generate(5),
+				"EditorIndex": i,
+				"Protected": simple_char.get("name", "") == "_NARRATOR",
+				"Character": {"Name": simple_char.get("name", "")}
+			})
+	
 	if characters.size() <= 0:
 		characters.append(
 			{
@@ -78,7 +91,12 @@ func _to_dict() -> Dictionary:
 			}
 		)
 	
-	var variables = storyline.get_property_value("variables") if storyline else []
+	# Convert simple variables format to complex if needed
+	var simple_variables = storyline.get_property_value("variables") if storyline else []
+	var variables = []
+	for simple_var in simple_variables:
+		if simple_var is Dictionary:
+			variables.append(simple_var)  # Variables are already in the right format
 
 	return {
 		"editorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
@@ -159,8 +177,37 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	if storyline:
 		var characters_data = converter.convert_characters(data.get("Characters", []))
 		var variables_data = data.get("Variables", [])
-		storyline.set_property_value("characters", characters_data)
-		storyline.set_property_value("variables", variables_data)
+		
+		# Convert old character format to new simplified format
+		var simple_characters = []
+		for char in characters_data:
+			if char is Dictionary:
+				var char_name = ""
+				if char.has("Character") and char["Character"] is Dictionary:
+					char_name = char["Character"].get("Name", "")
+				elif char.has("name"):
+					char_name = char.get("name", "")
+				
+				if not char_name.is_empty():
+					simple_characters.append({
+						"name": char_name,
+						"color": "#FFFFFF"
+					})
+		
+		# Convert old variable format to new simplified format if needed
+		var simple_variables = []
+		for variable in variables_data:
+			if variable is Dictionary:
+				var var_name = variable.get("name", variable.get("Name", ""))
+				var var_value = variable.get("value", variable.get("Value", ""))
+				if not var_name.is_empty():
+					simple_variables.append({
+						"name": var_name,
+						"value": var_value
+					})
+		
+		storyline.set_property_value("characters", simple_characters)
+		storyline.set_property_value("variables", simple_variables)
 	
 	graph_switcher.current.data = data
 
