@@ -25,11 +25,13 @@ func get_value() -> Variant:
 
 
 func set_editable(is_editable: bool) -> void:
-	add_button.disabled = not is_editable
+	if is_instance_valid(add_button):
+		add_button.disabled = not is_editable
 	# Update editability of existing items
-	for child in items_container.get_children():
-		if child.has_method("set_editable"):
-			child.set_editable(is_editable)
+	if is_instance_valid(items_container):
+		for child in items_container.get_children():
+			if child.has_method("set_editable"):
+				child.set_editable(is_editable)
 
 
 func _on_initialize() -> void:
@@ -38,12 +40,20 @@ func _on_initialize() -> void:
 		var property: Property = _binding.property
 		_item_template = property.settings.get("item_template", {})
 		# Check if the add button should be hidden (for use in sections with their own add button)
-		if property.settings.get("hide_add_button", false):
+		if property.settings.get("hide_add_button", false) and is_instance_valid(add_button):
 			add_button.hide()
+	
+	# Ensure nodes are ready before rebuilding UI
+	if not is_node_ready():
+		await ready
 	_rebuild_ui()
 
 
 func _rebuild_ui() -> void:
+	# Ensure items_container is valid before proceeding
+	if not is_instance_valid(items_container):
+		return
+	
 	# Clear existing items
 	for child in items_container.get_children():
 		child.queue_free()
@@ -134,6 +144,10 @@ func _on_item_property_changed(item_index: int, prop_name: String, new_value: Va
 
 
 func _on_add_button_pressed() -> void:
+	# Ensure we're ready before adding items
+	if not is_instance_valid(items_container):
+		return
+	
 	# Create new item with default values from template
 	var new_item = {}
 	for prop_name in _item_template.keys():
