@@ -66,7 +66,8 @@ func _to_dict() -> Dictionary:
 				list_nodes.append(child._to_dict())
 
 	# build data for dialogue characters
-	var characters = graph_switcher.current.characters.value
+	var storyline = StorylineManager.get_active_storyline()
+	var characters = storyline.get_property_value("characters") if storyline else []
 	if characters.size() <= 0:
 		characters.append(
 			{
@@ -76,13 +77,15 @@ func _to_dict() -> Dictionary:
 				"EditorIndex": 0
 			}
 		)
+	
+	var variables = storyline.get_property_value("variables") if storyline else []
 
 	return {
 		"editorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
 		"RootNodeID": get_root_dict(list_nodes).get("ID"),
 		"ListNodes": list_nodes,
 		"Characters": characters,
-		"Variables": graph_switcher.current.variables.value,
+		"Variables": variables,
 		"Languages": GlobalVariables.language_switcher.get_languages().keys()
 	}
 
@@ -150,8 +153,15 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	graph_switcher.add_tab(path.get_file())
 	graph_switcher.current.clear()
 	graph_switcher.current.name = path.get_file().trim_suffix(".json")
-	graph_switcher.current.load_character(converter.convert_characters(data.get("Characters")))
-	graph_switcher.current.load_variables(data.get("Variables"))
+	
+	# Load characters and variables into storyline properties
+	var storyline = StorylineManager.get_active_storyline()
+	if storyline:
+		var characters_data = converter.convert_characters(data.get("Characters", []))
+		var variables_data = data.get("Variables", [])
+		storyline.set_property_value("characters", characters_data)
+		storyline.set_property_value("variables", variables_data)
+	
 	graph_switcher.current.data = data
 
 	var node_list = data.get("ListNodes")
