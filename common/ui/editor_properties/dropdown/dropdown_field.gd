@@ -105,7 +105,7 @@ func _get_options_from_source(source: String) -> Array:
 	# Extract names from list items
 	for item in list_value:
 		if item is Dictionary:
-			# Try to get a name field
+			# Try to get a name field (supports both lowercase and capitalized for backward compatibility)
 			var name = item.get("name", item.get("Name", ""))
 			if not name.is_empty():
 				result.append(name)
