@@ -122,8 +122,7 @@ func _create_property_editor(property: Property) -> Control:
 		return
 
 	if _is_list_property(property):
-		pass  # TODO
-		# return _create_list_property_editor(property)
+		return _create_list_property_editor(property)
 
 	var p_container: PanelContainer = PanelContainer.new()
 	var p_hbox: HBoxContainer = HBoxContainer.new()
@@ -190,6 +189,32 @@ func _create_property_editor(property: Property) -> Control:
 #
 #func _create_nested_property_editor(property: Property, parent: Control) -> Control:
 #pass
+
+
+func _create_list_property_editor(property: Property) -> Control:
+	var p_container: PanelContainer = PanelContainer.new()
+	var p_vbox: VBoxContainer = VBoxContainer.new()
+	var p_label: Label = Label.new()
+	
+	p_container.theme_type_variation = "FieldContainer"
+	
+	p_label.text = property.get_display_name()
+	p_vbox.add_child(p_label)
+	
+	var p_field: Field = FieldBucket.create_field(property.type)
+	if p_field:
+		property.call_deferred("bind_field", p_field, current_object)
+		p_vbox.add_child(p_field)
+	else:
+		var warn_label = Label.new()
+		warn_label.theme_type_variation = "WarnLabel"
+		warn_label.text = "Unknown property type: " + property.type
+		p_vbox.add_child(warn_label)
+	
+	p_container.add_child(p_vbox)
+	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	return p_container
 
 
 func post_build() -> void:

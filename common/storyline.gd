@@ -1,4 +1,4 @@
-class_name StorylineDocument extends RefCounted
+class_name StorylineDocument extends InspectableStorylineObject
 
 signal content_changed
 signal undo_redo_changed
@@ -8,18 +8,19 @@ var name: String = ""
 var nodes: Array[InspectableNode] = []
 var file_path: String = ""
 var is_dirty: bool = false
-var history: CommandManager
 
 
 func _init(sname: String, sfile_path: String = "") -> void:
 	name = sname
 	file_path = sfile_path
 
-	history = CommandManager.new()
+	_history = CommandManager.new()
 
-	history.command_executed.connect(_on_command_executed)
-	history.undone.connect(_on_undo)
-	history.redone.connect(_on_redo)
+	_history.command_executed.connect(_on_command_executed)
+	_history.undone.connect(_on_undo)
+	_history.redone.connect(_on_redo)
+	
+	super._init()
 
 	_create_default_nodes()
 
@@ -29,9 +30,62 @@ func add_node(node: InspectableNode) -> void:
 
 
 func create_node(node_type: String) -> InspectableNode:
-	var node = NodeBucket.create_node(node_type, history)
+	var node = NodeBucket.create_node(node_type, _history)
 	_register_node(node)
 	return node
+
+
+func initialize_properties() -> void:
+	# Define characters list
+	define_property(
+		"characters",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"item_template": {
+				"name": {"type": "text", "default": ""},
+				"color": {"type": "text", "default": "#FFFFFF"}
+			}
+		},
+		"Storyline"
+	)
+	
+	# Define variables list
+	define_property(
+		"variables",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"item_template": {
+				"name": {"type": "text", "default": ""},
+				"value": {"type": "text", "default": ""}
+			}
+		},
+		"Storyline"
+	)
+
+
+func get_type() -> String:
+	return "storyline"
+
+
+func get_settings() -> Dictionary:
+	return {}
+
+
+func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
+	is_dirty = true
+	content_changed.emit()
+
+
+func build_graph_preview() -> Array[Control]:
+	return []
 
 
 func _on_command_executed():
