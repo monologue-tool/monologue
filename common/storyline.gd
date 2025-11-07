@@ -44,10 +44,9 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
-			"hide_add_button": true,
-			"supports_edit_button": true,  # Enable edit button for detailed editing
 			"item_template": {
-				"name": {"type": "text", "default": ""}
+				"name": {"type": "text", "default": ""},
+				"edit": {"type": "button", "default": "", "editor_only": true, "expand": true, "button_text": "Edit Character"}
 			}
 		},
 		"Storyline"
@@ -62,7 +61,6 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
-			"hide_add_button": true,
 			"item_template": {
 				"name": {"type": "text", "default": ""},
 				"type": {"type": "dropdown", "default": "String", "options": ["String", "Int", "Float", "Bool"]},

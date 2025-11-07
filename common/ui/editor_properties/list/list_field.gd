@@ -1,7 +1,6 @@
 extends Field
 
 @onready var items_container: VBoxContainer = %ItemsContainer
-@onready var add_button: Button = %AddButton
 
 var _list_items: Array = []
 var _item_template: Dictionary = {}
@@ -9,7 +8,6 @@ var _item_template: Dictionary = {}
 
 func _ready() -> void:
 	super._ready()
-	add_button.pressed.connect(_on_add_button_pressed)
 
 
 func set_value(value: Variant) -> void:
@@ -25,8 +23,6 @@ func get_value() -> Variant:
 
 
 func set_editable(is_editable: bool) -> void:
-	if is_instance_valid(add_button):
-		add_button.disabled = not is_editable
 	# Update editability of existing items
 	if is_instance_valid(items_container):
 		for child in items_container.get_children():
@@ -39,9 +35,6 @@ func _on_initialize() -> void:
 	if _binding and _binding.property:
 		var property: Property = _binding.property
 		_item_template = property.settings.get("item_template", {})
-		# Check if the add button should be hidden (for use in sections with their own add button)
-		if property.settings.get("hide_add_button", false) and is_instance_valid(add_button):
-			add_button.hide()
 	
 	# Ensure nodes are ready before rebuilding UI
 	if not is_node_ready():
@@ -50,9 +43,7 @@ func _on_initialize() -> void:
 
 
 func _supports_edit_button() -> bool:
-	if _binding and _binding.property:
-		return _binding.property.settings.get("supports_edit_button", false)
-	return false
+	return false  # No longer using edit button approach
 
 
 func _rebuild_ui() -> void:
@@ -77,7 +68,7 @@ func _create_item_ui(index: int) -> Control:
 	var vbox = VBoxContainer.new()
 	item_panel.add_child(vbox)
 	
-	# Header with edit/delete buttons
+	# Header with delete button
 	var header_hbox = HBoxContainer.new()
 	vbox.add_child(header_hbox)
 	
@@ -85,14 +76,6 @@ func _create_item_ui(index: int) -> Control:
 	label.text = "Item " + str(index + 1)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_hbox.add_child(label)
-	
-	# Add edit button if supported
-	if _supports_edit_button():
-		var edit_button = Button.new()
-		edit_button.text = "Edit"
-		edit_button.tooltip_text = "Edit item in detail"
-		edit_button.pressed.connect(_on_edit_item.bind(index))
-		header_hbox.add_child(edit_button)
 	
 	var delete_button = Button.new()
 	delete_button.text = "✕"
@@ -106,32 +89,38 @@ func _create_item_ui(index: int) -> Control:
 		item_data = {}
 		_list_items[index] = item_data
 	
-	# If edit button is supported, only show a preview (name field)
-	if _supports_edit_button():
-		var preview_label = Label.new()
-		var item_name = item_data.get("name", "Unnamed")
-		preview_label.text = "Name: " + str(item_name)
-		vbox.add_child(preview_label)
-	else:
-		# Show all fields for inline editing
-		for prop_name in _item_template.keys():
-			var prop_config = _item_template[prop_name]
-			var field_container = _create_property_field(prop_name, prop_config, item_data, index)
-			if field_container:
-				vbox.add_child(field_container)
+	# Show all fields for inline editing
+	for prop_name in _item_template.keys():
+		var prop_config = _item_template[prop_name]
+		var field_container = _create_property_field(prop_name, prop_config, item_data, index)
+		if field_container:
+			vbox.add_child(field_container)
 	
 	return item_panel
 
 
 func _create_property_field(prop_name: String, prop_config: Dictionary, item_data: Dictionary, item_index: int) -> Control:
+	var field_type = prop_config.get("type", "text")
+	
+	# Handle editor_only fields (like buttons)
+	if prop_config.get("editor_only", false):
+		if field_type == "button":
+			var button = Button.new()
+			button.text = prop_config.get("button_text", "Edit")
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL if prop_config.get("expand", false) else 0
+			button.pressed.connect(func():
+				# Emit signal for editor-only button clicks
+				GlobalSignal.emit("edit_list_item", [_binding.property.name, item_index, item_data])
+			)
+			return button
+		return null
+	
 	var container = HBoxContainer.new()
 	
 	var prop_label = Label.new()
 	prop_label.text = Util.to_readable_name(prop_name)
 	prop_label.custom_minimum_size.x = 100
 	container.add_child(prop_label)
-	
-	var field_type = prop_config.get("type", "text")
 	
 	# For dropdown fields, we need to create a temporary property with options
 	if field_type == "dropdown":
@@ -189,34 +178,9 @@ func _on_item_property_changed(item_index: int, prop_name: String, new_value: Va
 			emit_value_committed(_list_items)
 
 
-func _on_add_button_pressed() -> void:
-	# Ensure we're ready before adding items
-	if not is_instance_valid(items_container):
-		return
-	
-	# Create new item with default values from template
-	var new_item = {}
-	for prop_name in _item_template.keys():
-		var prop_config = _item_template[prop_name]
-		new_item[prop_name] = prop_config.get("default", "")
-	
-	_list_items.append(new_item)
-	_rebuild_ui()
-	emit_value_changed(_list_items)
-	emit_value_committed(_list_items)
-
-
 func _on_delete_item(index: int) -> void:
 	if index >= 0 and index < _list_items.size():
 		_list_items.remove_at(index)
 		_rebuild_ui()
 		emit_value_changed(_list_items)
 		emit_value_committed(_list_items)
-
-
-func _on_edit_item(index: int) -> void:
-	if index >= 0 and index < _list_items.size():
-		# Emit a custom signal that can be connected to open the character edit panel
-		# The signal will be emitted with the item data and index
-		var item_data = _list_items[index]
-		GlobalSignal.emit("edit_list_item", [_binding.property.name, index, item_data])
