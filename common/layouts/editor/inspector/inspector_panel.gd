@@ -7,19 +7,37 @@ class_name InspectorPanel extends PanelContainer
 
 var current_object: InspectableObject
 var _special_fields: Array[Control] = []
+var _storyline_button: Button
 
 
 func _ready() -> void:
 	GlobalSignal.add_listener("inspector_property_changed", _on_external_property_changed)
+	_create_storyline_button()
 
 
 func _exit_tree() -> void:
 	GlobalSignal.remove_listener("inspector_property_changed", _on_external_property_changed)
 
 
+func _create_storyline_button() -> void:
+	_storyline_button = Button.new()
+	_storyline_button.text = "⚙ Storyline Settings"
+	_storyline_button.tooltip_text = "Edit storyline characters and variables"
+	_storyline_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_storyline_button.pressed.connect(_on_storyline_settings_pressed)
+	header_container.add_child(_storyline_button)
+	header_container.move_child(_storyline_button, 0)
+
+
+func _on_storyline_settings_pressed() -> void:
+	var storyline = StorylineManager.get_active_storyline()
+	if storyline:
+		inspect(storyline)
+
+
 func inspect(object: InspectableObject) -> void:
 	if current_object and current_object != object:
-		if is_instance_valid(current_object.graph_view):
+		if current_object is InspectableNode and is_instance_valid(current_object.graph_view):
 			current_object.graph_view.selected = false
 		current_object.remove_observer(on_property_changed)
 	elif current_object:
@@ -259,28 +277,28 @@ func _on_inspect_connected_node(property: Property) -> void:
 		)
 
 
-func on_property_changed(node: InspectableNode, _property_name: String) -> void:
-	if not node:
+func on_property_changed(obj: InspectableObject, _property_name: String) -> void:
+	if not obj:
 		return
 
 	rebuild()
 
 
 func _on_external_property_changed(
-	node: InspectableNode, property_name: String, _is_undo: bool
+	obj: InspectableObject, property_name: String, _is_undo: bool
 ) -> void:
-	if not node:
+	if not obj:
 		return
 
-	var property: Property = node.get_property(property_name)
+	var property: Property = obj.get_property(property_name)
 	if not property:
 		return
 
 	if not property.settings.get("visible_in_inspector", true):
 		return
 
-	if node == current_object:
+	if obj == current_object:
 		rebuild()
 		return
 
-	inspect(node)
+	inspect(obj)
