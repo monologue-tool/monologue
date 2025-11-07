@@ -344,14 +344,39 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	top_box.expand_margin_left -= 1
 	theme.set_stylebox("panel", "InspectorPanelTopBox", top_box)
 
-	# CollapsibleFieldPanel
-	theme.set_type_variation("CollapsibleFieldPanel", "PanelContainer")
-	var collapsible := styles.create_panel(settings.lighten(settings.panel_background, 0.05))
-	theme.set_stylebox("panel", "CollapsibleFieldPanel", collapsible)
+	# FoldableContainer
+	var f_panel := styles.create_panel(settings.darken(settings.secondary, 0.15), false)
+	#f_panel.border_color = settings.lighten(settings.border, 0.1)
+	var f_title_collapsed_panel := f_panel.duplicate()
+	f_title_collapsed_panel.bg_color = settings.secondary
+	f_title_collapsed_panel.set_content_margin_all(styles.base_spacing)
+	var f_title_panel := f_title_collapsed_panel.duplicate()
+	
+	#f_panel.draw_center = false
+	f_panel.border_width_top = 0
+	f_panel.corner_radius_top_left = 0
+	f_panel.corner_radius_top_right = 0
+	f_title_panel.corner_radius_bottom_left = 0
+	f_title_panel.corner_radius_bottom_right = 0
+	
+	theme.set_font_size("font_size", "FoldableContainer", 18)
+	#theme.set_font("font", "FoldableContainer", preload("res://ui/assets/fonts/GeneralSans-SemiBold.otf"))
+	theme.set_stylebox("focus", "FoldableContainer", styles.create_empty())
+	theme.set_stylebox("panel", "FoldableContainer", f_panel)
+	theme.set_stylebox("title_panel", "FoldableContainer", f_title_panel)
+	theme.set_stylebox("title_hover_panel", "FoldableContainer", f_title_panel)
+	theme.set_stylebox("title_collapsed_panel", "FoldableContainer", f_title_collapsed_panel)
+	theme.set_stylebox("title_collapsed_hover_panel", "FoldableContainer", f_title_collapsed_panel)
+
+	# FieldContainer
+	theme.set_type_variation("FieldContainer", "PanelContainer")
+	var field_container_panel := styles.create_panel(settings.panel_background)
+	field_container_panel.draw_center = false
+	theme.set_stylebox("panel", "FieldContainer", field_container_panel)
 
 	# FieldPanel
 	theme.set_type_variation("FieldPanel", "PanelContainer")
-	var field_panel := styles.create_panel(settings.panel_background, true)
+	var field_panel := styles.create_panel(settings.panel_background, false)
 	field_panel.set_content_margin_all(styles.base_spacing * 2)
 	theme.set_stylebox("panel", "FieldPanel", field_panel)
 
@@ -634,8 +659,8 @@ static func _build_graph_elements(
 
 	# GraphNode
 	var node_panel := styles.create_panel(settings.panel_background, true)
-	node_panel.shadow_color = settings.with_alpha(Color.BLACK, 0.15)
-	node_panel.shadow_size = 10
+	node_panel.shadow_color = settings.with_alpha(Color.BLACK, 0.05)
+	node_panel.shadow_size = 8
 
 	var node_selected := node_panel.duplicate()
 	node_selected.border_color = settings.lighten(settings.border, 0.1)

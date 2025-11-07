@@ -130,6 +130,8 @@ func _create_property_editor(property: Property) -> Control:
 	var p_vbox: VBoxContainer = VBoxContainer.new()
 	var p_expose_button: TextureButton = expose_button.instantiate()
 	var p_label: Label = Label.new()
+	
+	p_container.theme_type_variation = "FieldContainer"
 
 	p_label.text = property.get_display_name()
 	p_hbox.add_child(p_expose_button)

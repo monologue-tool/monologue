@@ -67,10 +67,11 @@ root = SubResource("Resource_e6y6g")
 [sub_resource type="GDScript" id="GDScript_sr1k3"]
 script/source = "extends PanelContainer
 
+@warning_ignore(\"unused_private_class_variable\")
 var _static_container: bool = true
 "
 
-[node name="MonologueEditor" type="Control"]
+[node name="MonologueEditor" type="Control" node_paths=PackedStringArray("graph_switcher")]
 clip_contents = true
 layout_mode = 3
 anchors_preset = 15
@@ -81,6 +82,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ovo1o")
+graph_switcher = NodePath("DockableContainer/Graph/GraphEditSwitcher")
 
 [node name="DockableContainer" type="Container" parent="."]
 layout_mode = 1
@@ -149,12 +151,13 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="GraphNodePicker" parent="." instance=ExtResource("15_q62vd")]
+[node name="GraphNodePicker" parent="." node_paths=PackedStringArray("switcher") instance=ExtResource("15_q62vd")]
 unique_name_in_owner = true
 visible = false
 keep_title_visible = false
 content_scale_mode = 2
 content_scale_aspect = 1
+switcher = NodePath("../DockableContainer/Graph/GraphEditSwitcher")
 
 [node name="SearchBarContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -170,10 +173,9 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("15_35jwg")
 
-[node name="SearchBar" parent="SearchBarContainer" node_paths=PackedStringArray("graph_edit_switcher") instance=ExtResource("16_n4eqx")]
+[node name="SearchBar" parent="SearchBarContainer" instance=ExtResource("16_n4eqx")]
 visible = false
 layout_mode = 2
-graph_edit_switcher = NodePath("")
 
 [node name="SplitContainer" type="SplitContainer" parent="."]
 layout_mode = 0

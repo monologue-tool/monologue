@@ -1,8 +1,8 @@
 class_name GraphNodePicker extends Window
 
 ## Reference to the tab switcher so that the picker knows which tab it is in.
-@onready var switcher := %GraphEditSwitcher
-@onready var node_tree := %GraphNodeTree
+@export var switcher: GraphEditSwitcher
+@onready var node_tree := %Tree
 
 ## The node in which the picker was spawned/dragged from.
 var from_node: String

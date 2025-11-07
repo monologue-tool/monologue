@@ -1,9 +1,5 @@
 class_name FieldBinding extends RefCounted
 
-const FieldValidationResult := preload(
-	"res://common/ui/editor_properties/field_validation_result.gd"
-)
-const FieldDescriptor := preload("res://common/ui/editor_properties/field_descriptor.gd")
 
 var property: Property
 var field: Field

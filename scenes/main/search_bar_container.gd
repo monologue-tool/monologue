@@ -1,7 +1,7 @@
 extends CenterContainer
 
-@onready var searchbar = $SearchBar
-@onready var graph_edit_switcher = %GraphEditSwitcher
+#@onready var searchbar = $SearchBar
+#@export var graph_edit_switcher = %GraphEditSwitcher
 
 
 func _input(_event: InputEvent) -> void:

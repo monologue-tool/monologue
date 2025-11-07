@@ -47,8 +47,8 @@ func create_input(bg_color: Color) -> StyleBoxFlat:
 	style.content_margin_right = base_spacing * 2.0
 	style.content_margin_top = base_spacing
 	style.content_margin_bottom = base_spacing
-	style.set_border_width_all(border_width)
-	style.border_color = settings.border
+	#style.set_border_width_all(border_width)
+	#style.border_color = settings.border
 	return style
 
 
