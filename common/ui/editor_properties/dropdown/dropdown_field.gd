@@ -34,6 +34,31 @@ func set_editable(is_editable: bool) -> void:
 func _on_initialize() -> void:
 	super._on_initialize()
 	_populate_options()
+	_setup_source_listener()
+
+
+func _setup_source_listener() -> void:
+	if not _binding or not _binding.property:
+		return
+	
+	var property: Property = _binding.property
+	var source: String = property.settings.get("source", "")
+	
+	if not source.is_empty():
+		# Listen for changes to the source property
+		var storyline = _get_storyline()
+		if storyline:
+			storyline.add_observer(_on_source_changed)
+
+
+func _on_source_changed(_obj: InspectableObject, property_name: String) -> void:
+	if not _binding or not _binding.property:
+		return
+	
+	var source: String = _binding.property.settings.get("source", "")
+	if property_name == source:
+		# Source data changed, repopulate options
+		_populate_options()
 
 
 func _populate_options() -> void:
