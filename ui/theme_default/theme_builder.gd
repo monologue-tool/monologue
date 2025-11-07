@@ -526,10 +526,8 @@ static func _build_sliders(theme: Theme, settings: ThemeSettings, styles: ThemeS
 static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	# TabBar
 	var tab_unselected := styles.create_button(settings.secondary)
-	tab_unselected.draw_center = false
-	tab_unselected.set_border_width_all(0)
-	tab_unselected.border_width_right = 1
-	tab_unselected.set_corner_radius_all(0)
+	tab_unselected.content_margin_top /= 2
+	tab_unselected.content_margin_bottom /= 2
 
 	var tab_selected := tab_unselected.duplicate()
 	tab_selected.draw_center = true
