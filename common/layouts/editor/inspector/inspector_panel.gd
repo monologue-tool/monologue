@@ -7,32 +7,14 @@ class_name InspectorPanel extends PanelContainer
 
 var current_object: InspectableObject
 var _special_fields: Array[Control] = []
-var _storyline_button: Button
 
 
 func _ready() -> void:
 	GlobalSignal.add_listener("inspector_property_changed", _on_external_property_changed)
-	_create_storyline_button()
 
 
 func _exit_tree() -> void:
 	GlobalSignal.remove_listener("inspector_property_changed", _on_external_property_changed)
-
-
-func _create_storyline_button() -> void:
-	_storyline_button = Button.new()
-	_storyline_button.text = "⚙ Storyline Settings"
-	_storyline_button.tooltip_text = "Edit storyline characters and variables"
-	_storyline_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_storyline_button.pressed.connect(_on_storyline_settings_pressed)
-	header_container.add_child(_storyline_button)
-	header_container.move_child(_storyline_button, 0)
-
-
-func _on_storyline_settings_pressed() -> void:
-	var storyline = StorylineManager.get_active_storyline()
-	if storyline:
-		inspect(storyline)
 
 
 func inspect(object: InspectableObject) -> void:
@@ -51,6 +33,27 @@ func inspect(object: InspectableObject) -> void:
 
 
 func rebuild() -> void:
+	# Store the current focus owner before rebuilding
+	var focus_owner = get_viewport().gui_get_focus_owner()
+	var focused_property_name: String = ""
+	
+	# Try to identify which property had focus
+	if focus_owner and focus_owner.is_inside_tree():
+		var node = focus_owner
+		while node:
+			if node.get_parent() == property_container:
+				# Found the property container, try to extract property name
+				for child in property_container.get_children():
+					if child == node or child.is_ancestor_of(focus_owner):
+						# Try to find the property name from the label
+						var labels = []
+						_find_labels(child, labels)
+						if labels.size() > 0:
+							focused_property_name = labels[0].text
+						break
+				break
+			node = node.get_parent()
+	
 	for prop: Control in property_container.get_children():
 		prop.queue_free()
 
@@ -62,6 +65,7 @@ func rebuild() -> void:
 		var label: Label = Label.new()
 		label.text = "No node selected"
 		property_container.add_child(label)
+		return
 
 	var properties: Array[Property] = current_object.get_properties()
 	var categories: Dictionary = _group_by_category(properties)
@@ -75,6 +79,40 @@ func rebuild() -> void:
 		_create_category_section(category_name, props)
 
 	post_build()
+	
+	# Restore focus if we had a focused property
+	if not focused_property_name.is_empty():
+		await get_tree().process_frame
+		_restore_focus_to_property(focused_property_name)
+
+
+func _find_labels(node: Node, labels: Array) -> void:
+	if node is Label:
+		labels.append(node)
+	for child in node.get_children():
+		_find_labels(child, labels)
+
+
+func _restore_focus_to_property(property_display_name: String) -> void:
+	# Find the property with matching display name and restore focus to its field
+	for container in property_container.get_children():
+		var labels = []
+		_find_labels(container, labels)
+		for label in labels:
+			if label.text == property_display_name:
+				# Found the property, now find its field and focus it
+				var fields = []
+				_find_focusable_fields(container, fields)
+				if fields.size() > 0:
+					fields[0].grab_focus()
+				return
+
+
+func _find_focusable_fields(node: Node, fields: Array) -> void:
+	if node is LineEdit or node is TextEdit or node is OptionButton:
+		fields.append(node)
+	for child in node.get_children():
+		_find_focusable_fields(child, fields)
 
 
 func _group_by_category(properties: Array) -> Dictionary:
@@ -140,9 +178,6 @@ func _create_property_editor(property: Property) -> Control:
 		and not property.settings.get("export", false)
 	):
 		return
-
-	if _is_list_property(property):
-		return _create_list_property_editor(property)
 
 	var p_container: PanelContainer = PanelContainer.new()
 	var p_hbox: HBoxContainer = HBoxContainer.new()
@@ -211,40 +246,10 @@ func _create_property_editor(property: Property) -> Control:
 #pass
 
 
-func _create_list_property_editor(property: Property) -> Control:
-	var p_container: PanelContainer = PanelContainer.new()
-	var p_vbox: VBoxContainer = VBoxContainer.new()
-	var p_label: Label = Label.new()
-	
-	p_container.theme_type_variation = "FieldContainer"
-	
-	p_label.text = property.get_display_name()
-	p_vbox.add_child(p_label)
-	
-	var p_field: Field = FieldBucket.create_field(property.type)
-	if p_field:
-		property.call_deferred("bind_field", p_field, current_object)
-		p_vbox.add_child(p_field)
-	else:
-		var warn_label = Label.new()
-		warn_label.theme_type_variation = "WarnLabel"
-		warn_label.text = "Unknown property type: " + property.type
-		p_vbox.add_child(warn_label)
-	
-	p_container.add_child(p_vbox)
-	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
-	return p_container
-
-
 func post_build() -> void:
 	for child: Control in property_container.get_children():
 		if child is FoldableContainer and child.is_empty():
 			child.queue_free()
-
-
-func _is_list_property(property: Property) -> bool:
-	return property.type == "list"
 
 
 func _on_property_expose_state_changed(

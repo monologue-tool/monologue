@@ -22,6 +22,10 @@ func _ready():
 	GlobalSignal.add_listener("save", save)
 
 	StorylineManager.create_storyline("Unnamed Storyline")
+	
+	# Load the editor sections after creating the storyline
+	await get_tree().process_frame
+	load_editor_sections()
 
 
 func _select_new_node() -> void:
@@ -161,9 +165,10 @@ func load_project(path: String, new_graph: bool = false) -> void:
 
 
 func load_editor_sections() -> void:
-	var graph_edit: MonologueGraphEdit = graph_switcher.current
-	characters_section.load_items(graph_edit.characters)
-	variables_section.load_items(graph_edit.variables)
+	var storyline := StorylineManager.get_active_storyline()
+	if storyline:
+		characters_section.load_items(storyline.get_property("characters"), storyline)
+		variables_section.load_items(storyline.get_property("variables"), storyline)
 
 
 func save():

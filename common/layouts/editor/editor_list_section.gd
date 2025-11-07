@@ -4,12 +4,17 @@ extends PanelContainer
 
 @onready var vbox := %VBox
 @onready var search_bar: LineEdit = %SearchLine
+@onready var add_button: Button = $VBox/ToolBar/AddButton
 
-var add_func: Callable
+var _property: Property
+var _list_field: Field
+var _property_owner: InspectableObject
 
 
 func _ready() -> void:
 	search_bar.placeholder_text = "Filter %s" % name.to_lower()
+	if add_button:
+		add_button.pressed.connect(_on_add_button_pressed)
 
 
 func clear() -> void:
@@ -17,13 +22,21 @@ func clear() -> void:
 		child.queue_free()
 
 
-func load_items(_property: Property) -> void:
+func load_items(property: Property, property_owner: InspectableObject = null) -> void:
 	clear()
-	#property.setters["is_section"] = true
-	#var field := property.show(vbox)
-	#add_func = field._on_add_button_pressed
+	_property = property
+	_property_owner = property_owner
+	
+	if not _property:
+		return
+	
+	# Create a list field to display the property
+	_list_field = FieldBucket.create_field(_property.type)
+	if _list_field:
+		_property.bind_field(_list_field, _property_owner)
+		vbox.add_child(_list_field)
 
 
 func _on_add_button_pressed() -> void:
-	if add_func and add_func.is_valid():
-		add_func.call()
+	if _list_field and _list_field.has_method("_on_add_button_pressed"):
+		_list_field._on_add_button_pressed()
