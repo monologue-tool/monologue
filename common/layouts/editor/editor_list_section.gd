@@ -42,10 +42,12 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 
 func _on_add_button_pressed() -> void:
 	if _property and _property_owner:
-		# Get current list value
+		# Get current list value and duplicate it to avoid modifying the original
 		var current_list = _property.get_value()
 		if not current_list is Array:
 			current_list = []
+		else:
+			current_list = current_list.duplicate(true)  # Deep duplicate
 		
 		# Create new item with default values from template
 		var item_template = _property.settings.get("item_template", {})
@@ -56,7 +58,7 @@ func _on_add_button_pressed() -> void:
 			if not prop_config.get("editor_only", false):
 				new_item[prop_name] = prop_config.get("default", "")
 		
-		# Add new item to list
+		# Add new item to duplicated list
 		current_list.append(new_item)
 		
 		# Update property value (this will trigger undo/redo)

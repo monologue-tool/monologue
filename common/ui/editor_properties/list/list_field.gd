@@ -19,7 +19,7 @@ func set_value(value: Variant) -> void:
 
 
 func get_value() -> Variant:
-	return _list_items
+	return _list_items.duplicate(true)  # Return a deep copy to prevent external modifications
 
 
 func set_editable(is_editable: bool) -> void:
