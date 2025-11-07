@@ -72,7 +72,7 @@ func _populate_options() -> void:
 	var source: String = property.settings.get("source", "")
 	
 	# If source is specified, get options from storyline
-	if not source.is_empty() and _binding.property_owner:
+	if not source.is_empty() and _binding.owner:
 		options = _get_options_from_source(source)
 	
 	# Add options to dropdown
@@ -116,10 +116,10 @@ func _get_options_from_source(source: String) -> Array:
 
 
 func _get_storyline() -> InspectableObject:
-	if not _binding or not _binding.property_owner:
+	if not _binding or not _binding.owner:
 		return null
 	
-	var owner = _binding.property_owner
+	var owner = _binding.owner
 	
 	# If owner is a node, get its storyline
 	if owner is InspectableNode:

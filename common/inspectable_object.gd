@@ -3,14 +3,14 @@ class_name InspectableObject extends RefCounted
 
 var _properties: Dictionary[String, Property] = {}
 var _observers: Array[Callable] = []
-var _history: CommandManager
+var history: CommandManager
 var settings: Dictionary = {}
 
 
 func _init(command_manager: CommandManager = null) -> void:
 	if not command_manager:
 		push_warning("InspectableObject does not have a command manager.")
-	_history = command_manager
+	history = command_manager
 
 	initialize_properties()
 	_load_settings()
@@ -81,11 +81,13 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 		return
 
 	var old_value: Variant = get_property_value(pname)
+	
+	if pvalue == old_value:
+		return
 
 	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)
-	_history.execute(command)
+	history.execute(command)
 
-	#_notify_change(pname, old_value, pvalue)
 	_notify_change(pname)
 
 
@@ -98,7 +100,7 @@ func set_property_settings_value(pname: String, skey: Variant, svalue: Variant) 
 	var command: PropertySettingsChangeCommand = PropertySettingsChangeCommand.new(
 		self, pname, skey, old_value, svalue
 	)
-	_history.execute(command)
+	history.execute(command)
 
 
 func _to_dict() -> Dictionary:

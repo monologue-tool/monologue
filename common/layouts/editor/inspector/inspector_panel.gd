@@ -95,12 +95,14 @@ func _group_by_category(properties: Array) -> Dictionary:
 
 
 func _create_category_section(category_name: String, properties: Array) -> void:
+	print(is_node_ready())
+	
+	if not property_container.is_node_ready():
+		await property_container.ready
+	
 	var container: FoldableContainer = inspector_category_container.instantiate()
 	container.title = category_name
 	property_container.add_child(container)
-
-	if not property_container.is_node_ready():
-		await property_container.ready
 
 	for property: Property in properties:
 		var property_editor: Control = _create_property_editor(property)

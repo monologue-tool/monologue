@@ -11,6 +11,7 @@ func add_control(
 	if not is_instance_valid(node):
 		push_warning("Attempted to add a null control to inspector category container.")
 		return
+	
 	_vbox.add_child(node, force_readable_name, internal)
 
 

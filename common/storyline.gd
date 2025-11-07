@@ -29,7 +29,7 @@ func add_node(node: InspectableNode) -> void:
 
 
 func create_node(node_type: String) -> InspectableNode:
-	var node = NodeBucket.create_node(node_type, _history)
+	var node = NodeBucket.create_node(node_type, history)
 	_register_node(node)
 	return node
 
@@ -112,7 +112,7 @@ func save():
 func _create_default_nodes() -> void:
 	var defaults := ["root", "sentence", "text"]
 	for node_type: String in defaults:
-		var node = NodeBucket.create_node(node_type, _history)
+		var node = NodeBucket.create_node(node_type, history)
 		_register_node(node)
 
 
