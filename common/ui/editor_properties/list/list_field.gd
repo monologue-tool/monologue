@@ -49,6 +49,12 @@ func _on_initialize() -> void:
 	_rebuild_ui()
 
 
+func _supports_edit_button() -> bool:
+	if _binding and _binding.property:
+		return _binding.property.settings.get("supports_edit_button", false)
+	return false
+
+
 func _rebuild_ui() -> void:
 	# Ensure items_container is valid before proceeding
 	if not is_instance_valid(items_container):
@@ -71,7 +77,7 @@ func _create_item_ui(index: int) -> Control:
 	var vbox = VBoxContainer.new()
 	item_panel.add_child(vbox)
 	
-	# Header with delete button
+	# Header with edit/delete buttons
 	var header_hbox = HBoxContainer.new()
 	vbox.add_child(header_hbox)
 	
@@ -79,6 +85,14 @@ func _create_item_ui(index: int) -> Control:
 	label.text = "Item " + str(index + 1)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_hbox.add_child(label)
+	
+	# Add edit button if supported
+	if _supports_edit_button():
+		var edit_button = Button.new()
+		edit_button.text = "Edit"
+		edit_button.tooltip_text = "Edit item in detail"
+		edit_button.pressed.connect(_on_edit_item.bind(index))
+		header_hbox.add_child(edit_button)
 	
 	var delete_button = Button.new()
 	delete_button.text = "✕"
@@ -92,11 +106,19 @@ func _create_item_ui(index: int) -> Control:
 		item_data = {}
 		_list_items[index] = item_data
 	
-	for prop_name in _item_template.keys():
-		var prop_config = _item_template[prop_name]
-		var field_container = _create_property_field(prop_name, prop_config, item_data, index)
-		if field_container:
-			vbox.add_child(field_container)
+	# If edit button is supported, only show a preview (name field)
+	if _supports_edit_button():
+		var preview_label = Label.new()
+		var item_name = item_data.get("name", "Unnamed")
+		preview_label.text = "Name: " + str(item_name)
+		vbox.add_child(preview_label)
+	else:
+		# Show all fields for inline editing
+		for prop_name in _item_template.keys():
+			var prop_config = _item_template[prop_name]
+			var field_container = _create_property_field(prop_name, prop_config, item_data, index)
+			if field_container:
+				vbox.add_child(field_container)
 	
 	return item_panel
 
@@ -110,26 +132,50 @@ func _create_property_field(prop_name: String, prop_config: Dictionary, item_dat
 	container.add_child(prop_label)
 	
 	var field_type = prop_config.get("type", "text")
-	var field = FieldBucket.create_field(field_type)
 	
-	if not field:
-		var warn_label = Label.new()
-		warn_label.text = "Unknown field type: " + field_type
-		warn_label.theme_type_variation = "WarnLabel"
-		container.add_child(warn_label)
-		return container
-	
-	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	container.add_child(field)
-	
-	# Set initial value
-	var current_value = item_data.get(prop_name, prop_config.get("default", ""))
-	field.set_value.call_deferred(current_value)
-	
-	# Connect to value changes
-	field.value_committed.connect(func(new_value):
-		_on_item_property_changed(item_index, prop_name, new_value)
-	)
+	# For dropdown fields, we need to create a temporary property with options
+	if field_type == "dropdown":
+		var temp_property = Property.new(prop_name, item_data.get(prop_name, prop_config.get("default", "")), field_type, prop_config)
+		var field = FieldBucket.create_field(field_type)
+		
+		if not field:
+			var warn_label = Label.new()
+			warn_label.text = "Unknown field type: " + field_type
+			warn_label.theme_type_variation = "WarnLabel"
+			container.add_child(warn_label)
+			return container
+		
+		field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		container.add_child(field)
+		
+		# Bind the field to the temporary property
+		temp_property.bind_field(field, null)
+		
+		# Connect to value changes
+		field.value_committed.connect(func(new_value):
+			_on_item_property_changed(item_index, prop_name, new_value)
+		)
+	else:
+		var field = FieldBucket.create_field(field_type)
+		
+		if not field:
+			var warn_label = Label.new()
+			warn_label.text = "Unknown field type: " + field_type
+			warn_label.theme_type_variation = "WarnLabel"
+			container.add_child(warn_label)
+			return container
+		
+		field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		container.add_child(field)
+		
+		# Set initial value
+		var current_value = item_data.get(prop_name, prop_config.get("default", ""))
+		field.set_value.call_deferred(current_value)
+		
+		# Connect to value changes
+		field.value_committed.connect(func(new_value):
+			_on_item_property_changed(item_index, prop_name, new_value)
+		)
 	
 	return container
 
@@ -166,3 +212,11 @@ func _on_delete_item(index: int) -> void:
 		_rebuild_ui()
 		emit_value_changed(_list_items)
 		emit_value_committed(_list_items)
+
+
+func _on_edit_item(index: int) -> void:
+	if index >= 0 and index < _list_items.size():
+		# Emit a custom signal that can be connected to open the character edit panel
+		# The signal will be emitted with the item data and index
+		var item_data = _list_items[index]
+		GlobalSignal.emit("edit_list_item", [_binding.property.name, index, item_data])

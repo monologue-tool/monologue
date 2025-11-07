@@ -45,9 +45,9 @@ func initialize_properties() -> void:
 			"visible_in_inspector": true,
 			"editable": true,
 			"hide_add_button": true,
+			"supports_edit_button": true,  # Enable edit button for detailed editing
 			"item_template": {
-				"name": {"type": "text", "default": ""},
-				"color": {"type": "text", "default": "#FFFFFF"}
+				"name": {"type": "text", "default": ""}
 			}
 		},
 		"Storyline"
@@ -65,6 +65,7 @@ func initialize_properties() -> void:
 			"hide_add_button": true,
 			"item_template": {
 				"name": {"type": "text", "default": ""},
+				"type": {"type": "dropdown", "default": "String", "options": ["String", "Int", "Float", "Bool"]},
 				"value": {"type": "text", "default": ""}
 			}
 		},

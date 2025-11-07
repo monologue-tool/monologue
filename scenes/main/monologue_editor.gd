@@ -190,8 +190,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 				
 				if not char_name.is_empty():
 					simple_characters.append({
-						"name": char_name,
-						"color": "#FFFFFF"
+						"name": char_name
 					})
 		
 		# Convert old variable format to new simplified format if needed
@@ -199,10 +198,12 @@ func load_project(path: String, new_graph: bool = false) -> void:
 		for variable in variables_data:
 			if variable is Dictionary:
 				var var_name = variable.get("name", variable.get("Name", ""))
+				var var_type = variable.get("type", "String")
 				var var_value = variable.get("value", variable.get("Value", ""))
 				if not var_name.is_empty():
 					simple_variables.append({
 						"name": var_name,
+						"type": var_type,
 						"value": var_value
 					})
 		
