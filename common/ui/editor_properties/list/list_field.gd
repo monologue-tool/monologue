@@ -124,7 +124,7 @@ func _create_property_field(prop_name: String, prop_config: Dictionary, item_dat
 	
 	# Set initial value
 	var current_value = item_data.get(prop_name, prop_config.get("default", ""))
-	field.set_value(current_value)
+	field.set_value.call_deferred(current_value)
 	
 	# Connect to value changes
 	field.value_committed.connect(func(new_value):
