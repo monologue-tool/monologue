@@ -124,7 +124,6 @@ func _create_property_field(prop_name: String, prop_config: Dictionary, item_dat
 	
 	# For dropdown fields, we need to create a temporary property with options
 	if field_type == "dropdown":
-		var temp_property = Property.new(prop_name, item_data.get(prop_name, prop_config.get("default", "")), field_type, prop_config)
 		var field = FieldBucket.create_field(field_type)
 		
 		if not field:
@@ -137,8 +136,9 @@ func _create_property_field(prop_name: String, prop_config: Dictionary, item_dat
 		field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		container.add_child(field)
 		
-		# Bind the field to the temporary property
-		temp_property.bind_field(field, null)
+		# Create temporary property with options and bind after field is ready
+		var temp_property = Property.new(prop_name, item_data.get(prop_name, prop_config.get("default", "")), field_type, prop_config)
+		temp_property.call_deferred("bind_field", field, null)
 		
 		# Connect to value changes
 		field.value_committed.connect(func(new_value):
