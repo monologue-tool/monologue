@@ -37,6 +37,9 @@ func _on_initialize() -> void:
 	if _binding and _binding.property:
 		var property: Property = _binding.property
 		_item_template = property.settings.get("item_template", {})
+		# Check if the add button should be hidden (for use in sections with their own add button)
+		if property.settings.get("hide_add_button", false):
+			add_button.hide()
 	_rebuild_ui()
 
 

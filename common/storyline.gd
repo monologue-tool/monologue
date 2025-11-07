@@ -44,6 +44,7 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
+			"hide_add_button": true,
 			"item_template": {
 				"name": {"type": "text", "default": ""},
 				"color": {"type": "text", "default": "#FFFFFF"}
@@ -61,6 +62,7 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
+			"hide_add_button": true,
 			"item_template": {
 				"name": {"type": "text", "default": ""},
 				"value": {"type": "text", "default": ""}
