@@ -14,13 +14,12 @@ func _init(sname: String, sfile_path: String = "") -> void:
 	name = sname
 	file_path = sfile_path
 
-	_history = CommandManager.new()
-
-	_history.command_executed.connect(_on_command_executed)
-	_history.undone.connect(_on_undo)
-	_history.redone.connect(_on_redo)
+	var command_manager = CommandManager.new()
+	command_manager.command_executed.connect(_on_command_executed)
+	command_manager.undone.connect(_on_undo)
+	command_manager.redone.connect(_on_redo)
 	
-	super._init()
+	super._init(command_manager)
 
 	_create_default_nodes()
 
@@ -113,7 +112,7 @@ func save():
 func _create_default_nodes() -> void:
 	var defaults := ["root", "sentence", "text"]
 	for node_type: String in defaults:
-		var node = NodeBucket.create_node(node_type, history)
+		var node = NodeBucket.create_node(node_type, _history)
 		_register_node(node)
 
 
