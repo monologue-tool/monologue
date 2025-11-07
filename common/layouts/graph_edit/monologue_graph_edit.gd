@@ -13,7 +13,6 @@ var _is_applying_position: bool = false
 
 func _ready() -> void:
 	super._ready()
-	connect("end_node_move", _on_end_node_move)
 
 
 func refresh() -> void:

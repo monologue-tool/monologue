@@ -1,9 +1,9 @@
 class_name MonologueEditor extends Control
 
 @export var welcome_window: WelcomeWindow
+@export var graph_switcher: GraphEditSwitcher
 
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
-@onready var graph_switcher: GraphEditSwitcher = %GraphEditSwitcher
 @onready var inspector_panel_node: InspectorPanel = %Inspector
 @onready var run_window := preload("res://scenes/run/run_window.tscn")
 @onready var dimmer := $"../../../Dimmer"

@@ -17,7 +17,7 @@ func clear() -> void:
 		child.queue_free()
 
 
-func load_items(property: Property) -> void:
+func load_items(_property: Property) -> void:
 	clear()
 	#property.setters["is_section"] = true
 	#var field := property.show(vbox)

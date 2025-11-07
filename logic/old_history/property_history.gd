@@ -54,16 +54,17 @@ func set_property(node: Variant, property: String, value: Variant) -> void:
 	node[property].value = value
 
 
-func refresh_properties(node: Variant, language: String) -> void:
-	var properties: PackedStringArray = []
-	if node is MonologueGraphNode:
-		# if language is the same, we can do partial refresh with given properties
-		# otherwise, full refresh so other controls can reflect the language change
-		if locale == language:
-			properties = changes.map(func(c): return c.property)
-	else:
-		properties = changes.map(func(c): return c.property)
-	GlobalSignal.emit.call_deferred("refresh", [node, properties])
+func refresh_properties(_node: Variant, _language: String) -> void:
+	pass
+	#var properties: PackedStringArray = []
+	#if node is MonologueGraphNode:
+		## if language is the same, we can do partial refresh with given properties
+		## otherwise, full refresh so other controls can reflect the language change
+		#if locale == language:
+			#properties = changes.map(func(c): return c.property)
+	#else:
+		#properties = changes.map(func(c): return c.property)
+	#GlobalSignal.emit.call_deferred("refresh", [node, properties])
 
 
 func _hide_unrelated_windows() -> void:
