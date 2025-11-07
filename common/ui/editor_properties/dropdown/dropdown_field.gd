@@ -81,8 +81,8 @@ func _populate_options() -> void:
 		option_button.add_item(text)
 	
 	# Set current value
-	if _binding.property.value:
-		set_value(_binding.property.value)
+	if _binding.property and _binding.property.get_value():
+		set_value(_binding.property.get_value())
 
 
 func _get_options_from_source(source: String) -> Array:
