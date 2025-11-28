@@ -351,14 +351,14 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	f_title_collapsed_panel.bg_color = settings.secondary
 	f_title_collapsed_panel.set_content_margin_all(styles.base_spacing)
 	var f_title_panel := f_title_collapsed_panel.duplicate()
-	
+
 	#f_panel.draw_center = false
 	f_panel.border_width_top = 0
 	f_panel.corner_radius_top_left = 0
 	f_panel.corner_radius_top_right = 0
 	f_title_panel.corner_radius_bottom_left = 0
 	f_title_panel.corner_radius_bottom_right = 0
-	
+
 	theme.set_font_size("font_size", "FoldableContainer", 18)
 	#theme.set_font("font", "FoldableContainer", preload("res://ui/assets/fonts/GeneralSans-SemiBold.otf"))
 	theme.set_stylebox("focus", "FoldableContainer", styles.create_empty())
@@ -432,6 +432,11 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_constant("separation", "VSplitContainer", styles.base_spacing)
 	theme.set_icon("grabber", "HSplitContainer", Texture2D.new())
 	theme.set_icon("grabber", "VSplitContainer", Texture2D.new())
+
+	# ListItemContainer
+	theme.set_type_variation("ListItemContainer", "PanelContainer")
+	var list_item_container := styles.create_panel(settings.darken(settings.secondary, 0.15), false)
+	theme.set_stylebox("panel", "ListItemContainer", list_item_container)
 
 
 ## Build scrollbar styles

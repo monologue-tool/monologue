@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d2s4kv1234abc"]
 
-[ext_resource type="Script" path="res://common/ui/editor_properties/list/list_field.gd" id="1_list"]
+[ext_resource type="Script" uid="uid://bcb45yus8vyd4" path="res://common/ui/editor_properties/list/list_field.gd" id="1_list"]
 
 [node name="VBoxContainer" type="VBoxContainer"]
 offset_right = 300.0

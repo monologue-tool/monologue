@@ -2,13 +2,13 @@ extends PanelContainer
 
 @export var section_icon: Texture2D
 
-@onready var vbox := %VBox
-@onready var search_bar: LineEdit = %SearchLine
-@onready var add_button: Button = $VBox/ToolBar/AddButton
-
 var _property: Property
 var _list_field: Field
 var _property_owner: InspectableObject
+
+@onready var vbox := %VBox
+@onready var search_bar: LineEdit = %SearchLine
+@onready var add_button: Button = $VBox/ToolBar/AddButton
 
 
 func _ready() -> void:
@@ -26,10 +26,10 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 	clear()
 	_property = property
 	_property_owner = property_owner
-	
+
 	if not _property:
 		return
-	
+
 	# Create a list field to display the property
 	_list_field = FieldBucket.create_field(_property.type)
 	if _list_field:
@@ -42,24 +42,21 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 
 func _on_add_button_pressed() -> void:
 	if _property and _property_owner:
-		# Get current list value and duplicate it to avoid modifying the original
-		var current_list = _property.get_value()
-		if not current_list is Array:
-			current_list = []
-		else:
-			current_list = current_list.duplicate(true)  # Deep duplicate
-		
+		var source_value: Variant = _property.get_value()
+		var current_list: Array = []
+		if source_value is Array:
+			current_list = (source_value as Array).duplicate(true)
+
 		# Create new item with default values from template
 		var item_template = _property.settings.get("item_template", {})
-		var new_item = {}
+		var new_item: Dictionary = {}
 		for prop_name in item_template.keys():
 			var prop_config = item_template[prop_name]
-			# Skip editor_only fields when creating data
-			if not prop_config.get("editor_only", false):
-				new_item[prop_name] = prop_config.get("default", "")
-		
-		# Add new item to duplicated list
+
+			if prop_config.get("editor_only", false):
+				continue
+
+			new_item[prop_name] = prop_config.get("default", "")
+
 		current_list.append(new_item)
-		
-		# Update property value (this will trigger undo/redo)
 		_property_owner.set_property_value(_property.name, current_list)

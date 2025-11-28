@@ -18,7 +18,7 @@ func _init(sname: String, sfile_path: String = "") -> void:
 	command_manager.command_executed.connect(_on_command_executed)
 	command_manager.undone.connect(_on_undo)
 	command_manager.redone.connect(_on_redo)
-	
+
 	super._init(command_manager)
 
 	_create_default_nodes()
@@ -44,14 +44,23 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
-			"item_template": {
+			"item_template":
+			{
 				"name": {"type": "text", "default": ""},
-				"edit": {"type": "button", "default": "", "editor_only": true, "expand": true, "button_text": "Edit Character"}
+				"edit":
+				{
+					"type": "button",
+					"default": "",
+					"editor_only": true,
+					"expand": true,
+					"button_text": "Edit Character",
+					"action": _on_character_edit_pressed
+				}
 			}
 		},
 		"Storyline"
 	)
-	
+
 	# Define variables list
 	define_property(
 		"variables",
@@ -61,9 +70,15 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
-			"item_template": {
+			"item_template":
+			{
 				"name": {"type": "text", "default": ""},
-				"type": {"type": "dropdown", "default": "String", "options": ["String", "Int", "Float", "Bool"]},
+				"type":
+				{
+					"type": "dropdown",
+					"default": "String",
+					"options": ["String", "Int", "Float", "Bool"]
+				},
 				"value": {"type": "text", "default": ""}
 			}
 		},
@@ -129,3 +144,10 @@ func _register_node(node: InspectableNode) -> void:
 
 func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
 	is_dirty = true
+
+
+func _on_character_edit_pressed(item_idx: int) -> void:
+	var p_characters: Property = get_property("characters")
+	var characters: Array = p_characters.value
+	var character: Dictionary = characters[item_idx]
+	print(character)

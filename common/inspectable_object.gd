@@ -52,6 +52,9 @@ func remove_observer(callable: Callable) -> void:
 
 func _notify_change(pname: String) -> void:
 	for observer: Callable in _observers:
+		if not observer or not observer.is_valid() or observer.get_object() == null:
+			_observers.erase(observer)
+			continue
 		observer.call(self, pname)
 
 
@@ -81,7 +84,7 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 		return
 
 	var old_value: Variant = get_property_value(pname)
-	
+
 	if pvalue == old_value:
 		return
 
