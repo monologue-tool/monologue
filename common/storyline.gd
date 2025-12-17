@@ -35,7 +35,6 @@ func create_node(node_type: String) -> InspectableNode:
 
 
 func initialize_properties() -> void:
-	# Define characters list
 	define_property(
 		"characters",
 		[],
@@ -44,24 +43,11 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
-			"item_template":
-			{
-				"name": {"type": "text", "default": ""},
-				"edit":
-				{
-					"type": "button",
-					"default": "",
-					"editor_only": true,
-					"expand": true,
-					"button_text": "Edit Character",
-					"action": _on_character_edit_pressed
-				}
-			}
+			"data_schema": Schemas.CHARACTER,
+			"layout": "list_item"
 		},
-		"Storyline"
 	)
 
-	# Define variables list
 	define_property(
 		"variables",
 		[],
@@ -70,19 +56,22 @@ func initialize_properties() -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"editable": true,
-			"item_template":
-			{
-				"name": {"type": "text", "default": ""},
-				"type":
-				{
-					"type": "dropdown",
-					"default": "String",
-					"options": ["String", "Int", "Float", "Bool"]
-				},
-				"value": {"type": "text", "default": ""}
-			}
-		},
-		"Storyline"
+			"data_schema": Schemas.VARIABLE,
+			"layout": "list_item"
+		}
+	)
+
+	define_property(
+		"items",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"data_schema": Schemas.ITEM,
+			"layout": "list_item"
+		}
 	)
 
 
@@ -145,9 +134,7 @@ func _register_node(node: InspectableNode) -> void:
 func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
 	is_dirty = true
 
-
-func _on_character_edit_pressed(item_idx: int) -> void:
-	var p_characters: Property = get_property("characters")
-	var characters: Array = p_characters.value
-	var character: Dictionary = characters[item_idx]
-	print(character)
+#func _on_character_edit_pressed(item_idx: int) -> void:
+#var p_characters: Property = get_property("characters")
+#var characters: Array = p_characters.value
+#var character: Dictionary = characters[item_idx]

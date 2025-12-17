@@ -9,6 +9,7 @@ class_name MonologueEditor extends Control
 @onready var dimmer := $"../../../Dimmer"
 @onready var characters_section := %Characters
 @onready var variables_section := %Variables
+@onready var items_section := %Items
 
 
 func _ready():
@@ -21,8 +22,8 @@ func _ready():
 	GlobalSignal.add_listener("test_trigger", test_project)
 	GlobalSignal.add_listener("save", save)
 
-	StorylineManager.create_storyline("Unnamed Storyline")
-	
+	StorylineManager.create_storyline()
+
 	# Load the editor sections after creating the storyline
 	await get_tree().process_frame
 	load_editor_sections()
@@ -68,19 +69,21 @@ func _to_dict() -> Dictionary:
 	# build data for dialogue characters
 	var storyline = StorylineManager.get_active_storyline()
 	var simple_characters = storyline.get_property_value("characters") if storyline else []
-	
+
 	# Convert simple format back to complex format for compatibility
 	var characters = []
 	for i in range(simple_characters.size()):
 		var simple_char = simple_characters[i]
 		if simple_char is Dictionary:
-			characters.append({
-				"ID": IDGen.generate(5),
-				"EditorIndex": i,
-				"Protected": simple_char.get("name", "") == "_NARRATOR",
-				"Character": {"Name": simple_char.get("name", "")}
-			})
-	
+			characters.append(
+				{
+					"ID": IDGen.generate(5),
+					"EditorIndex": i,
+					"Protected": simple_char.get("name", "") == "_NARRATOR",
+					"Character": {"Name": simple_char.get("name", "")}
+				}
+			)
+
 	if characters.size() <= 0:
 		characters.append(
 			{
@@ -90,7 +93,7 @@ func _to_dict() -> Dictionary:
 				"EditorIndex": 0
 			}
 		)
-	
+
 	# Convert simple variables format to complex if needed
 	var simple_variables = storyline.get_property_value("variables") if storyline else []
 	var variables = []
@@ -171,13 +174,13 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	graph_switcher.add_tab(path.get_file())
 	graph_switcher.current.clear()
 	graph_switcher.current.name = path.get_file().trim_suffix(".json")
-	
+
 	# Load characters and variables into storyline properties
 	var storyline = StorylineManager.get_active_storyline()
 	if storyline:
 		var characters_data = converter.convert_characters(data.get("Characters", []))
 		var variables_data = data.get("Variables", [])
-		
+
 		# Convert old character format to new simplified format
 		var simple_characters = []
 		for char in characters_data:
@@ -187,12 +190,10 @@ func load_project(path: String, new_graph: bool = false) -> void:
 					char_name = char["Character"].get("Name", "")
 				elif char.has("name"):
 					char_name = char.get("name", "")
-				
+
 				if not char_name.is_empty():
-					simple_characters.append({
-						"name": char_name
-					})
-		
+					simple_characters.append({"name": char_name})
+
 		# Convert old variable format to new simplified format if needed
 		var simple_variables = []
 		for variable in variables_data:
@@ -201,15 +202,13 @@ func load_project(path: String, new_graph: bool = false) -> void:
 				var var_type = variable.get("type", "String")
 				var var_value = variable.get("value", variable.get("Value", ""))
 				if not var_name.is_empty():
-					simple_variables.append({
-						"name": var_name,
-						"type": var_type,
-						"value": var_value
-					})
-		
+					simple_variables.append(
+						{"name": var_name, "type": var_type, "value": var_value}
+					)
+
 		storyline.set_property_value("characters", simple_characters)
 		storyline.set_property_value("variables", simple_variables)
-	
+
 	graph_switcher.current.data = data
 
 	var node_list = data.get("ListNodes")
@@ -227,6 +226,7 @@ func load_editor_sections() -> void:
 	if storyline:
 		characters_section.load_items(storyline.get_property("characters"), storyline)
 		variables_section.load_items(storyline.get_property("variables"), storyline)
+		items_section.load_items(storyline.get_property("items"), storyline)
 
 
 func save():

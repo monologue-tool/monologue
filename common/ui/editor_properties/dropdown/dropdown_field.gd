@@ -12,6 +12,9 @@ func _ready() -> void:
 
 
 func set_value(value: Variant) -> void:
+	if not is_node_ready():
+		await ready
+
 	# If value is a string, find it in the list
 	if value is String:
 		for i in range(option_button.item_count):
@@ -82,7 +85,7 @@ func _populate_options() -> void:
 	option_button.clear()
 
 	var options: Array = []
-	var property: Property = (_binding.property if _binding else null)
+	var property: Property = _binding.property if _binding else null
 	if property:
 		var source: String = property.settings.get("source", "")
 		if not source.is_empty() and _binding.owner:

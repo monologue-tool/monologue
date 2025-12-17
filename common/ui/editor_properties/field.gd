@@ -7,13 +7,16 @@ signal value_committed(new_value: Variant)
 var _binding
 var _default_modulate: Color = Color(1, 1, 1, 1)
 
+var settings: Dictionary = {}
+
 
 func _ready() -> void:
 	_default_modulate = modulate
 
 
-func initialize(binding) -> void:
-	_binding = binding
+func initialize(binding: FieldBinding = null) -> void:
+	if binding:
+		_binding = binding
 	_on_initialize()
 
 

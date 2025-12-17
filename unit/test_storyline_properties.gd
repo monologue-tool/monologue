@@ -15,20 +15,20 @@ func test_storyline_has_variables_property():
 	assert_str(variables_prop.type).is_equal("list")
 
 
-func test_characters_property_has_template():
+func test_characters_property_has_schema():
 	var storyline = auto_free(StorylineDocument.new("Test Story"))
 	var characters_prop = storyline.get_property("characters")
-	var template = characters_prop.settings.get("item_template", {})
-	assert_bool(template.has("name")).is_true()
-	assert_bool(template.has("color")).is_true()
+	var schema = characters_prop.settings.get("data_schema", {})
+	assert_bool(schema.has("name")).is_true()
+	assert_bool(schema.has("color")).is_true()
 
 
-func test_variables_property_has_template():
+func test_variables_property_has_schema():
 	var storyline = auto_free(StorylineDocument.new("Test Story"))
 	var variables_prop = storyline.get_property("variables")
-	var template = variables_prop.settings.get("item_template", {})
-	assert_bool(template.has("name")).is_true()
-	assert_bool(template.has("value")).is_true()
+	var schema = variables_prop.settings.get("data_schema", {})
+	assert_bool(schema.has("name")).is_true()
+	assert_bool(schema.has("value")).is_true()
 
 
 func test_can_add_character_to_storyline():

@@ -3,7 +3,7 @@ extends PanelContainer
 @export var section_icon: Texture2D
 
 var _property: Property
-var _list_field: Field
+var _list_field: ListField
 var _property_owner: InspectableObject
 
 @onready var vbox := %VBox
@@ -47,16 +47,40 @@ func _on_add_button_pressed() -> void:
 		if source_value is Array:
 			current_list = (source_value as Array).duplicate(true)
 
-		# Create new item with default values from template
-		var item_template = _property.settings.get("item_template", {})
+		var data_schema = _property.settings.get("data_schema", {})
+		var schema_properties = data_schema.get("properties")
 		var new_item: Dictionary = {}
-		for prop_name in item_template.keys():
-			var prop_config = item_template[prop_name]
+		for prop_name in schema_properties.keys():
+			var prop_config = schema_properties[prop_name]
 
 			if prop_config.get("editor_only", false):
 				continue
 
 			new_item[prop_name] = prop_config.get("default", "")
+			if prop_config.get("default") is Callable:
+				new_item[prop_name] = new_item[prop_name].call()
 
 		current_list.append(new_item)
 		_property_owner.set_property_value(_property.name, current_list)
+
+
+func _on_search_line_text_changed(new_text: String) -> void:
+	_list_field.show_all_items()
+	if new_text.is_empty():
+		return
+
+	var search_keys: Array[String] = ["name", "display_name", "nicknames", "description"]
+	var item_list: Array = _list_field.get_value()
+
+	for item: Dictionary in item_list:
+		var hide_item: bool = true
+		var item_idx: int = item_list.find(item)
+		for prop: String in item.keys().filter(func(k): return k in search_keys):
+			var value: Variant = item[prop]
+			if value is not String:
+				continue
+
+			if new_text.to_lower() in value.to_lower():
+				hide_item = false
+		if hide_item:
+			_list_field.hide_item(item_idx)

@@ -2,7 +2,6 @@ extends MonologueIndexer
 
 
 func get_scene() -> PackedScene:
-	# Not intended to be inspectable
 	return PackedScene.new()
 
 
