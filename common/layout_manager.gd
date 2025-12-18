@@ -3,128 +3,151 @@ class_name LayoutManager
 
 static func create_layout(
 	schema: Dictionary,
-	item_data: Dictionary,
+	item: ListItemObject,
+	list_field: ListField,
 	layout_name: String = "default",
-	context: Dictionary = {}
 ) -> Control:
-	var layouts = schema.get("layouts", {})
-	var layout_config = layouts.get(layout_name, layouts.get("default", {}))
+	var layout_config = _get_layout_config(schema, layout_name)
 
-	match layout_config.get("layout", "vertical"):
-		"horizontal":
-			return _create_horizontal_layout(schema, item_data, layout_config, context)
-		_:
-			return _create_vertical_layout(schema, item_data, layout_config, context)
-
-
-static func _create_section_header(section_config: Dictionary) -> Control:
-	var header: Control
-
-	if section_config.get("collapsible", false):
-		var button = Button.new()
-		button.text = section_config.get("title", "")
-		button.flat = true
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		header = button
-	else:
-		var label = Label.new()
-		label.text = section_config.get("title", "")
-		label.theme_type_variation = "SectionLabel"
-		header = label
-
-	return header
-
-
-static func _create_field_container(
-	field_name: String, field_config: Dictionary, item_data: Dictionary, context: Dictionary
-) -> Control:
-	var container = VBoxContainer.new()
-
-	var title_container: HBoxContainer = HBoxContainer.new()
-	title_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var label = Label.new()
-	label.text = Util.to_readable_name(field_name)
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_container.add_child(label)
-	container.add_child(title_container)
-
-	if field_config.has("tooltip"):
-		label.tooltip_text = field_config["tooltip"]
-
-	var field_type = field_config.get("type", "text")
-	var field_value = item_data.get(field_name, field_config.get("default"))
-	var field: Field = FieldBucket.create_field(field_type)
-
-	if not field:
-		var warn = Label.new()
-		warn.text = "Unknown field: " + field_type
-		warn.theme_type_variation = "WarnLabel"
-		container.add_child(warn)
-		return container
-
-	field.settings = field_config
-	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	container.add_child(field)
-	field.set_value.call_deferred(field_value)
-	field.initialize.call_deferred()
-
-	field.value_committed.connect(
-		func(new_value):
-			item_data[field_name] = new_value
-			if context.has("on_change"):
-				context["on_change"].call(field_name, new_value)
-	)
-
-	return container
-
-
-static func _create_vertical_layout(
-	schema: Dictionary, item_data: Dictionary, layout_config: Dictionary, context: Dictionary
-) -> Control:
 	var vbox = VBoxContainer.new()
+	var fields = _get_fields_to_display(schema, layout_config)
 	var properties = schema.get("properties", {})
-	var fields = layout_config.get("fields", properties.keys())
+	var index = list_field.get_item_index(item)
 
 	for field_name in fields:
 		if not properties.has(field_name):
 			continue
 
 		var field_container = _create_field_container(
-			field_name, properties[field_name], item_data, context
+			field_name, properties[field_name], list_field, item
 		)
 
 		if field_container:
 			vbox.add_child(field_container)
 
+	_create_item_header(vbox, index, list_field, item, layout_config)
+
 	return vbox
 
 
-static func _create_horizontal_layout(
-	schema: Dictionary, item_data: Dictionary, layout_config: Dictionary, context: Dictionary
+static func _get_layout_config(schema: Dictionary, layout_name: String) -> Dictionary:
+	var layouts = schema.get("layouts", {})
+	return layouts.get(layout_name, layouts.get("default", {}))
+
+
+static func _create_section_header(section_config: Dictionary) -> Control:
+	if section_config.get("collapsible", false):
+		return _create_collapsible_header(section_config)
+
+	return _create_simple_header(section_config)
+
+
+static func _create_collapsible_header(section_config: Dictionary) -> Button:
+	var button = Button.new()
+	button.text = section_config.get("title", "")
+	button.flat = true
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	return button
+
+
+static func _create_simple_header(section_config: Dictionary) -> Label:
+	var label = Label.new()
+	label.text = section_config.get("title", "")
+	label.theme_type_variation = "SectionLabel"
+	return label
+
+
+static func _create_field_container(
+	field_name: String, field_config: Dictionary, list_field: ListField, item: ListItemObject
 ) -> Control:
-	var hbox = HBoxContainer.new()
+	var container = VBoxContainer.new()
+
+	var title_container = _create_title_container(field_name, field_config)
+	container.add_child(title_container)
+
+	var field = _create_and_configure_field(field_name, field_config, item)
+	if not field:
+		container.add_child(_create_warning_label(field_config.get("type", "text")))
+		return container
+
+	container.add_child(field)
+
+	var property = item.get_property(field_name)
+	if property:
+		var merged_settings = field_config.duplicate()
+		merged_settings.merge(property.settings, true)
+		field.settings = merged_settings
+
+	_bind_field_to_property.call_deferred(field, field_name, item)
+
+	return container
+
+
+static func _create_title_container(field_name: String, field_config: Dictionary) -> HBoxContainer:
+	var title_container = HBoxContainer.new()
+	title_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var label = Label.new()
+	label.text = Util.to_readable_name(field_name)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	if field_config.has("tooltip"):
+		label.tooltip_text = field_config["tooltip"]
+
+	title_container.add_child(label)
+	return title_container
+
+
+static func _create_and_configure_field(
+	field_name: String, field_config: Dictionary, item: ListItemObject
+) -> Field:
+	var field_type = field_config.get("type", "text")
+	var field: Field = FieldBucket.create_field(field_type)
+
+	if not field:
+		return null
+
+	# Copier tous les settings du schéma vers le field
+	# Cela inclut enum, options, validation, etc.
+	field.settings = field_config.duplicate()
+	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	# Le binding et l'initialisation se feront après que le field soit dans l'arbre
+	return field
+
+
+static func _bind_field_to_property(field: Field, field_name: String, item: ListItemObject) -> void:
+	var property = item.get_property(field_name)
+	if not property:
+		push_warning("Property '%s' not found in item" % field_name)
+		return
+
+	if field.is_node_ready():
+		property.bind_field(field, item)
+	else:
+		field.ready.connect(func(): property.bind_field(field, item), CONNECT_ONE_SHOT)
+
+
+static func _create_warning_label(field_type: String) -> Label:
+	var warn = Label.new()
+	warn.text = "Unknown field: " + field_type
+	warn.theme_type_variation = "WarnLabel"
+	return warn
+
+
+static func _get_fields_to_display(schema: Dictionary, layout_config: Dictionary) -> Array:
 	var properties = schema.get("properties", {})
-	var fields = layout_config.get("fields", properties.keys())
-
-	for field_name in fields:
-		if not properties.has(field_name):
-			continue
-
-		var field_config = properties[field_name]
-		var field_type = field_config.get("type")
-		var field = FieldBucket.create_field(field_type)
-
-		if field:
-			field.set_value.call_deferred(item_data.get(field_name, field_config.get("default")))
-			hbox.add_child(field)
-
-	return hbox
+	return layout_config.get("fields", properties.keys())
 
 
-static func _check_condition(condition: Dictionary, item_data: Dictionary) -> bool:
-	var property = condition.get("property", "")
-	var value = item_data.get(property)
+static func _check_condition(condition: Dictionary, item: ListItemObject) -> bool:
+	var property_name = condition.get("property", "")
+
+	var property = item.get_property(property_name)
+	if not property:
+		return false
+
+	var value = property.get_value()
 
 	if condition.has("equals"):
 		return value == condition["equals"]
@@ -138,7 +161,8 @@ static func _check_condition(condition: Dictionary, item_data: Dictionary) -> bo
 	return true
 
 
-static func _format_string(format: String, data: Dictionary) -> String:
+static func _format_string(format: String, item: ListItemObject) -> String:
+	var data = item.to_dictionary()
 	var result = format
 	var regex = RegEx.new()
 	regex.compile("\\{([^}]+)\\}")
@@ -159,37 +183,118 @@ static func _resolve_path(path: String, data: Dictionary) -> Variant:
 	var current = data
 
 	for part in parts:
-		if current is Dictionary:
-			if part.ends_with(".length") or part == "length":
-				if current is Array:
-					return current.size()
-				return 0
-			current = current.get(part, null)
-		elif current is Array:
-			if part.is_valid_int():
-				var index = part.to_int()
-				if index >= 0 and index < current.size():
-					current = current[index]
-				else:
-					return null
-			elif part == "length":
-				return current.size()
-		else:
-			return null
-
+		current = _resolve_path_part(current, part)
 		if current == null:
 			return ""
 
 	return current
 
 
+static func _resolve_path_part(current: Variant, part: String) -> Variant:
+	if current is Dictionary:
+		return _resolve_dictionary_part(current, part)
+
+	if current is Array:
+		return _resolve_array_part(current, part)
+
+	return null
+
+
+static func _resolve_dictionary_part(dict: Dictionary, part: String) -> Variant:
+	if part == "length" or part.ends_with(".length"):
+		return 0
+
+	return dict.get(part, null)
+
+
+static func _resolve_array_part(array: Array, part: String) -> Variant:
+	if part == "length":
+		return array.size()
+
+	if part.is_valid_int():
+		var index = part.to_int()
+		if index >= 0 and index < array.size():
+			return array[index]
+
+	return null
+
+
+static func _create_item_header(
+	content: Control,
+	index: int,
+	list_field: ListField,
+	item: ListItemObject,
+	layout_config: Dictionary
+) -> Control:
+	var header = _get_or_create_header_container(content)
+	var actions = layout_config.get("actions", ["delete"])
+
+	_add_action_buttons(header, actions, index, list_field, item)
+
+	return header
+
+
+static func _get_or_create_header_container(content: Control) -> HBoxContainer:
+	if content.get_child_count() == 0:
+		return HBoxContainer.new()
+
+	var first_child = content.get_child(0)
+	if not first_child is BoxContainer or first_child.get_child_count() == 0:
+		return HBoxContainer.new()
+
+	var header_candidate = first_child.get_child(0)
+	if header_candidate is HBoxContainer:
+		return header_candidate
+
+	return HBoxContainer.new()
+
+
+static func _add_action_buttons(
+	header: HBoxContainer, actions: Array, index: int, list_field: ListField, item: ListItemObject
+) -> void:
+	if "edit" in actions:
+		_add_edit_button(header, index, list_field)
+
+	if "duplicate" in actions:
+		_add_duplicate_button(header, index, list_field)
+
+	if "delete" in actions and not item.is_protected():
+		_add_delete_button(header, index, list_field)
+
+
+static func _add_edit_button(header: HBoxContainer, index: int, list_field: ListField) -> void:
+	if not list_field.has_method("_on_edit_item"):
+		return
+
+	var button = Button.new()
+	button.icon = preload("res://ui/assets/icons/pen.svg")
+	button.tooltip_text = "Edit item"
+	button.pressed.connect(list_field.call.bind("_on_edit_item", index))
+	header.add_child(button)
+
+
+static func _add_duplicate_button(header: HBoxContainer, index: int, list_field: ListField) -> void:
+	if not list_field.has_method("_on_duplicate_item"):
+		return
+
+	var button = Button.new()
+	button.icon = preload("res://ui/assets/icons/copy.png")
+	button.tooltip_text = "Duplicate item"
+	button.pressed.connect(list_field.call.bind("_on_duplicate_item", index))
+	header.add_child(button)
+
+
+static func _add_delete_button(header: HBoxContainer, index: int, list_field: ListField) -> void:
+	if not list_field.has_method("_on_delete_item"):
+		return
+
+	var button = Button.new()
+	button.icon = preload("res://ui/assets/icons/trash.svg")
+	button.tooltip_text = "Remove item"
+	button.pressed.connect(list_field.call.bind("_on_delete_item", index))
+	header.add_child(button)
+
+
 static func _resolve_dynamic_enum(path: String, data: Dictionary) -> Array:
-	# Ex: "characters.{character}.portraits.name"
-	# Résout les enums dynamiques basés sur d'autres propriétés
-
-	var result: Array = []
-
-	# TODO: Implémenter la résolution complète
-	# Pour l'instant, retourne un array vide
-
-	return result
+	# TODO: Implement full resolution for dynamic enums
+	return []

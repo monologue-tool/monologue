@@ -15,6 +15,9 @@ func _ready() -> void:
 
 
 func initialize(binding: FieldBinding = null) -> void:
+	if not is_node_ready():
+		await ready
+
 	if binding:
 		_binding = binding
 	_on_initialize()

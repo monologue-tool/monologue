@@ -41,14 +41,10 @@ static var VARIABLE: Dictionary = {
 	{
 		"default":
 		{
-			"display": "vertical",
 			"fields": ["name", "type", "value", "description"],
 		},
 		"list_item":
-		{
-			"display": "vertical",
-			"fields": ["name", "type", "value", "description"],
-		}
+		{"fields": ["name", "type", "value", "description"], "actions": ["duplicate", "delete"]}
 	}
 }
 
@@ -57,6 +53,11 @@ static var CHARACTER: Dictionary = {
 	"type": "object",
 	"properties":
 	{
+		"id":
+		{
+			"type": "text",
+			"default": IDGen.generate,
+		},
 		"protected":
 		{
 			"type": "bool",
@@ -98,14 +99,9 @@ static var CHARACTER: Dictionary = {
 	{
 		"default":
 		{
-			"display": "vertical",
 			"fields": ["name", "description"],
 		},
-		"list_item":
-		{
-			"display": "vertical",
-			"fields": ["name", "description"],
-		}
+		"list_item": {"fields": ["name", "description"], "actions": ["edit", "duplicate", "delete"]}
 	}
 }
 
@@ -164,25 +160,11 @@ static var PORTRAIT: Dictionary = {
 	{
 		"default":
 		{
-			"sections":
-			[
-				{"title": "General", "fields": ["name", "type"]},
-				{"title": "Display", "fields": ["mirror", "offset"]},
-				{"title": "Content", "fields": ["image_path", "timeline"], "conditional": true}
-			]
+			"fields": ["name", "type", "image_path"],
 		},
 		"compact":
 		{
-			"layout": "horizontal",
 			"fields": ["name", "type", "image_path"],
-		},
-		"thumbnail":
-		{
-			"layout": "card",
-			"show_preview": true,
-			"preview_from": "image_path",
-			"title_format": "{name}",
-			"fields": ["type", "mirror"]
 		}
 	}
 }
@@ -192,6 +174,11 @@ static var ITEM: Dictionary = {
 	"type": "object",
 	"properties":
 	{
+		"id":
+		{
+			"type": "text",
+			"default": IDGen.generate,
+		},
 		"name":
 		{
 			"type": "text",
@@ -209,13 +196,12 @@ static var ITEM: Dictionary = {
 	{
 		"default":
 		{
-			"display": "vertical",
 			"fields": ["name", "description"],
 		},
 		"list_item":
 		{
-			"display": "vertical",
 			"fields": ["name", "description"],
+			"actions": ["edit", "duplicate", "delete"],
 		}
 	}
 }

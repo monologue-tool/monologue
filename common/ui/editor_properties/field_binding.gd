@@ -1,6 +1,5 @@
 class_name FieldBinding extends RefCounted
 
-
 var property: Property
 var field: Field
 var descriptor: FieldDescriptor
@@ -123,7 +122,7 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 
 
 func _on_property_value_changed(_old_value: Variant, new_value: Variant) -> void:
-	if _is_released or _is_syncing:
+	if _is_released or _is_syncing or not field.is_node_ready():
 		return
 	_is_syncing = true
 	field.set_value(new_value)

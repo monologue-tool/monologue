@@ -23,7 +23,7 @@ names = PackedStringArray("_Tabs")
 [sub_resource type="Resource" id="Resource_xxwqg"]
 resource_name = "Tabs"
 script = ExtResource("3_uvwqm")
-names = PackedStringArray("Variables", "Characters", "Items")
+names = PackedStringArray("Characters", "Variables", "Items")
 
 [sub_resource type="Resource" id="Resource_uvwqm"]
 resource_name = "Tabs"
@@ -144,11 +144,11 @@ size_flags_horizontal = 3
 
 [node name="Characters" parent="DockableContainer" instance=ExtResource("6_mei7o")]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 
 [node name="Variables" parent="DockableContainer" instance=ExtResource("6_mei7o")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="Items" parent="DockableContainer" instance=ExtResource("6_mei7o")]
