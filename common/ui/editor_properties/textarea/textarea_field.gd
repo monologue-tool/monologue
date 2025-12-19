@@ -10,12 +10,12 @@ func _ready() -> void:
 
 
 func _on_initialize() -> void:
-	var _settings: Dictionary = settings
-	if _binding and _binding.property:
-		var property: Property = _binding.property
-		_settings = property.settings
-
 	text_edit.placeholder_text = settings.get("placeholder", "")
+
+	var rows: int = settings.get("rows", 3)
+	var sb: StyleBox = get_theme_stylebox("normal")
+	var padding: int = int(sb.content_margin_bottom + sb.content_margin_top)
+	text_edit.custom_minimum_size.y = text_edit.get_line_height() * rows + padding
 
 
 func set_value(value: Variant) -> void:

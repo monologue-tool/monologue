@@ -15,13 +15,14 @@ static var VARIABLE: Dictionary = {
 		"type":
 		{
 			"type": "dropdown",
-			"enum": ["bool", "string", "int", "float"],
+			"options": ["bool", "string", "int", "float"],
 			"default": "string",
 			"required": true
 		},
 		"value":
 		{
 			"type": "dynamic",
+			"case_property": "type",
 			"cases":
 			{
 				"bool": {"type": "bool", "default": false},
@@ -44,7 +45,10 @@ static var VARIABLE: Dictionary = {
 			"fields": ["name", "type", "value", "description"],
 		},
 		"list_item":
-		{"fields": ["name", "type", "value", "description"], "actions": ["duplicate", "delete"]}
+		{
+			"fields": ["name", "type", "value", "description"],
+			"actions": ["duplicate", "delete"],
+		}
 	}
 }
 
@@ -101,7 +105,11 @@ static var CHARACTER: Dictionary = {
 		{
 			"fields": ["name", "description"],
 		},
-		"list_item": {"fields": ["name", "description"], "actions": ["edit", "duplicate", "delete"]}
+		"list_item":
+		{
+			"fields": ["name", "description"],
+			"actions": ["edit", "duplicate", "delete"],
+		}
 	}
 }
 
@@ -125,7 +133,7 @@ static var PORTRAIT: Dictionary = {
 		"type":
 		{
 			"type": "dropdown",
-			"enum": ["static", "animated"],
+			"options": ["static", "animated"],
 			"default": "static",
 			"required": true,
 		},

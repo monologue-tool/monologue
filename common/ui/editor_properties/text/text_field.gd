@@ -11,11 +11,6 @@ func _ready() -> void:
 
 
 func _on_initialize() -> void:
-	var _settings: Dictionary = settings
-	if _binding and _binding.property:
-		var property: Property = _binding.property
-		_settings = property.settings
-
 	line_edit.placeholder_text = settings.get("placeholder", "")
 
 

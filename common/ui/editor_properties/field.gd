@@ -4,7 +4,7 @@ class_name Field extends VBoxContainer
 signal value_changed(new_value: Variant)
 signal value_committed(new_value: Variant)
 
-var _binding
+var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
 
 var settings: Dictionary = {}
@@ -20,6 +20,10 @@ func initialize(binding: FieldBinding = null) -> void:
 
 	if binding:
 		_binding = binding
+
+	if _binding and _binding.property:
+		var property: Property = _binding.property
+		settings = property.settings
 	_on_initialize()
 
 
