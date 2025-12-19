@@ -71,48 +71,9 @@ func _to_dict() -> Dictionary:
 				list_nodes.append(child._to_dict())
 
 	# build data for dialogue characters
-	var storyline = StorylineManager.get_active_storyline()
-	var simple_characters = storyline.get_property_value("characters") if storyline else []
-
-	# Convert simple format back to complex format for compatibility
-	var characters = []
-	for i in range(simple_characters.size()):
-		var simple_char = simple_characters[i]
-		if simple_char is Dictionary:
-			characters.append(
-				{
-					"ID": IDGen.generate(5),
-					"EditorIndex": i,
-					"Protected": simple_char.get("name", "") == "_NARRATOR",
-					"Character": {"Name": simple_char.get("name", "")}
-				}
-			)
-
-	if characters.size() <= 0:
-		characters.append(
-			{
-				"ID": IDGen.generate(5),
-				"Protected": true,
-				"Character": {"Name": "_NARRATOR"},
-				"EditorIndex": 0
-			}
-		)
-
-	# Convert simple variables format to complex if needed
-	var simple_variables = storyline.get_property_value("variables") if storyline else []
-	var variables = []
-	for simple_var in simple_variables:
-		if simple_var is Dictionary:
-			variables.append(simple_var)  # Variables are already in the right format
-
-	return {
-		"editorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
-		"RootNodeID": get_root_dict(list_nodes).get("ID"),
-		"ListNodes": list_nodes,
-		"Characters": characters,
-		"Variables": variables,
-		"Languages": GlobalVariables.language_switcher.get_languages().keys()
-	}
+	var _storyline = StorylineManager.get_active_storyline()
+	# TODO: _to_dict logic
+	return {}
 
 
 ## Function callback for when the user wants to add a node from global context.

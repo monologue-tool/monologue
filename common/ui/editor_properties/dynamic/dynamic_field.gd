@@ -4,6 +4,7 @@ var _case_property: String = ""
 var _cases: Dictionary = {}
 
 @onready var field_container: HBoxContainer = %FieldContainer
+var _field: Field
 
 
 func _ready() -> void:
@@ -14,13 +15,19 @@ func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
 
+	if _field:
+		_field.set_value(value)
+
 
 func get_value() -> Variant:
-	return ""
+	if _field:
+		return _field.get_value()
+	return null
 
 
 func set_editable(is_editable: bool) -> void:
-	pass
+	if _field:
+		_field.set_editable(is_editable)
 
 
 func _on_initialize() -> void:
@@ -55,13 +62,18 @@ func _update_case_field() -> void:
 		return
 
 	var actual_case: String = case_property.get_value()
+	if not _cases.has(actual_case):
+		push_warning("Unknown case '%s' for dynamic field" % actual_case)
+		return
 	var case_data: Dictionary = _cases[actual_case]
 	var case_type: String = case_data.get("type")
 	var _case_default: Variant = case_data.get("default")  # TODO: Support default value
 	var _case_coerce: Variant = case_data.get("coerce")  # TODO: Coerce value
 
 	var new_field: Control = FieldBucket.safe_create_field(case_type)
+	_field = null
 	if new_field is Field:
+		_field = new_field
 		_binding.property.call_deferred("bind_field", new_field, _binding.owner)
 	field_container.add_child(new_field)
 

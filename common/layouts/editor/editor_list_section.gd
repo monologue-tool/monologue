@@ -30,9 +30,8 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 	if not _property:
 		return
 
-	# Create a list field to display the property
 	_list_field = FieldBucket.safe_create_field(_property.type)
-	if _list_field:
+	if _list_field is ListField:
 		_property.bind_field(_list_field, _property_owner)
 	vbox.add_child(_list_field)
 
@@ -45,7 +44,7 @@ func _on_add_button_pressed() -> void:
 			current_list = (source_value as Array).duplicate(true)
 
 		var data_schema = _property.settings.get("data_schema", {})
-		var schema_properties = data_schema.get("properties")
+		var schema_properties: Dictionary = data_schema.get("properties", {})
 		var new_item: Dictionary = {}
 		for prop_name in schema_properties.keys():
 			var prop_config = schema_properties[prop_name]
