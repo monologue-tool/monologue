@@ -147,10 +147,6 @@ func refresh_bindings() -> void:
 		binding.refresh()
 
 
-func get_effective_settings() -> Dictionary:
-	return settings.duplicate(true)
-
-
 func get_descriptor():
 	if descriptor == null:
 		descriptor = FieldBucket.get_descriptor(type)

@@ -9,6 +9,7 @@ class_name MonologueEditor extends Control
 @onready var dimmer := $"../../../Dimmer"
 @onready var characters_section := %Characters
 @onready var variables_section := %Variables
+@onready var items_section := %Items
 
 
 func _ready():
@@ -21,7 +22,11 @@ func _ready():
 	GlobalSignal.add_listener("test_trigger", test_project)
 	GlobalSignal.add_listener("save", save)
 
-	StorylineManager.create_storyline("Unnamed Storyline")
+	StorylineManager.create_storyline()
+
+	# Load the editor sections after creating the storyline
+	await get_tree().process_frame
+	load_editor_sections()
 
 
 func _select_new_node() -> void:
@@ -34,7 +39,11 @@ func _input(event):
 		#save()
 
 	if event.is_action_pressed("ui_undo"):
+		var focus_owner: Control = get_viewport().gui_get_focus_owner()
+		if focus_owner:
+			focus_owner.release_focus()
 		StorylineManager.get_active_storyline().history.undo()
+		#focus_owner.grab_focus()
 
 	if event.is_action_pressed("ui_redo"):
 		StorylineManager.get_active_storyline().history.redo()
@@ -62,25 +71,9 @@ func _to_dict() -> Dictionary:
 				list_nodes.append(child._to_dict())
 
 	# build data for dialogue characters
-	var characters = graph_switcher.current.characters.value
-	if characters.size() <= 0:
-		characters.append(
-			{
-				"ID": IDGen.generate(5),
-				"Protected": true,
-				"Character": {"Name": "_NARRATOR"},
-				"EditorIndex": 0
-			}
-		)
-
-	return {
-		"editorVersion": ProjectSettings.get_setting("application/config/version", "unknown"),
-		"RootNodeID": get_root_dict(list_nodes).get("ID"),
-		"ListNodes": list_nodes,
-		"Characters": characters,
-		"Variables": graph_switcher.current.variables.value,
-		"Languages": GlobalVariables.language_switcher.get_languages().keys()
-	}
+	var _storyline = StorylineManager.get_active_storyline()
+	# TODO: _to_dict logic
+	return {}
 
 
 ## Function callback for when the user wants to add a node from global context.
@@ -146,8 +139,41 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	graph_switcher.add_tab(path.get_file())
 	graph_switcher.current.clear()
 	graph_switcher.current.name = path.get_file().trim_suffix(".json")
-	graph_switcher.current.load_character(converter.convert_characters(data.get("Characters")))
-	graph_switcher.current.load_variables(data.get("Variables"))
+
+	# Load characters and variables into storyline properties
+	var storyline = StorylineManager.get_active_storyline()
+	if storyline:
+		var characters_data = converter.convert_characters(data.get("Characters", []))
+		var variables_data = data.get("Variables", [])
+
+		# Convert old character format to new simplified format
+		var simple_characters = []
+		for char in characters_data:
+			if char is Dictionary:
+				var char_name = ""
+				if char.has("Character") and char["Character"] is Dictionary:
+					char_name = char["Character"].get("Name", "")
+				elif char.has("name"):
+					char_name = char.get("name", "")
+
+				if not char_name.is_empty():
+					simple_characters.append({"name": char_name})
+
+		# Convert old variable format to new simplified format if needed
+		var simple_variables = []
+		for variable in variables_data:
+			if variable is Dictionary:
+				var var_name = variable.get("name", variable.get("Name", ""))
+				var var_type = variable.get("type", "String")
+				var var_value = variable.get("value", variable.get("Value", ""))
+				if not var_name.is_empty():
+					simple_variables.append(
+						{"name": var_name, "type": var_type, "value": var_value}
+					)
+
+		storyline.set_property_value("characters", simple_characters)
+		storyline.set_property_value("variables", simple_variables)
+
 	graph_switcher.current.data = data
 
 	var node_list = data.get("ListNodes")
@@ -161,9 +187,11 @@ func load_project(path: String, new_graph: bool = false) -> void:
 
 
 func load_editor_sections() -> void:
-	var graph_edit: MonologueGraphEdit = graph_switcher.current
-	characters_section.load_items(graph_edit.characters)
-	variables_section.load_items(graph_edit.variables)
+	var storyline := StorylineManager.get_active_storyline()
+	if storyline:
+		characters_section.load_items(storyline.get_property("characters"), storyline)
+		variables_section.load_items(storyline.get_property("variables"), storyline)
+		items_section.load_items(storyline.get_property("items"), storyline)
 
 
 func save():

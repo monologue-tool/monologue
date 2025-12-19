@@ -1,4 +1,4 @@
-class_name StorylineDocument extends RefCounted
+class_name StorylineDocument extends InspectableStorylineObject
 
 signal content_changed
 signal undo_redo_changed
@@ -8,18 +8,18 @@ var name: String = ""
 var nodes: Array[InspectableNode] = []
 var file_path: String = ""
 var is_dirty: bool = false
-var history: CommandManager
 
 
 func _init(sname: String, sfile_path: String = "") -> void:
 	name = sname
 	file_path = sfile_path
 
-	history = CommandManager.new()
+	var command_manager = CommandManager.new()
+	command_manager.command_executed.connect(_on_command_executed)
+	command_manager.undone.connect(_on_undo)
+	command_manager.redone.connect(_on_redo)
 
-	history.command_executed.connect(_on_command_executed)
-	history.undone.connect(_on_undo)
-	history.redone.connect(_on_redo)
+	super._init(command_manager)
 
 	_create_default_nodes()
 
@@ -32,6 +32,64 @@ func create_node(node_type: String) -> InspectableNode:
 	var node = NodeBucket.create_node(node_type, history)
 	_register_node(node)
 	return node
+
+
+func initialize_properties() -> void:
+	define_property(
+		"characters",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"data_schema": Schemas.CHARACTER,
+			"layout": "list_item"
+		},
+	)
+
+	define_property(
+		"variables",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"data_schema": Schemas.VARIABLE,
+			"layout": "list_item"
+		}
+	)
+
+	define_property(
+		"items",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"data_schema": Schemas.ITEM,
+			"layout": "list_item"
+		}
+	)
+
+
+func get_type() -> String:
+	return "storyline"
+
+
+func get_settings() -> Dictionary:
+	return {}
+
+
+func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
+	is_dirty = true
+	content_changed.emit()
+
+
+func build_graph_preview() -> Array[Control]:
+	return []
 
 
 func _on_command_executed():
@@ -75,3 +133,8 @@ func _register_node(node: InspectableNode) -> void:
 
 func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
 	is_dirty = true
+
+#func _on_character_edit_pressed(item_idx: int) -> void:
+#var p_characters: Property = get_property("characters")
+#var characters: Array = p_characters.value
+#var character: Dictionary = characters[item_idx]

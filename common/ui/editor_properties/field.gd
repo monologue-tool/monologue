@@ -4,16 +4,26 @@ class_name Field extends VBoxContainer
 signal value_changed(new_value: Variant)
 signal value_committed(new_value: Variant)
 
-var _binding
+var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
+
+var settings: Dictionary = {}
 
 
 func _ready() -> void:
 	_default_modulate = modulate
 
 
-func initialize(binding) -> void:
-	_binding = binding
+func initialize(binding: FieldBinding = null) -> void:
+	if not is_node_ready():
+		await ready
+
+	if binding:
+		_binding = binding
+
+	if _binding and _binding.property:
+		var property: Property = _binding.property
+		settings = property.settings
 	_on_initialize()
 
 
@@ -26,6 +36,19 @@ func emit_value_changed(value: Variant) -> void:
 
 
 func emit_value_committed(value: Variant) -> void:
+	if settings.get("unique"):
+		var field_owner: InspectableObject = _binding.owner
+		var property_name: String = _binding.property.name
+
+		if field_owner is ListItemObject:
+			var list_field: ListField = field_owner.list_field
+			var list_field_value: Array = list_field.get_value()
+
+			for fvalue: Dictionary in list_field_value:
+				if fvalue.has(property_name) and fvalue.get(property_name) == value:
+					set_value(_binding.property.value)
+					return
+
 	value_committed.emit(value)
 
 

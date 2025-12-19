@@ -10,7 +10,14 @@ func _ready() -> void:
 	line_edit.focus_exited.connect(_on_focus_exited)
 
 
+func _on_initialize() -> void:
+	line_edit.placeholder_text = settings.get("placeholder", "")
+
+
 func set_value(value: Variant) -> void:
+	if not is_node_ready():
+		await ready
+
 	line_edit.text = str(value)
 
 

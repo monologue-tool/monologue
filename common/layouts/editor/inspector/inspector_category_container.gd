@@ -8,9 +8,14 @@ func add_control(
 	force_readable_name: bool = false,
 	internal: InternalMode = InternalMode.INTERNAL_MODE_DISABLED
 ) -> void:
+	if not is_node_ready():
+		# FIXME: Do weird stuff
+		return
+
 	if not is_instance_valid(node):
 		push_warning("Attempted to add a null control to inspector category container.")
 		return
+
 	_vbox.add_child(node, force_readable_name, internal)
 
 

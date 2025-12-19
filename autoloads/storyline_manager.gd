@@ -5,7 +5,7 @@ var _active_document_id: String
 var _observers: Array = []
 
 
-func create_storyline(fname: String) -> StorylineDocument:
+func create_storyline(fname: String = "Unnamed Storyline") -> StorylineDocument:
 	var doc: StorylineDocument = StorylineDocument.new(fname)
 	_documents.set(doc.id, doc)
 	set_active_storyline(doc.id)

@@ -1,12 +1,14 @@
 class_name InspectorPanel extends PanelContainer
 
+var current_object: InspectableObject
+var _special_fields: Array[Control] = []
+var _category_states: Dictionary = {}
+var _pending_expand_category: String = ""
+
 @onready var header_container: VBoxContainer = %Header
 @onready var property_container: VBoxContainer = %Fields
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
-
-var current_object: InspectableObject
-var _special_fields: Array[Control] = []
 
 
 func _ready() -> void:
@@ -18,14 +20,17 @@ func _exit_tree() -> void:
 
 
 func inspect(object: InspectableObject) -> void:
+	var is_new_object := current_object != object
 	if current_object and current_object != object:
-		if is_instance_valid(current_object.graph_view):
+		if current_object is InspectableNode and is_instance_valid(current_object.graph_view):
 			current_object.graph_view.selected = false
 		current_object.remove_observer(on_property_changed)
 	elif current_object:
 		current_object.remove_observer(on_property_changed)
 
 	current_object = object
+	if is_new_object:
+		_category_states.clear()
 	rebuild()
 
 	if current_object:
@@ -33,6 +38,28 @@ func inspect(object: InspectableObject) -> void:
 
 
 func rebuild() -> void:
+	# Store the current focus owner before rebuilding
+	var focus_owner = get_viewport().gui_get_focus_owner()
+	var focused_property_name: String = ""
+
+	# Try to identify which property had focus
+	if focus_owner and focus_owner.is_inside_tree():
+		var node = focus_owner
+		while node:
+			if node.get_parent() == property_container:
+				# Found the property container, try to extract property name
+				for child in property_container.get_children():
+					if child == node or child.is_ancestor_of(focus_owner):
+						# Try to find the property name from the label
+						var labels = []
+						_find_labels(child, labels)
+						if labels.size() > 0:
+							focused_property_name = labels[0].text
+						break
+				break
+			node = node.get_parent()
+
+	_cache_category_states()
 	for prop: Control in property_container.get_children():
 		prop.queue_free()
 
@@ -44,6 +71,8 @@ func rebuild() -> void:
 		var label: Label = Label.new()
 		label.text = "No node selected"
 		property_container.add_child(label)
+		_pending_expand_category = ""
+		return
 
 	var properties: Array[Property] = current_object.get_properties()
 	var categories: Dictionary = _group_by_category(properties)
@@ -57,6 +86,42 @@ func rebuild() -> void:
 		_create_category_section(category_name, props)
 
 	post_build()
+
+	# Restore focus if we had a focused property
+	if not focused_property_name.is_empty():
+		await get_tree().process_frame
+		_restore_focus_to_property(focused_property_name)
+
+	_pending_expand_category = ""
+
+
+func _find_labels(node: Node, labels: Array) -> void:
+	if node is Label:
+		labels.append(node)
+	for child in node.get_children():
+		_find_labels(child, labels)
+
+
+func _restore_focus_to_property(property_display_name: String) -> void:
+	# Find the property with matching display name and restore focus to its field
+	for container in property_container.get_children():
+		var labels = []
+		_find_labels(container, labels)
+		for label in labels:
+			if label.text == property_display_name:
+				# Found the property, now find its field and focus it
+				var fields = []
+				_find_focusable_fields(container, fields)
+				if fields.size() > 0:
+					fields[0].grab_focus()
+				return
+
+
+func _find_focusable_fields(node: Node, fields: Array) -> void:
+	if node is LineEdit or node is TextEdit or node is OptionButton:
+		fields.append(node)
+	for child in node.get_children():
+		_find_focusable_fields(child, fields)
 
 
 func _group_by_category(properties: Array) -> Dictionary:
@@ -77,12 +142,13 @@ func _group_by_category(properties: Array) -> Dictionary:
 
 
 func _create_category_section(category_name: String, properties: Array) -> void:
+	if not property_container.is_node_ready():
+		await property_container.ready
+
 	var container: FoldableContainer = inspector_category_container.instantiate()
 	container.title = category_name
 	property_container.add_child(container)
-
-	if not property_container.is_node_ready():
-		await property_container.ready
+	_apply_category_state(container, category_name)
 
 	for property: Property in properties:
 		var property_editor: Control = _create_property_editor(property)
@@ -121,16 +187,12 @@ func _create_property_editor(property: Property) -> Control:
 	):
 		return
 
-	if _is_list_property(property):
-		pass  # TODO
-		# return _create_list_property_editor(property)
-
 	var p_container: PanelContainer = PanelContainer.new()
 	var p_hbox: HBoxContainer = HBoxContainer.new()
 	var p_vbox: VBoxContainer = VBoxContainer.new()
 	var p_expose_button: TextureButton = expose_button.instantiate()
 	var p_label: Label = Label.new()
-	
+
 	p_container.theme_type_variation = "FieldContainer"
 
 	p_label.text = property.get_display_name()
@@ -151,14 +213,9 @@ func _create_property_editor(property: Property) -> Control:
 		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
 		p_field = inspect_button
 	else:
-		var new_field: Field = FieldBucket.create_field(property.type)
-		if new_field:
-			property.call_deferred("bind_field", new_field, current_object)
-			p_field = new_field
-		else:
-			p_field = Label.new()
-			p_field.theme_type_variation = "WarnLabel"
-			p_field.text = "Unknown property type"
+		p_field = FieldBucket.safe_create_field(property.type)
+		if p_field is Field:
+			property.call_deferred("bind_field", p_field, current_object)
 
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)
@@ -180,6 +237,25 @@ func _create_property_editor(property: Property) -> Control:
 	return p_container
 
 
+func _cache_category_states() -> void:
+	for child: Control in property_container.get_children():
+		if child is FoldableContainer:
+			_category_states[child.title] = child.folded
+
+
+func _apply_category_state(container: FoldableContainer, category_name: String) -> void:
+	var stored_state = _category_states.get(category_name)
+	if stored_state is bool:
+		container.folded = stored_state
+	else:
+		container.folded = false
+
+	if _pending_expand_category == category_name:
+		container.folded = false
+
+	_category_states[category_name] = container.folded
+
+
 #func _create_list_property_editor(property: Property) -> Control:
 #pass
 #
@@ -197,9 +273,7 @@ func post_build() -> void:
 		if child is FoldableContainer and child.is_empty():
 			child.queue_free()
 
-
-func _is_list_property(property: Property) -> bool:
-	return property.type == "list"
+	_cache_category_states()
 
 
 func _on_property_expose_state_changed(
@@ -229,33 +303,33 @@ func _on_inspect_connected_node(property: Property) -> void:
 	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
 
 	if connected_node and connected_node.graph_view:
-		GlobalSignal.emit(
-			"request_node_inspection", [connected_node, connected_node.storyline_id]
-		)
+		GlobalSignal.emit("request_node_inspection", [connected_node, connected_node.storyline_id])
 
 
-func on_property_changed(node: InspectableNode, _property_name: String) -> void:
-	if not node:
+func on_property_changed(obj: InspectableObject, _property_name: String) -> void:
+	if not obj:
 		return
 
 	rebuild()
 
 
 func _on_external_property_changed(
-	node: InspectableNode, property_name: String, _is_undo: bool
+	obj: InspectableObject, property_name: String, _is_undo: bool
 ) -> void:
-	if not node:
+	if not obj:
 		return
 
-	var property: Property = node.get_property(property_name)
+	var property: Property = obj.get_property(property_name)
 	if not property:
 		return
 
 	if not property.settings.get("visible_in_inspector", true):
 		return
 
-	if node == current_object:
+	_pending_expand_category = property.get_category()
+
+	if obj == current_object:
 		rebuild()
 		return
 
-	inspect(node)
+	inspect(obj)

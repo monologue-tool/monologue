@@ -46,6 +46,17 @@ func create_field(field_name: String) -> Field:
 	return null
 
 
+func safe_create_field(field_name: String) -> Control:
+	var new_field: Field = create_field(field_name)
+	if new_field:
+		return new_field
+
+	var fb_field: Control = Label.new()
+	fb_field.theme_type_variation = "WarnLabel"
+	fb_field.text = "Unknown property type"
+	return fb_field
+
+
 func get_scene(field_name: String) -> PackedScene:
 	var descriptor := get_descriptor(field_name)
 	if descriptor:
