@@ -35,28 +35,6 @@ static func _get_layout_config(schema: Dictionary, layout_name: String) -> Dicti
 	return layouts.get(layout_name, layouts.get("default", {}))
 
 
-static func _create_section_header(section_config: Dictionary) -> Control:
-	if section_config.get("collapsible", false):
-		return _create_collapsible_header(section_config)
-
-	return _create_simple_header(section_config)
-
-
-static func _create_collapsible_header(section_config: Dictionary) -> Button:
-	var button = Button.new()
-	button.text = section_config.get("title", "")
-	button.flat = true
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	return button
-
-
-static func _create_simple_header(section_config: Dictionary) -> Label:
-	var label = Label.new()
-	label.text = section_config.get("title", "")
-	label.theme_type_variation = "SectionLabel"
-	return label
-
-
 static func _create_field_container(
 	field_name: String, field_config: Dictionary, _list_field: ListField, item: ListItemObject
 ) -> Control:
@@ -124,6 +102,7 @@ static func _get_fields_to_display(schema: Dictionary, layout_config: Dictionary
 	return layout_config.get("fields", properties.keys())
 
 
+# Unused
 static func _check_condition(condition: Dictionary, item: ListItemObject) -> bool:
 	var property_name = condition.get("property", "")
 
@@ -143,64 +122,6 @@ static func _check_condition(condition: Dictionary, item: ListItemObject) -> boo
 		return value in condition["in"]
 
 	return true
-
-
-static func _format_string(format: String, item: ListItemObject) -> String:
-	var data = item.to_dictionary()
-	var result = format
-	var regex = RegEx.new()
-	regex.compile("\\{([^}]+)\\}")
-
-	for match_result in regex.search_all(format):
-		var key = match_result.get_string(1)
-		var value = _resolve_path(key, data)
-		result = result.replace("{" + key + "}", str(value))
-
-	return result
-
-
-static func _resolve_path(path: String, data: Dictionary) -> Variant:
-	if path.is_empty():
-		return ""
-
-	var parts = path.split(".")
-	var current = data
-
-	for part in parts:
-		current = _resolve_path_part(current, part)
-		if current == null:
-			return ""
-
-	return current
-
-
-static func _resolve_path_part(current: Variant, part: String) -> Variant:
-	if current is Dictionary:
-		return _resolve_dictionary_part(current, part)
-
-	if current is Array:
-		return _resolve_array_part(current, part)
-
-	return null
-
-
-static func _resolve_dictionary_part(dict: Dictionary, part: String) -> Variant:
-	if part == "length" or part.ends_with(".length"):
-		return 0
-
-	return dict.get(part, null)
-
-
-static func _resolve_array_part(array: Array, part: String) -> Variant:
-	if part == "length":
-		return array.size()
-
-	if part.is_valid_int():
-		var index = part.to_int()
-		if index >= 0 and index < array.size():
-			return array[index]
-
-	return null
 
 
 static func _create_item_header(
@@ -237,45 +158,46 @@ static func _add_action_buttons(
 	header: HBoxContainer, actions: Array, index: int, list_field: ListField, item: ListItemObject
 ) -> void:
 	if "edit" in actions:
-		_add_edit_button(header, index, list_field)
+		_add_button(
+			header, index, list_field, "edit", "Edit item", preload("res://ui/assets/icons/pen.svg")
+		)
 
 	if "duplicate" in actions:
-		_add_duplicate_button(header, index, list_field)
+		_add_button(
+			header,
+			index,
+			list_field,
+			"duplicate",
+			"Duplicate item",
+			preload("res://ui/assets/icons/copy.png")
+		)
 
 	if "delete" in actions and not item.is_protected():
-		_add_delete_button(header, index, list_field)
+		_add_button(
+			header,
+			index,
+			list_field,
+			"delete",
+			"Delete item",
+			preload("res://ui/assets/icons/trash.svg")
+		)
 
 
-static func _add_edit_button(header: HBoxContainer, index: int, list_field: ListField) -> void:
-	if not list_field.has_method("_on_edit_item"):
+static func _add_button(
+	header: HBoxContainer,
+	index: int,
+	list_field: ListField,
+	action_name: String,
+	tooltip: String,
+	icon: Texture2D
+) -> void:
+	if not list_field.has_method("_on_%s_item" % action_name):
 		return
 
 	var button = Button.new()
-	button.icon = preload("res://ui/assets/icons/pen.svg")
-	button.tooltip_text = "Edit item"
-	button.pressed.connect(list_field.call.bind("_on_edit_item", index))
-	header.add_child(button)
-
-
-static func _add_duplicate_button(header: HBoxContainer, index: int, list_field: ListField) -> void:
-	if not list_field.has_method("_on_duplicate_item"):
-		return
-
-	var button = Button.new()
-	button.icon = preload("res://ui/assets/icons/copy.png")
-	button.tooltip_text = "Duplicate item"
-	button.pressed.connect(list_field.call.bind("_on_duplicate_item", index))
-	header.add_child(button)
-
-
-static func _add_delete_button(header: HBoxContainer, index: int, list_field: ListField) -> void:
-	if not list_field.has_method("_on_delete_item"):
-		return
-
-	var button = Button.new()
-	button.icon = preload("res://ui/assets/icons/trash.svg")
-	button.tooltip_text = "Remove item"
-	button.pressed.connect(list_field.call.bind("_on_delete_item", index))
+	button.icon = icon
+	button.tooltip_text = tooltip
+	button.pressed.connect(list_field.call.bind("_on_%s_item" % action_name, index))
 	header.add_child(button)
 
 

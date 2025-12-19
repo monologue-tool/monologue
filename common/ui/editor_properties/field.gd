@@ -36,6 +36,24 @@ func emit_value_changed(value: Variant) -> void:
 
 
 func emit_value_committed(value: Variant) -> void:
+	if settings.get("unique"):
+		var field_owner: InspectableObject = _binding.owner
+		var property_name: String = _binding.property.name
+
+		if field_owner is ListItemObject:
+			var list_field: ListField = field_owner.list_field
+			var list_field_value: Array = list_field.get_value()
+			var field_index: int = list_field._list_items.find(field_owner)
+
+			var idx: int = 0
+			for fvalue: Dictionary in list_field_value:
+				if idx == field_index:
+					continue
+
+				if fvalue.has(property_name) and fvalue.get(property_name) == value:
+					set_value(_binding.property.value)
+					return
+
 	value_committed.emit(value)
 
 

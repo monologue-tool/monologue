@@ -42,6 +42,7 @@ func _convert_array_to_items(array: Array) -> void:
 	for item_data in array:
 		var dict_data = item_data if item_data is Dictionary else {}
 		var item = ListItemObject.new(_data_schema, dict_data, _command_manager)
+		item.list_field = self
 		_list_items.append(item)
 		_connect_item_observer(item)
 
@@ -171,6 +172,7 @@ func _has_variant_dependency(prop_config: Dictionary, field_name: String) -> boo
 
 func add_new_item() -> void:
 	var new_item = ListItemObject.new(_data_schema, {}, _command_manager)
+	new_item.list_field = self
 	_list_items.append(new_item)
 	_connect_item_observer(new_item)
 

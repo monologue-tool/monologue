@@ -3,12 +3,18 @@ class_name ListItemObject extends InspectableObject
 var _schema: Dictionary = {}
 var _initial_data: Dictionary = {}
 
+var list_field: ListField
+
 
 func _init(
-	schema: Dictionary, initial_data: Dictionary = {}, command_manager: CommandManager = null
+	schema: Dictionary,
+	initial_data: Dictionary = {},
+	command_manager: CommandManager = null,
+	_settings: Dictionary = {}
 ) -> void:
 	_schema = schema
 	_initial_data = initial_data
+	settings = _settings
 	super._init(command_manager)
 
 

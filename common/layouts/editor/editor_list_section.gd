@@ -57,8 +57,31 @@ func _on_add_button_pressed() -> void:
 			if prop_config.get("default") is Callable:
 				new_item[prop_name] = new_item[prop_name].call()
 
+			if prop_config.get("unique", false):
+				var existing_values: Array = []
+				var item_list: Array = _list_field.get_value()
+				for item: Dictionary in item_list:
+					if item.has(prop_name):
+						existing_values.append(item.get(prop_name))
+
+				new_item[prop_name] = _make_unique(new_item[prop_name], existing_values)
+
 		current_list.append(new_item)
 		_property_owner.set_property_value(_property.name, current_list)
+
+
+func _make_unique(base: String, existing: Array) -> String:
+	if not existing.has(base):
+		return base
+
+	var counter = 1
+	var unique_name = "%s %s" % [base, counter]
+
+	while existing.has(unique_name):
+		counter += 1
+		unique_name = "%s %s" % [base, counter]
+
+	return unique_name
 
 
 func _on_search_line_text_changed(new_text: String) -> void:

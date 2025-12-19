@@ -8,9 +8,10 @@ static var VARIABLE: Dictionary = {
 		"name":
 		{
 			"type": "text",
-			"default": "",
+			"default": "new variable",
 			"required": true,
-			"validation": {"min_length": 1, "unique": true}
+			"unique": true,
+			"validation": {"min_length": 1}
 		},
 		"type":
 		{
@@ -61,6 +62,7 @@ static var CHARACTER: Dictionary = {
 		{
 			"type": "text",
 			"default": IDGen.generate,
+			"unique": true,
 		},
 		"protected":
 		{
@@ -72,6 +74,7 @@ static var CHARACTER: Dictionary = {
 			"type": "text",
 			"default": NameGenerator.generate,
 			"required": true,
+			"unique": true,
 			"validation": {"min_length": 1},
 		},
 		"display_name":
@@ -123,6 +126,7 @@ static var PORTRAIT: Dictionary = {
 			"type": "text",
 			"default": "",
 			"required": true,
+			"unique": true,
 		},
 		"protected":
 		{
@@ -186,12 +190,14 @@ static var ITEM: Dictionary = {
 		{
 			"type": "text",
 			"default": IDGen.generate,
+			"unique": true,
 		},
 		"name":
 		{
 			"type": "text",
 			"default": "",
 			"required": true,
+			"unique": true,
 		},
 		"description":
 		{
