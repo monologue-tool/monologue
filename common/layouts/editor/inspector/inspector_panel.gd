@@ -213,14 +213,9 @@ func _create_property_editor(property: Property) -> Control:
 		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
 		p_field = inspect_button
 	else:
-		var new_field: Field = FieldBucket.create_field(property.type)
-		if new_field:
-			property.call_deferred("bind_field", new_field, current_object)
-			p_field = new_field
-		else:
-			p_field = Label.new()
-			p_field.theme_type_variation = "WarnLabel"
-			p_field.text = "Unknown property type"
+		p_field = FieldBucket.safe_create_field(property.type)
+		if p_field is Field:
+			property.call_deferred("bind_field", p_field, current_object)
 
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)

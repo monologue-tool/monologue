@@ -60,16 +60,10 @@ func _update_case_field() -> void:
 	var _case_default: Variant = case_data.get("default")  # TODO: Support default value
 	var _case_coerce: Variant = case_data.get("coerce")  # TODO: Coerce value
 
-	var p_field: Control
-	var new_field: Field = FieldBucket.create_field(case_type)
-	if new_field:
+	var new_field: Control = FieldBucket.safe_create_field(case_type)
+	if new_field is Field:
 		_binding.property.call_deferred("bind_field", new_field, _binding.owner)
-		p_field = new_field
-	else:
-		p_field = Label.new()
-		p_field.theme_type_variation = "WarnLabel"
-		p_field.text = "Unknown property type"
-	field_container.add_child(p_field)
+	field_container.add_child(new_field)
 
 
 func _on_property_case_changed(_old_value: Variant, _new_value: Variant) -> void:

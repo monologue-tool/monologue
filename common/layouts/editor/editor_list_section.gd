@@ -31,13 +31,10 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 		return
 
 	# Create a list field to display the property
-	_list_field = FieldBucket.create_field(_property.type)
+	_list_field = FieldBucket.safe_create_field(_property.type)
 	if _list_field:
 		_property.bind_field(_list_field, _property_owner)
-		vbox.add_child(_list_field)
-		# Wait for the field to be ready before it can be used
-		if not _list_field.is_node_ready():
-			await _list_field.ready
+	vbox.add_child(_list_field)
 
 
 func _on_add_button_pressed() -> void:

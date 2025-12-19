@@ -58,7 +58,7 @@ static func _create_simple_header(section_config: Dictionary) -> Label:
 
 
 static func _create_field_container(
-	field_name: String, field_config: Dictionary, list_field: ListField, item: ListItemObject
+	field_name: String, field_config: Dictionary, _list_field: ListField, item: ListItemObject
 ) -> Control:
 	var container = VBoxContainer.new()
 
@@ -66,10 +66,6 @@ static func _create_field_container(
 	container.add_child(title_container)
 
 	var field = _create_and_configure_field(field_name, field_config, item)
-	if not field:
-		container.add_child(_create_warning_label(field_config.get("type", "text")))
-		return container
-
 	container.add_child(field)
 
 	var property = item.get_property(field_name)
@@ -99,20 +95,15 @@ static func _create_title_container(field_name: String, field_config: Dictionary
 
 
 static func _create_and_configure_field(
-	field_name: String, field_config: Dictionary, item: ListItemObject
+	_field_name: String, field_config: Dictionary, _item: ListItemObject
 ) -> Field:
-	var field_type = field_config.get("type", "text")
-	var field: Field = FieldBucket.create_field(field_type)
+	var field_type: String = field_config.get("type", "text")
+	var field: Field = FieldBucket.safe_create_field(field_type)
 
-	if not field:
-		return null
+	if field is Field:
+		field.settings = field_config.duplicate()
+		field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	# Copier tous les settings du schéma vers le field
-	# Cela inclut enum, options, validation, etc.
-	field.settings = field_config.duplicate()
-	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	# Le binding et l'initialisation se feront après que le field soit dans l'arbre
 	return field
 
 
@@ -126,13 +117,6 @@ static func _bind_field_to_property(field: Field, field_name: String, item: List
 		property.bind_field(field, item)
 	else:
 		field.ready.connect(func(): property.bind_field(field, item), CONNECT_ONE_SHOT)
-
-
-static func _create_warning_label(field_type: String) -> Label:
-	var warn = Label.new()
-	warn.text = "Unknown field: " + field_type
-	warn.theme_type_variation = "WarnLabel"
-	return warn
 
 
 static func _get_fields_to_display(schema: Dictionary, layout_config: Dictionary) -> Array:
@@ -295,6 +279,6 @@ static func _add_delete_button(header: HBoxContainer, index: int, list_field: Li
 	header.add_child(button)
 
 
-static func _resolve_dynamic_enum(path: String, data: Dictionary) -> Array:
+static func _resolve_dynamic_enum(_path: String, _data: Dictionary) -> Array:
 	# TODO: Implement full resolution for dynamic enums
 	return []
