@@ -5,6 +5,7 @@ var from_node_name: String
 var to_node_name: String
 var from_property_name: String
 var to_property_name: String
+var disconnect: bool
 
 
 func _init(
@@ -12,13 +13,15 @@ func _init(
 	n_from_node_name: String,
 	n_to_node_name: String,
 	n_from_property_name: String,
-	n_to_property_name: String
+	n_to_property_name: String,
+	n_disconnect: bool = false
 ) -> void:
 	graph_view = n_graph_view
 	from_node_name = n_from_node_name
 	to_node_name = n_to_node_name
 	from_property_name = n_from_property_name
 	to_property_name = n_to_property_name
+	disconnect = n_disconnect
 
 
 func execute() -> void:
@@ -26,13 +29,22 @@ func execute() -> void:
 	var from_port = graph_view.get_port_index_for_property(from_node_name, from_property_name)
 	var to_port = graph_view.get_port_index_for_property(to_node_name, to_property_name)
 
-	if graph_view.connection_manager:
-		graph_view.connection_manager.register_connection_by_property(
-			from_node_name, from_property_name, to_node_name, to_property_name
-		)
+	if disconnect:
+		if graph_view.connection_manager:
+			graph_view.connection_manager.unregister_connection(
+				from_node_name, from_port, to_node_name, to_port
+			)
 
-	if from_port >= 0 and to_port >= 0:
-		graph_view.connect_node(from_node_name, from_port, to_node_name, to_port)
+		if from_port >= 0 and to_port >= 0:
+			graph_view.disconnect_node(from_node_name, from_port, to_node_name, to_port)
+	else:
+		if graph_view.connection_manager:
+			graph_view.connection_manager.register_connection_by_property(
+				from_node_name, from_property_name, to_node_name, to_property_name
+			)
+
+		if from_port >= 0 and to_port >= 0:
+			graph_view.connect_node(from_node_name, from_port, to_node_name, to_port)
 
 	_notify_node_changes()
 
@@ -42,13 +54,22 @@ func undo() -> void:
 	var from_port = graph_view.get_port_index_for_property(from_node_name, from_property_name)
 	var to_port = graph_view.get_port_index_for_property(to_node_name, to_property_name)
 
-	if graph_view.connection_manager:
-		graph_view.connection_manager.unregister_connection_by_property(
-			from_node_name, from_property_name, to_node_name, to_property_name
-		)
+	if not disconnect:
+		if graph_view.connection_manager:
+			graph_view.connection_manager.unregister_connection(
+				from_node_name, from_port, to_node_name, to_port
+			)
 
-	if from_port >= 0 and to_port >= 0:
-		graph_view.disconnect_node(from_node_name, from_port, to_node_name, to_port)
+		if from_port >= 0 and to_port >= 0:
+			graph_view.disconnect_node(from_node_name, from_port, to_node_name, to_port)
+	else:
+		if graph_view.connection_manager:
+			graph_view.connection_manager.register_connection_by_property(
+				from_node_name, from_property_name, to_node_name, to_property_name
+			)
+
+		if from_port >= 0 and to_port >= 0:
+			graph_view.connect_node(from_node_name, from_port, to_node_name, to_port)
 
 	_notify_node_changes()
 

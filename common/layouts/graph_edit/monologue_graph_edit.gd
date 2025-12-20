@@ -99,7 +99,6 @@ func _on_graph_node_position_changed(graph_node: GraphNode) -> void:
 	_pending_positions[graph_node] = graph_node.position_offset
 
 
-# GraphEdit signals (from .tscn) - handle selection
 func _on_node_selected(graph_node: Node) -> void:
 	var node: InspectableNode = _node_map.get(graph_node)
 	if node:
@@ -107,17 +106,17 @@ func _on_node_selected(graph_node: Node) -> void:
 
 
 func _on_node_deselected(_graph_node: Node) -> void:
-	pass  # Nothing to do on deselect
+	pass
 
 
 func _on_connection_request(
 	from_node: StringName, from_port: int, to_node: StringName, to_port: int
 ) -> void:
-	if (
-		_has_connection_at_slot(from_node, from_port, true)
-		or _has_connection_at_slot(to_node, to_port, false)
-	):
-		return
+	#if (
+	#_has_connection_at_slot(from_node, from_port, true)
+	#or _has_connection_at_slot(to_node, to_port, false)
+	#):
+	#return
 
 	var from_graph_node: GraphNode = get_node(from_node as String)
 	var to_graph_node: GraphNode = get_node(to_node as String)
@@ -282,3 +281,33 @@ func _on_end_node_move() -> void:
 
 	_is_applying_position = false
 	_pending_positions.clear()
+
+
+func _on_disconnection_request(
+	from_node: StringName, from_port: int, to_node: StringName, to_port: int
+) -> void:
+	if not connection_manager:
+		return
+
+	connection_manager.unregister_connection(from_node, from_port, to_node, to_port)
+	var from_graph_node: GraphNode = get_node(from_node as String)
+	var to_graph_node: GraphNode = get_node(to_node as String)
+	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
+	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
+
+	if from_port_type != to_port_type:
+		return
+
+	# Get property names at the port indices
+	var from_property_name = get_property_name_at_port(String(from_node), from_port, true)
+	var to_property_name = get_property_name_at_port(String(to_node), to_port, false)
+
+	if from_property_name.is_empty() or to_property_name.is_empty():
+		push_warning("Cannot create connection: property not found at port")
+		return
+
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var command: NodeConnectionCommand = NodeConnectionCommand.new(
+		self, String(from_node), String(to_node), from_property_name, to_property_name, true
+	)
+	storyline.history.execute(command)

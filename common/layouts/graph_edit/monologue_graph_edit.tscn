@@ -25,9 +25,6 @@ show_minimap_button = false
 show_arrange_button = false
 script = ExtResource("1_ivjsb")
 
-[connection signal="child_entered_tree" from="." to="." method="_on_child_entered_tree"]
-[connection signal="connection_drag_ended" from="." to="." method="_on_connection_drag_ended"]
-[connection signal="connection_drag_started" from="." to="." method="_on_connection_drag_started"]
 [connection signal="connection_request" from="." to="." method="_on_connection_request"]
 [connection signal="connection_to_empty" from="." to="." method="_on_connection_to_empty"]
 [connection signal="disconnection_request" from="." to="." method="_on_disconnection_request"]
