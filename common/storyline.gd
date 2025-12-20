@@ -109,11 +109,6 @@ func _on_redo():
 	undo_redo_changed.emit()
 
 
-func save():
-	# TODO: Save logic
-	is_dirty = false
-
-
 func _create_default_nodes() -> void:
 	var defaults := ["root", "sentence", "text"]
 	for node_type: String in defaults:
@@ -134,7 +129,16 @@ func _register_node(node: InspectableNode) -> void:
 func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
 	is_dirty = true
 
-#func _on_character_edit_pressed(item_idx: int) -> void:
-#var p_characters: Property = get_property("characters")
-#var characters: Array = p_characters.value
-#var character: Dictionary = characters[item_idx]
+
+func _to_dict() -> Dictionary:
+	var dict: Dictionary = super._to_dict()
+	dict["nodes"] = []
+	var root_node_id: String = ""
+	for node: InspectableNode in nodes:
+		if node is RootNode:
+			root_node_id = node.get_property("id").get_value()
+		dict["nodes"].append(node._to_dict())
+
+	dict["root_node_id"] = root_node_id
+
+	return dict

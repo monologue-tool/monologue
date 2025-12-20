@@ -35,8 +35,7 @@ func _select_new_node() -> void:
 
 func _input(event):
 	if event.is_action_pressed("Save"):
-		pass
-		#save()
+		save()
 
 	if event.is_action_pressed("ui_undo"):
 		var focus_owner: Control = get_viewport().gui_get_focus_owner()
@@ -47,33 +46,6 @@ func _input(event):
 
 	if event.is_action_pressed("ui_redo"):
 		StorylineManager.get_active_storyline().history.redo()
-
-
-func _to_dict() -> Dictionary:
-	var list_nodes: Array[Dictionary] = []
-
-	# compile all node data of the current graph edit
-	for node in graph_switcher.current.get_nodes():
-		if node.is_queued_for_deletion():
-			continue
-
-		# if side panel is still open, release the focus so that some
-		# text controls trigger the focus_exited() signal to update
-		if inspector_panel_node.visible and inspector_panel_node.selected_node == node:
-			var refocus = get_viewport().gui_get_focus_owner()
-			if refocus:
-				refocus.release_focus()
-				refocus.grab_focus()
-
-		list_nodes.append(node._to_dict())
-		if node.node_type == "NodeChoice":
-			for child in node.get_children():
-				list_nodes.append(child._to_dict())
-
-	# build data for dialogue characters
-	var _storyline = StorylineManager.get_active_storyline()
-	# TODO: _to_dict logic
-	return {}
 
 
 ## Function callback for when the user wants to add a node from global context.
@@ -131,7 +103,6 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	if text:
 		data = JSON.parse_string(text)
 	if not data:
-		data = _to_dict()
 		save()
 
 	var converter := NodeConverter.new()
@@ -195,7 +166,12 @@ func load_editor_sections() -> void:
 
 
 func save():
-	var data = JSON.stringify(_to_dict(), "\t", false, true)
+	var storyline = StorylineManager.get_active_storyline()
+	var dict: Dictionary = storyline._to_dict()
+	dict["editor_version"] = ProjectSettings.get_setting("application/config/version")
+	print(dict)
+	return
+	var data = JSON.stringify(dict, "\t", false, true)
 	if data:
 		var path = graph_switcher.current.file_path
 		var file = FileAccess.open(path, FileAccess.WRITE)
@@ -203,6 +179,8 @@ func save():
 		file.close()
 		graph_switcher.current.update_version()
 		graph_switcher.update_save_state()
+
+	storyline.is_dirty = false
 
 
 func test_project(from_node: Variant = null):
