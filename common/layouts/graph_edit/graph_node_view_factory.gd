@@ -93,11 +93,11 @@ static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void
 static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 	var rows: Array[GraphNodeRow] = []
 	for prop: Property in node.get_properties():
-		if not prop.settings.get("visible_in_graph", true):
-			continue
-
 		var enable_left: bool = bool(prop.get_settings_value("exposed", false))
 		var enable_right: bool = bool(prop.get_settings_value("export", false))
+		if not prop.settings.get("visible_in_graph", true) and not (enable_left or enable_right):
+			continue
+
 		var label := prop.get_display_name() if prop.settings.get("is_main_property") else prop.name
 		var row := GraphNodeRow.new(label, prop.type, enable_left, enable_right)
 		if prop.settings.get("is_main_property"):
