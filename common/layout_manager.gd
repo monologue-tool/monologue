@@ -49,7 +49,7 @@ static func _create_field_container(
 	var property = item.get_property(field_name)
 	if property:
 		var merged_settings = field_config.duplicate()
-		merged_settings.merge(property.settings, true)
+		merged_settings.merge(property.get_settings(), true)
 		field.settings = merged_settings
 
 	_bind_field_to_property.call_deferred(field, field_name, item)

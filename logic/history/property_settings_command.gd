@@ -32,7 +32,10 @@ func execute() -> void:
 
 func undo() -> void:
 	var property: Property = target.get_property(property_name)
-	property.settings[settings_name] = old_value
+	if old_value:
+		property.settings[settings_name] = old_value
+	else:
+		property.settings.erase(settings_name)
 	_handle_connection_visibility(old_value)
 	target._notify_change(property_name)
 	property.refresh_bindings()
@@ -44,8 +47,6 @@ func get_description() -> String:
 
 
 func _handle_connection_visibility(setting_value: Variant) -> void:
-	print(setting_value)
-	print(settings_name)
 	if settings_name not in ["exposed", "export"]:
 		return
 	var node = _get_target_node()

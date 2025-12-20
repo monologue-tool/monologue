@@ -23,7 +23,7 @@ func initialize(binding: FieldBinding = null) -> void:
 
 	if _binding and _binding.property:
 		var property: Property = _binding.property
-		settings = property.settings
+		settings = property.get_settings()
 	_on_initialize()
 
 

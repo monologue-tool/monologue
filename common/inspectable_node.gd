@@ -11,7 +11,11 @@ func _init(command_manager: CommandManager = null) -> void:
 		"id",
 		IDGen.generate(),
 		"text",
-		{"visible_in_graph": false, "visible_in_inspector": false, "flat": true},
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": false,
+			"flat": true,
+		},
 		"Special:Header"
 	)
 	super._init(command_manager)
@@ -19,7 +23,11 @@ func _init(command_manager: CommandManager = null) -> void:
 		"notes",
 		"",
 		"textarea",
-		{"visible_in_graph": false, "visible_in_inspector": true, "exposable": false},
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"exposable": false,
+		},
 		"Extra"
 	)
 	define_property(
@@ -30,7 +38,7 @@ func _init(command_manager: CommandManager = null) -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": false,
 			"editable": false,
-			"exposable": false
+			"exposable": false,
 		},
 		"Extra"
 	)

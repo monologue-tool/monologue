@@ -96,8 +96,8 @@ func _on_initialize() -> void:
 
 
 func _initialize_from_property(property: Property) -> void:
-	_data_schema = property.settings.get("data_schema", {})
-	_layout = property.settings.get("layout", "default")
+	_data_schema = property.get_settings_value("data_schema", {})
+	_layout = property.get_settings_value("layout", "default")
 
 
 func _rebuild_ui() -> void:

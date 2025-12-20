@@ -43,7 +43,7 @@ func _broadcast_change(is_undo: bool = false) -> void:
 	if property_name == "position":
 		GlobalSignal.emit("request_node_inspection", [node, node.storyline_id, true])
 
-	if not property.settings.get("visible_in_inspector", true):
+	if not property.get_settings_value("visible_in_inspector", true):
 		return
 
 	GlobalSignal.emit("inspector_property_changed", [node, property_name, is_undo])

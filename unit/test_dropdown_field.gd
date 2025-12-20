@@ -17,5 +17,5 @@ func test_sentence_node_speaker_is_dropdown():
 func test_dropdown_has_source_setting():
 	var node = auto_free(SentenceNode.new())
 	var speaker_prop = node.get_property("speaker")
-	var source = speaker_prop.settings.get("source", "")
+	var source = speaker_prop.get_settings_value("source", "")
 	assert_str(source).is_equal("characters")

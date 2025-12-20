@@ -43,7 +43,7 @@ func _on_add_button_pressed() -> void:
 		if source_value is Array:
 			current_list = (source_value as Array).duplicate(true)
 
-		var data_schema = _property.settings.get("data_schema", {})
+		var data_schema = _property.get_settings_value("data_schema", {})
 		var schema_properties: Dictionary = data_schema.get("properties", {})
 		var new_item: Dictionary = {}
 		for prop_name in schema_properties.keys():

@@ -81,7 +81,7 @@ func _sync_from_property() -> void:
 func _update_editable_state() -> void:
 	if not is_instance_valid(field) or not property:
 		return
-	var is_editable: bool = property.settings.get("editable", true)
+	var is_editable: bool = property.get_settings_value("editable", true)
 	if property.is_intput_connected():
 		is_editable = false
 	field.set_editable(is_editable)

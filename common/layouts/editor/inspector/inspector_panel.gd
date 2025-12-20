@@ -128,12 +128,12 @@ func _group_by_category(properties: Array) -> Dictionary:
 	var groups: Dictionary = {}
 	for prop in properties:
 		# Skip properties not visible in inspector
-		if not prop.settings.get("visible_in_inspector", true):
+		if not prop.get_settings_value("visible_in_inspector", true):
 			continue
 
 		var category: String = "General"
-		if prop.settings.has("category"):
-			category = prop.settings.category
+		if prop.has_settings("category"):
+			category = prop.get_settings_value("category")
 
 		if not groups.has(category):
 			groups[category] = []
@@ -181,9 +181,9 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 
 func _create_property_editor(property: Property) -> Control:
 	if (
-		not property.settings.get("editable", true)
-		and not property.settings.get("exposed", false)
-		and not property.settings.get("export", false)
+		not property.get_settings_value("editable", true)
+		and not property.get_settings_value("exposed", false)
+		and not property.get_settings_value("export", false)
 	):
 		return
 
@@ -201,7 +201,7 @@ func _create_property_editor(property: Property) -> Control:
 
 	p_vbox.add_child(p_hbox)
 
-	if property.settings.get("flat"):
+	if property.get_settings_value("flat"):
 		p_hbox.hide()
 
 	var p_field: Control
@@ -221,8 +221,8 @@ func _create_property_editor(property: Property) -> Control:
 	p_container.add_child(p_vbox)
 	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	p_expose_button.disabled = not property.settings.get("exposable", false)
-	p_expose_button.button_pressed = property.settings.get("exposed", false)
+	p_expose_button.disabled = not property.get_settings_value("exposable", false)
+	p_expose_button.button_pressed = property.get_settings_value("exposed", false)
 	p_expose_button.toggled.connect(
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
@@ -230,7 +230,7 @@ func _create_property_editor(property: Property) -> Control:
 	# TODO: Make field read-only if property is not editable or is connected
 	#if p_field and p_field.has_method("set_editable"):
 	#var is_editable = (
-	#property.settings.get("editable", true) and not property.is_intput_connected()
+	#property.get_settings_value("editable", true) and not property.is_intput_connected()
 	#)
 	#p_field.set_editable(is_editable)
 
@@ -311,7 +311,7 @@ func _on_external_property_changed(
 	if not property:
 		return
 
-	if not property.settings.get("visible_in_inspector", true):
+	if not property.get_settings_value("visible_in_inspector", true):
 		return
 
 	_pending_expand_category = property.get_category()

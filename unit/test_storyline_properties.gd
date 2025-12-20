@@ -18,7 +18,7 @@ func test_storyline_has_variables_property():
 func test_characters_property_has_schema():
 	var storyline = auto_free(StorylineDocument.new("Test Story"))
 	var characters_prop = storyline.get_property("characters")
-	var schema = characters_prop.settings.get("data_schema", {})
+	var schema = characters_prop.get_settings_value("data_schema", {})
 	assert_bool(schema.has("name")).is_true()
 	assert_bool(schema.has("color")).is_true()
 
@@ -26,7 +26,7 @@ func test_characters_property_has_schema():
 func test_variables_property_has_schema():
 	var storyline = auto_free(StorylineDocument.new("Test Story"))
 	var variables_prop = storyline.get_property("variables")
-	var schema = variables_prop.settings.get("data_schema", {})
+	var schema = variables_prop.get_settings_value("data_schema", {})
 	assert_bool(schema.has("name")).is_true()
 	assert_bool(schema.has("value")).is_true()
 

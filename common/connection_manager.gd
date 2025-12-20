@@ -296,15 +296,15 @@ func _get_property_at_port(node: InspectableNode, port: int) -> Property:
 
 	# Build list of visible properties in graph (matching graph display logic)
 	for prop: Property in properties:
-		if not prop.settings.get("visible_in_graph", true):
+		if not prop.get_settings_value("visible_in_graph", true):
 			continue
-		var has_input = prop.settings.get("exposed", false)
-		var has_output = prop.settings.get("export", false)
+		var has_input = prop.get_settings_value("exposed", false)
+		var has_output = prop.get_settings_value("export", false)
 		if not has_input and not has_output:
 			continue
 
 		# Main property goes first
-		if prop.settings.get("is_main_property"):
+		if prop.get_settings_value("is_main_property"):
 			visible_props.push_front(prop)
 		else:
 			visible_props.append(prop)

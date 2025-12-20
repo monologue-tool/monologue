@@ -109,7 +109,7 @@ func set_property_settings_value(pname: String, skey: Variant, svalue: Variant) 
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {"$type": get_type()}
 	for property: Property in get_properties():
-		dict[property.name] = property.value
+		dict[property.name] = property._to_dict()
 
 	return dict
 

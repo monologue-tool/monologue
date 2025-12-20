@@ -169,7 +169,7 @@ func save():
 	var storyline = StorylineManager.get_active_storyline()
 	var dict: Dictionary = storyline._to_dict()
 	dict["editor_version"] = ProjectSettings.get_setting("application/config/version")
-	print(dict)
+	print(JSON.stringify(dict, "\t", true, true))
 	return
 	var data = JSON.stringify(dict, "\t", false, true)
 	if data:

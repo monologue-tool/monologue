@@ -51,7 +51,7 @@ func _setup_source_listener() -> void:
 		return
 
 	var property: Property = _binding.property
-	var source: String = property.settings.get("source", "")
+	var source: String = property.get_settings_value("source", "")
 
 	if not source.is_empty():
 		# Listen for changes to the source property
@@ -69,7 +69,7 @@ func _on_source_changed(_obj: InspectableObject, property_name: String) -> void:
 	if not _binding or not _binding.property:
 		return
 
-	var source: String = _binding.property.settings.get("source", "")
+	var source: String = _binding.property.get_settings_value("source", "")
 	if property_name == source:
 		# Source data changed, repopulate options
 		_populate_options()
@@ -87,11 +87,11 @@ func _populate_options() -> void:
 	var options: Array = []
 	var property: Property = _binding.property if _binding else null
 	if property:
-		var source: String = property.settings.get("source", "")
+		var source: String = property.get_settings_value("source", "")
 		if not source.is_empty() and _binding.owner:
 			options = _get_options_from_source(source)
 		else:
-			options = _normalize_options_array(property.settings.get("options", []))
+			options = _normalize_options_array(property.get_settings_value("options", []))
 
 	if options.is_empty():
 		options = _static_options.duplicate()

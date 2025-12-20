@@ -95,12 +95,17 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 	for prop: Property in node.get_properties():
 		var enable_left: bool = bool(prop.get_settings_value("exposed", false))
 		var enable_right: bool = bool(prop.get_settings_value("export", false))
-		if not prop.settings.get("visible_in_graph", true) and not (enable_left or enable_right):
+		if (
+			not prop.get_settings_value("visible_in_graph", true)
+			and not (enable_left or enable_right)
+		):
 			continue
 
-		var label := prop.get_display_name() if prop.settings.get("is_main_property") else prop.name
+		var label := (
+			prop.get_display_name() if prop.get_settings_value("is_main_property") else prop.name
+		)
 		var row := GraphNodeRow.new(label, prop.type, enable_left, enable_right)
-		if prop.settings.get("is_main_property"):
+		if prop.get_settings_value("is_main_property"):
 			rows.push_front(row)
 			continue
 		rows.append(row)

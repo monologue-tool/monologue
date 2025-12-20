@@ -187,7 +187,7 @@ func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 	var properties = node.get_properties()
 
 	for prop: Property in properties:
-		if not prop.settings.get("visible_in_graph", true):
+		if not prop.get_settings_value("visible_in_graph", true):
 			continue
 		var exposed = prop.get_settings_value("exposed", false) or false
 		var export = prop.get_settings_value("export", false) or false
@@ -197,7 +197,7 @@ func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 			continue
 
 		# Main property goes first
-		if prop.settings.get("is_main_property"):
+		if prop.get_settings_value("is_main_property"):
 			visible_props.push_front(prop)
 		else:
 			visible_props.append(prop)

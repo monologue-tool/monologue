@@ -5,6 +5,7 @@ signal value_changed(old_value: Variant, new_value: Variant)
 var name: String = ""
 var value: Variant = 0
 var type: String = ""
+var _settings: Dictionary = {}
 var settings: Dictionary = {}
 var descriptor
 var _bindings: Array = []
@@ -40,15 +41,15 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 	value = pvalue
 	type = ptype
 	descriptor = FieldBucket.get_descriptor(ptype)
-	settings = DEFAULT_SETTINGS.duplicate(true)
+	_settings = DEFAULT_SETTINGS.duplicate(true)
 	if descriptor and descriptor.default_settings:
-		settings.merge(descriptor.default_settings, true)
+		_settings.merge(descriptor.default_settings, true)
 	if psettings:
-		settings.merge(psettings, true)
-	if not settings.get("category"):
-		settings["category"] = DEFAULT_SETTINGS["category"]
-	if settings.get("label", "") == "":
-		settings.erase("label")
+		_settings.merge(psettings, true)
+	if not _settings.get("category"):
+		_settings["category"] = DEFAULT_SETTINGS["category"]
+	if _settings.get("label", "") == "":
+		_settings.erase("label")
 
 
 func bind_field(field: Field, target_owner: InspectableObject = null):
@@ -81,19 +82,29 @@ func get_value() -> Variant:
 	return value
 
 
-func get_settings_value(skey: String, default_value: Variant) -> Variant:
-	return settings.get(skey, default_value)
+func get_settings() -> Dictionary:
+	var merged_settings: Dictionary = settings.duplicate(true)
+	merged_settings.merge(_settings)
+	return merged_settings
+
+
+func has_settings(skey) -> bool:
+	return get_settings().has(skey)
+
+
+func get_settings_value(skey: String, default_value: Variant = null) -> Variant:
+	return get_settings().get(skey, default_value)
 
 
 func get_display_name() -> String:
-	var label: String = settings.get("label", "")
+	var label: String = get_settings_value("label", "")
 	if label.is_empty():
 		label = name
 	return Util.to_readable_name(label)
 
 
 func get_category() -> String:
-	return settings.get("category", "General")
+	return get_settings_value("category", "General")
 
 
 func is_input_connected() -> bool:
@@ -151,3 +162,19 @@ func get_descriptor():
 	if descriptor == null:
 		descriptor = FieldBucket.get_descriptor(type)
 	return descriptor
+
+
+func _to_dict() -> Dictionary:
+	var dict: Dictionary = {}
+	if not settings.is_empty():
+		dict["_editor_settings"] = settings
+
+	if get_settings_value("exposed") and not connected_from.is_empty():
+		dict["from_node"] = connected_from
+		dict["_editor_value"] = get_value()
+	else:
+		dict["value"] = get_value()
+
+	if get_settings_value("export"):
+		dict["to_node"] = connected_to
+	return dict
