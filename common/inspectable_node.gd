@@ -9,11 +9,11 @@ var _main_property_defined: bool = false
 func _init(command_manager: CommandManager = null) -> void:
 	define_property(
 		"id",
-		IDGen.generate(),
+		IDGen.generate(6),
 		"text",
 		{
 			"visible_in_graph": false,
-			"visible_in_inspector": false,
+			"visible_in_inspector": true,
 			"flat": true,
 		},
 		"Special:Header"

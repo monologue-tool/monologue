@@ -24,11 +24,9 @@ theme_type_variation = &"HBoxContainer_Small"
 alignment = 2
 
 [node name="RFHButton" type="Button" parent="VBox/Header/FirstField"]
-custom_minimum_size = Vector2(34, 29)
 layout_mode = 2
 icon = ExtResource("2_34x8o")
 icon_alignment = 1
-expand_icon = true
 
 [node name="Scroller" type="ScrollContainer" parent="VBox"]
 clip_contents = false

@@ -202,6 +202,7 @@ func _create_property_editor(property: Property) -> Control:
 	p_vbox.add_child(p_hbox)
 
 	if property.get_settings_value("flat"):
+		p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		p_hbox.hide()
 
 	var p_field: Control
