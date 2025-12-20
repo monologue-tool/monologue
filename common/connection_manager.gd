@@ -200,58 +200,82 @@ func validate_connections() -> bool:
 	return all_valid
 
 
-func suspend_property_connections(node_name: String, property_name: String) -> void:
+func suspend_incoming_property_connections(node_name: String, property_name: String) -> void:
+	_suspend_property_connections(node_name, property_name, "incoming", "connected_from", true)
+
+
+func suspend_outgoing_property_connections(node_name: String, property_name: String) -> void:
+	_suspend_property_connections(node_name, property_name, "outgoing", "connected_to", false)
+
+
+func restore_incoming_property_connections(node_name: String, property_name: String) -> void:
+	_restore_property_connections(node_name, property_name, "incoming", true)
+
+
+func restore_outgoing_property_connections(node_name: String, property_name: String) -> void:
+	_restore_property_connections(node_name, property_name, "outgoing", false)
+
+
+func _suspend_property_connections(
+	node_name: String,
+	property_name: String,
+	direction: String,
+	connection_array_name: String,
+	is_incoming: bool
+) -> void:
 	var key: String = _connection_key(node_name, property_name)
-	if _suspended_connections.has(key):
-		return
+	if not _suspended_connections.has(key):
+		_suspended_connections[key] = {}
+
 	var node := _get_node_view(node_name)
 	if not node:
 		return
+
 	var prop := node.get_property(property_name)
 	if not prop:
 		return
-	var outgoing := prop.connected_to.duplicate(true)
-	var incoming := prop.connected_from.duplicate(true)
-	if outgoing.is_empty() and incoming.is_empty():
+
+	var connections: Array[Dictionary] = prop.get(connection_array_name).duplicate(true)
+	if connections.is_empty():
 		return
-	_suspended_connections[key] = {
-		"outgoing": outgoing,
-		"incoming": incoming,
-	}
-	for conn_dict in outgoing:
-		var target_node: String = conn_dict.get("node_name", "")
-		var target_property: String = conn_dict.get("property_name", "")
-		if target_node.is_empty() or target_property.is_empty():
+
+	_suspended_connections[key][direction] = connections
+
+	# Unregister each connection
+	for conn_dict in connections:
+		var other_node: String = conn_dict.get("node_name", "")
+		var other_property: String = conn_dict.get("property_name", "")
+		if other_node.is_empty() or other_property.is_empty():
 			continue
-		unregister_connection_by_property(node_name, property_name, target_node, target_property)
-	for conn_dict in incoming:
-		var source_node: String = conn_dict.get("node_name", "")
-		var source_property: String = conn_dict.get("property_name", "")
-		if source_node.is_empty() or source_property.is_empty():
-			continue
-		unregister_connection_by_property(source_node, source_property, node_name, property_name)
+
+		if is_incoming:
+			unregister_connection_by_property(other_node, other_property, node_name, property_name)
+		else:
+			unregister_connection_by_property(node_name, property_name, other_node, other_property)
 
 
-func restore_property_connections(node_name: String, property_name: String) -> void:
+func _restore_property_connections(
+	node_name: String, property_name: String, direction: String, is_incoming: bool
+) -> void:
 	var key: String = _connection_key(node_name, property_name)
 	if not _suspended_connections.has(key):
 		return
+
 	var snapshot: Dictionary = _suspended_connections[key]
 	_suspended_connections.erase(key)
-	var incoming: Array = snapshot.get("incoming", [])
-	var outgoing: Array = snapshot.get("outgoing", [])
-	for conn_dict in incoming:
-		var source_node: String = conn_dict.get("node_name", "")
-		var source_property: String = conn_dict.get("property_name", "")
-		if source_node.is_empty() or source_property.is_empty():
+
+	# Re-register each connection
+	var connections: Array = snapshot.get(direction, [])
+	for conn_dict in connections:
+		var other_node: String = conn_dict.get("node_name", "")
+		var other_property: String = conn_dict.get("property_name", "")
+		if other_node.is_empty() or other_property.is_empty():
 			continue
-		register_connection_by_property(source_node, source_property, node_name, property_name)
-	for conn_dict in outgoing:
-		var target_node: String = conn_dict.get("node_name", "")
-		var target_property: String = conn_dict.get("property_name", "")
-		if target_node.is_empty() or target_property.is_empty():
-			continue
-		register_connection_by_property(node_name, property_name, target_node, target_property)
+
+		if is_incoming:
+			register_connection_by_property(other_node, other_property, node_name, property_name)
+		else:
+			register_connection_by_property(node_name, property_name, other_node, other_property)
 
 
 func _connection_key(node_name: String, property_name: String) -> String:

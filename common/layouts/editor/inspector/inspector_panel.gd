@@ -256,18 +256,6 @@ func _apply_category_state(container: FoldableContainer, category_name: String) 
 	_category_states[category_name] = container.folded
 
 
-#func _create_list_property_editor(property: Property) -> Control:
-#pass
-#
-#
-#func _create_list_item_editor(list_property, item, index: int) -> Control:
-#pass
-#
-#
-#func _create_nested_property_editor(property: Property, parent: Control) -> Control:
-#pass
-
-
 func post_build() -> void:
 	for child: Control in property_container.get_children():
 		if child is FoldableContainer and child.is_empty():

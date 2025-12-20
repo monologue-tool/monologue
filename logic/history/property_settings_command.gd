@@ -44,6 +44,8 @@ func get_description() -> String:
 
 
 func _handle_connection_visibility(setting_value: Variant) -> void:
+	print(setting_value)
+	print(settings_name)
 	if settings_name not in ["exposed", "export"]:
 		return
 	var node = _get_target_node()
@@ -55,14 +57,20 @@ func _handle_connection_visibility(setting_value: Variant) -> void:
 	var graph_edit = graph_view.get_parent()
 	if not (graph_edit is MonologueGraphEdit):
 		return
-	var manager = graph_edit.connection_manager
+	var manager: ConnectionManager = graph_edit.connection_manager
 	if not manager:
 		return
 	var node_name: String = graph_view.name
-	if setting_value:
-		manager.restore_property_connections(node_name, property_name)
+	if settings_name == "exposed":
+		if setting_value:
+			manager.restore_incoming_property_connections(node_name, property_name)
+			return
+		manager.suspend_incoming_property_connections(node_name, property_name)
 	else:
-		manager.suspend_property_connections(node_name, property_name)
+		if setting_value:
+			manager.restore_outgoing_property_connections(node_name, property_name)
+			return
+		manager.suspend_outgoing_property_connections(node_name, property_name)
 
 
 func _get_target_node():

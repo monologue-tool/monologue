@@ -1,9 +1,6 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 signal node_view_selected(node: InspectableNode)
 
-var characters := Property.new("characters", {}, "character", {})
-var variables := Property.new("variables", {}, "variable", {})
-
 var storyline_id: String
 var connection_manager: ConnectionManager
 var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
