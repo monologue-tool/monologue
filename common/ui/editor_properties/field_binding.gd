@@ -34,6 +34,8 @@ func initialize() -> void:
 	field.value_changed.connect(_on_field_value_changed)
 	if field.has_signal("value_committed"):
 		field.value_committed.connect(_on_field_value_committed)
+	if field.has_signal("preview_changed"):
+		field.preview_changed.connect(_on_field_preview_changed)
 	if property:
 		property.value_changed.connect(_on_property_value_changed)
 	field.tree_exiting.connect(_on_field_tree_exiting)
@@ -97,6 +99,10 @@ func _on_field_value_committed(value: Variant) -> void:
 	if _is_syncing:
 		return
 	_process_field_value(value, true)
+
+
+func _on_field_preview_changed() -> void:
+	owner.rebuild_preview()
 
 
 func _process_field_value(value: Variant, is_commit: bool) -> void:

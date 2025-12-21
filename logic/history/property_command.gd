@@ -40,7 +40,7 @@ func _broadcast_change(is_undo: bool = false) -> void:
 	if not property:
 		return
 
-	if property_name == "position":
+	if target is InspectableNode and property_name == "position":
 		GlobalSignal.emit("request_node_inspection", [node, node.storyline_id, true])
 
 	if not property.get_settings_value("visible_in_inspector", true):

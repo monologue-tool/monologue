@@ -220,7 +220,8 @@ func _create_property_editor(property: Property) -> Control:
 
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)
-	p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if property.get_settings_value("expand", true):
+		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	p_expose_button.disabled = not property.get_settings_value("exposable", false)
 	p_expose_button.button_pressed = property.get_settings_value("exposed", false)

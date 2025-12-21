@@ -102,28 +102,6 @@ static func _get_fields_to_display(schema: Dictionary, layout_config: Dictionary
 	return layout_config.get("fields", properties.keys())
 
 
-# Unused
-static func _check_condition(condition: Dictionary, item: ListItemObject) -> bool:
-	var property_name = condition.get("property", "")
-
-	var property = item.get_property(property_name)
-	if not property:
-		return false
-
-	var value = property.get_value()
-
-	if condition.has("equals"):
-		return value == condition["equals"]
-
-	if condition.has("not_equals"):
-		return value != condition["not_equals"]
-
-	if condition.has("in"):
-		return value in condition["in"]
-
-	return true
-
-
 static func _create_item_header(
 	content: Control,
 	index: int,

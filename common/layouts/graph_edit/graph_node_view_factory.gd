@@ -10,9 +10,38 @@ static func build(node: InspectableNode) -> GraphNode:
 	graph_node.draggable = true
 	graph_node.selectable = true
 	graph_node.resizable = false
+	modulate_stylebox(graph_node, node)
 	apply_metadata(graph_node, node)
 	populate(graph_node, node)
 	return graph_node
+
+
+static func modulate_stylebox(graph_node: GraphNode, node: InspectableNode) -> void:
+	var color_prop: Property = node.get_property("color")
+	if not color_prop:
+		return
+
+	var node_color: Color = Color(color_prop.get_value())
+	var sb_names: Array = ["panel", "panel_selected"]
+
+	for sb_name: String in sb_names:
+		graph_node.remove_theme_stylebox_override(sb_name)
+
+	if node_color == Color.BLACK:
+		return
+
+	for sb_name: String in sb_names:
+		var base_sb: StyleBox = graph_node.get_theme_stylebox(sb_name)
+
+		if base_sb is StyleBoxFlat:
+			var new_sb: StyleBoxFlat = base_sb.duplicate()
+			var new_bg_color = Color(node_color, 0.35)
+			var new_border_color = Color(node_color, 0.35)
+			new_bg_color = base_sb.bg_color.blend(new_bg_color)
+			new_border_color = base_sb.border_color.blend(new_border_color)
+			new_sb.bg_color = new_bg_color
+			new_sb.border_color = new_border_color
+			graph_node.add_theme_stylebox_override(sb_name, new_sb)
 
 
 static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
@@ -87,7 +116,9 @@ static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void
 	if not is_instance_valid(graph_node):
 		return
 	graph_node.title = Util.to_readable_name(node.get_type())
-	graph_node.name = _derive_node_name(node)
+	# Use node id as the graph node name to make connections rely on ids only
+	var id_prop := node.get_property("id")
+	graph_node.name = String(id_prop.get_value()) if id_prop else _derive_node_name(node)
 
 
 static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
@@ -114,10 +145,11 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 
 
 static func _derive_node_name(node: InspectableNode) -> String:
+	# Fallback to id (no type prefix) if needed
 	var id_value := ""
 	var id_property := node.get_property("id")
 	if id_property:
 		id_value = String(id_property.get_value())
 	if id_value.is_empty():
 		id_value = IDGen.generate(5)
-	return "%s_%s" % [node.get_type(), id_value]
+	return id_value

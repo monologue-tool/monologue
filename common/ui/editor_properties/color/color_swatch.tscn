@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://psbrljdmbtg6"]
+
+[ext_resource type="Script" uid="uid://c5p813dybhgwt" path="res://common/ui/editor_properties/color/color_swatch.gd" id="1_x2h8f"]
+
+[node name="ColorSwatch" type="Button"]
+clip_children = 1
+custom_minimum_size = Vector2(25, 25)
+script = ExtResource("1_x2h8f")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

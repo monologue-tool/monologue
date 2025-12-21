@@ -39,6 +39,8 @@ func refresh_node(node: InspectableNode) -> void:
 		return
 
 	clear_connections()
+	GraphNodeViewFactory.modulate_stylebox(node.graph_view, node)
+	GraphNodeViewFactory.apply_metadata(node.graph_view, node)
 	GraphNodeViewFactory.populate(node.graph_view, node)
 	_sync_position_from_property(node)
 	_reconnect_all_slots()
@@ -52,7 +54,10 @@ func add_graph_node_view(node: InspectableNode) -> void:
 	node.graph_view = graph_node
 
 	# Connect signals
-	graph_node.position_offset_changed.connect(_on_graph_node_position_changed.bind(graph_node))
+	if not graph_node.position_offset_changed.is_connected(
+		_on_graph_node_position_changed.bind(graph_node)
+	):
+		graph_node.position_offset_changed.connect(_on_graph_node_position_changed.bind(graph_node))
 
 	# Add to scene and set initial position
 	add_child(graph_node)
@@ -167,18 +172,18 @@ func _reconnect_all_slots() -> void:
 	var all_connections = connection_manager.get_all_connections()
 
 	for conn in all_connections:
-		var from_node_name = conn["from_node_name"]
+		var from_node_id = conn["from_node_id"]
 		var from_property = conn["from_property"]
-		var to_node_name = conn["to_node_name"]
+		var to_node_id = conn["to_node_id"]
 		var to_property = conn["to_property"]
 
 		# Get port indices for the properties
-		var from_port = get_port_index_for_property(from_node_name, from_property)
-		var to_port = get_port_index_for_property(to_node_name, to_property)
+		var from_port = get_port_index_for_property(from_node_id, from_property)
+		var to_port = get_port_index_for_property(to_node_id, to_property)
 
 		# Only connect if both ports are valid
 		if from_port >= 0 and to_port >= 0:
-			connect_node(from_node_name, from_port, to_node_name, to_port)
+			connect_node(from_node_id, from_port, to_node_id, to_port)
 
 
 ## Get visible properties in the same order as displayed in graph

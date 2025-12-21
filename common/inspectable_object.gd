@@ -118,6 +118,10 @@ func get_settings() -> Dictionary:
 	return {}
 
 
+func rebuild_preview() -> void:
+	pass
+
+
 @abstract func get_type() -> String
 @abstract func initialize_properties() -> void
 @abstract func _on_property_changed(pname: String, old_value: Variant, new_value: Variant) -> void

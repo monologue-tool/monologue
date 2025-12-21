@@ -123,27 +123,27 @@ func is_intput_connected() -> bool:
 	return is_input_connected()
 
 
-func add_connection_from(node_name: String, property_name: String, port: int) -> void:
-	var conn = {"node_name": node_name, "property_name": property_name, "port": port}
+func add_connection_from(node_id: String, property_name: String) -> void:
+	var conn = {"node_id": node_id, "property_name": property_name}
 	if conn not in connected_from:
 		connected_from.append(conn)
 
 
-func add_connection_to(node_name: String, property_name: String, port: int) -> void:
-	var conn = {"node_name": node_name, "property_name": property_name, "port": port}
+func add_connection_to(node_id: String, property_name: String) -> void:
+	var conn = {"node_id": node_id, "property_name": property_name}
 	if conn not in connected_to:
 		connected_to.append(conn)
 
 
-func remove_connection_from(node_name: String, port: int) -> void:
+func remove_connection_from(node_id: String, property_name: String) -> void:
 	connected_from = connected_from.filter(
-		func(c): return not (c["node_name"] == node_name and c["port"] == port)
+		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
 	)
 
 
-func remove_connection_to(node_name: String, port: int) -> void:
+func remove_connection_to(node_id: String, property_name: String) -> void:
 	connected_to = connected_to.filter(
-		func(c): return not (c["node_name"] == node_name and c["port"] == port)
+		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
 	)
 
 

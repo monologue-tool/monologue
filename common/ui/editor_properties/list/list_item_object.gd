@@ -72,16 +72,6 @@ func _get_default_for_type(type: String) -> Variant:
 			return null
 
 
-func to_dictionary() -> Dictionary:
-	return _to_dict()
-
-
-func update_from_dictionary(data: Dictionary) -> void:
-	for prop_name in data:
-		if _properties.has(prop_name):
-			set_property_value(prop_name, data[prop_name])
-
-
 func get_schema() -> Dictionary:
 	return _schema
 
@@ -91,11 +81,8 @@ func is_protected() -> bool:
 
 
 func duplicate_item(command_manager: CommandManager = null) -> ListItemObject:
-	var duplicate_data = to_dictionary()
-	duplicate_data.erase("$type")  # ?
-
-	if duplicate_data.has("protected"):
-		duplicate_data["protected"] = false
+	var duplicate_data = _to_dict()
+	duplicate_data.erase("$type")
 
 	if duplicate_data.has("name"):
 		duplicate_data["name"] = str(duplicate_data["name"]) + " (Copy)"
@@ -116,7 +103,7 @@ func get_type() -> String:
 	return _schema.get("title", "ListItem")
 
 
-func _on_property_changed(pname: String, old_value: Variant, new_value: Variant) -> void:
+func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
 	pass
 
 
