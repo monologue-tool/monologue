@@ -171,10 +171,16 @@ func _to_dict() -> Dictionary:
 
 	if get_settings_value("exposed") and not connected_from.is_empty():
 		dict["from_node"] = connected_from
-		dict["_editor_value"] = get_value()
-	else:
-		dict["value"] = get_value()
+	dict["value"] = get_value()
 
 	if get_settings_value("export"):
 		dict["to_node"] = connected_to
 	return dict
+
+
+# Do not trigger undo/redo
+func _from_dict(dict: Dictionary) -> void:
+	value = dict.get("value", value)
+	settings = dict.get("_editor_settings", settings)
+	connected_from = dict.get("from_node", connected_from)
+	connected_to = dict.get("to_node", connected_to)

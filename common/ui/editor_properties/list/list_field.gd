@@ -1,17 +1,10 @@
 class_name ListField extends Field
 
-const FIELD_VARIANT_CASES_KEY := "cases"
-const FIELD_VARIANT_DEFAULT_KEY := "_default"
-const FIELD_COERCE_KEY := "coerce"
-const FIELD_OPTIONS_KEY := "options"
-
 var _list_items: Array[ListItemObject] = []
 var _hide_items: Array[int] = []
 var _data_schema: Dictionary = {}
 var _layout: String = "default"
 var _command_manager: CommandManager
-# Raw immutable data store for list values (schema–friendly, wrapper–free)
-var _data_store: Array[Dictionary] = []
 
 @onready var items_container: VBoxContainer = %ItemsContainer
 
@@ -31,24 +24,15 @@ func show_all_items() -> void:
 	_rebuild_ui()
 
 
-func set_value(value: Variant) -> void:
-	# Initialize the raw data store from incoming value (deep copy, wrapper–free)
-	_data_store.clear()
-	if value is Array:
-		for item_data in value:
-			if item_data is Dictionary:
-				_data_store.append(item_data.duplicate(true))
+func set_value(value: Variant) -> void:  # TODO needs _to_dict implementation for properties and inspectable object
 	_list_items.clear()
+	for property_data: Dictionary in value:
+		var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager)
+		new_item._from_dict(property_data)
+		new_item.list_field = self
+		_connect_item_observer(new_item)
+		_list_items.append(new_item)
 	_rebuild_ui()
-
-
-func _convert_array_to_items(array: Array) -> void:
-	for item_data in array:
-		var dict_data = item_data.duplicate(true) if item_data is Dictionary else {}
-		var item = ListItemObject.new(_data_schema, dict_data, _command_manager)
-		item.list_field = self
-		_list_items.append(item)
-		_connect_item_observer(item)
 
 
 func _connect_item_observer(item: ListItemObject) -> void:
@@ -56,13 +40,6 @@ func _connect_item_observer(item: ListItemObject) -> void:
 
 
 func _on_item_changed(_item: ListItemObject, prop_name: String) -> void:
-	# Persist change back into the raw data store
-	var idx := get_item_index(_item)
-	if idx >= 0 and idx < _data_store.size():
-		var dict: Dictionary = _item.to_dictionary()
-		dict.erase("$type")
-		_data_store[idx] = dict
-	# Rebuild UI if the changed property affects other fields
 	if _has_dependent_fields(prop_name):
 		call_deferred("_rebuild_ui")
 
@@ -72,8 +49,8 @@ func _on_item_changed(_item: ListItemObject, prop_name: String) -> void:
 func get_value() -> Variant:
 	# Return a deep copy of the raw data store
 	var result: Array = []
-	for d in _data_store:
-		result.append(d.duplicate(true))
+	for item: ListItemObject in _list_items:
+		result.append(item._to_dict())
 	return result
 
 
@@ -111,7 +88,6 @@ func _rebuild_ui() -> void:
 	if not is_instance_valid(items_container):
 		return
 
-	_clear_items_container()
 	_populate_items_container()
 
 
@@ -122,14 +98,7 @@ func _clear_items_container() -> void:
 
 
 func _populate_items_container() -> void:
-	# Rebuild view-model items from the raw data store
-	_list_items.clear()
-	for raw in _data_store:
-		var item_dict := raw.duplicate(true)
-		var item = ListItemObject.new(_data_schema, item_dict, _command_manager)
-		item.list_field = self
-		_list_items.append(item)
-		_connect_item_observer(item)
+	_clear_items_container()
 
 	for i in range(_list_items.size()):
 		if i in _hide_items:
@@ -186,23 +155,27 @@ func _has_variant_dependency(prop_config: Dictionary, field_name: String) -> boo
 
 
 func _on_edit_item(index: int) -> void:
-	print("Edit item at index: ", index)
-	# TODO: Open edit dialog
+	pass
 
 
 func _on_duplicate_item(index: int) -> void:
 	if not _is_valid_index(index):
 		return
 	# Duplicate from the raw store to avoid any editor wrappers
-	var base: Dictionary = _data_store[index].duplicate(true)
+	var item_data: Dictionary = _list_items[index]._to_dict()
+	var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager)
+	new_item._from_dict(item_data)
+	new_item.list_field = self
+	_connect_item_observer(new_item)
 	# Apply common duplication tweaks
-	if base.has("name"):
-		base["name"] = String(base["name"]) + " (Copy)"
+	var name_prop: Property = new_item.get_property("name")
+	if name_prop:
+		name_prop.set_value(name_prop.get_value() + " (Copy)")
 	var schema_props: Dictionary = _data_schema.get("properties", {})
 	if schema_props.has("id") and schema_props["id"].get("default") is Callable:
 		var id_gen: Callable = schema_props["id"]["default"]
-		base["id"] = id_gen.call()
-	_data_store.insert(index + 1, base)
+		new_item.get_property("id").set_value(id_gen.call())
+	_list_items.insert(index + 1, new_item)
 	_rebuild_ui()
 	_emit_snapshot()
 
@@ -217,8 +190,8 @@ func _on_delete_item(index: int) -> void:
 		push_warning("Cannot delete protected item")
 		return
 
-	if index >= 0 and index < _data_store.size():
-		_data_store.remove_at(index)
+	if index >= 0 and index < _list_items.size():
+		_list_items.remove_at(index)
 	_rebuild_ui()
 	_emit_snapshot()
 
@@ -229,11 +202,8 @@ func _is_valid_index(index: int) -> bool:
 
 func _emit_snapshot() -> void:
 	# Emit a deep copy of the raw store as the authoritative value
-	var snapshot: Array = []
-	for d in _data_store:
-		snapshot.append(d.duplicate(true))
-	emit_value_changed(snapshot)
-	emit_value_committed(snapshot)
+	emit_value_changed(get_value())
+	emit_value_committed(get_value())
 
 
 func undo() -> void:

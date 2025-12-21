@@ -47,11 +47,11 @@ func emit_value_committed(value: Variant) -> void:
 
 		if field_owner is ListItemObject:
 			var list_field: ListField = field_owner.list_field
-			var list_field_value: Array = list_field.get_value()
 
-			for fvalue: Dictionary in list_field_value:
-				if fvalue.has(property_name) and fvalue.get(property_name).get("value") == value:
-					set_value(_binding.property.value)
+			for item: ListItemObject in list_field._list_items:
+				var property: Property = item.get_property(property_name)
+				if property and property.get_value() == value:
+					set_value(property.get_value())
 					return
 
 	value_committed.emit(value)

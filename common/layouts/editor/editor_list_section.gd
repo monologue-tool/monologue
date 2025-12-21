@@ -37,36 +37,40 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 
 
 func _on_add_button_pressed() -> void:
-	if _property and _property_owner:
-		var source_value: Variant = _property.get_value()
-		var current_list: Array = []
-		if source_value is Array:
-			current_list = (source_value as Array).duplicate(true)
+	if not (_property and _property_owner):
+		return
 
-		var data_schema = _property.get_settings_value("data_schema", {})
-		var schema_properties: Dictionary = data_schema.get("properties", {})
-		var new_item: Dictionary = {}
-		for prop_name in schema_properties.keys():
-			var prop_config = schema_properties[prop_name]
+	var data_schema = _property.get_settings_value("data_schema", {})
+	var schema_properties: Dictionary = data_schema.get("properties", {})
+	var item_initial_data: Dictionary = {}
+	for prop_name in schema_properties.keys():
+		var prop_config = schema_properties[prop_name]
 
-			if prop_config.get("editor_only", false):
-				continue
+		if prop_config.get("editor_only", false):
+			continue
 
-			new_item[prop_name] = prop_config.get("default", "")
-			if prop_config.get("default") is Callable:
-				new_item[prop_name] = new_item[prop_name].call()
+		item_initial_data[prop_name] = prop_config.get("default", "")
+		if prop_config.get("default") is Callable:
+			item_initial_data[prop_name] = item_initial_data[prop_name].call()
 
-			if prop_config.get("unique", false):
-				var existing_values: Array = []
-				var item_list: Array = _list_field.get_value()
-				for item: Dictionary in item_list:
-					if item.has(prop_name):
-						existing_values.append(item.get(prop_name))
+		if prop_config.get("unique", false):
+			var existing_values: Array = []
+			var item_list: Array = _list_field.get_value()
+			for item: Dictionary in item_list:
+				if item.has(prop_name):
+					existing_values.append(item.get(prop_name))
 
-				new_item[prop_name] = _make_unique(new_item[prop_name], existing_values)
+			item_initial_data[prop_name] = _make_unique(
+				item_initial_data[prop_name], existing_values
+			)
 
-		current_list.append(new_item)
-		_property_owner.set_property_value(_property.name, current_list)
+	var item_object = ListItemObject.new(
+		data_schema, item_initial_data, _list_field._command_manager, schema_properties
+	)
+
+	var new_item_list: Array = _property.get_value().duplicate(true)
+	new_item_list.append(item_object._to_dict())
+	_property_owner.set_property_value(_property.name, new_item_list)
 
 
 func _make_unique(base: String, existing: Array) -> String:

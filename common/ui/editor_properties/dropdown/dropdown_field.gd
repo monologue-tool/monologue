@@ -161,15 +161,10 @@ func _get_options_from_source(source: String) -> Array:
 	# Extract names from list items
 	for item in list_value:
 		if item is Dictionary:
-			# Try to get a name field (supports both lowercase and capitalized for backward compatibility)
-			var entry_name = item.get("name", item.get("Name", ""))
-			# Also support old format with Character.Name structure
-			if entry_name.is_empty() and item.has("Character"):
-				var character_dict = item.get("Character", {})
-				if character_dict is Dictionary:
-					entry_name = character_dict.get("Name", "")
-			if not entry_name.is_empty():
-				result.append(entry_name)
+			var entry_name: Variant = item.get("name", item.get("id", "<unknown>"))
+			if entry_name is Dictionary:
+				entry_name = entry_name.get("value", "<unknown>")
+			result.append(entry_name)
 		else:
 			result.append(str(item))
 

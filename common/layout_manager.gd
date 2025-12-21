@@ -22,8 +22,7 @@ static func create_layout(
 			field_name, properties[field_name], list_field, item
 		)
 
-		if field_container:
-			vbox.add_child(field_container)
+		vbox.add_child(field_container)
 
 	_create_item_header(vbox, index, list_field, item, layout_config)
 
@@ -38,17 +37,17 @@ static func _get_layout_config(schema: Dictionary, layout_name: String) -> Dicti
 static func _create_field_container(
 	field_name: String, field_config: Dictionary, _list_field: ListField, item: ListItemObject
 ) -> Control:
-	var container = VBoxContainer.new()
+	var container: VBoxContainer = VBoxContainer.new()
 
-	var title_container = _create_title_container(field_name, field_config)
+	var title_container: HBoxContainer = _create_title_container(field_name, field_config)
 	container.add_child(title_container)
 
-	var field = _create_and_configure_field(field_name, field_config, item)
+	var field: Field = _create_and_configure_field(field_name, field_config, item)
 	container.add_child(field)
 
-	var property = item.get_property(field_name)
+	var property: Property = item.get_property(field_name)
 	if property:
-		var merged_settings = field_config.duplicate()
+		var merged_settings: Dictionary = field_config.duplicate()
 		merged_settings.merge(property.get_settings(), true)
 		field.settings = merged_settings
 
@@ -75,7 +74,7 @@ static func _create_title_container(field_name: String, field_config: Dictionary
 static func _create_and_configure_field(
 	_field_name: String, field_config: Dictionary, _item: ListItemObject
 ) -> Field:
-	var field_type: String = field_config.get("type", "text")
+	var field_type: String = field_config.get("type")
 	var field: Field = FieldBucket.safe_create_field(field_type)
 
 	if field is Field:
@@ -93,8 +92,8 @@ static func _bind_field_to_property(field: Field, field_name: String, item: List
 
 	if field.is_node_ready():
 		property.bind_field(field, item)
-	else:
-		field.ready.connect(func(): property.bind_field(field, item), CONNECT_ONE_SHOT)
+		return
+	field.ready.connect(func(): property.bind_field(field, item), CONNECT_ONE_SHOT)
 
 
 static func _get_fields_to_display(schema: Dictionary, layout_config: Dictionary) -> Array:
