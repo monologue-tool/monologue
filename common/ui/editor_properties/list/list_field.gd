@@ -24,7 +24,7 @@ func show_all_items() -> void:
 	_rebuild_ui()
 
 
-func set_value(value: Variant) -> void:  # TODO needs _to_dict implementation for properties and inspectable object
+func set_value(value: Variant) -> void:
 	_list_items.clear()
 	for property_data: Dictionary in value:
 		var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager)
@@ -68,8 +68,6 @@ func set_editable(is_editable: bool) -> void:
 
 
 func _on_initialize() -> void:
-	super._on_initialize()
-
 	if _binding and _binding.property:
 		_initialize_from_property(_binding.property)
 

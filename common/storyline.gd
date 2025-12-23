@@ -35,9 +35,13 @@ func create_node(node_type: String) -> InspectableNode:
 
 
 func initialize_properties() -> void:
+	var default_narrator: Dictionary = (
+		ListItemObject.new(Schemas.CHARACTER, {"name": "Narrator", "protected": true})._to_dict()
+	)
+
 	define_property(
 		"characters",
-		[],
+		[default_narrator],
 		"list",
 		{
 			"visible_in_graph": false,

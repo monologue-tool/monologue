@@ -53,6 +53,9 @@ static func _create_field_container(
 
 	_bind_field_to_property.call_deferred(field, field_name, item)
 
+	var is_editable: bool = not (field_config.get("protect", false) and item.is_protected())
+	field.set_editable.call_deferred(is_editable)
+
 	return container
 
 
@@ -136,17 +139,22 @@ static func _add_action_buttons(
 ) -> void:
 	if "edit" in actions:
 		_add_button(
-			header, index, list_field, "edit", "Edit item", preload("res://ui/assets/icons/pen.svg")
+			header,
+			index,
+			list_field,
+			"edit",
+			"Edit item",
+			preload("res://ui/assets/icons/pen.svg"),
 		)
 
-	if "duplicate" in actions:
+	if "duplicate" in actions and not item.is_protected():
 		_add_button(
 			header,
 			index,
 			list_field,
 			"duplicate",
 			"Duplicate item",
-			preload("res://ui/assets/icons/copy.png")
+			preload("res://ui/assets/icons/copy.png"),
 		)
 
 	if "delete" in actions and not item.is_protected():
@@ -156,7 +164,7 @@ static func _add_action_buttons(
 			list_field,
 			"delete",
 			"Delete item",
-			preload("res://ui/assets/icons/trash.svg")
+			preload("res://ui/assets/icons/trash.svg"),
 		)
 
 

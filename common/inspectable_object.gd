@@ -117,9 +117,8 @@ func _to_dict() -> Dictionary:
 # Do not trigger undo/redo
 func _from_dict(dict: Dictionary) -> void:
 	dict.erase("$type")
-	for prop_name: String in dict.keys():
-		var property: Property = get_property(prop_name)
-		var property_dict: Dictionary = dict.get(prop_name, {})
+	for property: Property in get_properties():
+		var property_dict: Dictionary = dict.get(property.name, {})
 		property._from_dict(property_dict)
 
 

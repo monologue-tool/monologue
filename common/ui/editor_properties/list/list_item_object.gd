@@ -19,7 +19,7 @@ func _init(
 
 
 func initialize_properties() -> void:
-	var properties_config = _schema.get("properties", {})
+	var properties_config: Dictionary = _schema.get("properties", {})
 
 	for prop_name in properties_config:
 		var prop_config = properties_config[prop_name]
@@ -27,11 +27,11 @@ func initialize_properties() -> void:
 
 
 func _define_property_from_config(prop_name: String, prop_config: Dictionary) -> void:
-	var prop_value = _get_initial_value(prop_name, prop_config)
+	var prop_value: Variant = _get_initial_value(prop_name, prop_config)
 	var prop_type = prop_config.get("type", "text")
 	var category = prop_config.get("category", "General")
 
-	var prop_settings = prop_config.duplicate()
+	var prop_settings: Dictionary = prop_config.duplicate()
 	prop_settings.erase("type")
 	prop_settings.erase("default")
 	prop_settings.erase("category")
@@ -43,7 +43,7 @@ func _get_initial_value(prop_name: String, prop_config: Dictionary) -> Variant:
 	if _initial_data.has(prop_name):
 		return _initial_data[prop_name]
 
-	var default = prop_config.get("default")
+	var default: Variant = prop_config.get("default")
 
 	if default is Callable:
 		return default.call()
@@ -77,7 +77,7 @@ func get_schema() -> Dictionary:
 
 
 func is_protected() -> bool:
-	return _properties.has("protected") and get_property_value("protected")
+	return get_property("protected") and get_property_value("protected")
 
 
 func duplicate_item(command_manager: CommandManager = null) -> ListItemObject:

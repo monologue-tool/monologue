@@ -75,6 +75,7 @@ static var CHARACTER: Dictionary = {
 			"default": NameGenerator.generate,
 			"required": true,
 			"unique": true,
+			"protect": true,
 			"validation": {"min_length": 1},
 		},
 		"display_name":
