@@ -1,15 +1,21 @@
 extends Node
 
+signal storyline_created
+signal storyline_closed
+signal storyline_changed
+
 var _documents: Dictionary = {}
 var _active_document_id: String
-var _observers: Array = []
 
 
-func create_storyline(fname: String = "Unnamed Storyline") -> StorylineDocument:
+func create_storyline(fname: String = "unnamed_storyline") -> StorylineDocument:
 	var doc: StorylineDocument = StorylineDocument.new(fname)
+	doc.is_dirty = true
 	_documents.set(doc.id, doc)
 	set_active_storyline(doc.id)
-	notify_change()
+	storyline_created.emit()
+	if _documents.size() <= 1:
+		storyline_changed.emit()
 	return doc
 
 
@@ -28,7 +34,7 @@ func close_storyline(id: String) -> void:
 			_active_document_id = remaining[0]
 		else:
 			_active_document_id = ""
-	notify_change()
+	storyline_closed.emit()
 
 
 func set_active_storyline(id: String) -> void:
@@ -45,20 +51,3 @@ func get_storyline_ids() -> Array:
 
 func get_active_storyline() -> StorylineDocument:
 	return _documents.get(_active_document_id)
-
-
-func add_observer(object: Object) -> void:
-	if object in _observers:
-		push_warning("Observer is already registered.")
-		return
-
-	_observers.append(object)
-
-
-func notify_change() -> void:
-	for observer: Object in _observers:
-		if not observer.has_method("on_storyline_change"):
-			push_warning("Object doesn't have method 'on_storyline_change'.")
-			continue
-
-		observer.call("on_storyline_change")

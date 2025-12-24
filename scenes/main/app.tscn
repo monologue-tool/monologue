@@ -44,8 +44,8 @@ theme_override_constants/separation = 0
 layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
 
-[node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer/Graph" index="0"]
-theme_override_constants/separation = 4
+[node name="GraphContainer" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer/Graph" index="0" node_paths=PackedStringArray("inspector_panel")]
+inspector_panel = NodePath("../../Inspector")
 
 [node name="Dimmer" type="ColorRect" parent="."]
 visible = false
@@ -83,6 +83,7 @@ access = 2
 use_native_dialog = true
 script = ExtResource("10_r77hi")
 
+[connection signal="gui_input" from="Dimmer" to="Dimmer" method="_on_gui_input"]
 [connection signal="visibility_changed" from="CharacterEditContainer" to="CharacterEditContainer" method="_on_visibility_changed"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 

@@ -1,7 +1,7 @@
 class_name MonologueEditor extends Control
 
 @export var welcome_window: WelcomeWindow
-@export var graph_switcher: GraphEditSwitcher
+@export var graph_container: GraphContainer
 
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var inspector_panel_node: InspectorPanel = %Inspector
@@ -57,19 +57,12 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
 		push_warning("No active storyline available to add node.")
 		return
 
-	var graph_edit: MonologueGraphEdit = graph_switcher.graph_edits.get(storyline.id)
-	if graph_edit == null:
-		graph_switcher.refresh()
-		graph_edit = graph_switcher.graph_edits.get(storyline.id)
-	if graph_edit == null:
-		push_warning("Graph edit not initialized for the active storyline.")
-		return
-
 	var node := storyline.create_node(node_type)
 	if node == null:
 		push_warning("Unable to create node of type '%s'." % node_type)
 		return
 
+	var graph_edit: MonologueGraphEdit = graph_container.graph
 	var target_position := Vector2.ZERO
 	if picker and picker.graph_release is Vector2:
 		target_position = picker.graph_release
@@ -92,12 +85,8 @@ func get_root_dict(node_list: Array) -> Dictionary:
 
 func load_project(path: String, new_graph: bool = false) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
-	if not file or graph_switcher.is_file_opened(path):
+	if not file or graph_container.is_file_opened(path):
 		return
-
-	if new_graph:
-		graph_switcher.new_graph_edit()
-	graph_switcher.current.file_path = path  # set path first before tab creation
 
 	var data = {}
 	var text = file.get_as_text()
@@ -107,53 +96,7 @@ func load_project(path: String, new_graph: bool = false) -> void:
 		save()
 
 	var converter := NodeConverter.new()
-	graph_switcher.current.languages = data.get("Languages", [])  # load language before tab
-	graph_switcher.add_tab(path.get_file())
-	graph_switcher.current.clear()
-	graph_switcher.current.name = path.get_file().trim_suffix(".json")
-
-	# Load characters and variables into storyline properties
 	var storyline = StorylineManager.get_active_storyline()
-	if storyline:
-		var characters_data = converter.convert_characters(data.get("Characters", []))
-		var variables_data = data.get("Variables", [])
-
-		# Convert old character format to new simplified format
-		var simple_characters = []
-		for char in characters_data:
-			if char is Dictionary:
-				var char_name = ""
-				if char.has("Character") and char["Character"] is Dictionary:
-					char_name = char["Character"].get("Name", "")
-				elif char.has("name"):
-					char_name = char.get("name", "")
-
-				if not char_name.is_empty():
-					simple_characters.append({"name": char_name})
-
-		# Convert old variable format to new simplified format if needed
-		var simple_variables = []
-		for variable in variables_data:
-			if variable is Dictionary:
-				var var_name = variable.get("name", variable.get("Name", ""))
-				var var_type = variable.get("type", "String")
-				var var_value = variable.get("value", variable.get("Value", ""))
-				if not var_name.is_empty():
-					simple_variables.append(
-						{"name": var_name, "type": var_type, "value": var_value}
-					)
-
-		storyline.set_property_value("characters", simple_characters)
-		storyline.set_property_value("variables", simple_variables)
-
-	graph_switcher.current.data = data
-
-	var node_list = data.get("ListNodes")
-	_load_nodes(node_list)
-	_connect_nodes(node_list)
-	graph_switcher.add_root()
-	graph_switcher.current.update_node_positions()
-	GlobalSignal.emit("load_successful", [path])
 
 	load_editor_sections()
 
@@ -171,53 +114,20 @@ func save():
 	var storyline = StorylineManager.get_active_storyline()
 	var dict: Dictionary = storyline._to_dict()
 	dict["editor_version"] = ProjectSettings.get_setting("application/config/version")
-	print(JSON.stringify(dict, "\t", true, true))
-	return
-	var data = JSON.stringify(dict, "\t", false, true)
-	if data:
-		var path = graph_switcher.current.file_path
-		var file = FileAccess.open(path, FileAccess.WRITE)
-		file.store_string(data)
-		file.close()
-		graph_switcher.current.update_version()
-		graph_switcher.update_save_state()
-
+	print(JSON.stringify(dict, "\t", false, true))
 	storyline.is_dirty = false
 
 
 func test_project(from_node: Variant = null):
-	if graph_switcher.current.file_path:
-		await save()
-		var window: RunWindow = run_window.instantiate()
-		window.file_path = graph_switcher.current.file_path
-		window.from_node = from_node
-		window.tree_exited.connect(dimmer.hide)
-		get_tree().root.add_child(window)
-		dimmer.show()
-
-
-func _connect_nodes(node_list: Array) -> void:
-	for node in node_list:
-		var current_node = graph_switcher.current.get_node_by_id(node.get("ID", ""))
-		if current_node:
-			current_node._load_connections(node)
-
-
-func _load_nodes(node_list: Array) -> void:
-	var converter = NodeConverter.new()
-	for node in node_list:
-		var data = converter.convert_node(node)
-		var node_type = data.get("$type").trim_prefix("Node")
-		if node_type == "Option":
-			# option data gets sent to the base_options dictionary
-			graph_switcher.current.base_options[data.get("ID")] = data
-		else:
-			var node_scene = Constants.NODE_SCENES.get(node_type)
-			if node_scene:
-				var node_instance = node_scene.instantiate()
-				node_instance.id.value = data.get("ID")
-				graph_switcher.current.add_child(node_instance, true)
-				node_instance._from_dict(data)
+	return
+	#if graph_switcher.current.file_path:
+	#await save()
+	#var window: RunWindow = run_window.instantiate()
+	#window.file_path = graph_switcher.current.file_path
+	#window.from_node = from_node
+	#window.tree_exited.connect(dimmer.hide)
+	#get_tree().root.add_child(window)
+	#dimmer.show()
 
 
 func _notification(what: int) -> void:
@@ -237,3 +147,15 @@ func _on_button_sparkle_pressed() -> void:
 
 func _on_button_settings_pressed() -> void:
 	GlobalSignal.emit("show_current_config")
+
+
+func _on__tabs_add_document() -> void:
+	welcome_window.show()
+
+
+func _on_dimmer_focus_entered() -> void:
+	pass  # Replace with function body.
+
+
+func _on_dimmer_gui_input(event: InputEvent) -> void:
+	pass  # Replace with function body.

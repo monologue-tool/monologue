@@ -561,7 +561,7 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_stylebox("tab_hovered", "TabBar", tab_unselected.duplicate())
 	theme.set_stylebox("tab_selected", "TabBar", tab_selected)
 	theme.set_stylebox("tab_disabled", "TabBar", tab_unselected.duplicate())
-	theme.set_stylebox("tab_focus", "TabBar", tab_unselected.duplicate())
+	theme.set_stylebox("tab_focus", "TabBar", tab_selected.duplicate())
 
 	# EditorSection (TabContainer variation)
 	theme.set_type_variation("EditorSection", "TabContainer")

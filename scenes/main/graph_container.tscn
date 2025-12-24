@@ -1,24 +1,24 @@
-[gd_scene load_steps=4 format=3 uid="uid://cvjfcgqktlyc2"]
+[gd_scene load_steps=4 format=3 uid="uid://51mo3wv8gb1o"]
 
-[ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_edit_switcher.gd" id="1_fvn0a"]
-[ext_resource type="Texture2D" uid="uid://c7vdr4e0mxst6" path="res://ui/assets/icons/close_icon.png" id="2_k726l"]
-[ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/layouts/graph_edit/monologue_graph_edit.tscn" id="3_o6be6"]
+[ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_container.gd" id="1_5dl3l"]
+[ext_resource type="Texture2D" uid="uid://c7vdr4e0mxst6" path="res://ui/assets/icons/close_icon.png" id="2_5pcvw"]
+[ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/layouts/graph_edit/monologue_graph_edit.tscn" id="3_jrlr1"]
 
-[node name="GraphEditSwitcher" type="VBoxContainer"]
+[node name="GraphEditContainer" type="VBoxContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("1_fvn0a")
+script = ExtResource("1_5dl3l")
 
 [node name="TabBar" type="TabBar" parent="."]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
-theme_override_icons/close = ExtResource("2_k726l")
+theme_override_icons/close = ExtResource("2_5pcvw")
 current_tab = 0
 clip_tabs = false
 tab_close_display_policy = 1
@@ -30,9 +30,8 @@ layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="Default" parent="GraphEdits" instance=ExtResource("3_o6be6")]
+[node name="Default" parent="GraphEdits" instance=ExtResource("3_jrlr1")]
 layout_mode = 1
-scroll_offset = Vector2(0, -4)
 
 [node name="TabContainer" type="TabContainer" parent="."]
 layout_mode = 2
