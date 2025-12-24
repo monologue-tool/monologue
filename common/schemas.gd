@@ -125,7 +125,7 @@ static var PORTRAIT: Dictionary = {
 		"name":
 		{
 			"type": "text",
-			"default": "",
+			"default": "new portrait",
 			"required": true,
 			"unique": true,
 		},
@@ -196,7 +196,7 @@ static var ITEM: Dictionary = {
 		"name":
 		{
 			"type": "text",
-			"default": "",
+			"default": "new item",
 			"required": true,
 			"unique": true,
 		},
@@ -230,7 +230,7 @@ static var LOCATION: Dictionary = {
 		"name":
 		{
 			"type": "text",
-			"default": "",
+			"default": "new location",
 			"required": true,
 			"unique": true,
 		},

@@ -84,13 +84,16 @@ func _on_search_line_text_changed(new_text: String) -> void:
 		return
 
 	var search_keys: Array[String] = ["name", "display_name", "nicknames", "description"]
-	var item_list: Array = _list_field.get_value()
+	var item_list: Array = _list_field._list_items
 
-	for item: Dictionary in item_list:
+	for item: ListItemObject in item_list:
 		var hide_item: bool = true
 		var item_idx: int = item_list.find(item)
-		for prop: String in item.keys().filter(func(k): return k in search_keys):
-			var value: Variant = item[prop]
+		for prop: Property in item.get_properties():
+			if not prop.name in search_keys:
+				continue
+
+			var value: Variant = prop.get_value()
 			if value is not String:
 				continue
 

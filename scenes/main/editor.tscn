@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_pwbil"]
 [ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="5_4jbkx"]
 [ext_resource type="Script" uid="uid://cylirj261q6ru" path="res://addons/dockable_container/layout.gd" id="5_svwnc"]
+[ext_resource type="Script" uid="uid://cpi3ixjp3ye17" path="res://scenes/main/tab_bar.gd" id="6_2cy6n"]
 [ext_resource type="PackedScene" uid="uid://mfdu320oy6ex" path="res://common/layouts/editor/editor_list_section.tscn" id="6_mei7o"]
 [ext_resource type="PackedScene" uid="uid://c8525nhvwt1y0" path="res://common/layouts/editor/graph.tscn" id="9_qd5yd"]
 [ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/layouts/editor/inspector/inspector_panel.tscn" id="14_craj7"]
@@ -64,13 +65,6 @@ root = SubResource("Resource_e6y6g")
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sr1k3"]
 
-[sub_resource type="GDScript" id="GDScript_sr1k3"]
-script/source = "extends PanelContainer
-
-@warning_ignore(\"unused_private_class_variable\")
-var _static_container: bool = true
-"
-
 [node name="MonologueEditor" type="Control" node_paths=PackedStringArray("graph_switcher")]
 clip_contents = true
 layout_mode = 3
@@ -102,7 +96,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_sr1k3")
-script = SubResource("GDScript_sr1k3")
+script = ExtResource("6_2cy6n")
 
 [node name="TabBar" type="HBoxContainer" parent="DockableContainer/_Tabs"]
 custom_minimum_size = Vector2(0, 30)
@@ -118,6 +112,7 @@ expand_icon = true
 script = ExtResource("4_pwbil")
 
 [node name="VSeparator" type="VSeparator" parent="DockableContainer/_Tabs/TabBar"]
+visible = false
 layout_mode = 2
 theme_type_variation = &"VSeparatorGrow"
 

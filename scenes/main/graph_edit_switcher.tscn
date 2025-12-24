@@ -32,6 +32,10 @@ mouse_filter = 2
 
 [node name="Default" parent="GraphEdits" instance=ExtResource("3_o6be6")]
 layout_mode = 1
+scroll_offset = Vector2(0, -4)
+
+[node name="TabContainer" type="TabContainer" parent="."]
+layout_mode = 2
 
 [connection signal="tab_changed" from="TabBar" to="." method="_on_tab_changed"]
 [connection signal="tab_close_pressed" from="TabBar" to="." method="on_tab_close_pressed"]

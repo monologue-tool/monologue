@@ -44,7 +44,6 @@ func _input(event):
 		if focus_owner:
 			focus_owner.release_focus()
 		StorylineManager.get_active_storyline().history.undo()
-		#focus_owner.grab_focus()
 
 	if event.is_action_pressed("ui_redo"):
 		StorylineManager.get_active_storyline().history.redo()

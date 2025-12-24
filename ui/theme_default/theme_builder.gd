@@ -544,6 +544,17 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_color("font_selected_color", "TabBar", settings.text)
 	theme.set_constant("h_separation", "TabBar", styles.base_spacing)
 	#theme.set_font_size("font_size", "TabBar", 16)
+	theme.set_icon("close", "TabBar", preload("res://ui/assets/icons/ui_close.svg"))
+	theme.set_icon("menu", "TabBar", preload("res://ui/assets/icons/vertical_dots.svg"))
+	theme.set_icon("menu_highlight", "TabBar", preload("res://ui/assets/icons/vertical_dots.svg"))
+	theme.set_icon("increment", "TabContainer", preload("res://ui/assets/icons/arrow_right.svg"))
+	theme.set_icon(
+		"increment_highlight", "TabContainer", preload("res://ui/assets/icons/arrow_right.svg")
+	)
+	theme.set_icon("decrement", "TabContainer", preload("res://ui/assets/icons/arrow_left.svg"))
+	theme.set_icon(
+		"decrement_highlight", "TabContainer", preload("res://ui/assets/icons/arrow_left.svg")
+	)
 	theme.set_stylebox("button_highlight", "TabBar", StyleBoxEmpty.new())
 	theme.set_stylebox("button_pressed", "TabBar", StyleBoxEmpty.new())
 	theme.set_stylebox("tab_unselected", "TabBar", tab_unselected)
@@ -558,6 +569,21 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	var section_focus := section_unfocus.duplicate()
 	section_focus.border_color = settings.border
 	#section_focus.border_color = settings.accent
+
+	theme.set_icon(
+		"menu", "TabContainer", preload("res://ui/assets/icons/vertical_dots_unfocus.svg")
+	)
+	theme.set_icon(
+		"menu_highlight", "TabContainer", preload("res://ui/assets/icons/vertical_dots.svg")
+	)
+	theme.set_icon("increment", "TabContainer", preload("res://ui/assets/icons/arrow_right.svg"))
+	theme.set_icon(
+		"increment_highlight", "TabContainer", preload("res://ui/assets/icons/arrow_right.svg")
+	)
+	theme.set_icon("decrement", "TabContainer", preload("res://ui/assets/icons/arrow_left.svg"))
+	theme.set_icon(
+		"decrement_highlight", "TabContainer", preload("res://ui/assets/icons/arrow_left.svg")
+	)
 
 	theme.set_stylebox("panel_unfocus", "EditorSection", section_unfocus)
 	theme.set_stylebox("panel_focus", "EditorSection", section_focus)
