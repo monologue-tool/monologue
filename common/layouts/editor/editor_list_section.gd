@@ -53,20 +53,11 @@ func _on_add_button_pressed() -> void:
 		if prop_config.get("default") is Callable:
 			item_initial_data[prop_name] = item_initial_data[prop_name].call()
 
-		if prop_config.get("unique", false):
-			var existing_values: Array = []
-			var item_list: Array = _list_field.get_value()
-			for item: Dictionary in item_list:
-				if item.has(prop_name):
-					existing_values.append(item.get(prop_name))
-
-			item_initial_data[prop_name] = _make_unique(
-				item_initial_data[prop_name], existing_values
-			)
-
 	var item_object = ListItemObject.new(
 		data_schema, item_initial_data, _list_field._command_manager, schema_properties
 	)
+	item_object.list_field = _list_field
+	item_object.make_all_values_unique()
 
 	var new_item_list: Array = _property.get_value().duplicate(true)
 	new_item_list.append(item_object._to_dict())

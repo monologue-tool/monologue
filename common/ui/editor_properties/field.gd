@@ -41,14 +41,17 @@ func emit_value_committed(value: Variant) -> void:
 	if settings.get("unique"):
 		var field_owner: InspectableObject = _binding.owner
 		var property_name: String = _binding.property.name
+		var property_value: Variant = _binding.property.get_value()
 
 		if field_owner is ListItemObject:
 			var list_field: ListField = field_owner.list_field
 
 			for item: ListItemObject in list_field._list_items:
 				var property: Property = item.get_property(property_name)
+				if property_value == property.get_value():
+					continue
 				if property and property.get_value() == value:
-					set_value(property.get_value())
+					set_value(property_value)
 					return
 
 	value_committed.emit(value)

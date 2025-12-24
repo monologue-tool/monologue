@@ -47,12 +47,6 @@ welcome_window = NodePath("../../../WelcomeWindow")
 [node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer/Graph" index="0"]
 theme_override_constants/separation = 4
 
-[node name="Characters" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer" index="4"]
-visible = false
-
-[node name="Variables" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer" index="5"]
-visible = true
-
 [node name="Dimmer" type="ColorRect" parent="."]
 visible = false
 z_index = 2

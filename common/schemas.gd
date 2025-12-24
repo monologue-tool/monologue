@@ -221,29 +221,36 @@ static var ITEM: Dictionary = {
 	}
 }
 
-
-static func validate(data: Dictionary, schema: Dictionary) -> Dictionary:
-	var errors: Array = []
-	var properties = schema.get("properties", {})
-
-	for prop_name in properties:
-		var prop_config = properties[prop_name]
-		var value = data.get(prop_name)
-
-		if prop_config.get("required", false):
-			if value == null or (value is String and value.is_empty()):
-				errors.append("%s is required" % prop_name)
-
-		if prop_config.has("validation"):
-			var validation = prop_config["validation"]
-			if validation.has("pattern") and value is String:
-				var regex = RegEx.new()
-				regex.compile(validation["pattern"])
-				if not regex.search(value):
-					errors.append("%s format is invalid" % prop_name)
-
-			if validation.has("min_length") and value is String:
-				if value.length() < validation["min_length"]:
-					errors.append("%s is too short" % prop_name)
-
-	return {"valid": errors.is_empty(), "errors": errors}
+# TODO: Location backgrounds with variants
+static var LOCATION: Dictionary = {
+	"title": "Portrait",
+	"type": "object",
+	"properties":
+	{
+		"name":
+		{
+			"type": "text",
+			"default": "",
+			"required": true,
+			"unique": true,
+		},
+		"description":
+		{
+			"type": "textarea",
+			"default": "",
+			"rows": 4,
+		},
+	},
+	"layouts":
+	{
+		"default":
+		{
+			"fields": ["name", "description"],
+		},
+		"list_item":
+		{
+			"fields": ["name", "description"],
+			"actions": ["edit", "delete"],
+		}
+	}
+}

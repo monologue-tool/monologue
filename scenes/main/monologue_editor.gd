@@ -7,9 +7,11 @@ class_name MonologueEditor extends Control
 @onready var inspector_panel_node: InspectorPanel = %Inspector
 @onready var run_window := preload("res://scenes/run/run_window.tscn")
 @onready var dimmer := $"../../../Dimmer"
+
 @onready var characters_section := %Characters
 @onready var variables_section := %Variables
 @onready var items_section := %Items
+@onready var locations_section := %Locations
 
 
 func _ready():
@@ -163,6 +165,7 @@ func load_editor_sections() -> void:
 		characters_section.load_items(storyline.get_property("characters"), storyline)
 		variables_section.load_items(storyline.get_property("variables"), storyline)
 		items_section.load_items(storyline.get_property("items"), storyline)
+		locations_section.load_items(storyline.get_property("locations"), storyline)
 
 
 func save():

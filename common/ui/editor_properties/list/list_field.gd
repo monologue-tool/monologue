@@ -28,10 +28,11 @@ func set_value(value: Variant) -> void:
 	_list_items.clear()
 	for property_data: Dictionary in value:
 		var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager)
-		new_item._from_dict(property_data)
 		new_item.list_field = self
+		new_item._from_dict(property_data)
 		_connect_item_observer(new_item)
 		_list_items.append(new_item)
+
 	_rebuild_ui()
 
 
@@ -47,7 +48,6 @@ func _on_item_changed(_item: ListItemObject, prop_name: String) -> void:
 
 
 func get_value() -> Variant:
-	# Return a deep copy of the raw data store
 	var result: Array = []
 	for item: ListItemObject in _list_items:
 		result.append(item._to_dict())
@@ -161,18 +161,10 @@ func _on_duplicate_item(index: int) -> void:
 		return
 	# Duplicate from the raw store to avoid any editor wrappers
 	var item_data: Dictionary = _list_items[index]._to_dict()
-	var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager)
-	new_item._from_dict(item_data)
+	var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager, {})
 	new_item.list_field = self
+	new_item._from_dict(item_data)
 	_connect_item_observer(new_item)
-	# Apply common duplication tweaks
-	var name_prop: Property = new_item.get_property("name")
-	if name_prop:
-		name_prop.set_value(name_prop.get_value() + " (Copy)")
-	var schema_props: Dictionary = _data_schema.get("properties", {})
-	if schema_props.has("id") and schema_props["id"].get("default") is Callable:
-		var id_gen: Callable = schema_props["id"]["default"]
-		new_item.get_property("id").set_value(id_gen.call())
 	_list_items.insert(index + 1, new_item)
 	_rebuild_ui()
 	_emit_snapshot()
@@ -222,39 +214,3 @@ func can_undo() -> bool:
 
 func can_redo() -> bool:
 	return _command_manager and _command_manager.can_redo()
-
-
-func validate() -> Dictionary:
-	var all_errors: Array = []
-
-	_validate_items(all_errors)
-	_validate_item_count(all_errors)
-
-	return {"valid": all_errors.is_empty(), "errors": all_errors}
-
-
-func _validate_items(errors: Array) -> void:
-	for i in range(_list_items.size()):
-		var item = _list_items[i]
-		_validate_single_item(item, i, errors)
-
-
-func _validate_single_item(item: ListItemObject, index: int, errors: Array) -> void:
-	var item_dict = item.to_dictionary()
-	item_dict.erase("$type")
-	var validation_result = Schemas.validate(item_dict, _data_schema)
-
-	if not validation_result["valid"]:
-		for error in validation_result["errors"]:
-			errors.append("Item %d: %s" % [index + 1, error])
-
-
-func _validate_item_count(errors: Array) -> void:
-	var min_items = _data_schema.get("minItems", 0)
-	if _list_items.size() < min_items:
-		errors.append("At least %d items required" % min_items)
-
-	if _data_schema.has("maxItems"):
-		var max_items = _data_schema["maxItems"]
-		if _list_items.size() > max_items:
-			errors.append("Maximum %d items allowed" % max_items)

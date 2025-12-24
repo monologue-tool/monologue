@@ -78,6 +78,19 @@ func initialize_properties() -> void:
 		}
 	)
 
+	define_property(
+		"locations",
+		[],
+		"list",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"editable": true,
+			"data_schema": Schemas.LOCATION,
+			"layout": "list_item"
+		}
+	)
+
 
 func get_type() -> String:
 	return "storyline"
