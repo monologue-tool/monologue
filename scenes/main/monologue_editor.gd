@@ -1,12 +1,16 @@
 class_name MonologueEditor extends Control
 
+const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
+
 @export var welcome_window: WelcomeWindow
 @export var graph_container: GraphContainer
+@export var file_dialog: GlobalFileDialog
 
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var inspector_panel_node: InspectorPanel = %Inspector
 @onready var run_window := preload("res://scenes/run/run_window.tscn")
 @onready var dimmer := $"../../../Dimmer"
+@onready var document_tab_manager: DocumentTabManager = %_Tabs
 
 @onready var characters_section := %Characters
 @onready var variables_section := %Variables
@@ -73,7 +77,8 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
 	if position_property:
 		position_property.set_value(target_position)
 
-	graph_edit.add_graph_node_view(node)
+	var command: AddNodesCommand = AddNodesCommand.new(storyline.id, [node])
+	storyline.history.execute(command)
 
 
 func get_root_dict(node_list: Array) -> Dictionary:
@@ -112,13 +117,32 @@ func load_editor_sections() -> void:
 
 func save():
 	var storyline = StorylineManager.get_active_storyline()
+	if storyline.file_path.is_empty():
+		file_dialog.save_file(save_file_logic, STORYLINE_EXTENSIONS)
+		return
+	save_file_logic(storyline.file_path)
+
+
+func save_file_logic(path: String) -> void:
+	var storyline = StorylineManager.get_active_storyline()
 	var dict: Dictionary = storyline._to_dict()
 	dict["editor_version"] = ProjectSettings.get_setting("application/config/version")
-	print(JSON.stringify(dict, "\t", false, true))
+	var storyline_data: String = JSON.stringify(dict, "\t", false, true)
+
+	if path.get_extension().is_empty():
+		path = path.trim_suffix(".")
+		path = "%s.mnlg" % path
+
+	var access: FileAccess = FileAccess.open(path, FileAccess.WRITE_READ)
+	access.store_string(storyline_data)
+
+	storyline.file_path = path
+	storyline.name = path.get_file()
 	storyline.is_dirty = false
+	storyline.content_changed.emit()
 
 
-func test_project(from_node: Variant = null):
+func test_project(_from_node: Variant = null):
 	return
 	#if graph_switcher.current.file_path:
 	#await save()
@@ -151,11 +175,3 @@ func _on_button_settings_pressed() -> void:
 
 func _on__tabs_add_document() -> void:
 	welcome_window.show()
-
-
-func _on_dimmer_focus_entered() -> void:
-	pass  # Replace with function body.
-
-
-func _on_dimmer_gui_input(event: InputEvent) -> void:
-	pass  # Replace with function body.

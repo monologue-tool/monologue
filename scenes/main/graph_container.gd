@@ -14,10 +14,16 @@ var _is_applying_selection: bool = false
 func _ready() -> void:
 	GlobalSignal.add_listener("request_node_inspection", _on_request_node_inspection)
 	StorylineManager.storyline_changed.connect(refresh)
+	StorylineManager.storyline_switched.connect(_on_storyline_switched)
 
 
 func refresh() -> void:
-	graph.storyline_id = StorylineManager.get_active_storyline().id
+	pass
+
+
+func _on_storyline_switched() -> void:
+	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
+	graph.storyline_id = storyline.id
 	graph.refresh()
 
 

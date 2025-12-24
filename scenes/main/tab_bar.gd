@@ -1,4 +1,4 @@
-extends PanelContainer
+class_name DocumentTabManager extends PanelContainer
 
 signal add_document
 
@@ -12,6 +12,7 @@ var _reloading_ui: bool = false
 
 
 func _ready() -> void:
+	StorylineManager.storyline_changed.connect(_on_storyline_changed)
 	StorylineManager.storyline_created.connect(_on_storyline_created)
 
 
@@ -40,6 +41,10 @@ func _on_storyline_created() -> void:
 	_reload_ui()
 
 
+func _on_storyline_changed() -> void:
+	_reload_ui()
+
+
 func _on_tab_bar_tab_changed(tab: int) -> void:
 	if tab >= tab_bar.tab_count - 1:
 		tab_bar.current_tab = _last_opened_tab
@@ -47,5 +52,8 @@ func _on_tab_bar_tab_changed(tab: int) -> void:
 			return
 		add_document.emit()
 		return
+
+	if tab_bar.current_tab != _last_opened_tab:
+		StorylineManager.storyline_switched.emit()
 
 	_last_opened_tab = tab_bar.current_tab

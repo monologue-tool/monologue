@@ -10,10 +10,13 @@ var _is_applying_position: bool = false
 
 func _ready() -> void:
 	super._ready()
+	StorylineManager.storyline_switched.connect(_on_storyline_switched)
 
 
 func refresh() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	if not storyline:
+		return
 
 	# Initialize connection manager if not already done
 	if not connection_manager:
@@ -61,7 +64,8 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 	# Add to scene and set initial position
 	add_child(graph_node)
-	node.add_observer(_on_inspectable_node_property_changed)
+	if not _on_inspectable_node_property_changed in node._observers:
+		node.add_observer(_on_inspectable_node_property_changed)
 
 	# Apply initial position from property
 	_sync_position_from_property(node)
@@ -117,12 +121,6 @@ func _on_node_deselected(_graph_node: Node) -> void:
 func _on_connection_request(
 	from_node: StringName, from_port: int, to_node: StringName, to_port: int
 ) -> void:
-	#if (
-	#_has_connection_at_slot(from_node, from_port, true)
-	#or _has_connection_at_slot(to_node, to_port, false)
-	#):
-	#return
-
 	var from_graph_node: GraphNode = get_node(from_node as String)
 	var to_graph_node: GraphNode = get_node(to_node as String)
 	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
@@ -316,3 +314,39 @@ func _on_disconnection_request(
 		self, String(from_node), String(to_node), from_property_name, to_property_name, true
 	)
 	storyline.history.execute(command)
+
+
+func _on_storyline_switched() -> void:
+	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
+	if not storyline.node_added.is_connected(refresh):
+		storyline.node_added.connect(refresh)
+	if not storyline.node_removed.is_connected(refresh):
+		storyline.node_removed.connect(refresh)
+
+	refresh()
+
+
+func _on_copy_nodes_request() -> void:
+	pass  # Replace with function body.
+
+
+func _on_paste_nodes_request() -> void:
+	pass  # Replace with function body.
+
+
+func _on_cut_nodes_request() -> void:
+	pass  # Replace with function body.
+
+
+func _on_delete_nodes_request(graph_nodes: Array[StringName]) -> void:
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var nodes: Array[InspectableNode] = []
+	for node_name: StringName in graph_nodes:
+		var graph_node: GraphNode = get_node("%s" % node_name)
+		var node: InspectableNode = _node_map.get(graph_node)
+		nodes.append(node)
+
+	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline_id, nodes)
+	storyline.history.execute(command)
+
+	refresh()

@@ -8,7 +8,7 @@ signal redone
 signal history_changed
 
 
-func _init(max_history: int = 100) -> void:
+func _init(max_history: int = 200) -> void:
 	undo_redo = UndoRedo.new()
 	undo_redo.max_steps = max_history
 	undo_redo.version_changed.connect(_on_version_changed)

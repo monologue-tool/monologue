@@ -1,5 +1,7 @@
 class_name StorylineDocument extends InspectableStorylineObject
 
+signal node_added
+signal node_removed
 signal content_changed
 signal undo_redo_changed
 
@@ -26,6 +28,15 @@ func _init(sname: String, sfile_path: String = "") -> void:
 
 func add_node(node: InspectableNode) -> void:
 	_register_node(node)
+
+
+func remove_node(node: InspectableNode) -> void:
+	if not node in nodes:
+		push_warning("Can't remove node %s " % node.id)
+		return
+
+	nodes.erase(node)
+	node_removed.emit()
 
 
 func create_node(node_type: String) -> InspectableNode:
@@ -134,16 +145,17 @@ func _create_default_nodes() -> void:
 
 
 func _register_node(node: InspectableNode) -> void:
-	if node == null:
+	if not node:
 		return
-	if node not in nodes:
+	if not node in nodes:
 		nodes.append(node)
 	node.storyline_id = id
 	node.add_observer(_on_node_property_changed)
-	is_dirty = true
+	node_added.emit()
 
 
 func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
+	# Maybe useless
 	is_dirty = true
 
 

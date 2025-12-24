@@ -90,6 +90,7 @@ layout = SubResource("Resource_jojum")
 metadata/_custom_type_script = "uid://k2o7qui1lr6l"
 
 [node name="_Tabs" type="PanelContainer" parent="DockableContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0

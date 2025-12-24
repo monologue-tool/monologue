@@ -40,9 +40,11 @@ theme_type_variation = &"EditorBackground"
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="MonologueEditor" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window") instance=ExtResource("1_kiov6")]
+[node name="MonologueEditor" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "graph_container", "file_dialog") instance=ExtResource("1_kiov6")]
 layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
+graph_container = NodePath("DockableContainer/Graph/GraphContainer")
+file_dialog = NodePath("../../../FileDialog")
 
 [node name="GraphContainer" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer/Graph" index="0" node_paths=PackedStringArray("inspector_panel")]
 inspector_panel = NodePath("../../Inspector")
