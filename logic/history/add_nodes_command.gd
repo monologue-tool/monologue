@@ -1,12 +1,12 @@
 class_name AddNodesCommand extends Command
 
 var storyline_id: String
-var nodes: Array[InspectableNode] = []
+var nodes: Array = []
 
 
 func _init(
 	p_storyline_id: String,
-	p_nodes: Array[InspectableNode],
+	p_nodes: Array,
 ) -> void:
 	storyline_id = p_storyline_id
 	nodes = p_nodes

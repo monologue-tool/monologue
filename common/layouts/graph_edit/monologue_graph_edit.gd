@@ -4,6 +4,8 @@ signal node_view_selected(node: InspectableNode)
 var storyline_id: String
 var connection_manager: ConnectionManager
 var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
+var _selected_nodes: Dictionary = {}
+var _copied_nodes: Array = []
 var _pending_positions: Dictionary = {}  # GraphNode -> Vector2 captured during drag
 var _is_applying_position: bool = false
 
@@ -109,13 +111,14 @@ func _on_graph_node_position_changed(graph_node: GraphNode) -> void:
 
 
 func _on_node_selected(graph_node: Node) -> void:
+	_selected_nodes[graph_node] = true
 	var node: InspectableNode = _node_map.get(graph_node)
 	if node:
 		node_view_selected.emit(node)
 
 
-func _on_node_deselected(_graph_node: Node) -> void:
-	pass
+func _on_node_deselected(graph_node: Node) -> void:
+	_selected_nodes[graph_node] = false
 
 
 func _on_connection_request(
@@ -327,15 +330,39 @@ func _on_storyline_switched() -> void:
 
 
 func _on_copy_nodes_request() -> void:
-	pass  # Replace with function body.
+	if _selected_nodes.size() <= 0:
+		return
+	_copied_nodes.clear()
+
+	for node in get_children():
+		if node is GraphNode and _selected_nodes.get(node, false):
+			var duplicated: InspectableNode = _node_map.get(node).duplicate(true)
+			_copied_nodes.append(duplicated)
 
 
 func _on_paste_nodes_request() -> void:
-	pass  # Replace with function body.
+	# TODO: Move nodes based on the cursor position
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var command: AddNodesCommand = AddNodesCommand.new(storyline_id, _copied_nodes)
+	storyline.history.execute(command)
 
 
 func _on_cut_nodes_request() -> void:
-	pass  # Replace with function body.
+	if _selected_nodes.size() <= 0:
+		return
+	_copied_nodes.clear()
+
+	var nodes_to_delete: Array[InspectableNode] = []
+
+	for node in get_children():
+		if node is GraphNode and _selected_nodes.get(node, false):
+			var duplicated: InspectableNode = _node_map.get(node).duplicate(true)
+			_copied_nodes.append(duplicated)
+			nodes_to_delete.append(_node_map.get(node))
+
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline_id, nodes_to_delete)
+	storyline.history.execute(command)
 
 
 func _on_delete_nodes_request(graph_nodes: Array[StringName]) -> void:

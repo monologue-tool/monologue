@@ -1,5 +1,5 @@
 @abstract
-class_name InspectableObject extends RefCounted
+class_name InspectableObject extends Resource
 
 var _properties: Dictionary[String, Property] = {}
 var _observers: Array[Callable] = []
@@ -128,6 +128,19 @@ func get_settings() -> Dictionary:
 
 func rebuild_preview() -> void:
 	pass
+
+
+@warning_ignore("native_method_override")
+func duplicate(deep: bool = false) -> Resource:
+	var duplicated: InspectableNode = super.duplicate(deep)
+	duplicated.history = history
+	duplicated.settings = settings
+
+	for property: Property in get_properties():
+		var d_prop: Property = duplicated.get_property(property.name)
+		d_prop.value = property.get_value()
+
+	return duplicated
 
 
 @abstract func get_type() -> String

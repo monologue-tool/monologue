@@ -1,6 +1,8 @@
 @abstract
 class_name InspectableNode extends InspectableObject
 
+const ID_LENGTH: int = 6
+
 var graph_view: GraphNode
 var storyline_id: String = ""
 var _main_property_defined: bool = false
@@ -21,7 +23,7 @@ func _init(command_manager: CommandManager = null) -> void:
 	)
 	define_property(
 		"id",
-		IDGen.generate(6),
+		IDGen.generate(ID_LENGTH),
 		"text",
 		{
 			"visible_in_graph": false,
@@ -149,6 +151,15 @@ func _on_id_value_changed(old_value: Variant, new_value: Variant) -> void:
 		if gv_parent and gv_parent is MonologueGraphEdit:
 			gv_parent.clear_connections()
 			gv_parent._reconnect_all_slots()
+
+
+@warning_ignore("native_method_override")
+func duplicate(deep: bool = false) -> Resource:
+	var duplicated: InspectableNode = super.duplicate(deep)
+	duplicated.get_property("id").value = IDGen.generate(ID_LENGTH)
+	duplicated.get_property("position").value += Vector2(30, 30)
+
+	return duplicated
 
 
 @abstract func get_color() -> Color
