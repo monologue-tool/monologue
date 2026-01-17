@@ -153,17 +153,17 @@ func _has_variant_dependency(prop_config: Dictionary, field_name: String) -> boo
 
 
 func _on_edit_item(index: int) -> void:
-	pass
+	print("edit item %s" % index)
 
 
 func _on_duplicate_item(index: int) -> void:
 	if not _is_valid_index(index):
 		return
-	# Duplicate from the raw store to avoid any editor wrappers
 	var item_data: Dictionary = _list_items[index]._to_dict()
 	var new_item: ListItemObject = ListItemObject.new(_data_schema, {}, _command_manager, {})
 	new_item.list_field = self
 	new_item._from_dict(item_data)
+	new_item.make_all_values_unique()
 	_connect_item_observer(new_item)
 	_list_items.insert(index + 1, new_item)
 	_rebuild_ui()

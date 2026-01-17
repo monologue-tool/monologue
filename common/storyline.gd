@@ -45,6 +45,13 @@ func create_node(node_type: String) -> InspectableNode:
 	return node
 
 
+func get_node(node_id: String) -> InspectableNode:
+	for node: InspectableNode in nodes:
+		if node.get_property_value("id") == node_id:
+			return node
+	return null
+
+
 func initialize_properties() -> void:
 	var default_narrator: Dictionary = (
 		ListItemObject.new(Schemas.CHARACTER, {"name": "Narrator", "protected": true})._to_dict()

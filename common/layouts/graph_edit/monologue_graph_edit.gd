@@ -122,10 +122,12 @@ func _on_node_deselected(graph_node: Node) -> void:
 
 
 func _on_connection_request(
-	from_node: StringName, from_port: int, to_node: StringName, to_port: int
+	from_view_name: StringName, from_port: int, to_view_name: StringName, to_port: int
 ) -> void:
-	var from_graph_node: GraphNode = get_node(from_node as String)
-	var to_graph_node: GraphNode = get_node(to_node as String)
+	var from_node: InspectableNode = get_node_from_view_name(from_view_name)
+	var to_node: InspectableNode = get_node_from_view_name(to_view_name)
+	var from_graph_node: GraphNode = get_node(from_view_name as String)
+	var to_graph_node: GraphNode = get_node(to_view_name as String)
 	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
 	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
 
@@ -133,8 +135,8 @@ func _on_connection_request(
 		return
 
 	# Get property names at the port indices
-	var from_property_name = get_property_name_at_port(String(from_node), from_port, true)
-	var to_property_name = get_property_name_at_port(String(to_node), to_port, false)
+	var from_property_name = get_property_name_at_port(String(from_view_name), from_port, true)
+	var to_property_name = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():
 		push_warning("Cannot create connection: property not found at port")
@@ -142,7 +144,11 @@ func _on_connection_request(
 
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
-		self, String(from_node), String(to_node), from_property_name, to_property_name
+		self,
+		from_node.get_property_value("id"),
+		to_node.get_property_value("id"),
+		from_property_name,
+		to_property_name
 	)
 	storyline.history.execute(command)
 
@@ -170,6 +176,7 @@ func _reconnect_all_slots() -> void:
 	if not connection_manager:
 		return
 
+	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var all_connections = connection_manager.get_all_connections()
 
 	for conn in all_connections:
@@ -178,13 +185,18 @@ func _reconnect_all_slots() -> void:
 		var to_node_id = conn["to_node_id"]
 		var to_property = conn["to_property"]
 
+		var from_node: InspectableNode = storyline.get_node(from_node_id)
+		var to_node: InspectableNode = storyline.get_node(to_node_id)
+		var from_view_name: String = from_node.graph_view.name
+		var to_view_name: String = to_node.graph_view.name
+
 		# Get port indices for the properties
-		var from_port = get_port_index_for_property(from_node_id, from_property)
-		var to_port = get_port_index_for_property(to_node_id, to_property)
+		var from_port = get_port_index_for_property(from_view_name, from_property)
+		var to_port = get_port_index_for_property(to_view_name, to_property)
 
 		# Only connect if both ports are valid
 		if from_port >= 0 and to_port >= 0:
-			connect_node(from_node_id, from_port, to_node_id, to_port)
+			connect_node(from_view_name, from_port, to_view_name, to_port)
 
 
 ## Get visible properties in the same order as displayed in graph
@@ -228,25 +240,33 @@ func get_port_index_for_property(node_name: String, property_name: String) -> in
 	return -1
 
 
-## Get property name at a specific port index
-func get_property_name_at_port(node_name: String, port_index: int, is_output: bool) -> String:
+func get_node_from_view_name(graph_view_name: String) -> InspectableNode:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 
 	for node: InspectableNode in storyline.nodes:
-		if node.graph_view.name == node_name:
-			var count := 0
-			for prop: Property in node.get_properties():
-				var has_port: bool = (
-					prop.get_settings_value("export", false)
-					if is_output
-					else prop.get_settings_value("exposed", false)
-				)
-				if not has_port:
-					continue
-				if count == port_index:
-					return prop.name
-				count += 1
+		if node.graph_view.name == graph_view_name:
+			return node
+	return null
 
+
+## Get property name at a specific port index
+func get_property_name_at_port(node_name: String, port_index: int, is_output: bool) -> String:
+	var node: InspectableNode = get_node_from_view_name(node_name)
+	if not node:
+		return ""
+
+	var count := 0
+	for prop: Property in node.get_properties():
+		var has_port: bool = (
+			prop.get_settings_value("export", false)
+			if is_output
+			else prop.get_settings_value("exposed", false)
+		)
+		if not has_port:
+			continue
+		if count == port_index:
+			return prop.name
+		count += 1
 	return ""
 
 
@@ -290,14 +310,16 @@ func _on_end_node_move() -> void:
 
 
 func _on_disconnection_request(
-	from_node: StringName, from_port: int, to_node: StringName, to_port: int
+	from_view_name: StringName, from_port: int, to_view_name: StringName, to_port: int
 ) -> void:
 	if not connection_manager:
 		return
 
-	connection_manager.unregister_connection(from_node, from_port, to_node, to_port)
-	var from_graph_node: GraphNode = get_node(from_node as String)
-	var to_graph_node: GraphNode = get_node(to_node as String)
+	connection_manager.unregister_connection(from_view_name, from_port, to_view_name, to_port)
+	var from_node: InspectableNode = get_node_from_view_name(from_view_name)
+	var to_node: InspectableNode = get_node_from_view_name(to_view_name)
+	var from_graph_node: GraphNode = get_node(from_view_name as String)
+	var to_graph_node: GraphNode = get_node(to_view_name as String)
 	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
 	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
 
@@ -305,8 +327,8 @@ func _on_disconnection_request(
 		return
 
 	# Get property names at the port indices
-	var from_property_name = get_property_name_at_port(String(from_node), from_port, true)
-	var to_property_name = get_property_name_at_port(String(to_node), to_port, false)
+	var from_property_name = get_property_name_at_port(String(from_view_name), from_port, true)
+	var to_property_name = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():
 		push_warning("Cannot create connection: property not found at port")
@@ -314,7 +336,11 @@ func _on_disconnection_request(
 
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
-		self, String(from_node), String(to_node), from_property_name, to_property_name, true
+		self,
+		from_node.get_property_value("id"),
+		to_node.get_property_value("id"),
+		from_property_name,
+		to_property_name
 	)
 	storyline.history.execute(command)
 
