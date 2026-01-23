@@ -40,14 +40,10 @@ theme_type_variation = &"EditorBackground"
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="MonologueEditor" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "graph_container", "file_dialog") instance=ExtResource("1_kiov6")]
+[node name="MonologueEditor" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "file_dialog") instance=ExtResource("1_kiov6")]
 layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
-graph_container = NodePath("DockableContainer/Graph/GraphContainer")
 file_dialog = NodePath("../../../FileDialog")
-
-[node name="GraphContainer" parent="Frame/VBoxContainer/MonologueEditor/DockableContainer/Graph" index="0" node_paths=PackedStringArray("inspector_panel")]
-inspector_panel = NodePath("../../Inspector")
 
 [node name="Dimmer" type="ColorRect" parent="."]
 visible = false
@@ -90,5 +86,5 @@ script = ExtResource("10_r77hi")
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 
 [editable path="Frame/VBoxContainer/MonologueEditor"]
-[editable path="Frame/VBoxContainer/MonologueEditor/DockableContainer/Graph"]
-[editable path="Frame/VBoxContainer/MonologueEditor/DockableContainer/Inspector"]
+[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph"]
+[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Inspector"]

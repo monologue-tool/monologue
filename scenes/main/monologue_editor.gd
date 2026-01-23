@@ -88,7 +88,7 @@ func get_root_dict(node_list: Array) -> Dictionary:
 	return {}
 
 
-func load_project(path: String, new_graph: bool = false) -> void:
+func load_project(path: String, _new_graph: bool = false) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
 	if not file or graph_container.is_file_opened(path):
 		return
@@ -100,8 +100,8 @@ func load_project(path: String, new_graph: bool = false) -> void:
 	if not data:
 		save()
 
-	var converter := NodeConverter.new()
-	var storyline = StorylineManager.get_active_storyline()
+	var _converter := NodeConverter.new()
+	var _storyline = StorylineManager.get_active_storyline()
 
 	load_editor_sections()
 
