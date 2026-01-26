@@ -19,10 +19,6 @@ func update() -> void:
 	add_child(_dropdown)
 	move_child(_dropdown, 0)
 	
-	var separator: HSeparator = HSeparator.new()
-	add_child(separator)
-	move_child(separator, 1)
-	
 	for child: Control in get_children():
 		if not child is PanelContainer or child == _dropdown:
 			continue

@@ -108,7 +108,7 @@ layout_mode = 2
 inspector_panel = NodePath("../../Inspector")
 
 [node name="GraphEdit" parent="VBox/HSplitContainer/HSplitContainer/Graph/GraphContainer" index="1"]
-scroll_offset = Vector2(0, -36)
+scroll_offset = Vector2(0, -33)
 
 [node name="Inspector" parent="VBox/HSplitContainer/HSplitContainer" instance=ExtResource("14_craj7")]
 unique_name_in_owner = true
