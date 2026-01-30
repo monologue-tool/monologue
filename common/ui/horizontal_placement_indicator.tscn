@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://t876wx6hfyy5"]
 
-[ext_resource type="Texture2D" uid="uid://mjb34j4suabp" path="res://common/layouts/character_edit/assets/triangle_pointer.svg" id="1_lxcb6"]
+[ext_resource type="Texture2D" uid="uid://mjb34j4suabp" path="res://common/layouts/item_edit/assets/triangle_pointer.svg" id="1_lxcb6"]
 
 [node name="HPlacementIndicator" type="Control"]
 z_index = 2

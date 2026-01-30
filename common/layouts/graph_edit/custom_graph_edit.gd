@@ -24,7 +24,7 @@ func _hide_default_scrollbars() -> void:
 func _on_connection_to_empty(node: String, port: int, release: Vector2) -> void:
 	var center = (get_local_mouse_position() + scroll_offset) / zoom
 	var graph_release = (release + scroll_offset) / zoom
-	GlobalSignal.emit("enable_picker_mode", [node, port, release, graph_release, center])
+	EventBus.enable_picker_mode.emit(node, port, release, graph_release, center)
 
 
 func _on_gui_input(event: InputEvent) -> void:
@@ -45,7 +45,7 @@ func _on_gui_input(event: InputEvent) -> void:
 		and event.is_pressed()
 		and event.button_index == MOUSE_BUTTON_LEFT
 	):
-		GlobalSignal.emit("show_languages", [false])
+		EventBus.show_languages.emit(false)
 
 
 func _on_mouse_entered() -> void:

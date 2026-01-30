@@ -22,11 +22,11 @@ func _ready():
 	get_tree().auto_accept_quit = false  # quit handled by _close_tab()
 	#welcome_window.show()
 
-	GlobalSignal.add_listener("add_graph_node", add_node_from_global)
-	GlobalSignal.add_listener("select_new_node", _select_new_node)
-	GlobalSignal.add_listener("load_project", load_project)
-	GlobalSignal.add_listener("test_trigger", test_project)
-	GlobalSignal.add_listener("save", save)
+	EventBus.add_graph_node.connect(add_node_from_global)
+	EventBus.select_new_node.connect(_select_new_node)
+	EventBus.load_project.connect(load_project)
+	EventBus.test_trigger.connect(test_project)
+	EventBus.save_current_project.connect(save)
 
 	StorylineManager.create_storyline()
 
@@ -167,10 +167,6 @@ func _on_button_sparkle_pressed() -> void:
 	#graph_switcher.current.set_block_signals(true)
 	#graph_switcher.current.arrange_nodes()
 	#graph_switcher.current.set_block_signals.bind(false).call_deferred()
-
-
-func _on_button_settings_pressed() -> void:
-	GlobalSignal.emit("show_current_config")
 
 
 func _on__tabs_add_document() -> void:

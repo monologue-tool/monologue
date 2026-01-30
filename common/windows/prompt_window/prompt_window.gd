@@ -36,4 +36,4 @@ func _on_cancel_button_pressed() -> void:
 
 
 func _on_tree_exited() -> void:
-	GlobalSignal.emit("hide_dimmer", [self])
+	EventBus.hide_dimmer.emit()
