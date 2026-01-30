@@ -4,9 +4,9 @@ var _callback: Callable
 
 
 func _ready():
-	GlobalSignal.add_listener("save_file_request", _on_save_file_request)
-	GlobalSignal.add_listener("open_file_request", _on_open_file_request)
-	GlobalSignal.add_listener("open_files_request", _on_open_files_request)
+	EventBus.save_file_request.connect(_on_save_file_request)
+	EventBus.open_file_request.connect(_on_open_file_request)
+	EventBus.open_files_request.connect(_on_open_files_request)
 
 
 func save_file(

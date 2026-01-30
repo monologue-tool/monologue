@@ -19,6 +19,6 @@ func _on_resized():
 
 func _on_visibility_changed():
 	if visible:
-		GlobalSignal.emit("show_dimmer", [self])
+		EventBus.show_dimmer.emit()
 		return
-	GlobalSignal.emit("hide_dimmer", [self])
+	EventBus.hide_dimmer.emit()

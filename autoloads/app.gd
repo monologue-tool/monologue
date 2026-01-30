@@ -15,7 +15,7 @@ func _ready() -> void:
 
 func _shortcut_input(event: InputEvent) -> void:
 	if event.is_action_pressed("Add node"):
-		GlobalSignal.emit("enable_picker_mode")
+		EventBus.enable_picker_mode.emit()
 
 
 func _on_window_size_changed() -> void:

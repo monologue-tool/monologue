@@ -6,8 +6,8 @@ var request_count: int = 0
 
 func _ready() -> void:
 	hide()
-	GlobalSignal.add_listener("show_dimmer", _on_show_dimmer)
-	GlobalSignal.add_listener("hide_dimmer", _on_hide_dimmer)
+	EventBus.show_dimmer.emit()
+	EventBus.hide_dimmer.emit()
 
 
 func _on_show_dimmer(focus_node: Node = null) -> void:

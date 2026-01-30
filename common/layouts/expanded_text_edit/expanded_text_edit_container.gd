@@ -6,7 +6,7 @@ var little_text_edit: TextEdit
 
 func _ready() -> void:
 	hide()
-	GlobalSignal.add_listener("expand_text_edit", _on_expand_text_edit)
+	EventBus.expand_text_edit.connect(_on_expand_text_edit)
 
 
 func _on_expand_text_edit(little_te: TextEdit) -> void:
@@ -28,6 +28,6 @@ func _on_text_edit_text_changed() -> void:
 
 func _on_visibility_changed() -> void:
 	if visible:
-		GlobalSignal.emit("show_dimmer", [self])
+		EventBus.show_dimmer.emit()
 		return
-	GlobalSignal.emit("hide_dimmer", [self])
+	EventBus.hide_dimmer.emit()

@@ -17,7 +17,7 @@ var center = null
 func _ready():
 	hide()
 	force_native = true
-	GlobalSignal.add_listener("enable_picker_mode", _on_enable_picker_mode)
+	EventBus.enable_picker_mode.connect(_on_enable_picker_mode)
 
 
 func _on_enable_picker_mode(

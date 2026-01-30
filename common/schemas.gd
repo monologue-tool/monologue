@@ -1,6 +1,6 @@
-class_name Schemas
+extends Node
 
-static var VARIABLE: Dictionary = {
+var VARIABLE: Dictionary = {
 	"title": "Variable",
 	"type": "object",
 	"properties":
@@ -53,7 +53,7 @@ static var VARIABLE: Dictionary = {
 	}
 }
 
-static var CHARACTER: Dictionary = {
+var CHARACTER: Dictionary = {
 	"title": "Character",
 	"type": "object",
 	"properties":
@@ -117,7 +117,7 @@ static var CHARACTER: Dictionary = {
 	}
 }
 
-static var PORTRAIT: Dictionary = {
+var PORTRAIT: Dictionary = {
 	"title": "Portrait",
 	"type": "object",
 	"properties":
@@ -182,7 +182,7 @@ static var PORTRAIT: Dictionary = {
 	}
 }
 
-static var ITEM: Dictionary = {
+var ITEM: Dictionary = {
 	"title": "Portrait",
 	"type": "object",
 	"properties":
@@ -222,7 +222,7 @@ static var ITEM: Dictionary = {
 }
 
 # TODO: Location backgrounds with variants
-static var LOCATION: Dictionary = {
+var LOCATION: Dictionary = {
 	"title": "Portrait",
 	"type": "object",
 	"properties":

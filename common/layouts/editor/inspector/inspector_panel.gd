@@ -12,11 +12,7 @@ var _pending_expand_category: String = ""
 
 
 func _ready() -> void:
-	GlobalSignal.add_listener("inspector_property_changed", _on_external_property_changed)
-
-
-func _exit_tree() -> void:
-	GlobalSignal.remove_listener("inspector_property_changed", _on_external_property_changed)
+	EventBus.inspector_property_changed.connect(_on_external_property_changed)
 
 
 func inspect(object: InspectableObject) -> void:
@@ -293,7 +289,7 @@ func _on_inspect_connected_node(property: Property) -> void:
 	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
 
 	if connected_node and connected_node.graph_view:
-		GlobalSignal.emit("request_node_inspection", [connected_node, connected_node.storyline_id])
+		EventBus.request_node_inspection.emit(connected_node, connected_node.storyline_id)
 
 
 func on_property_changed(obj: InspectableObject, _property_name: String) -> void:

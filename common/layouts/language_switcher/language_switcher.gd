@@ -18,10 +18,10 @@ var option_scene := preload("res://common/layouts/language_switcher/language_opt
 func _ready() -> void:
 	dropdown_container.hide()
 	GlobalVariables.language_switcher = self
-	GlobalSignal.add_listener("load_languages", load_languages)
-	GlobalSignal.add_listener("show_languages", show_dropdown)
-	GlobalSignal.add_listener("enable_language_switcher", set_enabled)
-	GlobalSignal.add_listener("disable_language_switcher", set_enabled.bind(false))
+	EventBus.load_languages.connect(load_languages)
+	EventBus.show_languages.connect(show_dropdown)
+	EventBus.enable_language_switcher.connect(set_enabled)
+	EventBus.disable_language_switcher.connect(set_enabled.bind(false))
 	load_languages()
 
 
@@ -29,8 +29,8 @@ func add_language(locale_name: String = "") -> LanguageOption:
 	var new_option: LanguageOption = option_scene.instantiate()
 	vbox.add_child(new_option, true)
 	new_option.language_name = locale_name
-	new_option.language_name_changed.connect(_on_option_rename)
-	new_option.language_removed.connect(_on_option_removed)
+	#new_option.language_name_changed.connect(_on_option_rename)
+	#new_option.language_removed.connect(_on_option_removed)
 	new_option.pressed.connect(_on_option_selected.bind(new_option))
 	return new_option
 
@@ -109,21 +109,21 @@ func show_dropdown(can_see: bool = true) -> void:
 	if !can_see:
 		release_focus()
 
-
-func _on_option_removed(option: LanguageOption) -> void:
-	var act_text = [option.language_name, graph_edit.file_path]
-	graph_edit.undo_redo.create_action("Delete %s language from %s" % act_text)
-	var deletion = DeleteLanguageHistory.new(graph_edit, option.language_name, option.name)
-	GlobalSignal.emit("language_deleted", [option.name, deletion.restoration, deletion.choices])
-	graph_edit.undo_redo.add_prepared_history(deletion)
-	graph_edit.undo_redo.commit_action()
-
-
-func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
-	graph_edit.undo_redo.create_action("Change %s language to %s" % [old, new])
-	var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
-	graph_edit.undo_redo.add_prepared_history(change)
-	graph_edit.undo_redo.commit_action()
+#func _on_option_removed(option: LanguageOption) -> void:
+	#var act_text = [option.language_name, graph_edit.file_path]
+	#graph_edit.undo_redo.create_action("Delete %s language from %s" % act_text)
+	#var deletion = DeleteLanguageHistory.new(graph_edit, option.language_name, option.name)
+	##GlobalSignal.emit("language_deleted", [option.name, deletion.restoration, deletion.choices])
+	#EventBus.language_deleted.emit()
+	#graph_edit.undo_redo.add_prepared_history(deletion)
+	#graph_edit.undo_redo.commit_action()
+#
+#
+#func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
+	#graph_edit.undo_redo.create_action("Change %s language to %s" % [old, new])
+	#var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
+	#graph_edit.undo_redo.add_prepared_history(change)
+	#graph_edit.undo_redo.commit_action()
 
 	var selected_option: LanguageOption = vbox.get_children()[selected_index]
 	_on_option_selected(selected_option, false)
@@ -139,7 +139,7 @@ func _on_option_selected(option: LanguageOption, refresh: bool = true) -> void:
 		graph_edit.current_language_index = selected_index
 	text = option.language_name
 	if refresh:
-		GlobalSignal.emit("refresh")  # update all localizable values
+		EventBus.refresh.emit()
 
 
 func _on_pressed() -> void:
@@ -148,5 +148,5 @@ func _on_pressed() -> void:
 
 func _on_btn_add_pressed() -> void:
 	graph_edit.undo_redo.create_action("Add language to %s" % graph_edit.file_path)
-	graph_edit.undo_redo.add_prepared_history(AddLanguageHistory.new(graph_edit))
+	#graph_edit.undo_redo.add_prepared_history(AddLanguageHistory.new(graph_edit))
 	graph_edit.undo_redo.commit_action()

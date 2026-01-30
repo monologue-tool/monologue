@@ -12,6 +12,10 @@ config_version=5
 
 markdown_book/docs_folder=""
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Monologue"
@@ -20,28 +24,27 @@ config/tags=PackedStringArray("monologue")
 run/main_scene="res://scenes/splash/splash.tscn"
 run/print_header=false
 run/enable_alt_space_menu=true
-config/features=PackedStringArray("4.5")
+config/features=PackedStringArray("4.6")
 boot_splash/bg_color=Color(0.117647, 0.117647, 0.129412, 1)
 boot_splash/show_image=false
 config/icon="uid://b2ebpoey21tpc"
 
 [autoload]
 
+EventBus="*res://autoloads/event_bus.gd"
 Constants="*res://autoloads/constants.gd"
 IDGen="*res://autoloads/id_gen.gd"
 App="*res://autoloads/app.gd"
 ThemeManager="*res://autoloads/theme_manager.gd"
 GlobalVariables="*res://autoloads/global_variables.gd"
-GlobalSignal="*res://autoloads/global_signal.gd"
-Util="*res://autoloads/util.gd"
-SfxLoader="*res://autoloads/sfx_loader.gd"
+SfxLoader="res://autoloads/sfx_loader.gd"
 Path="*res://autoloads/path.gd"
 Cursor="*res://autoloads/cursor.gd"
-ImageLoader="*res://autoloads/image_loader.gd"
-UndoRedoService="*res://autoloads/undo_redo_service.gd"
+ImageLoader="res://autoloads/image_loader.gd"
 FieldBucket="*res://common/ui/editor_properties/field_bucket.gd"
 NodeBucket="*res://common/nodes/node_bucket.gd"
 StorylineManager="*res://autoloads/storyline_manager.gd"
+Schemas="*res://common/schemas.gd"
 
 [debug]
 

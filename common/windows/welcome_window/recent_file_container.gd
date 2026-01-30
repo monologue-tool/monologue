@@ -11,7 +11,7 @@ var recent_filepaths: Array = []
 
 
 func _ready() -> void:
-	GlobalSignal.add_listener("load_successful", add)
+	EventBus.load_successful.connect(add)
 	refresh()
 
 
@@ -38,7 +38,7 @@ func create_button(filepath: String) -> Button:
 		btn_text = btn_text.back()
 
 	btn.text = Util.truncate_filename(btn_text)
-	btn.pressed.connect(GlobalSignal.emit.bind("load_project", [filepath]))
+	btn.pressed.connect(EventBus.load_project.emit.bind(filepath))
 	button_container.add_child(btn)
 	return btn
 

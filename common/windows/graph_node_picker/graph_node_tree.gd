@@ -55,7 +55,7 @@ func _create() -> bool:
 	var descriptor_name = selected.get_metadata(0)
 	if descriptor_name == null:
 		return false
-	GlobalSignal.emit("add_graph_node", [String(descriptor_name), window])
+	EventBus.add_graph_node.emit(String(descriptor_name), window)
 	deselect_all()
 	return true
 
