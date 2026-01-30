@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://c8525nhvwt1y0"]
+[gd_scene format=3 uid="uid://c8525nhvwt1y0"]
 
 [ext_resource type="Script" uid="uid://nxistnt1yhxc" path="res://scenes/main/graph_container.gd" id="1_nykfi"]
 [ext_resource type="Script" uid="uid://bmku341x5gaoe" path="res://scenes/main/add_node_button.gd" id="2_4vw8t"]
@@ -15,69 +15,70 @@ script/source = "extends Button
 
 
 func _on_pressed() -> void:
-	GlobalSignal.emit(\"test_trigger\")
+	EventBus.test_trigger.emit()
 "
 
-[node name="Graph" type="PanelContainer"]
+[node name="Graph" type="PanelContainer" unique_id=379673752]
 
-[node name="GraphContainer" type="VBoxContainer" parent="."]
+[node name="GraphContainer" type="VBoxContainer" parent="." unique_id=803151000]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 script = ExtResource("1_nykfi")
 
-[node name="ToolBar" type="HBoxContainer" parent="GraphContainer"]
+[node name="ToolBar" type="HBoxContainer" parent="GraphContainer" unique_id=1840524053]
 layout_mode = 2
 
-[node name="AddNodeBtn" type="Button" parent="GraphContainer/ToolBar"]
+[node name="AddNodeBtn" type="Button" parent="GraphContainer/ToolBar" unique_id=1427403872]
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 text = "Add a node..."
 script = ExtResource("2_4vw8t")
 
-[node name="ButtonCharacters" type="Button" parent="GraphContainer/ToolBar"]
+[node name="ButtonCharacters" type="Button" parent="GraphContainer/ToolBar" unique_id=627597188]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("3_fbi2i")
 icon_alignment = 1
 
-[node name="ButtonVariables" type="Button" parent="GraphContainer/ToolBar"]
+[node name="ButtonVariables" type="Button" parent="GraphContainer/ToolBar" unique_id=388191712]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("4_4hcgi")
 icon_alignment = 1
 
-[node name="LanguageSwitcher" parent="GraphContainer/ToolBar" instance=ExtResource("5_l617j")]
+[node name="LanguageSwitcher" parent="GraphContainer/ToolBar" unique_id=662667454 instance=ExtResource("5_l617j")]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 disabled = true
 
-[node name="ButtonSettings" type="Button" parent="GraphContainer/ToolBar"]
+[node name="ButtonSettings" type="Button" parent="GraphContainer/ToolBar" unique_id=749078510]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("6_p1o4h")
 icon_alignment = 1
 
-[node name="ButtonSparkle" type="Button" parent="GraphContainer/ToolBar"]
+[node name="ButtonSparkle" type="Button" parent="GraphContainer/ToolBar" unique_id=1177527376]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("7_lhc65")
 
-[node name="RunButton" type="Button" parent="GraphContainer/ToolBar"]
+[node name="RunButton" type="Button" parent="GraphContainer/ToolBar" unique_id=167719486]
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("8_7526h")
 script = SubResource("GDScript_lenro")
 
-[node name="GraphEdit" parent="GraphContainer" instance=ExtResource("9_4vw8t")]
+[node name="GraphEdit" parent="GraphContainer" unique_id=2027188591 instance=ExtResource("9_4vw8t")]
 unique_name_in_owner = true
 layout_mode = 2
+scroll_offset = Vector2(0, -3)
 
 [connection signal="pressed" from="GraphContainer/ToolBar/AddNodeBtn" to="GraphContainer/ToolBar/AddNodeBtn" method="_on_pressed"]
 [connection signal="pressed" from="GraphContainer/ToolBar/RunButton" to="GraphContainer/ToolBar/RunButton" method="_on_pressed"]

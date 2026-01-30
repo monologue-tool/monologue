@@ -12,6 +12,10 @@ config_version=5
 
 markdown_book/docs_folder=""
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Monologue"
@@ -20,7 +24,7 @@ config/tags=PackedStringArray("monologue")
 run/main_scene="res://scenes/splash/splash.tscn"
 run/print_header=false
 run/enable_alt_space_menu=true
-config/features=PackedStringArray("4.5")
+config/features=PackedStringArray("4.6")
 boot_splash/bg_color=Color(0.117647, 0.117647, 0.129412, 1)
 boot_splash/show_image=false
 config/icon="uid://b2ebpoey21tpc"

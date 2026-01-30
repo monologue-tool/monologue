@@ -43,5 +43,5 @@ func set_index(index: int) -> void:
 		section.item_index = index
 
 
-func change(old_value: Variant, new_value: Variant, property: String) -> void:
+func change(_old_value: Variant, _new_value: Variant, _property: String) -> void:
 	pass

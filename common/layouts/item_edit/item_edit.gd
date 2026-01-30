@@ -5,5 +5,5 @@ var model_example: Dictionary = {
 }
 
 
-func load_item_model(template: Dictionary) -> void:
+func load_item_model(_template: Dictionary) -> void:
 	pass
