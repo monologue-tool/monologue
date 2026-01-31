@@ -100,6 +100,9 @@ func load_project(path: String, _new_graph: bool = false) -> void:
 	if not data:
 		save()
 
+	var _converter := NodeConverter.new()
+	var _storyline = StorylineManager.get_active_storyline()
+
 	load_editor_sections()
 
 
