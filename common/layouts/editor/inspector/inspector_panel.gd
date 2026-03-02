@@ -7,6 +7,7 @@ var _pending_expand_category: String = ""
 
 @onready var header_container: VBoxContainer = %Header
 @onready var property_container: VBoxContainer = %Fields
+@onready var run_button: Button = %RunButton
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
@@ -34,6 +35,8 @@ func inspect(object: InspectableObject) -> void:
 
 
 func rebuild() -> void:
+	run_button.visible = current_object is InspectableNode
+	
 	# Store the current focus owner before rebuilding
 	var focus_owner = get_viewport().gui_get_focus_owner()
 	var focused_property_name: String = ""
