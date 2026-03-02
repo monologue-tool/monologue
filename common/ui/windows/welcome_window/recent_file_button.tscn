@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://dqp3uifnpuc3b"]
+
+[ext_resource type="Texture2D" uid="uid://c77fmeslcdgo7" path="res://ui/assets/icons/file.svg" id="1_qxcco"]
+
+[node name="RecentFileButton" type="Button" unique_id=79523968]
+mouse_default_cursor_shape = 2
+theme_override_constants/h_separation = 15
+text = "default.json"
+icon = ExtResource("1_qxcco")
+alignment = 0

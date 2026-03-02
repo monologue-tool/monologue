@@ -1,6 +1,6 @@
 extends Node
 
-const DEFAULT_NODES_LOCATION := "res://nodes/"
+const DEFAULT_NODES_LOCATION := "res://common/nodes/"
 
 var _descriptors: Dictionary = {}
 var _is_initialized: bool = false

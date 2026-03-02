@@ -1,23 +1,58 @@
-[gd_scene load_steps=5 format=3 uid="uid://c2k0l1j45eshc"]
+[gd_scene format=3 uid="uid://ccm88n1b7trhw"]
 
-[ext_resource type="Script" uid="uid://bbjutqdesleeu" path="res://scenes/main/title_bar_button.gd" id="1_oct8q"]
 [ext_resource type="Texture2D" uid="uid://kk5em170gn2b" path="res://ui/assets/icons/ui_close.svg" id="2_dijse"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ei6n7"]
-bg_color = Color(1, 1, 1, 0.12549)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tjs5r"]
 
-[node name="TitleBarButton" type="Button"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eg226"]
+bg_color = Color(1, 1, 1, 0.1254902)
+
+[sub_resource type="GDScript" id="GDScript_fud8k"]
+script/source = "@tool
+extends Button
+
+@export var texture: Texture:
+	set = _set_button_texture
+@export var hover_color: Color = Color(\"ffffff20\")
+
+@onready var texture_rect: TextureRect = $MarginContainer/TextureRect
+
+
+func _set_button_texture(val: Texture) -> void:
+	texture = val
+	reload_texture()
+
+
+func _ready() -> void:
+	reload_texture()
+
+	var hover_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	hover_stylebox.bg_color = hover_color
+	add_theme_stylebox_override(\"hover\", hover_stylebox)
+
+	connect(\"pressed\", release_focus)
+
+
+func reload_texture() -> void:
+	if texture is not Texture:
+		return
+
+	if not is_node_ready():
+		await ready
+
+	texture_rect.texture = texture
+"
+
+[node name="TitleBarButton" type="Button" unique_id=1738916408]
 custom_minimum_size = Vector2(60, 30)
 offset_right = 60.0
 offset_bottom = 30.0
-theme_override_styles/hover = SubResource("StyleBoxFlat_ei6n7")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_tjs5r")
-script = ExtResource("1_oct8q")
+theme_override_styles/hover = SubResource("StyleBoxFlat_eg226")
+script = SubResource("GDScript_fud8k")
 texture = ExtResource("2_dijse")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1569837501]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -29,7 +64,7 @@ theme_override_constants/margin_top = 7
 theme_override_constants/margin_right = 7
 theme_override_constants/margin_bottom = 7
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer" unique_id=1348367410]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 size_flags_vertical = 4

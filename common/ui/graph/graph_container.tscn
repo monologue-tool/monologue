@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://c8525nhvwt1y0"]
+
+[ext_resource type="Script" uid="uid://ffk7n7akpe7t" path="res://common/ui/graph/graph_container.gd" id="1_plmop"]
+[ext_resource type="Texture2D" uid="uid://bfmsxfn26cvfn" path="res://ui/assets/icons/character.svg" id="2_8nh7i"]
+[ext_resource type="Texture2D" uid="uid://b46sqb5g0spae" path="res://ui/assets/icons/variables.svg" id="3_dyuea"]
+[ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/ui/language_switcher/language_switcher.tscn" id="4_nyscr"]
+[ext_resource type="Texture2D" uid="uid://d4fesqfd2v8fd" path="res://ui/assets/icons/settings.svg" id="5_glyde"]
+[ext_resource type="Texture2D" uid="uid://dd6wdpndndufl" path="res://ui/assets/icons/sparkles.svg" id="6_ya1cp"]
+[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="7_4poih"]
+[ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/ui/graph/graph_edit.tscn" id="8_qfao8"]
+
+[sub_resource type="GDScript" id="GDScript_lenro"]
+script/source = "extends Button
+
+
+func _on_pressed() -> void:
+	EventBus.test_trigger.emit()
+"
+
+[node name="GraphContainer" type="PanelContainer" unique_id=379673752]
+script = ExtResource("1_plmop")
+
+[node name="HBox" type="VBoxContainer" parent="." unique_id=803151000]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ToolBar" type="HBoxContainer" parent="HBox" unique_id=1840524053]
+layout_mode = 2
+
+[node name="AddNodeBtn" type="Button" parent="HBox/ToolBar" unique_id=1427403872]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+text = "Add a node..."
+
+[node name="ButtonCharacters" type="Button" parent="HBox/ToolBar" unique_id=627597188]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("2_8nh7i")
+icon_alignment = 1
+
+[node name="ButtonVariables" type="Button" parent="HBox/ToolBar" unique_id=388191712]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("3_dyuea")
+icon_alignment = 1
+
+[node name="LanguageSwitcher" parent="HBox/ToolBar" unique_id=662667454 instance=ExtResource("4_nyscr")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+disabled = true
+
+[node name="ButtonSettings" type="Button" parent="HBox/ToolBar" unique_id=749078510]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("5_glyde")
+icon_alignment = 1
+
+[node name="ButtonSparkle" type="Button" parent="HBox/ToolBar" unique_id=1177527376]
+visible = false
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("6_ya1cp")
+
+[node name="RunButton" type="Button" parent="HBox/ToolBar" unique_id=167719486]
+layout_mode = 2
+theme_type_variation = &"Button_Flat"
+icon = ExtResource("7_4poih")
+script = SubResource("GDScript_lenro")
+
+[node name="GraphEdit" parent="HBox" unique_id=2027188591 instance=ExtResource("8_qfao8")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="pressed" from="HBox/ToolBar/AddNodeBtn" to="." method="_on_add_node_btn_pressed"]
+[connection signal="pressed" from="HBox/ToolBar/RunButton" to="HBox/ToolBar/RunButton" method="_on_pressed"]

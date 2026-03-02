@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://cb3se7h7akt47"]
+
+[ext_resource type="Texture2D" uid="uid://c0cmik715jqff" path="res://ui/assets/icons/arrow_left.svg" id="1_cmhp2"]
+[ext_resource type="Script" uid="uid://bd5c0hwweht6a" path="res://common/ui/language_switcher/language_switcher.gd" id="2_mi5fl"]
+[ext_resource type="PackedScene" uid="uid://x84tcb0t06mo" path="res://common/ui/language_switcher/language_option.tscn" id="3_unc6p"]
+[ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="4_1p58k"]
+
+[node name="LanguageSwitcher" type="Button"]
+custom_minimum_size = Vector2(200, 0)
+offset_right = 200.0
+offset_bottom = 34.0
+text = "English"
+icon = ExtResource("1_cmhp2")
+alignment = 0
+icon_alignment = 2
+script = ExtResource("2_mi5fl")
+
+[node name="Dropdown" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Dropdown"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -3.0
+offset_top = 42.0
+offset_right = 3.0
+offset_bottom = 202.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"OuterPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Dropdown/PanelContainer"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Dropdown/PanelContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Options" type="VBoxContainer" parent="Dropdown/PanelContainer/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"VBoxContainer_Medium"
+alignment = 2
+
+[node name="LanguageOption" parent="Dropdown/PanelContainer/VBox/Scroll/Options" instance=ExtResource("3_unc6p")]
+layout_mode = 2
+script = null
+
+[node name="btnAdd" type="Button" parent="Dropdown/PanelContainer/VBox"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("4_1p58k")
+icon_alignment = 1
+expand_icon = true
+
+[connection signal="pressed" from="." to="." method="_on_pressed"]
+[connection signal="pressed" from="Dropdown/PanelContainer/VBox/btnAdd" to="." method="_on_btn_add_pressed"]
