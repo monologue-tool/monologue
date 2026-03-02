@@ -138,4 +138,4 @@ func test_load_languages_duplicate():
 
 
 func after_test():
-	GlobalVariables.language_switcher = null
+	#GlobalVariables.language_switcher = null

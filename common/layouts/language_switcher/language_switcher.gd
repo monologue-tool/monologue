@@ -17,7 +17,6 @@ var option_scene := preload("res://common/layouts/language_switcher/language_opt
 
 func _ready() -> void:
 	dropdown_container.hide()
-	GlobalVariables.language_switcher = self
 	EventBus.load_languages.connect(load_languages)
 	EventBus.show_languages.connect(show_dropdown)
 	EventBus.enable_language_switcher.connect(set_enabled)
@@ -138,6 +137,9 @@ func _on_option_selected(option: LanguageOption, refresh: bool = true) -> void:
 	if graph_edit:
 		graph_edit.current_language_index = selected_index
 	text = option.language_name
+	
+	GlobalVariables.current_language = option.language_name
+	
 	if refresh:
 		EventBus.refresh.emit()
 

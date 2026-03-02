@@ -11,7 +11,9 @@ var VARIABLE: Dictionary = {
 			"default": "new variable",
 			"required": true,
 			"unique": true,
-			"validation": {"min_length": 1}
+			"validation": {"min_length": 1},
+			"category": "Special:Header",
+			"flat": true,
 		},
 		"type":
 		{
@@ -63,11 +65,14 @@ var CHARACTER: Dictionary = {
 			"type": "text",
 			"default": IDGen.generate,
 			"unique": true,
+			"category": "Special:Header",
+			"flat": true,
 		},
 		"protected":
 		{
 			"type": "bool",
 			"default": false,
+			"visible_in_inspector": false
 		},
 		"name":
 		{
@@ -101,7 +106,11 @@ var CHARACTER: Dictionary = {
 			"minItems": 1,
 			"data_schema": PORTRAIT,
 		},
-		"default_portrait": {"type": "string", "default": "", "validation": {}}
+		"default_portrait": {
+			"type": "dropdown",
+			"default": "",
+			"validation": {},
+		}
 	},
 	"layouts":
 	{
@@ -128,6 +137,8 @@ var PORTRAIT: Dictionary = {
 			"default": "new portrait",
 			"required": true,
 			"unique": true,
+			"category": "Special:Header",
+			"flat": true,
 		},
 		"protected":
 		{
@@ -192,6 +203,8 @@ var ITEM: Dictionary = {
 			"type": "text",
 			"default": IDGen.generate,
 			"unique": true,
+			"category": "Special:Header",
+			"flat": true,
 		},
 		"name":
 		{
@@ -233,6 +246,8 @@ var LOCATION: Dictionary = {
 			"default": "new location",
 			"required": true,
 			"unique": true,
+			"category": "Special:Header",
+			"flat": true,
 		},
 		"description":
 		{

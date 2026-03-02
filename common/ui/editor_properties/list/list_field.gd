@@ -8,6 +8,8 @@ var _command_manager: CommandManager
 
 @onready var items_container: VBoxContainer = %ItemsContainer
 
+var inspector: InspectorPanel
+
 
 func _ready() -> void:
 	super._ready()
@@ -153,7 +155,11 @@ func _has_variant_dependency(prop_config: Dictionary, field_name: String) -> boo
 
 
 func _on_edit_item(index: int) -> void:
-	print("edit item %s" % index)
+	if not _is_valid_index(index):
+		return
+	
+	var item: ListItemObject = _list_items[index]
+	inspector.inspect(item)
 
 
 func _on_duplicate_item(index: int) -> void:

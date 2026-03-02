@@ -219,7 +219,7 @@ func _create_property_editor(property: Property) -> Control:
 	if property.get_settings_value("expand", true):
 		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	p_expose_button.disabled = not property.get_settings_value("exposable", false)
+	p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value("exposable", false)
 	p_expose_button.button_pressed = property.get_settings_value("exposed", false)
 	p_expose_button.toggled.connect(
 		_on_property_expose_state_changed.bind(current_object, property.name)
@@ -289,7 +289,7 @@ func _on_inspect_connected_node(property: Property) -> void:
 	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
 
 	if connected_node and connected_node.graph_view:
-		EventBus.request_node_inspection.emit(connected_node, connected_node.storyline_id)
+		EventBus.request_node_selection.emit(connected_node, connected_node.storyline_id)
 
 
 func on_property_changed(obj: InspectableObject, _property_name: String) -> void:

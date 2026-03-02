@@ -22,7 +22,7 @@ func before_test():
 	do_return({"Lang1": lang1.name, "Lang2": lang2.name}).on(switcher).get_languages()
 
 	do_return(lang1).on(switcher).get_current_language()
-	GlobalVariables.language_switcher = switcher
+	#GlobalVariables.language_switcher = switcher
 
 
 func test_add_option():
@@ -149,4 +149,4 @@ func test_update_parent():
 
 
 func after_test():
-	GlobalVariables.language_switcher = null
+	#GlobalVariables.language_switcher = null

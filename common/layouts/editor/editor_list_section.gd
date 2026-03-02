@@ -22,7 +22,7 @@ func clear() -> void:
 		child.queue_free()
 
 
-func load_items(property: Property, property_owner: InspectableObject = null) -> void:
+func load_items(property: Property, property_owner: InspectableObject = null, inspector: InspectorPanel = null) -> void:
 	clear()
 	_property = property
 	_property_owner = property_owner
@@ -31,6 +31,7 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 		return
 
 	_list_field = FieldBucket.safe_create_field(_property.type)
+	_list_field.inspector = inspector
 	if _list_field is ListField:
 		_property.bind_field(_list_field, _property_owner)
 	vbox.add_child(_list_field)

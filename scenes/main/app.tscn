@@ -1,10 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://bim51g1aibuw0"]
+[gd_scene format=3 uid="uid://bim51g1aibuw0"]
 
 [ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/main/editor.tscn" id="1_kiov6"]
 [ext_resource type="Shader" uid="uid://de1ql8ahad2ts" path="res://common/blur.gdshader" id="5_1u5fg"]
 [ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.tscn" id="6_cqyrh"]
 [ext_resource type="Script" uid="uid://d0xgy6gflipxs" path="res://common/layouts/editor/editor_dimmer.gd" id="6_nw038"]
-[ext_resource type="PackedScene" uid="uid://c7cf7rfwnhf77" path="res://common/layouts/item_edit/item_edit.tscn" id="7_7qdje"]
 [ext_resource type="PackedScene" uid="uid://d3f7d4bb40iht" path="res://common/windows/preview_window/preview_window.tscn" id="8_7qdje"]
 [ext_resource type="PackedScene" uid="uid://bqqcww601rcx5" path="res://common/windows/welcome_window/welcome_window.tscn" id="9_fp7qq"]
 [ext_resource type="Script" uid="uid://b2l7hjfyrnr3x" path="res://common/windows/file_dialog/file_dialog.gd" id="10_r77hi"]
@@ -14,7 +13,7 @@ shader = ExtResource("5_1u5fg")
 shader_parameter/lod = 1.0
 shader_parameter/darkness = 0.25
 
-[node name="App" type="Control"]
+[node name="App" type="Control" unique_id=934936997]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,7 +23,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Frame" type="PanelContainer" parent="."]
+[node name="Frame" type="PanelContainer" parent="." unique_id=1777561432]
 clip_children = 2
 z_index = 1
 clip_contents = true
@@ -36,16 +35,16 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"EditorBackground"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Frame"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Frame" unique_id=987821992]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="MonologueEditor" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "file_dialog") instance=ExtResource("1_kiov6")]
+[node name="MonologueEditor" parent="Frame/VBoxContainer" unique_id=1963406996 node_paths=PackedStringArray("welcome_window", "file_dialog") instance=ExtResource("1_kiov6")]
 layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
 file_dialog = NodePath("../../../FileDialog")
 
-[node name="Dimmer" type="ColorRect" parent="."]
+[node name="Dimmer" type="ColorRect" parent="." unique_id=384950392]
 visible = false
 z_index = 2
 material = SubResource("ShaderMaterial_7ks4x")
@@ -57,24 +56,19 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("6_nw038")
 
-[node name="ItemEditContainer" parent="." instance=ExtResource("7_7qdje")]
+[node name="ExpandedTextEditContainer" parent="." unique_id=881659617 instance=ExtResource("6_cqyrh")]
 visible = false
 z_index = 2
 layout_mode = 1
 
-[node name="ExpandedTextEditContainer" parent="." instance=ExtResource("6_cqyrh")]
-visible = false
-z_index = 2
-layout_mode = 1
-
-[node name="PreviewWindow" parent="." instance=ExtResource("8_7qdje")]
+[node name="PreviewWindow" parent="." unique_id=1909948793 instance=ExtResource("8_7qdje")]
 visible = false
 
-[node name="WelcomeWindow" parent="." instance=ExtResource("9_fp7qq")]
+[node name="WelcomeWindow" parent="." unique_id=979035935 instance=ExtResource("9_fp7qq")]
 size = Vector2i(450, 300)
 visible = false
 
-[node name="FileDialog" type="FileDialog" parent="."]
+[node name="FileDialog" type="FileDialog" parent="." unique_id=1731826877]
 auto_translate_mode = 1
 size = Vector2i(419, 201)
 access = 2
@@ -82,7 +76,6 @@ use_native_dialog = true
 script = ExtResource("10_r77hi")
 
 [connection signal="gui_input" from="Dimmer" to="Dimmer" method="_on_gui_input"]
-[connection signal="visibility_changed" from="ItemEditContainer" to="ItemEditContainer" method="_on_visibility_changed"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 
 [editable path="Frame/VBoxContainer/MonologueEditor"]

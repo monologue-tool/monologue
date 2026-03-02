@@ -78,7 +78,6 @@ script = SubResource("GDScript_lenro")
 [node name="GraphEdit" parent="GraphContainer" unique_id=2027188591 instance=ExtResource("9_4vw8t")]
 unique_name_in_owner = true
 layout_mode = 2
-scroll_offset = Vector2(0, -3)
 
 [connection signal="pressed" from="GraphContainer/ToolBar/AddNodeBtn" to="GraphContainer/ToolBar/AddNodeBtn" method="_on_pressed"]
 [connection signal="pressed" from="GraphContainer/ToolBar/RunButton" to="GraphContainer/ToolBar/RunButton" method="_on_pressed"]

@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://qdgl8co6qy6"]
+[gd_scene format=3 uid="uid://qdgl8co6qy6"]
 
 [ext_resource type="Script" uid="uid://bvrbvq6oihg7d" path="res://common/layouts/graph_edit/monologue_graph_edit.gd" id="1_ivjsb"]
 
-[node name="GraphEdit" type="GraphEdit"]
+[node name="GraphEdit" type="GraphEdit" unique_id=1378799081]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

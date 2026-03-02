@@ -41,7 +41,7 @@ func _broadcast_change(is_undo: bool = false) -> void:
 		return
 
 	if target is InspectableNode and property_name == "position":
-		EventBus.request_node_inspection.emit(node, node.storyline_id, true)
+		EventBus.request_node_selection.emit(node, node.storyline_id, true)
 
 	if not property.get_settings_value("visible_in_inspector", true):
 		return

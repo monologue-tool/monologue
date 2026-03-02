@@ -1,4 +1,4 @@
 extends Node
 
-var language_switcher: LanguageSwitcher
+var current_language: String = ""
 var test_path: String

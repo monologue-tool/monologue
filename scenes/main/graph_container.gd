@@ -12,7 +12,7 @@ var _is_applying_selection: bool = false
 
 
 func _ready() -> void:
-	EventBus.request_node_inspection.connect(_on_request_node_inspection)
+	EventBus.request_node_selection.connect(_on_request_node_selection)
 	StorylineManager.storyline_changed.connect(refresh)
 	StorylineManager.storyline_switched.connect(_on_storyline_switched)
 
@@ -31,15 +31,12 @@ func _on_graph_edit_node_view_selected(node: InspectableNode) -> void:
 	request_node_selection(node)
 
 
-func _on_request_node_inspection(
-	node: InspectableNode, storyline_id: String = "", skip_history: bool = false
+func _on_request_node_selection(
+	object: InspectableObject, storyline_id: String, skip_history: bool = false
 ) -> void:
-	var target_storyline_id := storyline_id
-	if target_storyline_id.is_empty() and node:
-		target_storyline_id = node.storyline_id
-	if target_storyline_id.is_empty():
+	if object is not InspectableNode or storyline_id != graph.storyline_id:
 		return
-	request_node_selection(node, skip_history)
+	request_node_selection(object, skip_history)
 
 
 func request_node_selection(node: InspectableNode, skip_history: bool = false) -> void:
