@@ -43,8 +43,8 @@ Cursor="*res://autoloads/cursor.gd"
 ImageLoader="res://autoloads/image_loader.gd"
 FieldBucket="*res://common/fields/field_bucket.gd"
 NodeBucket="*res://common/nodes/node_bucket.gd"
+CollectionBucket="*uid://dl72pka6rakjc"
 StorylineManager="*res://autoloads/storyline_manager.gd"
-Schemas="*res://common/schemas.gd"
 
 [debug]
 

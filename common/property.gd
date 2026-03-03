@@ -38,7 +38,7 @@ var connected_to: Array[Dictionary] = []  # [{node_name: String, property_name: 
 
 func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary = {}) -> void:
 	name = pname
-	value = pvalue
+	value = pvalue.call() if pvalue is Callable else pvalue
 	type = ptype
 	descriptor = FieldBucket.get_descriptor(ptype)
 	_settings = DEFAULT_SETTINGS.duplicate(true)

@@ -1,6 +1,6 @@
 @abstract class_name MonologueIndexer
 
-enum ObjectType { NODE, FIELD }
+enum ObjectType { NODE, FIELD, COLLECTION }
 
 @abstract func get_scene() -> PackedScene
 

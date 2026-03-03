@@ -13,6 +13,7 @@ var _pending_expand_category: String = ""
 
 
 func _ready() -> void:
+	EventBus.request_object_inspection.connect(inspect)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
 
 
@@ -48,13 +49,15 @@ func rebuild() -> void:
 			if node.get_parent() == property_container:
 				# Found the property container, try to extract property name
 				for child in property_container.get_children():
-					if child == node or child.is_ancestor_of(focus_owner):
-						# Try to find the property name from the label
-						var labels = []
-						_find_labels(child, labels)
-						if labels.size() > 0:
-							focused_property_name = labels[0].text
-						break
+					if not (child == node or child.is_ancestor_of(focus_owner)):
+						continue
+					
+					# Try to find the property name from the label
+					var labels = []
+					_find_labels(child, labels)
+					if labels.size() > 0:
+						focused_property_name = labels[0].text
+					break
 				break
 			node = node.get_parent()
 

@@ -144,13 +144,22 @@ func _normalize_options_array(source: Variant) -> Array:
 func _get_options_from_source(source: String) -> Array:
 	var result: Array = []
 
-	# Get storyline from property owner
-	var storyline = _get_storyline()
-	if not storyline:
+	var source_owner: InspectableObject
+	# TODO: Better source path
+	if source.begins_with("self:"):
+		if not _binding or not _binding.owner:
+			return result
+			
+		source_owner = _binding.owner
+		source = source.trim_prefix("self:")
+	else:
+		source_owner = _get_storyline()
+	
+	if not source_owner:
 		return result
 
-	# Get the list property from storyline
-	var list_property: Property = storyline.get_property(source)
+	# Get the list property from source_owner
+	var list_property: Property = source_owner.get_property(source)
 	if not list_property:
 		return result
 

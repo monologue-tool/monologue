@@ -107,10 +107,10 @@ func load_project(path: String, _new_graph: bool = false) -> void:
 func load_editor_sections() -> void:
 	var storyline := StorylineManager.get_active_storyline()
 	if storyline:
-		characters_section.load_items(storyline.get_property("characters"), storyline, inspector_panel_node)
-		variables_section.load_items(storyline.get_property("variables"), storyline, inspector_panel_node)
-		items_section.load_items(storyline.get_property("items"), storyline, inspector_panel_node)
-		locations_section.load_items(storyline.get_property("locations"), storyline, inspector_panel_node)
+		characters_section.load_items(storyline.get_property("characters"), storyline)
+		variables_section.load_items(storyline.get_property("variables"), storyline)
+		items_section.load_items(storyline.get_property("items"), storyline)
+		locations_section.load_items(storyline.get_property("locations"), storyline)
 
 
 func save():

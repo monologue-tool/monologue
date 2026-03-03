@@ -81,9 +81,7 @@ func _apply_selection(node: InspectableNode, storyline_id: String) -> void:
 	if node and is_instance_valid(node.graph_view):
 		graph.set_selected(node.graph_view)
 
-	if inspector_panel.current_object != node:
-		inspector_panel.inspect(node)
-
+	EventBus.request_object_inspection.emit(node)
 	_is_applying_selection = false
 
 

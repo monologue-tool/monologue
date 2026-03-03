@@ -22,7 +22,7 @@ func clear() -> void:
 		child.queue_free()
 
 
-func load_items(property: Property, property_owner: InspectableObject = null, inspector: InspectorPanel = null) -> void:
+func load_items(property: Property, property_owner: InspectableObject = null) -> void:
 	clear()
 	_property = property
 	_property_owner = property_owner
@@ -31,38 +31,44 @@ func load_items(property: Property, property_owner: InspectableObject = null, in
 		return
 
 	_list_field = FieldBucket.safe_create_field(_property.type)
-	_list_field.inspector = inspector
 	if _list_field is ListField:
 		_property.bind_field(_list_field, _property_owner)
 	vbox.add_child(_list_field)
 
 
 func _on_add_button_pressed() -> void:
-	if not (_property and _property_owner):
+	if not (_property and _property_owner and _list_field):
 		return
 
-	var data_schema = _property.get_settings_value("data_schema", {})
-	var schema_properties: Dictionary = data_schema.get("properties", {})
-	var item_initial_data: Dictionary = {}
-	for prop_name in schema_properties.keys():
-		var prop_config = schema_properties[prop_name]
+	var collection_name = _list_field._collection_name
+	if collection_name == "":
+		return
 
-		if prop_config.get("editor_only", false):
-			continue
-
-		item_initial_data[prop_name] = prop_config.get("default", "")
-		if prop_config.get("default") is Callable:
-			item_initial_data[prop_name] = item_initial_data[prop_name].call()
-
-	var item_object = ListItemObject.new(
-		data_schema, item_initial_data, _list_field._command_manager, schema_properties
-	)
-	item_object.list_field = _list_field
-	item_object.make_all_values_unique()
+	var item_object: ListItem = CollectionBucket.create_item(collection_name, _list_field._command_manager)
+	if not item_object:
+		return
+		
+	# make sure name is valid
+	var name_prop = item_object.get_property("name")
+	if name_prop:
+		var base_name = name_prop.value
+		var attempt = 1
+		# A quick uniqueness check for new items if list is not empty
+		while _value_exists_in_list("name", name_prop.value):
+			name_prop.value = "%s %d" % [base_name, attempt]
+			attempt += 1
 
 	var new_item_list: Array = _property.get_value().duplicate(true)
 	new_item_list.append(item_object._to_dict())
 	_property_owner.set_property_value(_property.name, new_item_list)
+
+
+func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
+	for item in _list_field._list_items:
+		var prop = item.get_property(pname)
+		if prop and prop.value == pvalue:
+			return true
+	return false
 
 
 func _on_search_line_text_changed(new_text: String) -> void:
@@ -73,7 +79,7 @@ func _on_search_line_text_changed(new_text: String) -> void:
 	var search_keys: Array[String] = ["name", "display_name", "nicknames", "description"]
 	var item_list: Array = _list_field._list_items
 
-	for item: ListItemObject in item_list:
+	for item: ListItem in item_list:
 		var hide_item: bool = true
 		var item_idx: int = item_list.find(item)
 		for prop: Property in item.get_properties():

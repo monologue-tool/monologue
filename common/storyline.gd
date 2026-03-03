@@ -53,60 +53,36 @@ func get_node(node_id: String) -> InspectableNode:
 
 
 func initialize_properties() -> void:
-	var default_narrator: Dictionary = (
-		ListItemObject.new(Schemas.CHARACTER, {"name": "Narrator", "protected": true})._to_dict()
-	)
+	var default_narrator: ListItem = CollectionBucket.create_item("characters", history)
+	default_narrator.set_property_value("name", "Narrator")
+	default_narrator.set_property_value("protected", true)
 
 	define_property(
 		"characters",
-		[default_narrator],
+		[default_narrator._to_dict()],
 		"list",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"editable": true,
-			"data_schema": Schemas.CHARACTER,
-			"layout": "list_item"
-		},
+		{ "collection": "characters" },
 	)
 
 	define_property(
 		"variables",
 		[],
 		"list",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"editable": true,
-			"data_schema": Schemas.VARIABLE,
-			"layout": "list_item"
-		}
+		{ "collection": "variables" }
 	)
 
 	define_property(
 		"items",
 		[],
 		"list",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"editable": true,
-			"data_schema": Schemas.ITEM,
-			"layout": "list_item"
-		}
+		{ "collection": "items" }
 	)
 
 	define_property(
 		"locations",
 		[],
 		"list",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"editable": true,
-			"data_schema": Schemas.LOCATION,
-			"layout": "list_item"
-		}
+		{ "collection": "locations" }
 	)
 
 

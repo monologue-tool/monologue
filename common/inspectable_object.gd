@@ -71,7 +71,10 @@ func get_property(pname: String) -> Property:
 
 
 func get_property_value(pname: String) -> Variant:
-	return get_property(pname).get_value()
+	var property: Property = get_property(pname)
+	if not property:
+		return
+	return property.get_value()
 
 
 func get_property_settings_value(pname: String, skey: String) -> Variant:
