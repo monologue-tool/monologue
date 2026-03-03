@@ -201,6 +201,7 @@ func _create_property_editor(property: Property) -> Control:
 	p_container.theme_type_variation = "FieldContainer"
 
 	p_label.text = property.get_display_name()
+	p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	p_hbox.add_child(p_expose_button)
 	p_hbox.add_child(p_label)
 
@@ -222,6 +223,17 @@ func _create_property_editor(property: Property) -> Control:
 		p_field = FieldBucket.safe_create_field(property.type)
 		if p_field is Field:
 			property.call_deferred("bind_field", p_field, current_object)
+
+	if property.type == "list":
+		var add_btn: Button = Button.new()
+		add_btn.icon = preload("res://ui/assets/icons/plus_min.svg")
+		add_btn.flat = true
+		add_btn.tooltip_text = "Add item"
+		add_btn.pressed.connect(func():
+			if p_field is ListField:
+				p_field.add_item()
+		)
+		p_hbox.add_child(add_btn)
 
 	p_vbox.add_child(p_field)
 	p_container.add_child(p_vbox)

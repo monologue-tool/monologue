@@ -261,6 +261,33 @@ func _is_valid_index(index: int) -> bool:
 	return index >= 0 and index < _list_items.size()
 
 
+func add_item() -> void:
+	if not _binding or not _binding.owner:
+		return
+	var item_object: ListItem = CollectionBucket.create_item(_collection_name, _command_manager)
+	if not item_object:
+		return
+	for prop: Property in item_object.get_properties():
+		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
+			continue
+		var base_val: String = str(prop.value)
+		var attempt: int = 1
+		while _value_exists_in_list(prop.name, prop.value):
+			prop.value = "%s %d" % [base_val, attempt]
+			attempt += 1
+	var new_item_list: Array = _binding.property.get_value().duplicate(true)
+	new_item_list.append(item_object._to_dict())
+	_binding.owner.set_property_value(_binding.property.name, new_item_list)
+
+
+func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
+	for item: ListItem in _list_items:
+		var prop: Property = item.get_property(pname)
+		if prop and prop.value == pvalue:
+			return true
+	return false
+
+
 func _emit_snapshot() -> void:
 	_is_emitting_snapshot = true
 	emit_value_changed(get_value())

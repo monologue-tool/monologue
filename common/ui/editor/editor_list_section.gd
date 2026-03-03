@@ -37,38 +37,8 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 
 
 func _on_add_button_pressed() -> void:
-	if not (_property and _property_owner and _list_field):
-		return
-
-	var collection_name = _list_field._collection_name
-	if collection_name == "":
-		return
-
-	var item_object: ListItem = CollectionBucket.create_item(collection_name, _list_field._command_manager)
-	if not item_object:
-		return
-		
-	# Ensure all properties with unique:true have a unique initial value
-	for prop: Property in item_object.get_properties():
-		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
-			continue
-		var base_val: String = str(prop.value)
-		var attempt: int = 1
-		while _value_exists_in_list(prop.name, prop.value):
-			prop.value = "%s %d" % [base_val, attempt]
-			attempt += 1
-
-	var new_item_list: Array = _property.get_value().duplicate(true)
-	new_item_list.append(item_object._to_dict())
-	_property_owner.set_property_value(_property.name, new_item_list)
-
-
-func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
-	for item in _list_field._list_items:
-		var prop = item.get_property(pname)
-		if prop and prop.value == pvalue:
-			return true
-	return false
+	if _list_field is ListField:
+		_list_field.add_item()
 
 
 func _on_search_line_text_changed(new_text: String) -> void:
