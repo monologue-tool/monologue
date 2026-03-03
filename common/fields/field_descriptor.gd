@@ -1,8 +1,5 @@
-class_name FieldDescriptor extends RefCounted
+class_name FieldDescriptor extends BucketDescriptor
 
-const FIELD_OBJECT_TYPE := 1
-
-var name: String
 var scene: PackedScene
 var color: Color = Color.WHITE
 var default_settings: Dictionary = {}
@@ -12,7 +9,7 @@ var type_id: int = -1
 
 
 func _init(p_name: String = "", p_scene: PackedScene = null, metadata: Dictionary = {}) -> void:
-	name = p_name
+	super._init(p_name, metadata)
 	scene = p_scene
 	var raw_color = metadata.get("color")
 	if raw_color is Color:
@@ -67,10 +64,8 @@ func format(value: Variant) -> Variant:
 
 
 func to_metadata() -> Dictionary:
-	return {
-		"name": name,
-		"type": FIELD_OBJECT_TYPE,
-		"color": color,
-		"type_id": type_id,
-		"default_settings": default_settings.duplicate(true),
-	}
+	var base: Dictionary = super.to_metadata()
+	base["color"] = color
+	base["type_id"] = type_id
+	base["default_settings"] = default_settings.duplicate(true)
+	return base

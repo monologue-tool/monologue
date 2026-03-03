@@ -13,14 +13,14 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="TextEdit" type="TextEdit" parent="HBoxContainer" unique_id=826857662]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="LocalizationOption" type="OptionButton" parent="HBoxContainer" unique_id=1666513133]
 unique_name_in_owner = true
 layout_mode = 2
-selected = 0
-item_count = 3
-popup/item_0/text = "en"
-popup/item_0/id = 0
-popup/item_1/text = "fr"
-popup/item_1/id = 1
-popup/item_2/text = "be"
-popup/item_2/id = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0

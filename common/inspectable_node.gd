@@ -29,6 +29,7 @@ func _init(command_manager: CommandManager = null) -> void:
 			"visible_in_graph": false,
 			"visible_in_inspector": true,
 			"flat": true,
+			"unique": true,
 		},
 		"Special:Header"
 	)

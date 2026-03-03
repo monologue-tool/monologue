@@ -148,4 +148,3 @@ func duplicate(deep: bool = false) -> Resource:
 
 @abstract func get_type() -> String
 @abstract func initialize_properties() -> void
-@abstract func _on_property_changed(pname: String, old_value: Variant, new_value: Variant) -> void

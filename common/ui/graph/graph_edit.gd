@@ -3,6 +3,7 @@ signal node_view_selected(node: InspectableNode)
 
 var storyline_id: String
 var connection_manager: ConnectionManager
+var current_language_index: int = 0
 var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
 var _selected_nodes: Dictionary = {}
 var _copied_nodes: Array = []

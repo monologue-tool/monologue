@@ -3,6 +3,8 @@ class_name LanguageOption extends Button
 signal language_name_changed(old_name: String, new_name: String, option: LanguageOption)
 signal language_removed(option: LanguageOption)
 
+## Short language code used as the dictionary key in translatable values (e.g. "en", "fr").
+var language_code: String = "en"
 var language_name: String:
 	set = set_language_name
 

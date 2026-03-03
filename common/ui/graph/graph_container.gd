@@ -9,6 +9,7 @@ var prompt_scene = preload("uid://bkreq3xdr7gxw")
 
 var _selected_nodes: Dictionary = {}  # storyline_id -> InspectableNode
 var _is_applying_selection: bool = false
+var _current_lang_prop: Property = null  # tracked to disconnect on storyline switch
 
 
 func _ready() -> void:
@@ -26,6 +27,21 @@ func _on_storyline_switched() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
 	graph.storyline_id = storyline.id
 	graph.refresh()
+
+	# Disconnect from the previous storyline's languages property
+	if is_instance_valid(_current_lang_prop) and _current_lang_prop.value_changed.is_connected(_on_languages_changed):
+		_current_lang_prop.value_changed.disconnect(_on_languages_changed)
+
+	# Wire the new storyline's languages property so any add/delete/rename
+	# (including via undo/redo) immediately refreshes the LanguageSwitcher.
+	_current_lang_prop = storyline.get_property("languages")
+	if _current_lang_prop:
+		_current_lang_prop.value_changed.connect(_on_languages_changed)
+		EventBus.load_languages.emit(storyline.get_property_value("languages"), graph)
+
+
+func _on_languages_changed(_old: Variant, new_value: Variant) -> void:
+	EventBus.load_languages.emit(new_value, graph)
 
 
 func _on_graph_edit_node_view_selected(node: InspectableNode) -> void:

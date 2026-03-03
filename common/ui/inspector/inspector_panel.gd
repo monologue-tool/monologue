@@ -182,12 +182,15 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 
 
 func _create_property_editor(property: Property) -> Control:
-	if (
-		not property.get_settings_value("editable", true)
-		and not property.get_settings_value("exposed", false)
-		and not property.get_settings_value("export", false)
-	):
-		return
+	var is_editable: bool = property.get_settings_value(PropertySettings.KEY_EDITABLE, true)
+	var is_read_only: bool = property.get_settings_value(PropertySettings.KEY_READ_ONLY, false)
+	var has_port: bool = (
+		property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+		or property.get_settings_value(PropertySettings.KEY_EXPORT, false)
+	)
+	# Hidden when: not editable, not read_only, and no ports
+	if not is_editable and not is_read_only and not has_port:
+		return null
 
 	var p_container: PanelContainer = PanelContainer.new()
 	var p_hbox: HBoxContainer = HBoxContainer.new()
@@ -225,18 +228,20 @@ func _create_property_editor(property: Property) -> Control:
 	if property.get_settings_value("expand", true):
 		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value("exposable", false)
-	p_expose_button.button_pressed = property.get_settings_value("exposed", false)
+	p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
+	p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
 	p_expose_button.toggled.connect(
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
 
-	# TODO: Make field read-only if property is not editable or is connected
-	#if p_field and p_field.has_method("set_editable"):
-	#var is_editable = (
-	#property.get_settings_value("editable", true) and not property.is_input_connected()
-	#)
-	#p_field.set_editable(is_editable)
+	# Apply read-only visual treatment: muted opacity + lock-icon tooltip suffix.
+	# The actual field.set_editable(false) is called by FieldBinding._update_editable_state().
+	if is_read_only:
+		p_container.modulate = Color(1, 1, 1, 0.6)
+		if p_label.tooltip_text.is_empty():
+			p_label.tooltip_text = "(read-only)"
+		else:
+			p_label.tooltip_text += " (read-only)"
 
 	return p_container
 

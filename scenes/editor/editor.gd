@@ -15,6 +15,7 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 @onready var variables_section := %Variables
 @onready var items_section := %Items
 @onready var locations_section := %Locations
+@onready var languages_section := %Languages
 
 
 func _ready():
@@ -106,11 +107,17 @@ func load_project(path: String, _new_graph: bool = false) -> void:
 
 func load_editor_sections() -> void:
 	var storyline := StorylineManager.get_active_storyline()
-	if storyline:
-		characters_section.load_items(storyline.get_property("characters"), storyline)
-		variables_section.load_items(storyline.get_property("variables"), storyline)
-		items_section.load_items(storyline.get_property("items"), storyline)
-		locations_section.load_items(storyline.get_property("locations"), storyline)
+	#for prop: Property in storyline.get_properties():
+		#if prop.type != "list":
+			#return
+			
+			# TODO: Auto stoyline list section implementation
+		
+	characters_section.load_items(storyline.get_property("characters"), storyline)
+	variables_section.load_items(storyline.get_property("variables"), storyline)
+	items_section.load_items(storyline.get_property("items"), storyline)
+	locations_section.load_items(storyline.get_property("locations"), storyline)
+	languages_section.load_items(storyline.get_property("languages"), storyline)
 
 
 func save():

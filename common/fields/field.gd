@@ -38,10 +38,6 @@ func emit_preview_changed() -> void:
 
 
 func emit_value_committed(value: Variant) -> void:
-	if settings.get("unique"):
-		# TODO: ???
-		pass
-
 	value_committed.emit(value)
 
 

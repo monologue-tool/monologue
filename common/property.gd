@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS := {
 	"visible_in_graph": true,
 	"visible_in_inspector": true,
 	"editable": true,
+	"read_only": false,
 	"exposable": true,
 	"exposed": false,
 	"export": false,

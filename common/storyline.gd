@@ -10,6 +10,8 @@ var name: String = ""
 var nodes: Array[InspectableNode] = []
 var file_path: String = ""
 var is_dirty: bool = false
+## Active language code in the editor for this storyline (e.g. "en", "fr").
+var active_language_code: String = "en"
 
 
 func _init(sname: String, sfile_path: String = "") -> void:
@@ -83,6 +85,18 @@ func initialize_properties() -> void:
 		[],
 		"list",
 		{ "collection": "locations" }
+	)
+
+	var default_language: ListItem = CollectionBucket.create_item("languages", history)
+	default_language.set_property_value("name", "English")
+	default_language.set_property_value("code", "en")
+	default_language.set_property_value("protected", true)
+	define_property(
+		"languages",
+		[default_language._to_dict()],
+		"list",
+		{ "collection": "languages" },
+		"Languages"
 	)
 
 

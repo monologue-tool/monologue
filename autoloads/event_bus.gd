@@ -17,7 +17,7 @@ signal save_file_request(callable: Callable, filter_list: PackedStringArray, roo
 signal open_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String)
 signal open_files_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String)
 
-signal load_languages(list: PackedStringArray, graph: MonologueGraphEdit)
+signal load_languages(languages: Array, graph: MonologueGraphEdit)
 signal show_languages(can_see: bool)
 signal enable_language_switcher
 signal disable_language_switcher

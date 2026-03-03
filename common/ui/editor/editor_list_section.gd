@@ -48,14 +48,14 @@ func _on_add_button_pressed() -> void:
 	if not item_object:
 		return
 		
-	# make sure name is valid
-	var name_prop = item_object.get_property("name")
-	if name_prop:
-		var base_name = name_prop.value
-		var attempt = 1
-		# A quick uniqueness check for new items if list is not empty
-		while _value_exists_in_list("name", name_prop.value):
-			name_prop.value = "%s %d" % [base_name, attempt]
+	# Ensure all properties with unique:true have a unique initial value
+	for prop: Property in item_object.get_properties():
+		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
+			continue
+		var base_val: String = str(prop.value)
+		var attempt: int = 1
+		while _value_exists_in_list(prop.name, prop.value):
+			prop.value = "%s %d" % [base_val, attempt]
 			attempt += 1
 
 	var new_item_list: Array = _property.get_value().duplicate(true)

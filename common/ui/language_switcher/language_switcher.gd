@@ -1,154 +1,89 @@
-class_name LanguageSwitcher extends Button
-
-const DEFAULT_LOCALE = "English"
+class_name LanguageSwitcher extends OptionButton
 
 ## Current graph edit which has the loaded languages.
-@export var graph_edit: MonologueGraphEdit
-## Currently selected index from the dropdown of languages.
-@export var selected_index: int
-
-var arrow_left := preload("res://ui/assets/icons/arrow_left.svg")
-var arrow_down := preload("res://ui/assets/icons/arrow_down.svg")
-var option_scene := preload("uid://x84tcb0t06mo")
-
-@onready var dropdown_container: Control = $Dropdown
-@onready var vbox: VBoxContainer = $Dropdown/PanelContainer/VBox/Scroll/Options
+var graph_edit: MonologueGraphEdit
+var _is_applying: bool = false
 
 
 func _ready() -> void:
-	dropdown_container.hide()
+	item_selected.connect(_on_item_selected)
 	EventBus.load_languages.connect(load_languages)
-	EventBus.show_languages.connect(show_dropdown)
+	EventBus.refresh.connect(_on_global_refresh)
 	EventBus.enable_language_switcher.connect(set_enabled)
 	EventBus.disable_language_switcher.connect(set_enabled.bind(false))
 	load_languages()
 
 
-func add_language(locale_name: String = "") -> LanguageOption:
-	var new_option: LanguageOption = option_scene.instantiate()
-	vbox.add_child(new_option, true)
-	new_option.language_name = locale_name
-	#new_option.language_name_changed.connect(_on_option_rename)
-	#new_option.language_removed.connect(_on_option_removed)
-	new_option.pressed.connect(_on_option_selected.bind(new_option))
-	return new_option
-
-
-func get_current_language() -> LanguageOption:
-	return vbox.get_child(selected_index)
-
-
-## Returns language option node names as Dictionary, where key = language name.
-func get_languages() -> Dictionary:
-	var option_dictionary = {}
-	for option in vbox.get_children():
-		if is_instance_valid(option) and not option.is_queued_for_deletion():
-			option_dictionary[str(option)] = option.name
-	return option_dictionary
-
-
-## Returns the language option that has the given node name.
-## The node name is separate from language_name because it allows the user
-## to rename the language without changing the reference for undo/redo.
-func get_by_node_name(node_name: String) -> LanguageOption:
-	return vbox.get_node_or_null(node_name)
-
-
-func load_languages(list: PackedStringArray = [], graph: MonologueGraphEdit = null) -> void:
+func load_languages(languages: Array = [], graph: MonologueGraphEdit = null) -> void:
 	graph_edit = graph
-	for child in vbox.get_children():
-		remove_language(child)
+	clear()
 
-	if graph:
-		selected_index = graph.current_language_index
-	selected_index = 0 if selected_index >= list.size() else selected_index
+	var seen_codes: PackedStringArray = []
+	for i in languages.size():
+		var lang: Dictionary = languages[i]
+		var lang_code: String = lang.get("code", {}).get("value", "en")
+		var lang_name: String = lang.get("name", {}).get("value", "Language %d" % (i + 1))
+		if seen_codes.has(lang_code):
+			continue
+		seen_codes.append(lang_code)
+		add_item(lang_name)
+		set_item_metadata(item_count - 1, lang_code)
 
-	if list.is_empty():
-		list.append(DEFAULT_LOCALE)
-
-	var already_added: PackedStringArray = []
-	for i in range(list.size()):
-		if not already_added.has(list[i]):
-			var new_option = add_language(list[i])
-			if i == 0:
-				new_option.show_delete_button(false)
-			already_added.append(list[i])
-	_on_option_selected(vbox.get_child(selected_index))
-
-
-func remove_language(option_node) -> void:
-	vbox.remove_child(option_node)
-	option_node.queue_free()
+	var restore_idx: int = 0
+	if graph_edit:
+		restore_idx = clampi(graph_edit.current_language_index, 0, item_count - 1)
+	if item_count > 0:
+		select(restore_idx)
+		_apply_selection(restore_idx)
 
 
-func select_by_locale(locale: String, refresh: bool = true) -> void:
-	var selected_option: LanguageOption
-	for child in vbox.get_children():
-		if child.language_name == locale:
-			selected_option = child
-			break
-	if selected_option:
-		_on_option_selected(selected_option, refresh)
+func select_by_locale(locale_code: String) -> void:
+	for i in item_count:
+		if get_item_metadata(i) == locale_code:
+			select(i)
+			_apply_selection(i)
+			return
 
 
 func set_enabled(active: bool = true) -> void:
-	if not active:
-		show_dropdown(false)
-		disabled = true
-		focus_mode = FOCUS_NONE
-	else:
-		disabled = false
-		focus_mode = FOCUS_ALL
+	disabled = not active
 
 
-func show_dropdown(can_see: bool = true) -> void:
-	dropdown_container.visible = can_see
-	icon = arrow_down if can_see else arrow_left
-
-	if !can_see:
-		release_focus()
-
-#func _on_option_removed(option: LanguageOption) -> void:
-	#var act_text = [option.language_name, graph_edit.file_path]
-	#graph_edit.undo_redo.create_action("Delete %s language from %s" % act_text)
-	#var deletion = DeleteLanguageHistory.new(graph_edit, option.language_name, option.name)
-	##GlobalSignal.emit("language_deleted", [option.name, deletion.restoration, deletion.choices])
-	#EventBus.language_deleted.emit()
-	#graph_edit.undo_redo.add_prepared_history(deletion)
-	#graph_edit.undo_redo.commit_action()
-#
-#
-#func _on_option_rename(old: String, new: String, option: LanguageOption) -> void:
-	#graph_edit.undo_redo.create_action("Change %s language to %s" % [old, new])
-	#var change = ModifyLanguageHistory.new(graph_edit, option.name, option.language_name, new)
-	#graph_edit.undo_redo.add_prepared_history(change)
-	#graph_edit.undo_redo.commit_action()
-
-	var selected_option: LanguageOption = vbox.get_children()[selected_index]
-	_on_option_selected(selected_option, false)
+func _on_item_selected(idx: int) -> void:
+	_apply_selection(idx)
 
 
-func _on_option_selected(option: LanguageOption, refresh: bool = true) -> void:
-	for opt: LanguageOption in vbox.get_children():
-		opt.unselect()
-	option.select()
+func _on_global_refresh() -> void:
+	# Another source (e.g. TranslatableField LocalizationOption) changed the language;
+	# update our selection to match without re-emitting refresh.
+	if _is_applying:
+		return
+	var storyline: StorylineDocument = _get_storyline()
+	var active: String = storyline.active_language_code if storyline else "en"
+	for i in item_count:
+		if get_item_metadata(i) == active:
+			if selected != i:
+				select(i)
+				if graph_edit:
+					graph_edit.current_language_index = i
+			return
 
-	selected_index = option.get_index()
+
+func _apply_selection(idx: int) -> void:
+	if idx < 0 or idx >= item_count:
+		return
+	_is_applying = true
+	var code: String = get_item_metadata(idx)
+	var storyline: StorylineDocument = _get_storyline()
 	if graph_edit:
-		graph_edit.current_language_index = selected_index
-	text = option.language_name
-	
-	GlobalVariables.current_language = option.language_name
-	
-	if refresh:
-		EventBus.refresh.emit()
+		graph_edit.current_language_index = idx
+	if storyline:
+		storyline.active_language_code = code
+	EventBus.refresh.emit()
+	_is_applying = false
 
 
-func _on_pressed() -> void:
-	show_dropdown(!dropdown_container.visible)
-
-
-func _on_btn_add_pressed() -> void:
-	graph_edit.undo_redo.create_action("Add language to %s" % graph_edit.file_path)
-	#graph_edit.undo_redo.add_prepared_history(AddLanguageHistory.new(graph_edit))
-	graph_edit.undo_redo.commit_action()
+func _get_storyline() -> StorylineDocument:
+	if graph_edit:
+		return StorylineManager.get_storyline(graph_edit.storyline_id)
+	return StorylineManager.get_active_storyline()

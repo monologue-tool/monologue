@@ -98,6 +98,11 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
+[node name="Languages" parent="VBox/HSplitContainer/PanelContainer/ListContainer" unique_id=234567891 instance=ExtResource("6_mei7o")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
 [node name="HSplitContainer" type="HSplitContainer" parent="VBox/HSplitContainer" unique_id=1713533008]
 layout_mode = 2
 split_offsets = PackedInt32Array(1000)

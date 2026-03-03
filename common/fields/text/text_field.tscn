@@ -11,3 +11,11 @@ script = ExtResource("1_56141")
 [node name="LineEdit" type="LineEdit" parent="." unique_id=882645481]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextEdit" type="TextEdit" parent="." unique_id=882645482]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+wrap_mode = 1

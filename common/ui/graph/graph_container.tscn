@@ -18,6 +18,8 @@ func _on_pressed() -> void:
 "
 
 [node name="GraphContainer" type="PanelContainer" unique_id=379673752]
+offset_right = 359.0
+offset_bottom = 41.0
 script = ExtResource("1_plmop")
 
 [node name="HBox" type="VBoxContainer" parent="." unique_id=803151000]
@@ -52,7 +54,6 @@ icon_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
-disabled = true
 
 [node name="ButtonSettings" type="Button" parent="HBox/ToolBar" unique_id=749078510]
 visible = false

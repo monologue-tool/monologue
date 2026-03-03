@@ -6,6 +6,10 @@ var _list_items: Array[ListItem] = []
 var _hide_items: Array[int] = []
 var _collection_name: String = ""
 var _command_manager: CommandManager
+## Guard flag: true while this field is broadcasting its own value snapshot.
+## Used by FieldBinding._sync_from_property() to skip redundant set_value() calls
+## that would destroy live ListItem references.
+var _is_emitting_snapshot: bool = false
 
 @onready var items_container: VBoxContainer = %ItemsContainer
 
@@ -52,7 +56,7 @@ func set_value(value: Variant) -> void:
 			continue
 		
 		new_item._from_dict(property_data)
-		new_item.set_meta("list_field", self)
+		new_item.set_meta("list_siblings", _list_items)
 		_connect_item_observer(new_item)
 		_list_items.append(new_item)
 
@@ -61,6 +65,12 @@ func set_value(value: Variant) -> void:
 
 func _connect_item_observer(item: ListItem) -> void:
 	item.add_observer(_on_item_changed)
+	# Store the information needed to push a snapshot even after this ListField node is freed
+	# WeakRef lets callers detect the freed state cheaply without keeping it alive.
+	item.set_meta("_list_field_ref", weakref(self))
+	if _binding:
+		item.set_meta("_parent_owner", _binding.owner)       # InspectableObject (Resource)
+		item.set_meta("_parent_prop_name", _binding.property.name)
 
 
 func _on_item_changed(_item: ListItem, _prop_name: String) -> void:
@@ -212,7 +222,7 @@ func _on_duplicate_item(index: int) -> void:
 	var new_item: ListItem = CollectionBucket.create_item(_collection_name, _command_manager)
 	if new_item:
 		new_item._from_dict(item_data)
-		new_item.set_meta("list_field", self)
+		new_item.set_meta("list_siblings", _list_items)
 		# make sure name is valid
 		var name_prop = new_item.get_property("name")
 		if name_prop:
@@ -252,8 +262,10 @@ func _is_valid_index(index: int) -> bool:
 
 
 func _emit_snapshot() -> void:
+	_is_emitting_snapshot = true
 	emit_value_changed(get_value())
 	emit_value_committed(get_value())
+	_is_emitting_snapshot = false
 
 
 func undo() -> void:
