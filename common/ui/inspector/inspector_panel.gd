@@ -208,7 +208,7 @@ func _create_property_editor(property: Property) -> Control:
 		p_hbox.hide()
 
 	var p_field: Control
-	if property.is_intput_connected():  # Add inspect connected node button if property is connected
+	if property.is_input_connected():  # Add inspect connected node button if property is connected
 		var inspect_button: Button = Button.new()
 		inspect_button.text = "Go to connected node"
 		inspect_button.tooltip_text = "Inspect connected node"
@@ -234,7 +234,7 @@ func _create_property_editor(property: Property) -> Control:
 	# TODO: Make field read-only if property is not editable or is connected
 	#if p_field and p_field.has_method("set_editable"):
 	#var is_editable = (
-	#property.get_settings_value("editable", true) and not property.is_intput_connected()
+	#property.get_settings_value("editable", true) and not property.is_input_connected()
 	#)
 	#p_field.set_editable(is_editable)
 

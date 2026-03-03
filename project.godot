@@ -27,7 +27,7 @@ run/enable_alt_space_menu=true
 config/features=PackedStringArray("4.6")
 boot_splash/bg_color=Color(0.117647, 0.117647, 0.129412, 1)
 boot_splash/show_image=false
-config/icon="uid://b2ebpoey21tpc"
+config/icon="uid://bou7qelcr5dwn"
 
 [autoload]
 
