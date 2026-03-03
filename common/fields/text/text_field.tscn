@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" uid="uid://ntsxdpbgyehu" path="res://common/fields/text/text_field.gd" id="1_56141"]
 
-[node name="VBoxContainer" type="VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" unique_id=1883872284]
 offset_right = 76.0
 offset_bottom = 29.0
 size_flags_horizontal = 3
 script = ExtResource("1_56141")
 
-[node name="LineEdit" type="LineEdit" parent="."]
+[node name="LineEdit" type="LineEdit" parent="." unique_id=882645481]
 unique_name_in_owner = true
 layout_mode = 2

@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://bg1c7vlg63ty1"]
+
+[ext_resource type="Script" uid="uid://bmx1121byfwgx" path="res://common/fields/translatable/translatable_field.gd" id="1_mdw0x"]
+
+[node name="TranslatableField" type="VBoxContainer" unique_id=2026809464]
+script = ExtResource("1_mdw0x")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1557230006]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="HBoxContainer" unique_id=826857661]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LocalizationOption" type="OptionButton" parent="HBoxContainer" unique_id=1666513133]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "en"
+popup/item_0/id = 0
+popup/item_1/text = "fr"
+popup/item_1/id = 1
+popup/item_2/text = "be"
+popup/item_2/id = 2
