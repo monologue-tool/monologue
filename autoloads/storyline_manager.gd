@@ -14,11 +14,26 @@ func create_storyline(fname: String = "unnamed_storyline") -> StorylineDocument:
 	doc.is_dirty = true
 	doc.content_changed.connect(_on_document_content_changed)
 	_documents.set(doc.id, doc)
-	set_active_storyline(doc.id)
 	storyline_created.emit()
-	if _documents.size() <= 1:
-		storyline_switched.emit()
+	set_active_storyline(doc.id)
 	return doc
+
+
+func open_document(path: String) -> StorylineDocument:
+	var file = FileAccess.open(path, FileAccess.READ)
+	var text = file.get_as_text()
+	var data = JSON.parse_string(text) if text else {}
+		
+	var doc: StorylineDocument = StorylineDocument.new(path.get_file())
+	doc._from_dict(data)
+	doc.file_path = path
+	doc.is_dirty = false
+	doc.content_changed.connect(_on_document_content_changed)
+	_documents.set(doc.id, doc)
+	storyline_created.emit()
+	set_active_storyline(doc.id)
+	return doc
+	
 
 
 func close_storyline(id: String) -> void:
@@ -26,7 +41,7 @@ func close_storyline(id: String) -> void:
 	if doc == null:
 		return
 	if doc.is_dirty:
-		# Save changes ?
+		# TODO: Save changes ?
 		return
 	_documents.erase(id)
 
@@ -41,6 +56,7 @@ func close_storyline(id: String) -> void:
 
 func set_active_storyline(id: String) -> void:
 	_active_document_id = id
+	storyline_switched.emit()
 
 
 func get_storyline(id: String) -> StorylineDocument:
@@ -57,3 +73,11 @@ func get_active_storyline() -> StorylineDocument:
 
 func _on_document_content_changed() -> void:
 	storyline_changed.emit()
+
+
+func is_document_opened(path: String) -> bool:
+	for id in _documents:
+		var document: StorylineDocument = get_storyline(id)
+		if document.file_path.simplify_path() == path.simplify_path():
+			return true
+	return false

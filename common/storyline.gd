@@ -168,3 +168,27 @@ func _to_dict() -> Dictionary:
 	dict["root_node_id"] = root_node_id
 
 	return dict
+
+
+func _from_dict(dict: Dictionary) -> void:
+	if not dict or dict.is_empty():
+		return
+
+	# Clear default nodes created by _create_default_nodes() in _init
+	nodes.clear()
+
+	# Restore storyline-level properties (characters, languages, variables, …)
+	super._from_dict(dict)
+
+	# Reconstruct graph nodes
+	var node_list: Array = dict.get("nodes", [])
+	for node_data: Dictionary in node_list:
+		var node_type: String = node_data.get("$type", "")
+		if node_type.is_empty():
+			continue
+		var node: InspectableNode = NodeBucket.create_node(node_type, history)
+		if not node:
+			push_warning("Could not create node of type '%s' from dict." % node_type)
+			continue
+		node._from_dict(node_data)
+		_register_node(node)

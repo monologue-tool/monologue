@@ -27,6 +27,7 @@ func _ready():
 	EventBus.load_project.connect(load_project)
 	EventBus.test_trigger.connect(test_project)
 	EventBus.save_current_project.connect(save)
+	StorylineManager.storyline_switched.connect(_on_storyline_switched)
 
 	StorylineManager.create_storyline()
 
@@ -90,19 +91,10 @@ func get_root_dict(node_list: Array) -> Dictionary:
 
 func load_project(path: String, _new_graph: bool = false) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
-	if not file or graph_container.is_file_opened(path):
+	if not file or StorylineManager.is_document_opened(path):
 		return
 
-	var data = {}
-	var text = file.get_as_text()
-	if text:
-		data = JSON.parse_string(text)
-	if not data:
-		save()
-
-	var _storyline = StorylineManager.get_active_storyline()
-
-	load_editor_sections()
+	StorylineManager.open_document(path)
 
 
 func load_editor_sections() -> void:
@@ -145,6 +137,10 @@ func save_file_logic(path: String) -> void:
 	storyline.name = path.get_file()
 	storyline.is_dirty = false
 	storyline.content_changed.emit()
+
+
+func _on_storyline_switched() -> void:
+	load_editor_sections()
 
 
 func test_project(_from_node: Variant = null):

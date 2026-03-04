@@ -32,12 +32,16 @@ func _on_storyline_switched() -> void:
 	if is_instance_valid(_current_lang_prop) and _current_lang_prop.value_changed.is_connected(_on_languages_changed):
 		_current_lang_prop.value_changed.disconnect(_on_languages_changed)
 
-	# Wire the new storyline's languages property so any add/delete/rename
-	# (including via undo/redo) immediately refreshes the LanguageSwitcher.
 	_current_lang_prop = storyline.get_property("languages")
 	if _current_lang_prop:
 		_current_lang_prop.value_changed.connect(_on_languages_changed)
 		EventBus.load_languages.emit(storyline.get_property_value("languages"), graph)
+
+	# Restore the previously selected node (and inspector) for this storyline
+	var last_node: InspectableNode = _selected_nodes.get(storyline.id)
+	if last_node and is_instance_valid(last_node) and is_instance_valid(last_node.graph_view):
+		graph.set_selected(last_node.graph_view)
+	EventBus.request_object_inspection.emit(last_node)
 
 
 func _on_languages_changed(_old: Variant, new_value: Variant) -> void:

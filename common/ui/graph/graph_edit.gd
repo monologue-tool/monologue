@@ -90,7 +90,7 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 
 	var position_property := node.get_property("position")
 	var desired_position: Vector2 = (
-		position_property.get_value() if position_property else Vector2.ZERO
+		position_property.get_value() if position_property and position_property.get_value() is Vector2 else Vector2.ZERO
 	)
 
 	if node.graph_view.position_offset == desired_position:

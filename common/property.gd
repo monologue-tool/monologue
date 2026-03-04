@@ -22,11 +22,11 @@ const DEFAULT_SETTINGS := {
 	"label": "",
 }
 
-## Tracks input connections to this property (nodes connecting TO this property)
-var connected_from: Array[Dictionary] = []  # [{node_name: String, property_name: String, port: int}]
+## Tracks input connections to this property
+var connected_from: Array[Dictionary] = []
 
-## Tracks output connections from this property (nodes this property connects TO)
-var connected_to: Array[Dictionary] = []  # [{node_name: String, property_name: String, port: int}]
+## Tracks output connections from this property
+var connected_to: Array[Dictionary] = []
 
 ## Property Settings:
 ## - visible_in_graph: Whether property shows as a row in graph node view
@@ -185,4 +185,3 @@ func _from_dict(raw: Dictionary) -> void:
 	settings = raw.get("_editor_settings", settings)
 	connected_from = raw.get("from_node", connected_from)
 	connected_to = raw.get("to_node", connected_to)
-	
