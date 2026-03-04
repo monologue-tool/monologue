@@ -277,6 +277,31 @@ static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_stylebox("normal", "TextEdit", input_normal.duplicate())
 	theme.set_stylebox("focus", "TextEdit", input_focus.duplicate())
 	theme.set_stylebox("read_only", "TextEdit", input_disabled.duplicate())
+	
+	# SpinBox
+	var empty_bg: StyleBoxEmpty = StyleBoxEmpty.new()
+	var empty_image: ImageTexture = ImageTexture.new()
+	theme.set_stylebox("up_background", "SpinBox", empty_bg)
+	theme.set_stylebox("up_background_hover", "SpinBox", empty_bg)
+	theme.set_stylebox("up_background_pressed", "SpinBox", empty_bg)
+	theme.set_stylebox("up_background_disabled", "SpinBox", empty_bg)
+	theme.set_stylebox("down_background", "SpinBox", empty_bg)
+	theme.set_stylebox("down_background_hover", "SpinBox", empty_bg)
+	theme.set_stylebox("down_background_pressed", "SpinBox", empty_bg)
+	theme.set_stylebox("down_background_disabled", "SpinBox", empty_bg)
+	theme.set_stylebox("field_and_buttons_separator", "SpinBox", empty_bg)
+	theme.set_stylebox("up_down_buttons_separator", "SpinBox", empty_bg)
+	theme.set_icon("updown", "SpinBox", empty_image)
+	theme.set_icon("up", "SpinBox", empty_image)
+	theme.set_icon("up_hover", "SpinBox", empty_image)
+	theme.set_icon("up_pressed", "SpinBox", empty_image)
+	theme.set_icon("up_disabled", "SpinBox", empty_image)
+	theme.set_icon("down", "SpinBox", empty_image)
+	theme.set_icon("down_hover", "SpinBox", empty_image)
+	theme.set_icon("down_pressed", "SpinBox", empty_image)
+	theme.set_icon("down_disabled", "SpinBox", empty_image)
+	theme.set_constant("buttons_width", "SpinBox", 0)
+	theme.set_constant("field_and_buttons_separation", "SpinBox", 0)
 
 	# SpinBox components
 	theme.set_type_variation("SpinBoxButtonLeft", "Button")
@@ -307,20 +332,20 @@ static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_stylebox("hover", "SpinBoxButtonRight", spin_btn)
 	theme.set_stylebox("disabled", "SpinBoxButtonRight", spin_btn)
 
-	# SpinBoxLineEdit variation
-	# FIXME: A type associated with a built-in class cannot be marked as a variation
-	# of another type (variation: "SpinBoxLineEdit", base: "LineEdit").
-	theme.set_type_variation("SpinBoxLineEdit", "LineEdit")
-	var spin_input := styles.create_input(settings.input_background)
-	spin_input.draw_center = false
-	spin_input.set_content_margin_all(0)
-	var spin_input_focus := spin_input.duplicate()
-	spin_input_focus.bg_color = settings.button_background
-	spin_input_focus.set_corner_radius_all(0)
-
-	theme.set_stylebox("normal", "SpinBoxLineEdit", spin_input)
-	theme.set_stylebox("focus", "SpinBoxLineEdit", spin_input_focus)
-	theme.set_stylebox("read_only", "SpinBoxLineEdit", spin_input)
+	## SpinBoxLineEdit variation
+	## FIXME: A type associated with a built-in class cannot be marked as a variation
+	## of another type (variation: "SpinBoxLineEdit", base: "LineEdit").
+	#theme.set_type_variation("SpinBoxLineEdit", "LineEdit")
+	#var spin_input := styles.create_input(settings.input_background)
+	#spin_input.draw_center = false
+	#spin_input.set_content_margin_all(0)
+	#var spin_input_focus := spin_input.duplicate()
+	#spin_input_focus.bg_color = settings.button_background
+	#spin_input_focus.set_corner_radius_all(0)
+#
+	#theme.set_stylebox("normal", "SpinBoxLineEdit", spin_input)
+	#theme.set_stylebox("focus", "SpinBoxLineEdit", spin_input_focus)
+	#theme.set_stylebox("read_only", "SpinBoxLineEdit", spin_input)
 
 
 ## Build panel and container styles

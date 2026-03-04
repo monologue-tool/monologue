@@ -51,12 +51,12 @@ func _init(command_manager: CommandManager = null) -> void:
 	)
 	define_property(
 		"position",
-		Vector2.ZERO,
+		[0.0, 0.0],
 		"vector2",
 		{
 			"visible_in_graph": false,
 			"visible_in_inspector": false,
-			"editable": false,
+			"read_only": false,
 			"exposable": false,
 		},
 		"Extra"

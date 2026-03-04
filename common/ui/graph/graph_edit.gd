@@ -88,10 +88,19 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 	if not node or not is_instance_valid(node.graph_view):
 		return
 
+	# Don't overwrite a position that hasn't been committed yet (active drag)
+	if _pending_positions.has(node.graph_view):
+		return
+
 	var position_property := node.get_property("position")
-	var desired_position: Vector2 = (
-		position_property.get_value() if position_property and position_property.get_value() is Vector2 else Vector2.ZERO
-	)
+	var raw: Variant = position_property.get_value() if position_property else null
+	var desired_position: Vector2
+	if raw is Vector2:
+		desired_position = raw
+	elif raw is Array and raw.size() >= 2:
+		desired_position = Vector2(raw[0], raw[1])
+	else:
+		desired_position = Vector2.ZERO
 
 	if node.graph_view.position_offset == desired_position:
 		return
@@ -99,8 +108,6 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 	_is_applying_position = true
 	node.graph_view.position_offset = desired_position
 	_is_applying_position = false
-	_pending_positions.erase(node.graph_view)
-	_pending_positions.erase(node.graph_view)
 
 
 ## Called when GraphNode position changes (user drag)
@@ -292,17 +299,18 @@ func _on_end_node_move() -> void:
 		if not node:
 			continue
 
-		var target_position: Vector2 = _pending_positions[graph_node]
+		var target_position: Array = [_pending_positions[graph_node].x, _pending_positions[graph_node].y]
 		var position_property := node.get_property("position")
 		if not position_property:
 			continue
-
-		var current_position: Vector2 = position_property.get_value()
-		if current_position == target_position:
+		if not position_property.get_value() is Array:
+			position_property.set_value([0.0, 0.0])
+		var positon_value: Array = position_property.get_value()
+		if positon_value == target_position:
 			continue
 
 		var command := PropertyChangeCommand.new(
-			node, "position", current_position, target_position
+			node, "position", positon_value, target_position
 		)
 		history.execute(command, UndoRedo.MERGE_DISABLE)
 

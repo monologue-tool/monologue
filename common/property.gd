@@ -166,9 +166,9 @@ func _to_dict() -> Variant:
 		"value": get_value(),
 	}
 
-	if is_input_connected():
+	if not connected_from.is_empty():
 		dict["from_node"] = connected_from
-	if is_output_connected():
+	if not connected_to.is_empty():
 		dict["to_node"] = connected_to
 
 	if not settings.is_empty():
@@ -183,5 +183,7 @@ func _from_dict(raw: Dictionary) -> void:
 		
 	value = raw.get("value", value)
 	settings = raw.get("_editor_settings", settings)
-	connected_from = raw.get("from_node", connected_from)
-	connected_to = raw.get("to_node", connected_to)
+	if raw.get("from_node"):
+		connected_from = raw.get("from_node", connected_from)
+	if raw.get("to_node"):
+		connected_to = raw.get("to_node", connected_to)

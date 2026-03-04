@@ -98,8 +98,6 @@ func _on_textarea_focus_exited() -> void:
 	emit_value_committed(_values.duplicate())
 
 
-# ─── Language sync ─────────────────────────────────────────────────────────────
-
 func _on_load_languages(languages: Array, _graph) -> void:
 	_populate_option(languages)
 	_refresh_widget_text()
