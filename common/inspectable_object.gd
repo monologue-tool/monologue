@@ -88,7 +88,7 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 
 	var old_value: Variant = get_property_value(pname)
 
-	if pvalue == old_value:
+	if typeof(pvalue) == typeof(old_value) and pvalue == old_value:
 		return
 
 	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)

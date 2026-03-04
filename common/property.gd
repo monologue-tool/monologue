@@ -72,7 +72,7 @@ func _on_field_tree_entered(field: Field, target_owner: InspectableObject) -> vo
 
 
 func set_value(new_value: Variant) -> void:
-	if value == new_value:
+	if typeof(value) == typeof(new_value) and value == new_value:
 		return
 	var old_value: Variant = value
 	value = new_value

@@ -204,6 +204,7 @@ static func _build_checkboxes(theme: Theme, settings: ThemeSettings, styles: The
 	theme.set_color("font_hover_pressed_color", "CheckBox", settings.text)
 	theme.set_color("font_pressed_color", "CheckBox", settings.text_secondary)
 	theme.set_constant("h_separation", "CheckBox", styles.base_spacing)
+	theme.set_constant("icon_max_width", "CheckBox", 24)
 	theme.set_icon("checked", "CheckBox", ICON_CHECKED)
 	theme.set_icon("unchecked", "CheckBox", ICON_UNCHECKED)
 	theme.set_icon("radio_checked", "CheckBox", ICON_RADIO_CHECKED)

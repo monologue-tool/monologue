@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://c6dvfrwaes07a"]
+
+[ext_resource type="Script" uid="uid://r0ajxbf3ci1n" path="res://common/fields/bool/bool_field.gd" id="1_b0ct0"]
+
+[node name="BoolField" type="VBoxContainer" unique_id=1052952054]
+script = ExtResource("1_b0ct0")
+
+[node name="HBox" type="HBoxContainer" parent="." unique_id=1227476302]
+layout_mode = 2
+
+[node name="CheckBox" type="CheckBox" parent="HBox" unique_id=2045888175]
+unique_name_in_owner = true
+layout_mode = 2
