@@ -162,28 +162,27 @@ func get_descriptor():
 
 
 func _to_dict() -> Variant:
-	var dict: Dictionary = {}
+	var dict: Dictionary = {
+		"value": get_value(),
+	}
 
 	if is_input_connected():
 		dict["from_node"] = connected_from
 	if is_output_connected():
 		dict["to_node"] = connected_to
-	if get_value() != null:
-		dict["value"] = get_value()
+
 	if not settings.is_empty():
 		dict["_editor_settings"] = settings
 
 	return dict
 
 
-func _from_dict(raw: Variant) -> void:
+func _from_dict(raw: Dictionary) -> void:
 	if raw is not Dictionary:
-		value = raw.get("value", value)
-		settings = raw.get("_editor_settings", settings)
-		connected_from = raw.get("from_node", connected_from)
-		connected_to = raw.get("to_node", connected_to)
-
-	if raw.has("to_node") or raw.has("from_node"):
-		connected_from = raw.get("from_node", connected_from)
-		connected_to = raw.get("to_node", connected_to)
+		return
+		
+	value = raw.get("value", value)
+	settings = raw.get("_editor_settings", settings)
+	connected_from = raw.get("from_node", connected_from)
+	connected_to = raw.get("to_node", connected_to)
 	
