@@ -22,61 +22,67 @@ offset_right = 359.0
 offset_bottom = 41.0
 script = ExtResource("1_plmop")
 
-[node name="HBox" type="VBoxContainer" parent="." unique_id=803151000]
+[node name="GraphEdit" parent="." unique_id=2027188591 instance=ExtResource("8_qfao8")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
+scroll_offset = Vector2(-8, -4)
 
-[node name="ToolBar" type="HBoxContainer" parent="HBox" unique_id=1840524053]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1346988199]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer" unique_id=2110393340]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="ToolBar" type="HBoxContainer" parent="MarginContainer/PanelContainer" unique_id=1840524053]
 layout_mode = 2
 
-[node name="AddNodeBtn" type="Button" parent="HBox/ToolBar" unique_id=1427403872]
+[node name="AddNodeBtn" type="Button" parent="MarginContainer/PanelContainer/ToolBar" unique_id=1427403872]
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 text = "Add a node..."
 
-[node name="ButtonCharacters" type="Button" parent="HBox/ToolBar" unique_id=627597188]
+[node name="ButtonCharacters" type="Button" parent="MarginContainer/PanelContainer/ToolBar" unique_id=627597188]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("2_8nh7i")
 icon_alignment = 1
 
-[node name="ButtonVariables" type="Button" parent="HBox/ToolBar" unique_id=388191712]
+[node name="ButtonVariables" type="Button" parent="MarginContainer/PanelContainer/ToolBar" unique_id=388191712]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("3_dyuea")
 icon_alignment = 1
 
-[node name="LanguageSwitcher" parent="HBox/ToolBar" unique_id=662667454 instance=ExtResource("4_nyscr")]
+[node name="LanguageSwitcher" parent="MarginContainer/PanelContainer/ToolBar" unique_id=662667454 instance=ExtResource("4_nyscr")]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 
-[node name="ButtonSettings" type="Button" parent="HBox/ToolBar" unique_id=749078510]
+[node name="ButtonSettings" type="Button" parent="MarginContainer/PanelContainer/ToolBar" unique_id=749078510]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("5_glyde")
 icon_alignment = 1
 
-[node name="ButtonSparkle" type="Button" parent="HBox/ToolBar" unique_id=1177527376]
+[node name="ButtonSparkle" type="Button" parent="MarginContainer/PanelContainer/ToolBar" unique_id=1177527376]
 visible = false
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("6_ya1cp")
 
-[node name="RunButton" type="Button" parent="HBox/ToolBar" unique_id=167719486]
+[node name="RunButton" type="Button" parent="MarginContainer/PanelContainer/ToolBar" unique_id=167719486]
 layout_mode = 2
 theme_type_variation = &"Button_Flat"
 icon = ExtResource("7_4poih")
 script = SubResource("GDScript_lenro")
 
-[node name="GraphEdit" parent="HBox" unique_id=2027188591 instance=ExtResource("8_qfao8")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[connection signal="pressed" from="HBox/ToolBar/AddNodeBtn" to="." method="_on_add_node_btn_pressed"]
-[connection signal="pressed" from="HBox/ToolBar/RunButton" to="HBox/ToolBar/RunButton" method="_on_pressed"]
+[connection signal="pressed" from="MarginContainer/PanelContainer/ToolBar/AddNodeBtn" to="." method="_on_add_node_btn_pressed"]
+[connection signal="pressed" from="MarginContainer/PanelContainer/ToolBar/RunButton" to="MarginContainer/PanelContainer/ToolBar/RunButton" method="_on_pressed"]

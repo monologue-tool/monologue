@@ -3,9 +3,9 @@ class_name ThemeStyles extends RefCounted
 ## Utility class for creating common StyleBox objects with consistent parameters
 
 var settings: ThemeSettings
-var base_spacing: int = 4
-var corner_radius: int = 3
-var border_width: int = 2
+var base_spacing: int = 6
+var corner_radius: int = 5
+var border_width: int = 1
 
 
 func _init(color_settings: ThemeSettings) -> void:
@@ -48,7 +48,7 @@ func create_input(bg_color: Color) -> StyleBoxFlat:
 	style.content_margin_top = base_spacing
 	style.content_margin_bottom = base_spacing
 	#style.set_border_width_all(border_width)
-	#style.border_color = settings.border
+	style.border_color = settings.border
 	return style
 
 

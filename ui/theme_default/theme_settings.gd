@@ -4,16 +4,17 @@ class_name ThemeSettings extends RefCounted
 var text: Color = Color("e3e4eb")
 var primary: Color = Color.from_hsv(0.667, 0.12, 0.14, 1.0)
 var secondary: Color = Color.from_hsv(0.661, 0.15, 0.19, 1.0)
-var graph_bg: Color = Color.from_hsv(0.656, 0.10, 0.10, 1.0)
+var tertiary: Color = Color.from_hsv(0.656, 0.10, 0.10, 1.0)
 var accent: Color = Color("af4548")
 var warning: Color = Color("c42e40")
 
 # Semantic colors - derived from base colors for  purposes
-var surface: Color  # Primary surface (panels, containers)
+var surface: Color        # Primary surface (panels, containers)
 var surface_variant: Color  # Secondary surface (inputs, fields)
-var border: Color  # Borders and separators
+var border: Color           # Subtle alpha-based borders
+var border_strong: Color    # Focused / selected borders
 var text_secondary: Color  # Secondary/dimmed text
-var text_disabled: Color  # Disabled text
+var text_disabled: Color   # Disabled text
 
 # Interactive state colors
 var hover_overlay: Color  # Overlay for hover states
@@ -42,20 +43,22 @@ func _calculate_semantic_colors() -> void:
 	surface = primary
 	surface_variant = secondary
 
-	border = primary
+	# Alpha-based borders: subtle panel edges without heavy outlines
+	border = Color(text, 0.08)
+	border_strong = Color(text, 0.18)
 
-	text_secondary = Color(text, 0.75)
+	text_secondary = Color(text, 0.70)
 	text_disabled = Color(text, 0.35)
 
-	hover_overlay = secondary.lightened(0.02)
-	pressed_overlay = secondary.lightened(0.05)
-	disabled_overlay = secondary.lightened(0.25)
+	hover_overlay = secondary.lightened(0.035)
+	pressed_overlay = secondary.lightened(0.07)
+	disabled_overlay = secondary.lightened(0.20)
 
 	button_background = secondary
-	button_hover = secondary.lightened(0.02)
-	button_pressed = secondary.lightened(0.05)
+	button_hover = secondary.lightened(0.035)
+	button_pressed = secondary.lightened(0.07)
 
-	input_background = surface_variant
+	input_background = tertiary
 	panel_background = surface
 
 

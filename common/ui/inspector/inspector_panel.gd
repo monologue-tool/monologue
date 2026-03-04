@@ -71,7 +71,9 @@ func rebuild() -> void:
 
 	if !current_object:
 		var label: Label = Label.new()
-		label.text = "No node selected"
+		label.text = "Nothing to show here."
+		label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		property_container.add_child(label)
 		_pending_expand_category = ""
 		return

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bcagysl3b0ncf" path="res://common/ui/windows/graph_node_picker/graph_node_picker.gd" id="1_5oqa8"]
 [ext_resource type="Script" uid="uid://dqy8aovapnh5h" path="res://common/ui/windows/graph_node_picker/graph_node_tree.gd" id="2_5kkcj"]
 
-[node name="GraphNodePicker" type="Window"]
+[node name="GraphNodePicker" type="Window" unique_id=1073528209]
 auto_translate_mode = 1
 oversampling_override = 1.0
 title = "Create Graph Node"
@@ -17,7 +17,7 @@ keep_title_visible = true
 content_scale_mode = 1
 script = ExtResource("1_5oqa8")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=913745854]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -27,34 +27,34 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_type_variation = &"TreeContainer"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=275582391]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="SearchBar" type="LineEdit" parent="PanelContainer/VBoxContainer"]
+[node name="SearchBar" type="LineEdit" parent="PanelContainer/VBoxContainer" unique_id=2034907761]
 layout_mode = 2
 placeholder_text = "Search"
 
-[node name="Tree" type="Tree" parent="PanelContainer/VBoxContainer"]
+[node name="Tree" type="Tree" parent="PanelContainer/VBoxContainer" unique_id=598794160]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 hide_root = true
 script = ExtResource("2_5kkcj")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1295967926]
 layout_mode = 2
 theme_override_constants/separation = 25
 alignment = 1
 
-[node name="CreateButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="CreateButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=1474710004]
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
 text = "Create"
 
-[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=1371885642]
 layout_mode = 2
 text = "Cancel"
 

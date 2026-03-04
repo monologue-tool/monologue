@@ -3,10 +3,11 @@ class_name ThemeSettingsDark extends ThemeSettings
 
 
 func define_settings() -> void:
-	text = Color("e3e4eb")
-	primary = Color.from_hsv(0.667, 0.12, 0.14, 1.0)
-	secondary = Color.from_hsv(0.661, 0.15, 0.19, 1.0)
-	graph_bg = Color.from_hsv(0.656, 0.10, 0.10, 1.0)
+	text = Color("e8e8f0")
+	primary = Color("1c1c21ff")
+	secondary = Color("222229ff")
+	tertiary = Color("14141aff")
+	accent = Color("4870e8")
 
 
 func get_path() -> String:

@@ -16,11 +16,19 @@ const ICON_RADIO_UNCHECKED_DISABLED := preload(
 )
 const ICON_SLIDER_GRABBER := preload("res://ui/theme_default/assets/grabber.svg")
 
+const FONT_REGULAR := preload("res://ui/assets/fonts/GeneralSans-Regular.otf")
+const FONT_MEDIUM := preload("res://ui/assets/fonts/GeneralSans-Medium.otf")
+const FONT_SEMIBOLD := preload("res://ui/assets/fonts/GeneralSans-Semibold.otf")
+
 
 ## Build a complete theme from a theme settings
 static func build_theme(settings: ThemeSettings) -> Theme:
 	var theme := Theme.new()
 	var styles := ThemeStyles.new(settings)
+
+	# Global typography defaults
+	theme.default_font = FONT_REGULAR
+	theme.default_font_size = 16
 
 	_build_buttons(theme, settings, styles)
 	_build_checkboxes(theme, settings, styles)
@@ -62,7 +70,7 @@ static func _build_buttons(theme: Theme, settings: ThemeSettings, styles: ThemeS
 	theme.set_stylebox("disabled_mirrored", "Button", btn_disabled)
 
 	# Button colors
-	theme.set_color("font_color", "Button", settings.text_secondary)
+	theme.set_color("font_color", "Button", Color(settings.text, 0.80))
 	theme.set_color("font_disabled_color", "Button", settings.text_disabled)
 	theme.set_color("font_focus_color", "Button", settings.text)
 	theme.set_color("font_hover_color", "Button", settings.text)
@@ -157,15 +165,15 @@ static func _build_buttons(theme: Theme, settings: ThemeSettings, styles: ThemeS
 	var flat_btn_normal := styles.create_empty()
 	flat_btn_normal.bg_color = Color.TRANSPARENT
 	flat_btn_normal.set_border_width_all(styles.border_width)
-	flat_btn_normal.border_color = settings.with_alpha(settings.text, 0.3)
+	flat_btn_normal.border_color = settings.with_alpha(settings.text, 0.18)
 
 	var flat_btn_hover := flat_btn_normal.duplicate()
 	flat_btn_hover.bg_color = settings.hover_overlay
-	flat_btn_hover.border_color = settings.with_alpha(settings.text, 0.5)
+	flat_btn_hover.border_color = settings.with_alpha(settings.text, 0.35)
 
 	var flat_btn_pressed := flat_btn_normal.duplicate()
 	flat_btn_pressed.bg_color = settings.pressed_overlay
-	flat_btn_pressed.border_color = settings.with_alpha(settings.text, 0.6)
+	flat_btn_pressed.border_color = settings.with_alpha(settings.text, 0.50)
 
 	theme.set_color("font_color", "FlatButton", settings.text_secondary)
 	theme.set_color("font_disabled_color", "FlatButton", settings.text_disabled)
@@ -239,8 +247,9 @@ static func _build_checkboxes(theme: Theme, settings: ThemeSettings, styles: The
 static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var input_normal := styles.create_input(settings.input_background)
 	var input_focus := input_normal.duplicate()
-	input_focus.draw_center = false
+	input_focus.draw_center = true
 	input_focus.set_border_width_all(1)
+	input_focus.border_color = settings.accent
 	var input_disabled := styles.create_input(settings.darken(settings.input_background, 0.2))
 
 	# LineEdit
@@ -264,7 +273,7 @@ static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 
 	# TextEdit
 	theme.set_font("font", "TextEdit", preload("res://ui/assets/fonts/CourierNewPSMT.ttf"))
-	theme.set_font_size("font_size", "TextEdit", 16)
+	theme.set_font_size("font_size", "TextEdit", 14)
 	theme.set_stylebox("normal", "TextEdit", input_normal.duplicate())
 	theme.set_stylebox("focus", "TextEdit", input_focus.duplicate())
 	theme.set_stylebox("read_only", "TextEdit", input_disabled.duplicate())
@@ -345,22 +354,20 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_stylebox("panel", "InspectorPanelTopBox", top_box)
 
 	# FoldableContainer
-	var f_panel := styles.create_panel(settings.darken(settings.secondary, 0.15), false)
-	#f_panel.border_color = settings.lighten(settings.border, 0.1)
+	var f_panel := styles.create_panel(settings.darken(settings.secondary, 0.08))
 	var f_title_collapsed_panel := f_panel.duplicate()
 	f_title_collapsed_panel.bg_color = settings.secondary
 	f_title_collapsed_panel.set_content_margin_all(styles.base_spacing)
 	var f_title_panel := f_title_collapsed_panel.duplicate()
 
-	#f_panel.draw_center = false
 	f_panel.border_width_top = 0
 	f_panel.corner_radius_top_left = 0
 	f_panel.corner_radius_top_right = 0
 	f_title_panel.corner_radius_bottom_left = 0
 	f_title_panel.corner_radius_bottom_right = 0
 
-	theme.set_font_size("font_size", "FoldableContainer", 18)
-	#theme.set_font("font", "FoldableContainer", preload("res://ui/assets/fonts/GeneralSans-SemiBold.otf"))
+	theme.set_font("font", "FoldableContainer", FONT_MEDIUM)
+	theme.set_font_size("font_size", "FoldableContainer", 16)
 	theme.set_stylebox("focus", "FoldableContainer", styles.create_empty())
 	theme.set_stylebox("panel", "FoldableContainer", f_panel)
 	theme.set_stylebox("title_panel", "FoldableContainer", f_title_panel)
@@ -376,8 +383,8 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 
 	# FieldPanel
 	theme.set_type_variation("FieldPanel", "PanelContainer")
-	var field_panel := styles.create_panel(settings.panel_background, false)
-	field_panel.set_content_margin_all(styles.base_spacing * 2)
+	var field_panel := styles.create_panel(settings.panel_background)
+	field_panel.set_content_margin_all(styles.base_spacing * 2)  # 12 px with base_spacing=6
 	theme.set_stylebox("panel", "FieldPanel", field_panel)
 
 	# OuterPanel
@@ -435,42 +442,47 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 
 	# ListItemContainer
 	theme.set_type_variation("ListItemContainer", "PanelContainer")
-	var list_item_container := styles.create_panel(settings.darken(settings.secondary, 0.15), false)
+	var list_item_container := styles.create_panel(settings.darken(settings.secondary, 0.08))
 	theme.set_stylebox("panel", "ListItemContainer", list_item_container)
 
 
 ## Build scrollbar styles
 static func _build_scrollbars(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var scroll_empty := styles.create_empty()
-	scroll_empty.border_color = settings.border
 	scroll_empty.set_content_margin_all(2)
 	scroll_empty.set_corner_radius_all(0)
 
 	var scroll_focus := scroll_empty.duplicate()
 	scroll_focus.draw_center = true
 
-	var grabber := styles.create_panel(settings.border)
-	grabber.set_corner_radius_all(5)
+	var grabber := styles.create_panel(settings.with_alpha(settings.text, 0.25))
+	grabber.set_corner_radius_all(6)
+
+	var grabber_highlight := grabber.duplicate()
+	grabber_highlight.bg_color = settings.with_alpha(settings.text, 0.40)
 
 	# VScrollBar
 	theme.set_stylebox("scroll", "VScrollBar", scroll_empty)
 	theme.set_stylebox("scroll_focus", "VScrollBar", scroll_focus)
 	theme.set_stylebox("grabber", "VScrollBar", grabber)
-	theme.set_stylebox("grabber_highlight", "VScrollBar", grabber)
-	theme.set_stylebox("grabber_pressed", "VScrollBar", grabber)
+	theme.set_stylebox("grabber_highlight", "VScrollBar", grabber_highlight)
+	theme.set_stylebox("grabber_pressed", "VScrollBar", grabber_highlight)
 
 	# HScrollBar
 	theme.set_stylebox("scroll", "HScrollBar", scroll_empty)
 	theme.set_stylebox("scroll_focus", "HScrollBar", scroll_focus)
 	theme.set_stylebox("grabber", "HScrollBar", grabber)
-	theme.set_stylebox("grabber_highlight", "HScrollBar", grabber)
-	theme.set_stylebox("grabber_pressed", "HScrollBar", grabber)
+	theme.set_stylebox("grabber_highlight", "HScrollBar", grabber_highlight)
+	theme.set_stylebox("grabber_pressed", "HScrollBar", grabber_highlight)
 
 
 ## Build separator styles
 static func _build_separators(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
+	# Override separator color to use alpha-based border for subtlety
 	var sep_h := styles.create_separator(false)
+	sep_h.color = settings.border
 	var sep_v := styles.create_separator(true)
+	sep_v.color = settings.border
 
 	theme.set_constant("separation", "HSeparator", 1)
 	theme.set_constant("separation", "VSeparator", 1)
@@ -483,7 +495,7 @@ static func _build_separators(theme: Theme, settings: ThemeSettings, styles: The
 
 	var dotted := StyleBoxTexture.new()
 	dotted.texture = preload("res://ui/theme_default/assets/dash.svg")
-	dotted.modulate_color = settings.border
+	dotted.modulate_color = settings.border_strong
 	dotted.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
 	dotted.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
 	dotted.texture_margin_top = 1
@@ -541,7 +553,7 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_color("font_disabled_color", "TabBar", settings.text_disabled)
 	theme.set_color("font_unselected_color", "TabBar", settings.text_secondary)
 	theme.set_color("font_hovered_color", "TabBar", settings.text)
-	theme.set_color("font_selected_color", "TabBar", settings.text)
+	theme.set_color("font_selected_color", "TabBar", Color.WHITE)
 	theme.set_constant("h_separation", "TabBar", styles.base_spacing)
 	#theme.set_font_size("font_size", "TabBar", 16)
 	theme.set_icon("close", "TabBar", preload("res://ui/assets/icons/ui_close.svg"))
@@ -565,7 +577,7 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 
 	# EditorSection (TabContainer variation)
 	theme.set_type_variation("EditorSection", "TabContainer")
-	var section_unfocus := styles.create_panel(settings.panel_background, true)
+	var section_unfocus := styles.create_panel(settings.panel_background)
 	var section_focus := section_unfocus.duplicate()
 	section_focus.border_color = settings.border
 	#section_focus.border_color = settings.accent
@@ -600,7 +612,7 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_stylebox("tab_panel_unfocus", "EditorSection", tab_panel_unfocus)
 	theme.set_stylebox("tab_panel_focus", "EditorSection", tab_panel_focus)
 
-	var tabbar_bg_unfocus := styles.create_panel(settings.secondary, true)
+	var tabbar_bg_unfocus := styles.create_panel(settings.secondary)
 	tabbar_bg_unfocus.set_border_width_all(0)
 	tabbar_bg_unfocus.set_corner_radius_all(0)
 	tabbar_bg_unfocus.content_margin_bottom = 0
@@ -637,12 +649,13 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_constant("side_margin", "EditorSection", 1)
 	theme.set_constant("icon_separation", "EditorSection", styles.base_spacing)
 	theme.set_constant("icon_max_width", "EditorSection", 16)
-	theme.set_font_size("font_size", "EditorSection", 16)
+	theme.set_font("font", "EditorSection", FONT_MEDIUM)
+	theme.set_font_size("font_size", "EditorSection", 13)
 
 
 ## Build tree styles
 static func _build_tree(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
-	var tree_panel := styles.create_panel(settings.panel_background)
+	var tree_panel := styles.create_panel(settings.tertiary)
 	var tree_empty := styles.create_empty()
 	var tree_hover := styles.create_button(settings.button_hover)
 	var tree_selected := styles.create_button(settings.button_pressed)
@@ -651,9 +664,9 @@ static func _build_tree(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_constant("icon_max_width", "Tree", 14)
 	theme.set_constant("h_separation", "Tree", styles.base_spacing)
 	theme.set_constant("v_separation", "Tree", styles.base_spacing / 2)
-	theme.set_constant("inner_item_margin_bottom", "Tree", styles.base_spacing)
+	theme.set_constant("inner_item_margin_bottom", "Tree", styles.base_spacing/2)
 	theme.set_constant("inner_item_margin_left", "Tree", styles.base_spacing)
-	theme.set_constant("inner_item_margin_top", "Tree", styles.base_spacing)
+	theme.set_constant("inner_item_margin_top", "Tree", styles.base_spacing/2)
 	theme.set_constant("inner_item_margin_right", "Tree", styles.base_spacing)
 	theme.set_constant("draw_relationship_lines", "Tree", 1)
 	theme.set_constant("draw_guides", "Tree", 0)
@@ -677,22 +690,23 @@ static func _build_graph_elements(
 	theme: Theme, settings: ThemeSettings, styles: ThemeStyles
 ) -> void:
 	# GraphEdit
-	var graph_bg := styles.create_panel(settings.graph_bg)
+	var graph_bg := styles.create_panel(settings.tertiary)
 	graph_bg.set_content_margin_all(0)
 	graph_bg.set_corner_radius_all(0)
 	graph_bg.set_border_width_all(0)
 
-	theme.set_color("grid_major", "GraphEdit", settings.with_alpha(settings.text, 0.15))
-	theme.set_color("grid_minor", "GraphEdit", settings.with_alpha(settings.text, 0.15))
+	theme.set_color("grid_major", "GraphEdit", settings.with_alpha(settings.text, 0.08))
+	theme.set_color("grid_minor", "GraphEdit", settings.with_alpha(settings.text, 0.04))
 	theme.set_stylebox("panel", "GraphEdit", graph_bg)
 
 	# GraphNode
-	var node_panel := styles.create_panel(settings.panel_background, true)
-	node_panel.shadow_color = settings.with_alpha(Color.BLACK, 0.05)
-	node_panel.shadow_size = 8
+	var node_panel := styles.create_panel(settings.primary, true)
+	node_panel.border_color = settings.border
+	node_panel.shadow_color = settings.with_alpha(Color.BLACK, 0.10)
+	node_panel.shadow_size = 12
 
 	var node_selected := node_panel.duplicate()
-	node_selected.border_color = settings.lighten(settings.border, 0.1)
+	node_selected.border_color = settings.accent
 
 	theme.set_constant("separation", "GraphNode", styles.base_spacing)
 	theme.set_stylebox("panel", "GraphNode", node_panel)
@@ -705,14 +719,16 @@ static func _build_graph_elements(
 	theme.set_font_size("font_size", "GraphNodeTitleLabel", 1)
 
 	theme.set_type_variation("GraphNodeViewTitleLabel", "Label")
+	theme.set_font("font", "GraphNodeViewTitleLabel", FONT_MEDIUM)
 	theme.set_color("font_color", "GraphNodeViewTitleLabel", settings.text)
 	theme.set_font_size("font_size", "GraphNodeViewTitleLabel", 18)
 
 	theme.set_type_variation("GraphNodeViewValueLabel", "Label")
+	theme.set_font("font", "GraphNodeViewValueLabel", FONT_REGULAR)
 	theme.set_color(
-		"font_color", "GraphNodeViewValueLabel", settings.with_alpha(settings.text, 0.5)
+		"font_color", "GraphNodeViewValueLabel", settings.with_alpha(settings.text, 0.55)
 	)
-	theme.set_font_size("font_size", "GraphNodeViewValueLabel", 16)
+	theme.set_font_size("font_size", "GraphNodeViewValueLabel", 14)
 
 	theme.set_type_variation("GraphNodeViewRownHBox", "HBoxContainer")
 	theme.set_constant("separation", "GraphNodeViewRownHBox", styles.base_spacing * 5)
@@ -725,16 +741,16 @@ static func _build_graph_elements(
 
 ## Build popup menu styles
 static func _build_popup_menu(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
-	var menu_panel := styles.create_panel(settings.panel_background, true)
+	var menu_panel := styles.create_panel(settings.tertiary, false)
 	var menu_hover := styles.create_input(settings.surface_variant)
 	var menu_sep := styles.create_separator(true)
 	menu_sep.color = settings.with_alpha(settings.text, 0.15)
 
-	theme.set_constant("icon_max_width", "PopupMenu", 14)
+	theme.set_constant("icon_max_width", "PopupMenu", 10)
 	theme.set_constant("item_end_padding", "PopupMenu", styles.base_spacing)
 	theme.set_constant("item_start_padding", "PopupMenu", styles.base_spacing)
 	theme.set_constant("h_separation", "PopupMenu", styles.base_spacing)
-	theme.set_constant("v_separation", "PopupMenu", 4)
+	theme.set_constant("v_separation", "PopupMenu", styles.base_spacing)
 	theme.set_font_size("font_size", "PopupMenu", 16)
 	theme.set_icon("checked", "PopupMenu", ICON_CHECKED)
 	theme.set_icon("unchecked", "PopupMenu", ICON_UNCHECKED)
@@ -749,10 +765,8 @@ static func _build_popup_menu(theme: Theme, settings: ThemeSettings, styles: The
 	theme.set_stylebox("separator", "PopupMenu", menu_sep)
 
 	# OptionButton
-	var option_normal := styles.create_input(settings.surface_variant)
-	var option_hover := styles.create_input(settings.lighten(settings.surface_variant, 0.05))
-	var option_pressed := styles.create_input(settings.lighten(settings.surface_variant, 0.1))
-	var option_disabled := styles.create_input(settings.darken(settings.surface_variant, 0.2))
+	var option_normal := styles.create_input(settings.tertiary)
+	var option_disabled := styles.create_input(settings.lighten(settings.tertiary, 0.2))
 	var option_empty := styles.create_empty()
 
 	theme.set_constant("arrow_margin", "OptionButton", styles.base_spacing)
@@ -760,14 +774,14 @@ static func _build_popup_menu(theme: Theme, settings: ThemeSettings, styles: The
 	theme.set_stylebox("disabled", "OptionButton", option_disabled)
 	theme.set_stylebox("disabled_mirrored", "OptionButton", option_disabled)
 	theme.set_stylebox("focus", "OptionButton", option_empty)
-	theme.set_stylebox("hover", "OptionButton", option_hover)
-	theme.set_stylebox("hover_mirrored", "OptionButton", option_hover)
-	theme.set_stylebox("hover_pressed", "OptionButton", option_pressed)
-	theme.set_stylebox("hover_pressed_mirrored", "OptionButton", option_pressed)
+	theme.set_stylebox("hover", "OptionButton", option_normal)
+	theme.set_stylebox("hover_mirrored", "OptionButton", option_normal)
+	theme.set_stylebox("hover_pressed", "OptionButton", option_normal)
+	theme.set_stylebox("hover_pressed_mirrored", "OptionButton", option_normal)
 	theme.set_stylebox("normal", "OptionButton", option_normal)
 	theme.set_stylebox("normal_mirrored", "OptionButton", option_normal)
-	theme.set_stylebox("pressed", "OptionButton", option_pressed)
-	theme.set_stylebox("pressed_mirrored", "OptionButton", option_pressed)
+	theme.set_stylebox("pressed", "OptionButton", option_normal)
+	theme.set_stylebox("pressed_mirrored", "OptionButton", option_normal)
 
 
 ## Build label styles
@@ -779,11 +793,13 @@ static func _build_labels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_color("font_color", "Label", settings.text)
 
 	theme.set_type_variation("NodeValue", "Label")
+	theme.set_font("font", "NodeValue", FONT_MEDIUM)
 	theme.set_color("font_color", "NodeValue", settings.text)
 	theme.set_stylebox("normal", "NodeValue", label_bg)
 
 	theme.set_type_variation("NoteLabel", "Label")
-	theme.set_color("font_color", "NoteLabel", settings.with_alpha(settings.text, 0.6))
+	theme.set_color("font_color", "NoteLabel", settings.with_alpha(settings.text, 0.55))
 
 	theme.set_type_variation("WarnLabel", "Label")
+	theme.set_font("font", "WarnLabel", FONT_MEDIUM)
 	theme.set_color("font_color", "WarnLabel", settings.warning)
