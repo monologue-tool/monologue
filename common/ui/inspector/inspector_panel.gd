@@ -42,22 +42,12 @@ func rebuild() -> void:
 	var focus_owner = get_viewport().gui_get_focus_owner()
 	var focused_property_name: String = ""
 
-	# Try to identify which property had focus
+	# Try to identify which property had focus by walking up to the tagged p_container
 	if focus_owner and focus_owner.is_inside_tree():
 		var node = focus_owner
 		while node:
-			if node.get_parent() == property_container:
-				# Found the property container, try to extract property name
-				for child in property_container.get_children():
-					if not (child == node or child.is_ancestor_of(focus_owner)):
-						continue
-					
-					# Try to find the property name from the label
-					var labels = []
-					_find_labels(child, labels)
-					if labels.size() > 0:
-						focused_property_name = labels[0].text
-					break
+			if node.has_meta("property_name"):
+				focused_property_name = node.get_meta("property_name")
 				break
 			node = node.get_parent()
 
@@ -106,23 +96,25 @@ func _find_labels(node: Node, labels: Array) -> void:
 		_find_labels(child, labels)
 
 
-func _restore_focus_to_property(property_display_name: String) -> void:
-	# Find the property with matching display name and restore focus to its field
-	for container in property_container.get_children():
-		var labels = []
-		_find_labels(container, labels)
-		for label in labels:
-			if label.text == property_display_name:
-				# Found the property, now find its field and focus it
-				var fields = []
-				_find_focusable_fields(container, fields)
-				if fields.size() > 0:
-					fields[0].grab_focus()
-				return
+func _restore_focus_to_property(property_name: String) -> void:
+	# Walk into each category container and find the p_container tagged with property_name
+	for category in property_container.get_children():
+		for p_container in category.get_children():
+			if not p_container.has_meta("property_name"):
+				continue
+			if p_container.get_meta("property_name") != property_name:
+				continue
+			var fields: Array = []
+			_find_focusable_fields(p_container, fields)
+			if fields.size() > 0:
+				fields[0].grab_focus()
+			return
 
 
 func _find_focusable_fields(node: Node, fields: Array) -> void:
-	if node is LineEdit or node is TextEdit or node is OptionButton:
+	if node is LineEdit or node is TextEdit or node is OptionButton \
+			or node is CheckBox or node is SpinBox or node is ColorPickerButton \
+			or (node is Button and not node is TextureButton):
 		fields.append(node)
 	for child in node.get_children():
 		_find_focusable_fields(child, fields)
@@ -195,6 +187,7 @@ func _create_property_editor(property: Property) -> Control:
 		return null
 
 	var p_container: PanelContainer = PanelContainer.new()
+	p_container.set_meta("property_name", property.name)
 	var p_hbox: HBoxContainer = HBoxContainer.new()
 	var p_vbox: VBoxContainer = VBoxContainer.new()
 	var p_expose_button: TextureButton = expose_button.instantiate()
@@ -342,5 +335,4 @@ func _on_external_property_changed(
 	if obj == current_object:
 		rebuild()
 		return
-
 	inspect(obj)

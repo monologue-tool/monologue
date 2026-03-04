@@ -10,6 +10,7 @@ func get_metadata() -> Dictionary:
 		"name": "textarea",
 		"type": ObjectType.FIELD,
 		"color": Color("af85fdff"),
+		"compatible_types": ["text"],
 		"default_settings": {
 			PropertySettings.KEY_MULTILINE: true,
 			PropertySettings.KEY_ROWS: 3,

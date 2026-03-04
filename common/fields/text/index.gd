@@ -6,4 +6,9 @@ func get_scene() -> PackedScene:
 
 
 func get_metadata() -> Dictionary:
-	return {"name": "text", "type": ObjectType.FIELD, "color": Color("af85fdff")}
+	return {
+		"name": "text",
+		"type": ObjectType.FIELD,
+		"color": Color("af85fdff"),
+		"compatible_types": ["textarea"],
+	}

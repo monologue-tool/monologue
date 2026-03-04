@@ -95,6 +95,22 @@ func _search_types() -> void:
 			register_descriptor(descriptor)
 
 
+func is_compatible(type_id_a: int, type_id_b: int) -> bool:
+	if type_id_a == type_id_b:
+		return true
+	for descriptor in list_descriptors():
+		if not descriptor is FieldDescriptor:
+			continue
+		var fd := descriptor as FieldDescriptor
+		if fd.type_id != type_id_a and fd.type_id != type_id_b:
+			continue
+		var other_id := type_id_b if fd.type_id == type_id_a else type_id_a
+		for compat_name: String in fd.compatible_types:
+			if get_type_id(compat_name) == other_id:
+				return true
+	return false
+
+
 func _descriptor_from_indexer(indexer) -> FieldDescriptor:
 	var descriptor
 	if indexer and indexer.has_method("get_descriptor"):
@@ -110,4 +126,10 @@ func _descriptor_from_indexer(indexer) -> FieldDescriptor:
 		scene = indexer.call("get_scene")
 	if descriptor_name.is_empty():
 		return null
-	return FieldDescriptor.new(descriptor_name, scene, metadata)
+	var new_descriptor := FieldDescriptor.new(descriptor_name, scene, metadata)
+	var compat_raw = metadata.get("compatible_types", [])
+	if compat_raw is Array:
+		for item in compat_raw:
+			if item is String:
+				new_descriptor.compatible_types.append(item)
+	return new_descriptor

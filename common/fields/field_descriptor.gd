@@ -6,6 +6,8 @@ var default_settings: Dictionary = {}
 var validators: Array[Callable] = []
 var formatter: Callable
 var type_id: int = -1
+## Names of other field types that this type is connection-compatible with.
+var compatible_types: Array[String] = []
 
 
 func _init(p_name: String = "", p_scene: PackedScene = null, metadata: Dictionary = {}) -> void:
@@ -68,4 +70,6 @@ func to_metadata() -> Dictionary:
 	base["color"] = color
 	base["type_id"] = type_id
 	base["default_settings"] = default_settings.duplicate(true)
+	base["compatible_types"] = compatible_types.duplicate()
+	
 	return base

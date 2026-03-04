@@ -71,6 +71,9 @@ const KEY_ROWS := "rows"
 const KEY_CASE_PROPERTY := "case_property"
 ## (dynamic) Mapping from case-value string to { type, default, coerce? } dict.
 const KEY_CASES := "cases"
+## (file) Array of file filter strings passed to the file dialog (e.g. ["*.png", "*.jpg"]).
+## An empty array means no filter (all files are shown).
+const KEY_FILE_FILTERS := "file_filters"
 
 # ─── Defaults ─────────────────────────────────────────────────────────────────
 

@@ -53,16 +53,18 @@ func _on_spin_box_value_changed(_value: float) -> void:
 	_update_ui()
 	emit_value_committed(get_value())
 
-## Don't touch too much (it's a bit broken but it works)
 func _update_values() -> void:
 	var canvas_size: float = background_panel.size.x
 	cp1.position.x = clamp(cp1.position.x, -cp1.size.x/2, canvas_size - cp1.size.x/2)
-	cp2.position.x = clamp(cp2.position.x, -cp1.size.x/2, canvas_size - cp2.size.x/2)
+	cp2.position.x = clamp(cp2.position.x, -cp2.size.x/2, canvas_size - cp2.size.x/2)
 	
 	var cp1_pos: Vector2 = cp1.position + cp1.size/2
 	var cp2_pos: Vector2 = cp2.position + cp2.size/2
+	# Both control points share the same screen→bezier mapping:
+	# bezier_x = cp_pos.x / canvas_size
+	# bezier_y = 1 - cp_pos.y / canvas_size  (screen y is inverted relative to bezier y)
 	var p1: Vector2 = (Vector2(cp1_pos.x, -cp1_pos.y) / canvas_size) + Vector2(0.0, 1.0)
-	var p2: Vector2 = (Vector2(cp2_pos.x, cp2_pos.y) / canvas_size) + Vector2(0.0, 1.0)
+	var p2: Vector2 = (Vector2(cp2_pos.x, -cp2_pos.y) / canvas_size) + Vector2(0.0, 1.0)
 	
 	spin_box_x1.value = p1.x
 	spin_box_y1.value = p1.y
@@ -70,25 +72,30 @@ func _update_values() -> void:
 	spin_box_y2.value = p2.y
 
 
-## Don't touch too (it's a also a bit broken but it works)
 func _update_ui() -> void:
-	await get_tree().process_frame
-	
 	var canvas_size: float = background_panel.size.x
+	# Layout not ready yet — _on_item_rect_changed will call us again once size is settled.
+	if canvas_size <= 0.0:
+		return
+
 	var bezier: Array = get_value()
 	var curve: Curve2D = path.curve
-	
+
+	# Out-tangent at point 0 (bottom-left): vector from (0, cs) to cp1_screen
+	# = (bezier[0]*cs, (1-bezier[1])*cs) - (0, cs) = (bezier[0], -bezier[1]) * cs
 	var p1: Vector2 = Vector2(bezier[0], -bezier[1]) * canvas_size
-	var p2: Vector2 = Vector2(bezier[2]-1.0, bezier[3]-1.0) * canvas_size
+	# In-tangent at point 1 (top-right): vector from (cs, 0) to cp2_screen
+	# = (bezier[2]*cs, (1-bezier[3])*cs) - (cs, 0) = (bezier[2]-1, 1-bezier[3]) * cs
+	var p2: Vector2 = Vector2(bezier[2]-1.0, 1.0-bezier[3]) * canvas_size
 	curve.set_point_out(0, p1)
 	curve.set_point_in(1, p2)
-	
+
 	if not _is_moving_cp:
 		var cp1_pos: Vector2 = Vector2(bezier[0], 1.0-bezier[1]) * canvas_size
 		var cp2_pos: Vector2 = Vector2(bezier[2], -bezier[3]+1.0) * canvas_size
 		cp1.position = cp1_pos - cp1.size/2
 		cp2.position = cp2_pos - cp2.size/2
-	
+
 	background_panel.queue_redraw()
 	_is_moving_cp = false
 

@@ -139,7 +139,7 @@ func _on_connection_request(
 	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
 	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
 
-	if from_port_type != to_port_type:
+	if not FieldBucket.is_compatible(from_port_type, to_port_type):
 		return
 
 	# Get property names at the port indices
