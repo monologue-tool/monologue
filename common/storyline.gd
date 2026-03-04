@@ -95,8 +95,28 @@ func initialize_properties() -> void:
 		"languages",
 		[default_language._to_dict()],
 		"list",
-		{ "collection": "languages" },
-		"Languages"
+		{ "collection": "languages" }
+	)
+	
+	var default_beziers: Dictionary = {
+		"Ease": [0.25, 0.10, 0.25, 1.0],
+		"Linear": [0.0, 0.0, 1.0, 1.0],
+		"Ease-In": [0.42, 0.0, 1.0, 1.0],
+		"Ease-Out": [0.0, 0.0, 0.58, 1.0],
+		"Ease-In-Out": [0.42, 0.0, 0.58, 1.0]
+	}
+	var beziers_data: Array = []
+	for bezier_name: String in default_beziers:
+		var bezier_item: ListItem = CollectionBucket.create_item("beziers", history)
+		bezier_item.set_property_value("name", bezier_name)
+		bezier_item.set_property_value("bezier", default_beziers.get(bezier_name))
+		beziers_data.append(bezier_item._to_dict())
+	
+	define_property(
+		"beziers",
+		beziers_data,
+		"list",
+		{ "collection": "beziers" }
 	)
 
 

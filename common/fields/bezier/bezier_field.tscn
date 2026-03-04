@@ -1,0 +1,116 @@
+[gd_scene format=3 uid="uid://dlmxs2fcef1a1"]
+
+[ext_resource type="Script" uid="uid://bdhmssf7fdean" path="res://common/fields/bezier/bezier_field.gd" id="1_msnhu"]
+[ext_resource type="Script" uid="uid://c1a44vlfq5k64" path="res://common/fields/bezier/background_panel.gd" id="2_jp2y7"]
+[ext_resource type="Script" uid="uid://broer240g44aw" path="res://common/fields/bezier/control_point.gd" id="3_jp2y7"]
+
+[sub_resource type="Curve2D" id="Curve2D_lvtej"]
+_data = {
+"points": PackedVector2Array(-125, 0, 31.25, -12.5, 0, 175, -93.75, 0, 123.60647, -0.14568329, 175, 0)
+}
+point_count = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hashh"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 100
+corner_radius_top_right = 100
+corner_radius_bottom_right = 100
+corner_radius_bottom_left = 100
+
+[node name="BezierField" type="VBoxContainer" unique_id=754138938]
+script = ExtResource("1_msnhu")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=687121200]
+layout_mode = 2
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="HBoxContainer" unique_id=1708558315]
+unique_name_in_owner = true
+z_index = 10
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BackgroundPanel" type="PanelContainer" parent="HBoxContainer/AspectRatioContainer" unique_id=206201097]
+unique_name_in_owner = true
+clip_children = 2
+layout_mode = 2
+script = ExtResource("2_jp2y7")
+
+[node name="Path2D" type="Path2D" parent="HBoxContainer/AspectRatioContainer" unique_id=744452601]
+unique_name_in_owner = true
+curve = SubResource("Curve2D_lvtej")
+
+[node name="ControlPoints" type="Control" parent="HBoxContainer/AspectRatioContainer" unique_id=1501788487]
+z_index = 10
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CP1" type="Button" parent="HBoxContainer/AspectRatioContainer/ControlPoints" unique_id=378577047]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 0
+offset_top = 125.0
+offset_right = 10.0
+offset_bottom = 135.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_hashh")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hashh")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hashh")
+script = ExtResource("3_jp2y7")
+
+[node name="CP2" type="Button" parent="HBoxContainer/AspectRatioContainer/ControlPoints" unique_id=783942087]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 1
+offset_left = 125.0
+offset_right = 135.0
+offset_bottom = 10.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_hashh")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hashh")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hashh")
+script = ExtResource("3_jp2y7")
+
+[node name="CoordinatesHBox1" type="HBoxContainer" parent="." unique_id=562686494]
+layout_mode = 2
+
+[node name="SpinBoxX1" type="SpinBox" parent="CoordinatesHBox1" unique_id=1902653887]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+alignment = 3
+suffix = "x1"
+
+[node name="SpinBoxY1" type="SpinBox" parent="CoordinatesHBox1" unique_id=1587721798]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+allow_greater = true
+allow_lesser = true
+alignment = 3
+suffix = "y1"
+
+[node name="CoordinatesHBox2" type="HBoxContainer" parent="." unique_id=1353984226]
+layout_mode = 2
+
+[node name="SpinBoxX2" type="SpinBox" parent="CoordinatesHBox2" unique_id=1401866127]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+alignment = 3
+suffix = "x2"
+
+[node name="SpinBoxY2" type="SpinBox" parent="CoordinatesHBox2" unique_id=1652230862]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+allow_greater = true
+allow_lesser = true
+alignment = 3
+suffix = "y2"

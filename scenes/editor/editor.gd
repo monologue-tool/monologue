@@ -16,6 +16,7 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 @onready var items_section := %Items
 @onready var locations_section := %Locations
 @onready var languages_section := %Languages
+@onready var beziers_section := %Beziers
 
 
 func _ready():
@@ -98,7 +99,7 @@ func load_project(path: String, _new_graph: bool = false) -> void:
 
 
 func load_editor_sections() -> void:
-	var storyline := StorylineManager.get_active_storyline()
+	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
 	#for prop: Property in storyline.get_properties():
 		#if prop.type != "list":
 			#return
@@ -110,6 +111,7 @@ func load_editor_sections() -> void:
 	items_section.load_items(storyline.get_property("items"), storyline)
 	locations_section.load_items(storyline.get_property("locations"), storyline)
 	languages_section.load_items(storyline.get_property("languages"), storyline)
+	beziers_section.load_items(storyline.get_property("beziers"), storyline)
 
 
 func save():
