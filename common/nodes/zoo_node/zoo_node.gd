@@ -25,8 +25,12 @@ func initialize_properties() -> void:
 	# Values
 	define_property("bool", false, "bool", {}, "Values")
 	define_property("color2", "#3b5dc9", "color", {}, "Values")
+	define_property("float", 10.0, "float", {}, "Values")
+	define_property("int", 10, "int", {}, "Values")
+	define_property("slider", 10.0, "slider", {}, "Values")
 	define_property("vector2", [0.0, 0.0], "vector2", {}, "Values")
 	define_property("bezier", [0.25, 0.10, 0.25, 1.0], "bezier", {}, "Values")
+	
 
 	# References
 	define_property("file", "", "file", {}, "References")

@@ -30,7 +30,6 @@ icon = ExtResource("2_34x8o")
 icon_alignment = 1
 
 [node name="Scroller" type="ScrollContainer" parent="VBox" unique_id=150618628]
-clip_contents = false
 layout_mode = 2
 size_flags_vertical = 3
 follow_focus = true

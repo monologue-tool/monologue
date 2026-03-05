@@ -33,9 +33,11 @@ func bind(
 
 func create_field(field_name: String) -> Field:
 	var descriptor: FieldDescriptor = get_field_descriptor(field_name)
-	if descriptor:
-		return descriptor.instantiate_field()
-	return null
+	if not descriptor:
+		return null
+	var field: Field = descriptor.instantiate_field()
+	field.settings = descriptor.default_settings
+	return field
 
 
 func safe_create_field(field_name: String) -> Control:

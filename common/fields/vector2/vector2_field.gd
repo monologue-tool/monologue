@@ -19,7 +19,6 @@ func set_value(value: Variant) -> void:
 
 
 func set_editable(is_editable: bool) -> void:
-	super.set_editable(is_editable)
 	spinbox_x.editable = is_editable
 	spinbox_y.editable = is_editable
 

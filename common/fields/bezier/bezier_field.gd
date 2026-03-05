@@ -46,6 +46,13 @@ func get_value() -> Variant:
 	]
 
 
+func set_editable(is_editable: bool) -> void:
+	cp1.movable = is_editable
+	cp2.movable = is_editable
+	for spin_box: SpinBox in [spin_box_x1, spin_box_x2, spin_box_y1, spin_box_y2]:
+		spin_box.editable = is_editable
+
+
 func _on_spin_box_value_changed(_value: float) -> void:
 	if _is_updating:
 		return

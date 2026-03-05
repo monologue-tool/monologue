@@ -19,5 +19,9 @@ func get_value() -> Variant:
 	return check_box.button_pressed
 
 
+func set_editable(is_editable: bool) -> void:
+	check_box.disabled = not is_editable
+
+
 func _on_check_box_pressed() -> void:
 	emit_value_committed(get_value())

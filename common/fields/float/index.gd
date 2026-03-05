@@ -7,14 +7,14 @@ func get_scene() -> PackedScene:
 
 func get_metadata() -> Dictionary:
 	return {
-		"name": "int",
+		"name": "float",
 		"type": ObjectType.FIELD,
 		"color": Color("45cee9ff"),
 		"compatible_types": ["slider", "float"],
-		"default_value": 0,
+		"default_value": 0.0,
 		"default_settings": {
-			"rounded": true,
-			"step": 1.0,
+			"rounded": false,
+			"step": 0.1,
 			"allow_greater": true,
 			"allow_lesser": true,
 		}

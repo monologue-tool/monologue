@@ -41,10 +41,6 @@ func emit_value_committed(value: Variant) -> void:
 	value_committed.emit(value)
 
 
-func set_editable(_is_editable: bool) -> void:
-	pass
-
-
 func display_error(message: String) -> void:
 	tooltip_text = message
 	modulate = _default_modulate if message.is_empty() else Color(1, 0.85, 0.85, 1)
@@ -60,3 +56,4 @@ func after_commit(_value: Variant) -> void:
 
 @abstract func set_value(value: Variant) -> void
 @abstract func get_value() -> Variant
+@abstract func set_editable(is_editable: bool) -> void

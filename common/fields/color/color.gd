@@ -16,6 +16,7 @@ const COLORS = [
 	"#566c86"
 ]
 
+@onready var color_picker_button: Button = %ColorPickerButton
 @onready var color_preview: ColorRect = %ColorPreview
 @onready var color_popup: PopupPanel = %ColorPopup
 @onready var color_selector: GridContainer = %ColorSelector
@@ -41,6 +42,12 @@ func set_value(value: Variant) -> void:
 
 func get_value() -> Variant:
 	return color.to_html()
+
+
+func set_editable(is_editable: bool) -> void:
+	color_picker_button.disabled = not is_editable
+	if not is_editable:
+		color_popup.hide()
 
 
 func _on_color_picker_button_pressed() -> void:

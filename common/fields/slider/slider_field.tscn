@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bap1tk0q1l1kf"]
+
+[ext_resource type="Script" uid="uid://drp555ysvqbi3" path="res://common/fields/slider/slider_field.gd" id="1_7j6v4"]
+
+[node name="SliderField" type="VBoxContainer" unique_id=2139279077]
+script = ExtResource("1_7j6v4")
+
+[node name="HBox" type="HBoxContainer" parent="." unique_id=2082805658]
+layout_mode = 2
+
+[node name="Slider" type="HSlider" parent="HBox" unique_id=608407825]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+ticks_position = 3
+
+[node name="SpinBox" type="SpinBox" parent="HBox" unique_id=261675302]
+unique_name_in_owner = true
+layout_mode = 2
