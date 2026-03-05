@@ -7,8 +7,6 @@ class_name Vector2Field extends Field
 func _ready() -> void:
 	spinbox_x.value_changed.connect(_on_spinbox_value_changed)
 	spinbox_y.value_changed.connect(_on_spinbox_value_changed)
-	spinbox_x.focus_exited.connect(_on_spinbox_focus_exited)
-	spinbox_y.focus_exited.connect(_on_spinbox_focus_exited)
 
 
 func set_value(value: Variant) -> void:
@@ -31,11 +29,5 @@ func get_value() -> Variant:
 
 
 func _on_spinbox_value_changed(_value: float) -> void:
-	emit_value_changed(get_value())
-
-
-func _on_spinbox_focus_exited() -> void:
-	if not is_inside_tree():
-		return
 	emit_value_committed(get_value())
 	
