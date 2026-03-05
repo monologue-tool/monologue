@@ -31,8 +31,8 @@ func initialize_properties() -> void:
 			"cases": {
 				"bool": {"type": "bool", "default": false},
 				"string": {"type": "text", "default": "", "coerce": "string"},
-				"int": {"type": "number", "default": 0, "coerce": "int"},
-				"float": {"type": "number", "default": 0.0, "coerce": "float"}
+				"int": {"type": "int", "default": 0, "coerce": "int"},
+				"float": {"type": "float", "default": 0.0, "coerce": "float"}
 			}
 		}
 	)

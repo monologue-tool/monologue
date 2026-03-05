@@ -19,6 +19,12 @@ func _ready() -> void:
 
 
 func set_value(value: Variant) -> void:
+	if value is String or value is bool:
+		value = float(value)
+	
+	if not value is int:
+		return
+	
 	spin_box.value = value
 
 

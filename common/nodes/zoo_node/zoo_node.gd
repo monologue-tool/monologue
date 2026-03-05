@@ -25,6 +25,31 @@ func initialize_properties() -> void:
 	# Values
 	define_property("bool", false, "bool", {}, "Values")
 	define_property("color2", "#3b5dc9", "color", {}, "Values")
+	define_property(
+		"dynamic_dropdown",
+		"string",
+		"dropdown",
+		{
+			"required": true,
+			"options": ["bool", "string", "int", "float"]
+		},
+		"Values"
+	)
+	define_property(
+		"dynamic", 
+		"abc", 
+		"dynamic",
+		{
+			"case_property": "dynamic_dropdown",
+			"cases": {
+				"bool": {"type": "bool", "default": false},
+				"string": {"type": "text", "default": "", "coerce": "string"},
+				"int": {"type": "int", "default": 0, "coerce": "int"},
+				"float": {"type": "float", "default": 0.0, "coerce": "float"}
+			}
+		},
+		"Values"
+	)
 	define_property("float", 10.0, "float", {}, "Values")
 	define_property("int", 10, "int", {}, "Values")
 	define_property("slider", 10.0, "slider", {}, "Values")
