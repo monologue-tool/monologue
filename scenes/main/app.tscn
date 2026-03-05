@@ -32,17 +32,10 @@ theme_type_variation = &"EditorBackground"
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="MonologueEditor" parent="Frame/VBoxContainer" unique_id=1963406996 node_paths=PackedStringArray("welcome_window", "graph_container", "file_dialog") instance=ExtResource("1_kiov6")]
+[node name="MonologueEditor" parent="Frame/VBoxContainer" unique_id=1963406996 node_paths=PackedStringArray("welcome_window", "file_dialog") instance=ExtResource("1_kiov6")]
 layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
-graph_container = NodePath("VBox/HSplitContainer/HSplitContainer/Graph")
 file_dialog = NodePath("../../../FileDialog")
-
-[node name="LanguageSwitcher" parent="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph/HBox/ToolBar" parent_id_path=PackedInt32Array(1963406996, 116496835, 1840524053) index="3" unique_id=662667454 node_paths=PackedStringArray("graph_edit")]
-graph_edit = NodePath("../../GraphEdit")
-
-[node name="GraphEdit" parent="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph/HBox" parent_id_path=PackedInt32Array(1963406996, 116496835, 803151000) index="1" unique_id=2027188591]
-scroll_offset = Vector2(0, -33)
 
 [node name="ExpandedTextEditContainer" parent="." unique_id=881659617 instance=ExtResource("6_cqyrh")]
 visible = false

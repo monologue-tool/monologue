@@ -199,8 +199,8 @@ func _reconnect_all_slots() -> void:
 		var to_view_name: String = to_node.graph_view.name
 
 		# Get port indices for the properties
-		var from_port = get_port_index_for_property(from_view_name, from_property)
-		var to_port = get_port_index_for_property(to_view_name, to_property)
+		var from_port = get_port_index_for_property(from_view_name, from_property, true)
+		var to_port = get_port_index_for_property(to_view_name, to_property, false)
 
 		# Only connect if both ports are valid
 		if from_port >= 0 and to_port >= 0:
@@ -231,18 +231,25 @@ func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 	return visible_props
 
 
-## Get the port index for a specific property by name
-func get_port_index_for_property(node_name: String, property_name: String) -> int:
+## Get the port index for a specific property by name.
+## is_output=true counts only export ports (output), false counts only exposed ports (input).
+func get_port_index_for_property(node_name: String, property_name: String, is_output: bool = false) -> int:
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 
 	for node: InspectableNode in storyline.nodes:
 		if node.graph_view.name == node_name:
-			var visible_props = _get_visible_properties(node)
-
-			# Find the property by name and return its index
-			for i in range(visible_props.size()):
-				if visible_props[i].name == property_name:
-					return i
+			var count := 0
+			for prop: Property in node.get_properties():
+				var has_port: bool = (
+					prop.get_settings_value("export", false)
+					if is_output
+					else prop.get_settings_value("exposed", false)
+				)
+				if not has_port:
+					continue
+				if prop.name == property_name:
+					return count
+				count += 1
 			break
 
 	return -1

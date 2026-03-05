@@ -8,11 +8,13 @@ var formatter: Callable
 var type_id: int = -1
 ## Names of other field types that this type is connection-compatible with.
 var compatible_types: Array[String] = []
+var default_value: Variant = null
 
 
 func _init(p_name: String = "", p_scene: PackedScene = null, metadata: Dictionary = {}) -> void:
 	super._init(p_name, metadata)
 	scene = p_scene
+	default_value = metadata.get("default_value", null)
 	var raw_color = metadata.get("color")
 	if raw_color is Color:
 		color = raw_color

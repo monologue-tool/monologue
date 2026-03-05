@@ -33,8 +33,8 @@ func set_value(value: Variant) -> void:
 	spin_box_y1.value = value[1]
 	spin_box_x2.value = value[2]
 	spin_box_y2.value = value[3]
-	_is_updating = false
 	_update_ui()
+	_is_updating = false
 
 
 func get_value() -> Variant:
@@ -74,18 +74,13 @@ func _update_values() -> void:
 
 func _update_ui() -> void:
 	var canvas_size: float = background_panel.size.x
-	# Layout not ready yet — _on_item_rect_changed will call us again once size is settled.
 	if canvas_size <= 0.0:
 		return
 
 	var bezier: Array = get_value()
 	var curve: Curve2D = path.curve
 
-	# Out-tangent at point 0 (bottom-left): vector from (0, cs) to cp1_screen
-	# = (bezier[0]*cs, (1-bezier[1])*cs) - (0, cs) = (bezier[0], -bezier[1]) * cs
 	var p1: Vector2 = Vector2(bezier[0], -bezier[1]) * canvas_size
-	# In-tangent at point 1 (top-right): vector from (cs, 0) to cp2_screen
-	# = (bezier[2]*cs, (1-bezier[3])*cs) - (cs, 0) = (bezier[2]-1, 1-bezier[3]) * cs
 	var p2: Vector2 = Vector2(bezier[2]-1.0, 1.0-bezier[3]) * canvas_size
 	curve.set_point_out(0, p1)
 	curve.set_point_in(1, p2)
@@ -109,7 +104,6 @@ func _on_cp_moved() -> void:
 	_update_values()
 	_update_ui()
 	_is_updating = false
-	emit_value_changed(get_value())
 
 func _on_cp_up() -> void:
 	emit_value_committed(get_value())

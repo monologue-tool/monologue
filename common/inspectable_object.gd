@@ -92,7 +92,7 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 		return
 
 	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)
-	history.execute(command)
+	history.execute(command, UndoRedo.MERGE_DISABLE)
 
 	_notify_change(pname)
 

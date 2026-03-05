@@ -14,7 +14,7 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sr1k3"]
 
-[node name="MonologueEditor" type="Control" unique_id=1841160578]
+[node name="MonologueEditor" type="Control" unique_id=1841160578 node_paths=PackedStringArray("graph_container")]
 clip_contents = true
 layout_mode = 3
 anchors_preset = 15
@@ -27,6 +27,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ovo1o")
+graph_container = NodePath("VBox/HSplitContainer/HSplitContainer/Graph")
 
 [node name="VBox" type="VBoxContainer" parent="." unique_id=212421522]
 layout_mode = 1

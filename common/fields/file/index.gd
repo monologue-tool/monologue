@@ -10,6 +10,7 @@ func get_metadata() -> Dictionary:
 		"name": "file",
 		"type": ObjectType.FIELD,
 		"color": Color("80c0ffff"),
+		"default_value": "",
 		"default_settings": {
 			PropertySettings.KEY_FILE_FILTERS: [],
 		}

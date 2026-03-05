@@ -15,6 +15,27 @@ var _pending_expand_category: String = ""
 func _ready() -> void:
 	EventBus.request_object_inspection.connect(inspect)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
+	StorylineManager.storyline_switched.connect(_on_storyline_switched)
+	# Handle the storyline that is already active at startup.
+	call_deferred("_on_storyline_switched")
+
+
+func _on_storyline_switched() -> void:
+	var storyline = StorylineManager.get_active_storyline()
+	if not storyline:
+		return
+	var h: CommandManager = storyline.history
+	if not h.undone.is_connected(_on_history_undo_redo):
+		h.undone.connect(_on_history_undo_redo)
+	if not h.redone.is_connected(_on_history_undo_redo):
+		h.redone.connect(_on_history_undo_redo)
+
+
+## Called after every undo or redo. Rebuilds the inspector so it always
+## reflects the reverted/replayed property values.
+func _on_history_undo_redo() -> void:
+	if current_object:
+		rebuild()
 
 
 func inspect(object: InspectableObject) -> void:

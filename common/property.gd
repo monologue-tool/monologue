@@ -23,10 +23,10 @@ const DEFAULT_SETTINGS := {
 }
 
 ## Tracks input connections to this property
-var connected_from: Array[Dictionary] = []
+var connected_from: Array = []
 
 ## Tracks output connections from this property
-var connected_to: Array[Dictionary] = []
+var connected_to: Array = []
 
 ## Property Settings:
 ## - visible_in_graph: Whether property shows as a row in graph node view

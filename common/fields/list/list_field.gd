@@ -10,6 +10,7 @@ var _command_manager: CommandManager
 ## Used by FieldBinding._sync_from_property() to skip redundant set_value() calls
 ## that would destroy live ListItem references.
 var _is_emitting_snapshot: bool = false
+var _inspected_index: int = -1
 
 @onready var items_container: VBoxContainer = %ItemsContainer
 
@@ -17,6 +18,11 @@ var _is_emitting_snapshot: bool = false
 func _ready() -> void:
 	super._ready()
 	_command_manager = CommandManager.new()
+	EventBus.request_object_inspection.connect(_on_inspection_requested)
+	tree_exiting.connect(func():
+		if EventBus.request_object_inspection.is_connected(_on_inspection_requested):
+			EventBus.request_object_inspection.disconnect(_on_inspection_requested)
+	)
 
 func _on_initialize() -> void:
 	super._on_initialize()
@@ -45,6 +51,11 @@ func show_all_items() -> void:
 	_rebuild_ui()
 
 
+func _on_inspection_requested(obj: InspectableObject) -> void:
+	if not obj is ListItem or obj not in _list_items:
+		_inspected_index = -1
+
+
 func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
@@ -61,6 +72,12 @@ func set_value(value: Variant) -> void:
 		_list_items.append(new_item)
 
 	_rebuild_ui()
+
+	if not _is_emitting_snapshot and _inspected_index >= 0:
+		if _inspected_index < _list_items.size():
+			EventBus.request_object_inspection.emit(_list_items[_inspected_index])
+		else:
+			_inspected_index = -1
 
 
 func _connect_item_observer(item: ListItem) -> void:
@@ -218,6 +235,8 @@ func _add_button(
 func _on_duplicate_item(index: int) -> void:
 	if not _is_valid_index(index):
 		return
+	if index < _inspected_index:
+		_inspected_index += 1
 	var item_data: Dictionary = _list_items[index]._to_dict()
 	var new_item: ListItem = CollectionBucket.create_item(_collection_name, _command_manager)
 	if new_item:
@@ -246,6 +265,11 @@ func _on_delete_item(index: int) -> void:
 		push_warning("Cannot delete protected item")
 		return
 
+	if index == _inspected_index:
+		_inspected_index = -1
+	elif index < _inspected_index:
+		_inspected_index -= 1
+
 	if index >= 0 and index < _list_items.size():
 		_list_items.remove_at(index)
 	_rebuild_ui()
@@ -253,6 +277,7 @@ func _on_delete_item(index: int) -> void:
 
 
 func _on_edit_item(index: int) -> void:
+	_inspected_index = index
 	var item: ListItem = _list_items[index]
 	EventBus.request_object_inspection.emit(item)
 

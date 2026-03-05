@@ -272,7 +272,7 @@ func _suspend_property_connections(
 	if not prop:
 		return
 
-	var connections: Array[Dictionary] = prop.get(connection_array_name).duplicate(true)
+	var connections: Array = prop.get(connection_array_name).duplicate(true)
 	if connections.is_empty():
 		return
 

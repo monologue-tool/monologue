@@ -194,10 +194,8 @@ func _from_dict(dict: Dictionary) -> void:
 	if not dict or dict.is_empty():
 		return
 
-	# Clear default nodes created by _create_default_nodes() in _init
 	nodes.clear()
-
-	# Restore storyline-level properties (characters, languages, variables, …)
+	
 	super._from_dict(dict)
 
 	# Reconstruct graph nodes

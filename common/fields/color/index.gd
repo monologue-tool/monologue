@@ -6,4 +6,4 @@ func get_scene() -> PackedScene:
 
 
 func get_metadata() -> Dictionary:
-	return {"name": "color", "type": ObjectType.FIELD, "color": Color("d1b37bff")}
+	return {"name": "color", "type": ObjectType.FIELD, "color": Color("d1b37bff"), "default_value": "#000000"}

@@ -1,4 +1,3 @@
-@icon("res://ui/assets/icons/text.svg")
 class_name SentenceNode extends InspectableNode
 
 

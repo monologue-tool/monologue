@@ -10,5 +10,6 @@ func get_metadata() -> Dictionary:
 		"name": "text",
 		"type": ObjectType.FIELD,
 		"color": Color("af85fdff"),
+		"default_value": "",
 		"compatible_types": ["textarea"],
 	}

@@ -46,7 +46,7 @@ func _current_language_code() -> String:
 func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
-	_values = value if value is Dictionary else {_current_language_code(): str(value)}
+	_values = (value if value is Dictionary else {_current_language_code(): str(value)}).duplicate()
 	_refresh_widget_text()
 
 

@@ -81,7 +81,11 @@ func _sync_from_property() -> void:
 	if field is ListField and (field as ListField)._is_emitting_snapshot:
 		return
 	_is_syncing = true
-	field.set_value(property.get_value())
+	var _sync_value: Variant = property.get_value()
+	if _sync_value == null and descriptor != null and descriptor.default_value != null:
+		var _dv: Variant = descriptor.default_value
+		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
+	field.set_value(_sync_value)
 	field.clear_error()
 	_is_syncing = false
 
@@ -175,13 +179,17 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 		field.after_commit(property.get_value())
 
 
-func _on_property_value_changed(_old_value: Variant, new_value: Variant) -> void:
+func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> void:
 	if _is_released or _is_syncing:
 		return
 	if not is_instance_valid(field) or not field.is_node_ready():
 		return
 	_is_syncing = true
-	field.set_value(new_value)
+	var _sync_value: Variant = property.get_value()
+	if _sync_value == null and descriptor != null and descriptor.default_value != null:
+		var _dv: Variant = descriptor.default_value
+		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
+	field.set_value(_sync_value)
 	field.clear_error()
 	_is_syncing = false
 
