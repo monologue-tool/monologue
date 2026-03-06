@@ -27,3 +27,7 @@ func initialize_properties() -> void:
 
 func get_type() -> String:
 	return "language"
+
+
+func get_preview_property_names() -> Array[String]:
+	return ["name", "code"]

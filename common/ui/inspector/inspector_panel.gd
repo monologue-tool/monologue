@@ -228,7 +228,7 @@ func _create_property_editor(property: Property) -> Control:
 		p_hbox.hide()
 
 	var p_field: Control
-	if property.is_input_connected():  # Add inspect connected node button if property is connected
+	if property.is_input_connected() and property.type != "list":
 		var inspect_button: Button = Button.new()
 		inspect_button.text = "Go to connected node"
 		inspect_button.tooltip_text = "Inspect connected node"

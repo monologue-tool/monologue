@@ -92,6 +92,10 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		container.add_child(value_label)
 		graph_node.add_child(container)
 
+		# Apply large port size if configured
+		if row.port_size == "large":
+			container.custom_minimum_size.y = 32
+
 		var type_id: int = FieldBucket.get_type_id(row.get_type())
 		graph_node.set_slot(
 			idx,
@@ -135,11 +139,67 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 		var label := (
 			prop.get_display_name() if prop.get_settings_value("is_main_property") else prop.name
 		)
-		var row := GraphNodeRow.new(label, prop.type, enable_left, enable_right)
+		# For list properties, resolve port type from the collection's field type
+		var row_type: String = prop.type
+		if prop.type == "list":
+			var collection_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
+			if not collection_name.is_empty():
+				var field_descriptor = FieldBucket.get_field_descriptor(collection_name)
+				if field_descriptor:
+					row_type = collection_name
+		var row := GraphNodeRow.new(label, row_type, enable_left, enable_right)
+		row._property_name = prop.name
+		row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")
 		if prop.get_settings_value("is_main_property"):
 			rows.push_front(row)
 			continue
 		rows.append(row)
+
+		# For list properties with a main_property collection, auto-export all items
+		if prop.type == "list":
+			var coll_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
+			var auto_export := false
+			if not coll_name.is_empty():
+				var probe: ListItem = CollectionBucket.create_item(coll_name, CommandManager.new())
+				if probe and probe.has_main_property():
+					auto_export = true
+			if auto_export:
+				# Internal items from the property value
+				var list_value: Variant = prop.get_value()
+				if list_value is Array:
+					for item_data in list_value:
+						if not item_data is Dictionary:
+							continue
+						var item_id: String = ""
+						var item_id_raw = item_data.get("id", {})
+						if item_id_raw is Dictionary:
+							item_id = str(item_id_raw.get("value", ""))
+						elif item_id_raw is String:
+							item_id = item_id_raw
+						var item_name: String = ""
+						var item_name_raw = item_data.get("name", {})
+						if item_name_raw is Dictionary:
+							item_name = str(item_name_raw.get("value", ""))
+						elif item_name_raw is String:
+							item_name = item_name_raw
+						if item_id.is_empty():
+							continue
+						var sub_label := "  %s" % [item_name if not item_name.is_empty() else item_id]
+						var sub_row := GraphNodeRow.new(sub_label, "context", false, true)
+						sub_row.sub_property_id = "%s:%s" % [prop.name, item_id]
+						rows.append(sub_row)
+
+				# External items (e.g. connected OptionNodes)
+				var externals: Array[Dictionary] = node.get_external_list_items(prop.name)
+				for ext_data: Dictionary in externals:
+					var ext_name: String = ext_data.get("name", "")
+					var ext_src_id: String = ext_data.get("source_node_id", "")
+					if ext_src_id.is_empty():
+						continue
+					var sub_label := "  %s" % [ext_name if not ext_name.is_empty() else ext_src_id]
+					var sub_row := GraphNodeRow.new(sub_label, "context", false, true)
+					sub_row.sub_property_id = "%s:ext_%s" % [prop.name, ext_src_id]
+					rows.append(sub_row)
 
 	return rows
 

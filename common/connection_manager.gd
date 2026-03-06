@@ -12,6 +12,7 @@ func _init(storyline: StorylineDocument) -> void:
 
 ## Updates property connection tracking when a connection is made (using property names)
 ## All parameters are node_ids, not scene node names.
+## Supports composite property names like "choices:item_id" for sub-ports.
 func register_connection_by_property(
 	from_node_id: String, from_property_name: String, to_node_id: String, to_property_name: String
 ) -> void:
@@ -22,16 +23,42 @@ func register_connection_by_property(
 		push_warning("Cannot register connection: node not found")
 		return
 
-	var from_prop: Property = from_node.get_property(from_property_name)
-	var to_prop: Property = to_node.get_property(to_property_name)
+	# Resolve composite sub-port names
+	var from_base_name := from_property_name
+	var from_item_id := ""
+	if ":" in from_property_name:
+		var parts := from_property_name.split(":", true, 1)
+		from_base_name = parts[0]
+		from_item_id = parts[1]
+
+	var to_base_name := to_property_name
+	var to_item_id := ""
+	if ":" in to_property_name:
+		var parts := to_property_name.split(":", true, 1)
+		to_base_name = parts[0]
+		to_item_id = parts[1]
+
+	var from_prop: Property = from_node.get_property(from_base_name)
+	var to_prop: Property = to_node.get_property(to_base_name)
 
 	if not from_prop or not to_prop:
 		push_warning("Cannot register connection: property not found")
 		return
 
-	# Track the connection in both properties using property names
-	from_prop.add_connection_to(to_node_id, to_property_name)
-	to_prop.add_connection_from(from_node_id, from_property_name)
+	# Build connection dict, including item_id if it's a sub-port
+	var to_conn := {"node_id": to_node_id, "property_name": to_property_name}
+	if not from_item_id.is_empty():
+		to_conn["item_id"] = from_item_id
+	var from_conn := {"node_id": from_node_id, "property_name": from_property_name}
+	if not to_item_id.is_empty():
+		from_conn["item_id"] = to_item_id
+
+	if to_conn not in from_prop.connected_to:
+		from_prop.connected_to.append(to_conn)
+		from_prop.connection_changed.emit()
+	if from_conn not in to_prop.connected_from:
+		to_prop.connected_from.append(from_conn)
+		to_prop.connection_changed.emit()
 
 
 ## Updates property connection tracking when a connection is made (using port indices - legacy)
@@ -59,6 +86,7 @@ func register_connection(
 
 ## Updates property connection tracking when a connection is removed (using property names)
 ## All parameters are node_ids, not scene node names.
+## Supports composite property names like "choices:item_id" for sub-ports.
 func unregister_connection_by_property(
 	from_node_id: String, from_property_name: String, to_node_id: String, to_property_name: String
 ) -> void:
@@ -68,20 +96,36 @@ func unregister_connection_by_property(
 	if not from_node or not to_node:
 		return
 
-	var from_prop = from_node.get_property(from_property_name)
-	var to_prop = to_node.get_property(to_property_name)
+	# Resolve composite sub-port names
+	var from_base_name := from_property_name
+	if ":" in from_property_name:
+		from_base_name = from_property_name.split(":", true, 1)[0]
+
+	var to_base_name := to_property_name
+	if ":" in to_property_name:
+		to_base_name = to_property_name.split(":", true, 1)[0]
+
+	var from_prop = from_node.get_property(from_base_name)
+	var to_prop = to_node.get_property(to_base_name)
 
 	if not from_prop or not to_prop:
 		return
 
-	# Remove the connection from both properties using property names
+	# Remove the connection from both properties, matching full property_name (with sub-port)
+	var old_to_size: int = from_prop.connected_to.size()
 	from_prop.connected_to = from_prop.connected_to.filter(
 		func(c): return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name)
 	)
+	if from_prop.connected_to.size() != old_to_size:
+		from_prop.connection_changed.emit()
+
+	var old_from_size: int = to_prop.connected_from.size()
 	to_prop.connected_from = to_prop.connected_from.filter(
 		func(c):
 			return not (c["node_id"] == from_node_id and c["property_name"] == from_property_name)
 	)
+	if to_prop.connected_from.size() != old_from_size:
+		to_prop.connection_changed.emit()
 
 
 ## Updates property connection tracking when a connection is removed (using port indices - legacy)
@@ -116,14 +160,19 @@ func get_all_connections() -> Array[Dictionary]:
 		for prop: Property in node.get_properties():
 			# Only process outgoing connections to avoid duplicates
 			for conn in prop.connected_to:
+				# Reconstruct composite from_property for sub-port connections
+				var from_property: String = prop.name
+				var item_id: String = conn.get("item_id", "")
+				if not item_id.is_empty():
+					from_property = "%s:%s" % [prop.name, item_id]
 				var key = (
-					"%s.%s->%s.%s" % [node_id, prop.name, conn["node_id"], conn["property_name"]]
+					"%s.%s->%s.%s" % [node_id, from_property, conn["node_id"], conn["property_name"]]
 				)
 				if key not in processed_connections:
 					connections.append(
 						{
 							"from_node_id": node_id,
-							"from_property": prop.name,
+							"from_property": from_property,
 							"to_node_id": conn["node_id"],
 							"to_property": conn["property_name"]
 						}

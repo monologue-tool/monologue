@@ -44,3 +44,7 @@ func get_type() -> String:
 
 func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
 	pass
+
+
+func get_preview_property_names() -> Array[String]:
+	return ["name", "type", "value"]

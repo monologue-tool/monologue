@@ -32,13 +32,9 @@ config/icon="uid://bou7qelcr5dwn"
 [autoload]
 
 EventBus="*res://autoloads/event_bus.gd"
-Constants="*res://autoloads/constants.gd"
-IDGen="*res://autoloads/id_gen.gd"
 App="*res://autoloads/app.gd"
 ThemeManager="*res://autoloads/theme_manager.gd"
-GlobalVariables="*res://autoloads/global_variables.gd"
 SfxLoader="res://autoloads/sfx_loader.gd"
-Path="*res://autoloads/path.gd"
 Cursor="*res://autoloads/cursor.gd"
 ImageLoader="res://autoloads/image_loader.gd"
 FieldBucket="*res://common/fields/field_bucket.gd"

@@ -1,7 +1,5 @@
 class_name ListField extends Field
 
-const DISPLAY_PROPERTIES: Array = ["name", "description"]
-
 var _list_items: Array[ListItem] = []
 var _hide_items: Array[int] = []
 var _collection_name: String = ""
@@ -39,6 +37,10 @@ func _on_initialize() -> void:
 		push_error("Can't find collection %s." % str(collection))
 	
 	_collection_name = collection
+
+	# Listen for connection changes to rebuild imported items
+	if not property.connection_changed.is_connected(_on_connection_changed):
+		property.connection_changed.connect(_on_connection_changed)
 
 
 func hide_item(idx: int) -> void:
@@ -132,6 +134,9 @@ func _rebuild_ui() -> void:
 		
 		_populate_item_view(main_vbox, item)
 
+	# Show external (imported) items at the end
+	_populate_external_items()
+
 
 func _create_item_view() -> VBoxContainer:
 	var vbox: VBoxContainer = VBoxContainer.new()
@@ -143,7 +148,7 @@ func _populate_item_view(item_view: VBoxContainer, item: ListItem) -> void:
 	var index = get_item_index(item)
 	
 	for prop: Property in item.get_properties():
-		if not prop.name in DISPLAY_PROPERTIES:
+		if not prop.name in item.get_preview_property_names():
 			continue
 			
 		var field_container: VBoxContainer = VBoxContainer.new()
@@ -205,7 +210,7 @@ func _make_item_header(
 		"edit": preload("res://ui/assets/icons/pen.svg"),
 		"duplicate": preload("res://ui/assets/icons/copy.png")
 	}
-	
+
 	for action: String in actions:
 		_add_button(
 			header,
@@ -318,6 +323,52 @@ func _emit_snapshot() -> void:
 	emit_value_changed(get_value())
 	emit_value_committed(get_value())
 	_is_emitting_snapshot = false
+
+
+func _on_connection_changed() -> void:
+	_rebuild_ui()
+
+
+func _populate_external_items() -> void:
+	if not _binding or not _binding.owner:
+		return
+	var externals: Array[Dictionary] = _binding.owner.get_external_list_items(_binding.property.name)
+	if externals.is_empty():
+		return
+
+	for ext_data: Dictionary in externals:
+		var item_container := PanelContainer.new()
+		item_container.theme_type_variation = "ListItemContainer"
+		item_container.modulate = Color(1, 1, 1, 0.6)
+
+		var main_vbox := VBoxContainer.new()
+		item_container.add_child(main_vbox)
+
+		var header := HBoxContainer.new()
+		var ext_label := Label.new()
+		ext_label.text = ext_data.get("name", "External")
+		ext_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header.add_child(ext_label)
+
+		var badge := Label.new()
+		badge.text = "(imported)"
+		badge.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		header.add_child(badge)
+
+		main_vbox.add_child(header)
+
+		# Show text preview if available
+		var text_val = ext_data.get("text", "")
+		if text_val is Dictionary:
+			text_val = text_val.get("value", "")
+		if not str(text_val).is_empty():
+			var text_label := Label.new()
+			text_label.text = str(text_val)
+			text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			text_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+			main_vbox.add_child(text_label)
+
+		items_container.add_child(item_container)
 
 
 func undo() -> void:

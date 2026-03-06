@@ -1,4 +1,4 @@
-extends Node
+class_name Constants extends Node
 
 const HISTORY_PATH = "user://history.save"
 const PREFERENCES_PATH = "user://preferences.cfg"

@@ -57,6 +57,8 @@ const KEY_IS_MAIN_PROPERTY := "is_main_property"
 
 ## (list) Name of the collection registry to query for list items.
 const KEY_COLLECTION := "collection"
+## (port) Visual size of the port slot ("normal" or "large").
+const KEY_PORT_SIZE := "port_size"
 ## (dropdown) Static array of option strings offered to the user.
 const KEY_OPTIONS := "options"
 ## (dropdown) Dynamic source: a collection name or "self:<property>" path.

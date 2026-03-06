@@ -1,18 +1,18 @@
-extends Node
+class_name Path extends Node
 
 
-func get_separator() -> String:
+static func get_separator() -> String:
 	return "\\" if OS.has_feature("windows") else "/"
 
 
-func split_path(path: String) -> PackedStringArray:
+static func split_path(path: String) -> PackedStringArray:
 	var splt_path: String = path.replace(path.get_file(), "")
 	splt_path = splt_path.replace("\\", "/")
 	splt_path = splt_path.replace("//", "/")
 	return splt_path.split("/", false)
 
 
-func absolute_to_relative(path: String, root_file_path: String) -> String:
+static func absolute_to_relative(path: String, root_file_path: String) -> String:
 	var root_array: PackedStringArray = split_path(root_file_path)
 	var path_array: PackedStringArray = split_path(path)
 	if not path.is_absolute_path() or root_array.size() <= 0 or root_array[0] != path_array[0]:
@@ -37,7 +37,7 @@ func absolute_to_relative(path: String, root_file_path: String) -> String:
 	return relative_path
 
 
-func relative_to_absolute(path: String, root_file_path: String) -> String:
+static func relative_to_absolute(path: String, root_file_path: String) -> String:
 	if path.is_absolute_path():
 		return path
 	var root_array: PackedStringArray = split_path(root_file_path)

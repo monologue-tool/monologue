@@ -233,24 +233,21 @@ func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 
 ## Get the port index for a specific property by name.
 ## is_output=true counts only export ports (output), false counts only exposed ports (input).
+## Supports composite names like "choices:item_id" for sub-ports.
 func get_port_index_for_property(node_name: String, property_name: String, is_output: bool = false) -> int:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var node: InspectableNode = get_node_from_view_name(node_name)
+	if not node:
+		return -1
 
-	for node: InspectableNode in storyline.nodes:
-		if node.graph_view.name == node_name:
-			var count := 0
-			for prop: Property in node.get_properties():
-				var has_port: bool = (
-					prop.get_settings_value("export", false)
-					if is_output
-					else prop.get_settings_value("exposed", false)
-				)
-				if not has_port:
-					continue
-				if prop.name == property_name:
-					return count
-				count += 1
-			break
+	var rows := GraphNodeViewFactory._build_rows(node)
+	var count := 0
+	for row: GraphNodeRow in rows:
+		var has_port: bool = row._enable_right_port if is_output else row._enable_left_port
+		if not has_port:
+			continue
+		if row.get_connection_name() == property_name:
+			return count
+		count += 1
 
 	return -1
 
@@ -264,23 +261,21 @@ func get_node_from_view_name(graph_view_name: String) -> InspectableNode:
 	return null
 
 
-## Get property name at a specific port index
+## Get property name at a specific port index.
+## Returns composite name (e.g. "choices:item_id") for sub-ports.
 func get_property_name_at_port(node_name: String, port_index: int, is_output: bool) -> String:
 	var node: InspectableNode = get_node_from_view_name(node_name)
 	if not node:
 		return ""
 
+	var rows := GraphNodeViewFactory._build_rows(node)
 	var count := 0
-	for prop: Property in node.get_properties():
-		var has_port: bool = (
-			prop.get_settings_value("export", false)
-			if is_output
-			else prop.get_settings_value("exposed", false)
-		)
+	for row: GraphNodeRow in rows:
+		var has_port: bool = row._enable_right_port if is_output else row._enable_left_port
 		if not has_port:
 			continue
 		if count == port_index:
-			return prop.name
+			return row.get_connection_name()
 		count += 1
 	return ""
 

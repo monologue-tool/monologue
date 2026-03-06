@@ -128,6 +128,12 @@ func get_settings() -> Dictionary:
 	return {}
 
 
+## Returns external list items for a given list property (e.g. connected OptionNodes).
+## Override in subclasses that support externally-sourced list items.
+func get_external_list_items(_property_name: String) -> Array[Dictionary]:
+	return []
+
+
 func rebuild_preview() -> void:
 	pass
 

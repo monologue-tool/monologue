@@ -158,7 +158,7 @@ func _on_id_value_changed(old_value: Variant, new_value: Variant) -> void:
 func duplicate(deep: bool = false) -> Resource:
 	var duplicated: InspectableNode = super.duplicate(deep)
 	duplicated.get_property("id").value = IDGen.generate(ID_LENGTH)
-	duplicated.get_property("position").value += Vector2(30, 30)
+	duplicated.get_property("position").value += [30, 30]
 
 	return duplicated
 

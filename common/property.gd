@@ -1,6 +1,7 @@
 class_name Property extends RefCounted
 
 signal value_changed(old_value: Variant, new_value: Variant)
+signal connection_changed()
 
 var name: String = ""
 var value: Variant = 0
@@ -124,29 +125,40 @@ func add_connection_from(node_id: String, property_name: String) -> void:
 	var conn = {"node_id": node_id, "property_name": property_name}
 	if conn not in connected_from:
 		connected_from.append(conn)
+		connection_changed.emit()
 
 
 func add_connection_to(node_id: String, property_name: String) -> void:
 	var conn = {"node_id": node_id, "property_name": property_name}
 	if conn not in connected_to:
 		connected_to.append(conn)
+		connection_changed.emit()
 
 
 func remove_connection_from(node_id: String, property_name: String) -> void:
+	var old_size := connected_from.size()
 	connected_from = connected_from.filter(
 		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
 	)
+	if connected_from.size() != old_size:
+		connection_changed.emit()
 
 
 func remove_connection_to(node_id: String, property_name: String) -> void:
+	var old_size := connected_to.size()
 	connected_to = connected_to.filter(
 		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
 	)
+	if connected_to.size() != old_size:
+		connection_changed.emit()
 
 
 func clear_connections() -> void:
+	var had_connections := not connected_from.is_empty() or not connected_to.is_empty()
 	connected_from.clear()
 	connected_to.clear()
+	if had_connections:
+		connection_changed.emit()
 
 
 func refresh_bindings() -> void:

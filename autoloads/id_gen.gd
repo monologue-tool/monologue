@@ -1,17 +1,17 @@
-extends Node
+class_name IDGen extends Node
 
-var characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 
-func generate(length: int = 10, avoid_ids: Array = []) -> String:
+static func generate(length: int = 10, avoid_ids: Array = []) -> String:
 	for _i in range(100):
 		var id = ""
 		var random = RandomNumberGenerator.new()
 		random.randomize()
 
 		for i in range(length):
-			var index = random.randi_range(0, characters.length() - 1)
-			id += characters[index]
+			var index = random.randi_range(0, CHARS.length() - 1)
+			id += CHARS[index]
 
 		if id not in avoid_ids:
 			return id
