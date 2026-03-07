@@ -166,7 +166,7 @@ func _populate_item_view(item_view: VBoxContainer, item: ListItem) -> void:
 
 func _create_field_title(prop: Property) -> HBoxContainer:
 	var field_name: String = prop.name
-	var field_config: Dictionary = prop.settings
+	var field_config: Dictionary = prop.get_settings()
 	
 	var title_container = HBoxContainer.new()
 	title_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL

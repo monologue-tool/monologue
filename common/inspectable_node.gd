@@ -161,7 +161,3 @@ func duplicate(deep: bool = false) -> Resource:
 	duplicated.get_property("position").value += [30, 30]
 
 	return duplicated
-
-
-@abstract func get_color() -> Color
-@abstract func get_icon() -> Texture2D

@@ -8,7 +8,6 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var inspector_panel_node: InspectorPanel = %Inspector
-@onready var run_window := preload("res://scenes/run/run_window.tscn")
 @onready var document_tab_manager: DocumentTabManager = %_Tabs
 
 @onready var characters_section := %Characters
@@ -20,8 +19,7 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 
 
 func _ready():
-	get_tree().auto_accept_quit = false  # quit handled by _close_tab()
-	#welcome_window.show()
+	get_tree().auto_accept_quit = false
 
 	EventBus.add_graph_node.connect(add_node_from_global)
 	EventBus.select_new_node.connect(_select_new_node)
@@ -83,13 +81,6 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
 	storyline.history.execute(command)
 
 
-func get_root_dict(node_list: Array) -> Dictionary:
-	for node in node_list:
-		if node.get("$type") == "NodeRoot":
-			return node
-	return {}
-
-
 func load_project(path: String, _new_graph: bool = false) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
 	if not file or StorylineManager.is_document_opened(path):
@@ -100,12 +91,6 @@ func load_project(path: String, _new_graph: bool = false) -> void:
 
 func load_editor_sections() -> void:
 	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	#for prop: Property in storyline.get_properties():
-		#if prop.type != "list":
-			#return
-			
-			# TODO: Auto stoyline list section implementation
-		
 	characters_section.load_items(storyline.get_property("characters"), storyline)
 	variables_section.load_items(storyline.get_property("variables"), storyline)
 	items_section.load_items(storyline.get_property("items"), storyline)
@@ -146,30 +131,19 @@ func _on_storyline_switched() -> void:
 
 
 func test_project(_from_node: Variant = null):
-	return
-	#if graph_switcher.current.file_path:
-	#await save()
-	#var window: RunWindow = run_window.instantiate()
-	#window.file_path = graph_switcher.current.file_path
-	#window.from_node = from_node
-	#window.tree_exited.connect(dimmer.hide)
-	#get_tree().root.add_child(window)
-	#dimmer.show()
+	# TODO: Implement run/test functionality
+	pass
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		get_viewport().gui_release_focus()
-		#graph_switcher.is_closing_all_tabs = true
-		#graph_switcher._on_tab_close_pressed(0)
+		# TODO: Handle unsaved changes before quitting
 
 
 func _on_button_sparkle_pressed() -> void:
 	# TODO: Create an undo/redo action for every nodes. Need to pack undo/redo action into one action.
 	pass
-	#graph_switcher.current.set_block_signals(true)
-	#graph_switcher.current.arrange_nodes()
-	#graph_switcher.current.set_block_signals.bind(false).call_deferred()
 
 
 func _on__tabs_add_document() -> void:

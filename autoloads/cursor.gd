@@ -1,5 +1,5 @@
-extends Node
+class_name Cursor
 
-@onready var arrow = preload("res://ui/assets/cursors/cursor.svg")
-@onready var hand = preload("res://ui/assets/cursors/hand.svg")
-@onready var closed_hand = preload("res://ui/assets/cursors/closed_hand.svg")
+const ARROW := preload("res://ui/assets/cursors/cursor.svg")
+const HAND := preload("res://ui/assets/cursors/hand.svg")
+const CLOSED_HAND := preload("res://ui/assets/cursors/closed_hand.svg")

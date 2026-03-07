@@ -79,7 +79,7 @@ func get_property_value(pname: String) -> Variant:
 
 func get_property_settings_value(pname: String, skey: String) -> Variant:
 	var property: Property = get_property(pname)
-	return property.settings.get(skey)
+	return property._overrides.get(skey)
 
 
 func set_property_value(pname: String, pvalue: Variant) -> void:

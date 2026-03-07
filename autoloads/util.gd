@@ -3,17 +3,6 @@ class_name Util
 const MAX_FILENAME_LENGTH = 48
 
 
-static func check_config_file(path: String) -> void:
-	assert(FileAccess.file_exists(path))
-	var raw_text = FileAccess.open(path, FileAccess.READ).get_as_text()
-	var data: Dictionary = JSON.parse_string(raw_text)
-	assert(data.has("ProjectName"))
-	assert(data.has("VersionProject"))
-	assert(data.has("VersionEditor"))
-	assert(data.has("DefaultStart"))
-	assert(data.has("ListSpeakers"))
-
-
 static func is_equal(a: Variant, b: Variant) -> bool:
 	var type_a = typeof(a)
 	var type_b = typeof(b)

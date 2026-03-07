@@ -36,12 +36,12 @@ func open_document(path: String) -> StorylineDocument:
 	
 
 
-func close_storyline(id: String) -> void:
+func close_storyline(id: String, force: bool = false) -> void:
 	var doc = _documents.get(id, null)
 	if doc == null:
 		return
-	if doc.is_dirty:
-		# TODO: Save changes ?
+	if doc.is_dirty and not force:
+		# TODO: Show a confirmation dialog asking the user to save/discard/cancel.
 		return
 	_documents.erase(id)
 

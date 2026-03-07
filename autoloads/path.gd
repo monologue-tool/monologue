@@ -1,4 +1,4 @@
-class_name Path extends Node
+class_name PathUtil
 
 
 static func get_separator() -> String:

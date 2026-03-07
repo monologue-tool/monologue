@@ -44,6 +44,6 @@ func _on_file_selected(absolute_path: String) -> void:
 	var relative_path := absolute_path
 	var active_doc := StorylineManager.get_active_storyline()
 	if active_doc and not active_doc.file_path.is_empty():
-		relative_path = Path.absolute_to_relative(absolute_path, active_doc.file_path)
+		relative_path = PathUtil.absolute_to_relative(absolute_path, active_doc.file_path)
 	path_line_edit.text = relative_path
 	emit_value_committed(get_value())

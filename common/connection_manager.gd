@@ -10,6 +10,15 @@ func _init(storyline: StorylineDocument) -> void:
 	_storyline = storyline
 
 
+## Splits a composite property name like "choices:item_id" into [base_name, item_id].
+## Returns [property_name, ""] for simple names.
+static func parse_composite_name(property_name: String) -> Array:
+	if ":" in property_name:
+		var parts := property_name.split(":", true, 1)
+		return [parts[0], parts[1]]
+	return [property_name, ""]
+
+
 ## Updates property connection tracking when a connection is made (using property names)
 ## All parameters are node_ids, not scene node names.
 ## Supports composite property names like "choices:item_id" for sub-ports.
@@ -24,19 +33,13 @@ func register_connection_by_property(
 		return
 
 	# Resolve composite sub-port names
-	var from_base_name := from_property_name
-	var from_item_id := ""
-	if ":" in from_property_name:
-		var parts := from_property_name.split(":", true, 1)
-		from_base_name = parts[0]
-		from_item_id = parts[1]
+	var from_parsed := parse_composite_name(from_property_name)
+	var from_base_name: String = from_parsed[0]
+	var from_item_id: String = from_parsed[1]
 
-	var to_base_name := to_property_name
-	var to_item_id := ""
-	if ":" in to_property_name:
-		var parts := to_property_name.split(":", true, 1)
-		to_base_name = parts[0]
-		to_item_id = parts[1]
+	var to_parsed := parse_composite_name(to_property_name)
+	var to_base_name: String = to_parsed[0]
+	var to_item_id: String = to_parsed[1]
 
 	var from_prop: Property = from_node.get_property(from_base_name)
 	var to_prop: Property = to_node.get_property(to_base_name)
@@ -97,13 +100,8 @@ func unregister_connection_by_property(
 		return
 
 	# Resolve composite sub-port names
-	var from_base_name := from_property_name
-	if ":" in from_property_name:
-		from_base_name = from_property_name.split(":", true, 1)[0]
-
-	var to_base_name := to_property_name
-	if ":" in to_property_name:
-		to_base_name = to_property_name.split(":", true, 1)[0]
+	var from_base_name: String = parse_composite_name(from_property_name)[0]
+	var to_base_name: String = parse_composite_name(to_property_name)[0]
 
 	var from_prop = from_node.get_property(from_base_name)
 	var to_prop = to_node.get_property(to_base_name)
@@ -113,17 +111,17 @@ func unregister_connection_by_property(
 
 	# Remove the connection from both properties, matching full property_name (with sub-port)
 	var old_to_size: int = from_prop.connected_to.size()
-	from_prop.connected_to = from_prop.connected_to.filter(
+	from_prop.connected_to.assign(from_prop.connected_to.filter(
 		func(c): return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name)
-	)
+	))
 	if from_prop.connected_to.size() != old_to_size:
 		from_prop.connection_changed.emit()
 
 	var old_from_size: int = to_prop.connected_from.size()
-	to_prop.connected_from = to_prop.connected_from.filter(
+	to_prop.connected_from.assign(to_prop.connected_from.filter(
 		func(c):
 			return not (c["node_id"] == from_node_id and c["property_name"] == from_property_name)
-	)
+	))
 	if to_prop.connected_from.size() != old_from_size:
 		to_prop.connection_changed.emit()
 

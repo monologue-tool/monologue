@@ -23,23 +23,21 @@ func _init(
 
 func execute() -> void:
 	var property: Property = target.get_property(property_name)
-	property.settings[settings_name] = new_value
+	property._overrides[settings_name] = new_value
 	_handle_connection_visibility(new_value)
 	target._notify_change(property_name)
 	property.refresh_bindings()
-	#target._notify_property_settings_change(property_name, settings_name, old_value, new_value)
 
 
 func undo() -> void:
 	var property: Property = target.get_property(property_name)
 	if old_value:
-		property.settings[settings_name] = old_value
+		property._overrides[settings_name] = old_value
 	else:
-		property.settings.erase(settings_name)
+		property._overrides.erase(settings_name)
 	_handle_connection_visibility(old_value)
 	target._notify_change(property_name)
 	property.refresh_bindings()
-	#target._notify_property_settings_change(property_name, settings_name, new_value, old_value)
 
 
 func get_description() -> String:

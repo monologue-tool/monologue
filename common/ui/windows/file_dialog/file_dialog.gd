@@ -49,8 +49,8 @@ func _on_open_files_request(
 func _core_request(
 	callable: Callable, filter_list: PackedStringArray = [], root_subdir: String = ""
 ) -> void:
-	if not root_subdir.ends_with(Path.get_separator()):
-		root_subdir += Path.get_separator()
+	if not root_subdir.ends_with(PathUtil.get_separator()):
+		root_subdir += PathUtil.get_separator()
 
 	_callback = callable
 	filters = filter_list

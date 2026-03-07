@@ -27,14 +27,6 @@ func get_type() -> String:
 	return "choice"
 
 
-func get_settings() -> Dictionary:
-	return {}
-
-
-func get_icon() -> Texture2D:
-	return Texture2D.new()
-
-
 func get_color() -> Color:
 	return Color("e89145")
 

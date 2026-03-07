@@ -6,8 +6,10 @@ signal connection_changed()
 var name: String = ""
 var value: Variant = 0
 var type: String = ""
-var _settings: Dictionary = {}
-var settings: Dictionary = {}
+## Base settings: defaults + descriptor defaults + constructor overrides. Read-only after init.
+var _base_settings: Dictionary = {}
+## Runtime overrides set by the user (serialized as "_editor_settings" in JSON).
+var _overrides: Dictionary = {}
 var descriptor
 var _bindings: Array = []
 
@@ -23,11 +25,13 @@ const DEFAULT_SETTINGS := {
 	"label": "",
 }
 
-## Tracks input connections to this property
-var connected_from: Array = []
+## Tracks input connections to this property.
+## Each entry: {"node_id": String, "property_name": String, "item_id"?: String}
+var connected_from: Array[Dictionary] = []
 
-## Tracks output connections from this property
-var connected_to: Array = []
+## Tracks output connections from this property.
+## Each entry: {"node_id": String, "property_name": String, "item_id"?: String}
+var connected_to: Array[Dictionary] = []
 
 ## Property Settings:
 ## - visible_in_graph: Whether property shows as a row in graph node view
@@ -43,15 +47,15 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 	value = pvalue.call() if pvalue is Callable else pvalue
 	type = ptype
 	descriptor = FieldBucket.get_descriptor(ptype)
-	_settings = DEFAULT_SETTINGS.duplicate(true)
+	_base_settings = DEFAULT_SETTINGS.duplicate(true)
 	if descriptor and descriptor.default_settings:
-		_settings.merge(descriptor.default_settings, true)
+		_base_settings.merge(descriptor.default_settings, true)
 	if psettings:
-		_settings.merge(psettings, true)
-	if not _settings.get("category"):
-		_settings["category"] = DEFAULT_SETTINGS["category"]
-	if _settings.get("label", "") == "":
-		_settings.erase("label")
+		_base_settings.merge(psettings, true)
+	if not _base_settings.get("category"):
+		_base_settings["category"] = DEFAULT_SETTINGS["category"]
+	if _base_settings.get("label", "") == "":
+		_base_settings.erase("label")
 
 
 func bind_field(field: Field, target_owner: InspectableObject = null):
@@ -85,8 +89,8 @@ func get_value() -> Variant:
 
 
 func get_settings() -> Dictionary:
-	var merged_settings: Dictionary = settings.duplicate(true)
-	merged_settings.merge(_settings)
+	var merged_settings: Dictionary = _overrides.duplicate(true)
+	merged_settings.merge(_base_settings)
 	return merged_settings
 
 
@@ -137,18 +141,18 @@ func add_connection_to(node_id: String, property_name: String) -> void:
 
 func remove_connection_from(node_id: String, property_name: String) -> void:
 	var old_size := connected_from.size()
-	connected_from = connected_from.filter(
+	connected_from.assign(connected_from.filter(
 		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
-	)
+	))
 	if connected_from.size() != old_size:
 		connection_changed.emit()
 
 
 func remove_connection_to(node_id: String, property_name: String) -> void:
 	var old_size := connected_to.size()
-	connected_to = connected_to.filter(
+	connected_to.assign(connected_to.filter(
 		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
-	)
+	))
 	if connected_to.size() != old_size:
 		connection_changed.emit()
 
@@ -183,8 +187,8 @@ func _to_dict() -> Variant:
 	if not connected_to.is_empty():
 		dict["to_node"] = connected_to
 
-	if not settings.is_empty():
-		dict["_editor_settings"] = settings
+	if not _overrides.is_empty():
+		dict["_editor_settings"] = _overrides
 
 	return dict
 
@@ -194,8 +198,8 @@ func _from_dict(raw: Dictionary) -> void:
 		return
 		
 	value = raw.get("value", value)
-	settings = raw.get("_editor_settings", settings)
+	_overrides = raw.get("_editor_settings", _overrides)
 	if raw.get("from_node"):
-		connected_from = raw.get("from_node", connected_from)
+		connected_from.assign(raw.get("from_node", []))
 	if raw.get("to_node"):
-		connected_to = raw.get("to_node", connected_to)
+		connected_to.assign(raw.get("to_node", []))

@@ -34,11 +34,11 @@ func _on_gui_input(event: InputEvent) -> void:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
 			cursor_hand_closed = true
 		if cursor_hand_closed:
-			DisplayServer.cursor_set_custom_image(Cursor.closed_hand)
+			DisplayServer.cursor_set_custom_image(Cursor.CLOSED_HAND)
 		elif cursor_drag:
-			DisplayServer.cursor_set_custom_image(Cursor.hand)
+			DisplayServer.cursor_set_custom_image(Cursor.HAND)
 		else:
-			DisplayServer.cursor_set_custom_image(Cursor.arrow)
+			DisplayServer.cursor_set_custom_image(Cursor.ARROW)
 
 	if (
 		event is InputEventMouseButton

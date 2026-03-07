@@ -12,6 +12,8 @@ var file_path: String = ""
 var is_dirty: bool = false
 ## Active language code in the editor for this storyline (e.g. "en", "fr").
 var active_language_code: String = "en"
+## Fast lookup: node_id -> InspectableNode
+var _node_index: Dictionary = {}
 
 
 func _init(sname: String, sfile_path: String = "") -> void:
@@ -37,6 +39,8 @@ func remove_node(node: InspectableNode) -> void:
 		push_warning("Can't remove node %s " % node.id)
 		return
 
+	var node_id: String = node.get_property_value("id")
+	_node_index.erase(node_id)
 	nodes.erase(node)
 	node_removed.emit()
 
@@ -48,10 +52,7 @@ func create_node(node_type: String) -> InspectableNode:
 
 
 func get_node(node_id: String) -> InspectableNode:
-	for node: InspectableNode in nodes:
-		if node.get_property_value("id") == node_id:
-			return node
-	return null
+	return _node_index.get(node_id)
 
 
 func initialize_properties() -> void:
@@ -167,13 +168,10 @@ func _register_node(node: InspectableNode) -> void:
 	if not node in nodes:
 		nodes.append(node)
 	node.storyline_id = id
-	node.add_observer(_on_node_property_changed)
+	var node_id: String = node.get_property_value("id")
+	if not node_id.is_empty():
+		_node_index[node_id] = node
 	node_added.emit()
-
-
-func _on_node_property_changed(_node: InspectableNode, _property: String) -> void:
-	# Maybe useless
-	is_dirty = true
 
 
 func _to_dict() -> Dictionary:
@@ -195,6 +193,7 @@ func _from_dict(dict: Dictionary) -> void:
 		return
 
 	nodes.clear()
+	_node_index.clear()
 	
 	super._from_dict(dict)
 
