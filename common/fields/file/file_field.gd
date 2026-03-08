@@ -11,7 +11,7 @@ func _ready() -> void:
 
 
 func _on_initialize() -> void:
-	var raw_filters = settings.get(PropertySettings.KEY_FILE_FILTERS, [])
+	var raw_filters: Variant = settings.get(PropertySettings.KEY_FILE_FILTERS, [])
 	if raw_filters is Array:
 		_filters = PackedStringArray(raw_filters)
 	else:

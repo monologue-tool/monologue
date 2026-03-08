@@ -1,9 +1,9 @@
 extends VBoxContainer
 
-var option_button_instance = preload("res://scenes/run/common/option_button.tscn")
+var option_button_instance: PackedScene = preload("res://scenes/run/common/option_button.tscn")
 
 
-func add_button(text, callback: Callable):
+func add_button(text: String, callback: Callable) -> void:
 	var new_button: Button = option_button_instance.instantiate()
 	new_button.text = text
 	new_button.tooltip_text = text
@@ -13,6 +13,6 @@ func add_button(text, callback: Callable):
 	add_child(new_button)
 
 
-func clear():
-	for child in get_children():
+func clear() -> void:
+	for child: Node in get_children():
 		child.queue_free()

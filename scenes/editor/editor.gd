@@ -18,7 +18,7 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 @onready var beziers_section := %Beziers
 
 
-func _ready():
+func _ready() -> void:
 	get_tree().auto_accept_quit = false
 
 	EventBus.add_graph_node.connect(add_node_from_global)
@@ -39,7 +39,7 @@ func _select_new_node() -> void:
 	graph_node_picker.open_for_node("", -1, null, null, null, true)
 
 
-func _input(event):
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("Save"):
 		save()
 
@@ -55,7 +55,7 @@ func _input(event):
 
 ## Function callback for when the user wants to add a node from global context.
 ## Used by header menu and graph node selector (picker).
-func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
+func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> void:
 	var storyline := StorylineManager.get_active_storyline()
 	if storyline == null:
 		push_warning("No active storyline available to add node.")
@@ -82,7 +82,7 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null):
 
 
 func load_project(path: String, _new_graph: bool = false) -> void:
-	var file = FileAccess.open(path, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if not file or StorylineManager.is_document_opened(path):
 		return
 
@@ -99,8 +99,8 @@ func load_editor_sections() -> void:
 	beziers_section.load_items(storyline.get_property("beziers"), storyline)
 
 
-func save():
-	var storyline = StorylineManager.get_active_storyline()
+func save() -> void:
+	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
 	if storyline.file_path.is_empty():
 		file_dialog.save_file(save_file_logic, STORYLINE_EXTENSIONS)
 		return
@@ -108,7 +108,7 @@ func save():
 
 
 func save_file_logic(path: String) -> void:
-	var storyline = StorylineManager.get_active_storyline()
+	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
 	var dict: Dictionary = storyline._to_dict()
 	dict["editor_version"] = ProjectSettings.get_setting("application/config/version")
 	var storyline_data: String = JSON.stringify(dict, "\t", false, true)
@@ -130,7 +130,7 @@ func _on_storyline_switched() -> void:
 	load_editor_sections()
 
 
-func test_project(_from_node: Variant = null):
+func test_project(_from_node: Variant = null) -> void:
 	# TODO: Implement run/test functionality
 	pass
 

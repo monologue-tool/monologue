@@ -2,7 +2,7 @@
 ## Saving and loading of GraphEdit data is handled by MonologueEditor.
 class_name GraphContainer extends PanelContainer
 
-var prompt_scene = preload("uid://bkreq3xdr7gxw")
+var prompt_scene: PackedScene = preload("uid://bkreq3xdr7gxw")
 
 @export var inspector_panel: InspectorPanel
 @onready var graph: MonologueGraphEdit = %GraphEdit

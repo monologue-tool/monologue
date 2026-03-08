@@ -22,13 +22,13 @@ func reload_tree() -> void:
 		_add_placeholder(root, "No nodes available")
 		return
 
-	for category in categories:
+	for category: String in categories:
 		var category_item := create_item(root)
 		category_item.set_text(0, category)
 		category_item.collapsed = true
 		category_item.set_selectable(0, false)
 		var descriptors: Array = NodeBucket.get_descriptors_by_category(category)
-		for descriptor in descriptors:
+		for descriptor: BucketDescriptor in descriptors:
 			_create_descriptor_item(category_item, descriptor)
 
 	deselect_all()
@@ -40,7 +40,7 @@ func _add_placeholder(parent: TreeItem, text: String) -> void:
 	placeholder.set_selectable(0, false)
 
 
-func _create_descriptor_item(parent: TreeItem, descriptor) -> void:
+func _create_descriptor_item(parent: TreeItem, descriptor: BucketDescriptor) -> void:
 	var item := create_item(parent)
 	item.set_text(0, descriptor.display_name)
 	if descriptor.icon:
@@ -52,7 +52,7 @@ func _create() -> bool:
 	var selected := get_selected()
 	if selected == null:
 		return false
-	var descriptor_name = selected.get_metadata(0)
+	var descriptor_name: Variant = selected.get_metadata(0)
 	if descriptor_name == null:
 		return false
 	EventBus.add_graph_node.emit(String(descriptor_name), window)
@@ -96,7 +96,7 @@ func _recursive_item_match(text: String, item: TreeItem) -> bool:
 	var match_text: bool = false
 
 	if item.get_child_count() > 0:
-		for child in item.get_children():
+		for child: TreeItem in item.get_children():
 			var child_match: bool = _recursive_item_match(text, child)
 			if child_match:
 				match_text = true
@@ -117,5 +117,5 @@ func _recursive_show_item(item: TreeItem) -> void:
 	item.visible = true
 	if not get_root() == item:
 		item.collapsed = true
-	for child in item.get_children():
+	for child: TreeItem in item.get_children():
 		_recursive_show_item(child)

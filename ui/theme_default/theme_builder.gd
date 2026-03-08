@@ -1,30 +1,31 @@
 @tool
+@warning_ignore_start("inferred_declaration")
 class_name ThemeBuilder extends RefCounted
 ## Modular theme builder that constructs Monologue themes from theme settingss
 
-const ICON_CHECKED := preload("res://ui/theme_default/assets/checked.svg")
-const ICON_UNCHECKED := preload("res://ui/theme_default/assets/unchecked.svg")
-const ICON_CHECKED_DISABLED := preload("res://ui/theme_default/assets/checked_disabled.svg")
-const ICON_UNCHECKED_DISABLED := preload("res://ui/theme_default/assets/unchecked_disabled.svg")
-const ICON_RADIO_CHECKED := preload("res://ui/theme_default/assets/radio_checked.svg")
-const ICON_RADIO_UNCHECKED := preload("res://ui/theme_default/assets/radio_unchecked.svg")
-const ICON_RADIO_CHECKED_DISABLED := preload(
+const ICON_CHECKED: DPITexture = preload("res://ui/theme_default/assets/checked.svg")
+const ICON_UNCHECKED: DPITexture = preload("res://ui/theme_default/assets/unchecked.svg")
+const ICON_CHECKED_DISABLED: DPITexture = preload("res://ui/theme_default/assets/checked_disabled.svg")
+const ICON_UNCHECKED_DISABLED: DPITexture = preload("res://ui/theme_default/assets/unchecked_disabled.svg")
+const ICON_RADIO_CHECKED: DPITexture = preload("res://ui/theme_default/assets/radio_checked.svg")
+const ICON_RADIO_UNCHECKED: DPITexture = preload("res://ui/theme_default/assets/radio_unchecked.svg")
+const ICON_RADIO_CHECKED_DISABLED: DPITexture = preload(
 	"res://ui/theme_default/assets/radio_checked_disabled.svg"
 )
-const ICON_RADIO_UNCHECKED_DISABLED := preload(
+const ICON_RADIO_UNCHECKED_DISABLED: DPITexture = preload(
 	"res://ui/theme_default/assets/radio_unchecked_disabled.svg"
 )
-const ICON_SLIDER_GRABBER := preload("res://ui/theme_default/assets/grabber.svg")
+const ICON_SLIDER_GRABBER: DPITexture = preload("res://ui/theme_default/assets/grabber.svg")
 
-const FONT_REGULAR := preload("res://ui/assets/fonts/GeneralSans-Regular.otf")
-const FONT_MEDIUM := preload("res://ui/assets/fonts/GeneralSans-Medium.otf")
-const FONT_SEMIBOLD := preload("res://ui/assets/fonts/GeneralSans-Semibold.otf")
+const FONT_REGULAR: FontFile = preload("res://ui/assets/fonts/GeneralSans-Regular.otf")
+const FONT_MEDIUM: FontFile = preload("res://ui/assets/fonts/GeneralSans-Medium.otf")
+const FONT_SEMIBOLD: FontFile = preload("res://ui/assets/fonts/GeneralSans-Semibold.otf")
 
 
 ## Build a complete theme from a theme settings
 static func build_theme(settings: ThemeSettings) -> Theme:
-	var theme := Theme.new()
-	var styles := ThemeStyles.new(settings)
+	var theme: Theme = Theme.new()
+	var styles: ThemeStyles = ThemeStyles.new(settings)
 
 	# Global typography defaults
 	theme.default_font = FONT_REGULAR
@@ -162,16 +163,16 @@ static func _build_buttons(theme: Theme, settings: ThemeSettings, styles: ThemeS
 	theme.set_constant("outline_size", "ButtonWarning", 0)
 
 	# FlatButton variation (outlined button)
-	var flat_btn_normal := styles.create_empty()
+	var flat_btn_normal: StyleBoxFlat = styles.create_empty()
 	flat_btn_normal.bg_color = Color.TRANSPARENT
 	flat_btn_normal.set_border_width_all(styles.border_width)
 	flat_btn_normal.border_color = settings.with_alpha(settings.text, 0.18)
 
-	var flat_btn_hover := flat_btn_normal.duplicate()
+	var flat_btn_hover: StyleBoxFlat = flat_btn_normal.duplicate()
 	flat_btn_hover.bg_color = settings.hover_overlay
 	flat_btn_hover.border_color = settings.with_alpha(settings.text, 0.35)
 
-	var flat_btn_pressed := flat_btn_normal.duplicate()
+	var flat_btn_pressed: StyleBoxFlat = flat_btn_normal.duplicate()
 	flat_btn_pressed.bg_color = settings.pressed_overlay
 	flat_btn_pressed.border_color = settings.with_alpha(settings.text, 0.50)
 
@@ -246,12 +247,12 @@ static func _build_checkboxes(theme: Theme, settings: ThemeSettings, styles: The
 
 ## Build input field styles (LineEdit, TextEdit, SpinBox)
 static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
-	var input_normal := styles.create_input(settings.input_background)
-	var input_focus := input_normal.duplicate()
+	var input_normal: StyleBoxFlat = styles.create_input(settings.input_background)
+	var input_focus: StyleBoxFlat = input_normal.duplicate()
 	input_focus.draw_center = true
 	input_focus.set_border_width_all(1)
 	input_focus.border_color = settings.accent
-	var input_disabled := styles.create_input(settings.darken(settings.input_background, 0.2))
+	var input_disabled: StyleBoxFlat = styles.create_input(settings.darken(settings.input_background, 0.2))
 
 	# LineEdit
 	theme.set_stylebox("normal", "LineEdit", input_normal)
@@ -260,8 +261,8 @@ static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 
 	# LineEditPortraitOption variation
 	theme.set_type_variation("LineEditPortraitOption", "LineEdit")
-	var po_input := input_normal.duplicate()
-	var po_focus := po_input.duplicate()
+	var po_input: StyleBoxFlat = input_normal.duplicate()
+	var po_focus: StyleBoxFlat = po_input.duplicate()
 	po_focus.draw_center = true
 	po_focus.bg_color = settings.panel_background
 	po_focus.set_border_width_all(1)
@@ -275,9 +276,9 @@ static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	# TextEdit
 	theme.set_font("font", "TextEdit", preload("res://ui/assets/fonts/CourierNewPSMT.ttf"))
 	theme.set_font_size("font_size", "TextEdit", 14)
-	theme.set_stylebox("normal", "TextEdit", input_normal.duplicate())
-	theme.set_stylebox("focus", "TextEdit", input_focus.duplicate())
-	theme.set_stylebox("read_only", "TextEdit", input_disabled.duplicate())
+	theme.set_stylebox("normal", "TextEdit", input_normal.duplicate() as StyleBoxFlat)
+	theme.set_stylebox("focus", "TextEdit", input_focus.duplicate() as StyleBoxFlat)
+	theme.set_stylebox("read_only", "TextEdit", input_disabled.duplicate() as StyleBoxFlat)
 	
 	# SpinBox
 	var empty_bg: StyleBoxEmpty = StyleBoxEmpty.new()
@@ -308,16 +309,16 @@ static func _build_inputs(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_type_variation("SpinBoxButtonLeft", "Button")
 	theme.set_type_variation("SpinBoxButtonRight", "Button")
 
-	var spin_btn := styles.create_empty()
+	var spin_btn: StyleBoxFlat = styles.create_empty()
 	spin_btn.set_content_margin_all(styles.base_spacing / 2)
 	var spin_btn_pressed := styles.create_panel(settings.button_background)
 	spin_btn_pressed.set_content_margin_all(styles.base_spacing / 2)
 
-	var spin_btn_pressed_left := spin_btn_pressed.duplicate()
+	var spin_btn_pressed_left: StyleBoxFlat = spin_btn_pressed.duplicate()
 	spin_btn_pressed_left.corner_radius_top_right = 0
 	spin_btn_pressed_left.corner_radius_bottom_right = 0
 
-	var spin_btn_pressed_right := spin_btn_pressed.duplicate()
+	var spin_btn_pressed_right: StyleBoxFlat = spin_btn_pressed.duplicate()
 	spin_btn_pressed_right.corner_radius_top_left = 0
 	spin_btn_pressed_right.corner_radius_bottom_left = 0
 
@@ -380,11 +381,11 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 	theme.set_stylebox("panel", "InspectorPanelTopBox", top_box)
 
 	# FoldableContainer
-	var f_panel := styles.create_panel(settings.darken(settings.secondary, 0.08))
-	var f_title_collapsed_panel := f_panel.duplicate()
+	var f_panel: StyleBoxFlat = styles.create_panel(settings.darken(settings.secondary, 0.08))
+	var f_title_collapsed_panel: StyleBoxFlat = f_panel.duplicate()
 	f_title_collapsed_panel.bg_color = settings.secondary
 	f_title_collapsed_panel.set_content_margin_all(styles.base_spacing)
-	var f_title_panel := f_title_collapsed_panel.duplicate()
+	var f_title_panel: StyleBoxFlat = f_title_collapsed_panel.duplicate()
 
 	f_panel.border_width_top = 0
 	f_panel.corner_radius_top_left = 0
@@ -474,17 +475,17 @@ static func _build_panels(theme: Theme, settings: ThemeSettings, styles: ThemeSt
 
 ## Build scrollbar styles
 static func _build_scrollbars(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
-	var scroll_empty := styles.create_empty()
+	var scroll_empty: StyleBoxFlat = styles.create_empty()
 	scroll_empty.set_content_margin_all(2)
 	scroll_empty.set_corner_radius_all(0)
 
-	var scroll_focus := scroll_empty.duplicate()
+	var scroll_focus: StyleBoxFlat = scroll_empty.duplicate()
 	scroll_focus.draw_center = true
 
-	var grabber := styles.create_panel(settings.with_alpha(settings.text, 0.25))
+	var grabber: StyleBoxFlat = styles.create_panel(settings.with_alpha(settings.text, 0.25))
 	grabber.set_corner_radius_all(6)
 
-	var grabber_highlight := grabber.duplicate()
+	var grabber_highlight: StyleBoxFlat = grabber.duplicate()
 	grabber_highlight.bg_color = settings.with_alpha(settings.text, 0.40)
 
 	# VScrollBar
@@ -554,7 +555,7 @@ static func _build_sliders(theme: Theme, settings: ThemeSettings, styles: ThemeS
 	slider_track.set_corner_radius_all(5)
 	slider_track.bg_color = settings.button_background
 
-	var grabber_area := slider_track.duplicate()
+	var grabber_area: StyleBoxFlat = slider_track.duplicate()
 	grabber_area.bg_color = settings.accent
 
 	theme.set_icon("grabber", "HSlider", ICON_SLIDER_GRABBER)
@@ -572,7 +573,7 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	tab_unselected.content_margin_top /= 2
 	tab_unselected.content_margin_bottom /= 2
 
-	var tab_selected := tab_unselected.duplicate()
+	var tab_selected: StyleBoxFlat = tab_unselected.duplicate()
 	tab_selected.draw_center = true
 	tab_selected.bg_color = settings.accent
 
@@ -596,15 +597,15 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_stylebox("button_highlight", "TabBar", StyleBoxEmpty.new())
 	theme.set_stylebox("button_pressed", "TabBar", StyleBoxEmpty.new())
 	theme.set_stylebox("tab_unselected", "TabBar", tab_unselected)
-	theme.set_stylebox("tab_hovered", "TabBar", tab_unselected.duplicate())
+	theme.set_stylebox("tab_hovered", "TabBar", tab_unselected.duplicate() as StyleBoxFlat)
 	theme.set_stylebox("tab_selected", "TabBar", tab_selected)
-	theme.set_stylebox("tab_disabled", "TabBar", tab_unselected.duplicate())
-	theme.set_stylebox("tab_focus", "TabBar", tab_selected.duplicate())
+	theme.set_stylebox("tab_disabled", "TabBar", tab_unselected.duplicate() as StyleBoxFlat)
+	theme.set_stylebox("tab_focus", "TabBar", tab_selected.duplicate() as StyleBoxFlat)
 
 	# EditorSection (TabContainer variation)
 	theme.set_type_variation("EditorSection", "TabContainer")
-	var section_unfocus := styles.create_panel(settings.panel_background)
-	var section_focus := section_unfocus.duplicate()
+	var section_unfocus: StyleBoxFlat = styles.create_panel(settings.panel_background)
+	var section_focus: StyleBoxFlat = section_unfocus.duplicate()
 	section_focus.border_color = settings.border
 	#section_focus.border_color = settings.accent
 
@@ -626,12 +627,12 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_stylebox("panel_unfocus", "EditorSection", section_unfocus)
 	theme.set_stylebox("panel_focus", "EditorSection", section_focus)
 
-	var tab_panel_unfocus := section_unfocus.duplicate()
+	var tab_panel_unfocus: StyleBoxFlat = section_unfocus.duplicate()
 	tab_panel_unfocus.border_width_top = 0
 	#tab_panel_unfocus.corner_radius_top_left = 0
 	#tab_panel_unfocus.corner_radius_top_right = 0
 
-	var tab_panel_focus := tab_panel_unfocus.duplicate()
+	var tab_panel_focus: StyleBoxFlat = tab_panel_unfocus.duplicate()
 	tab_panel_focus.border_color = settings.border
 	#tab_panel_focus.border_color = settings.accent
 
@@ -645,7 +646,7 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	#tabbar_bg_unfocus.corner_radius_top_left = styles.corner_radius
 	#tabbar_bg_unfocus.corner_radius_top_right = styles.corner_radius
 
-	var tabbar_bg_focus := tabbar_bg_unfocus.duplicate()
+	var tabbar_bg_focus: StyleBoxFlat = tabbar_bg_unfocus.duplicate()
 	tabbar_bg_focus.border_color = settings.border
 	#tabbar_bg_focus.border_color = settings.accent
 
@@ -726,12 +727,12 @@ static func _build_graph_elements(
 	theme.set_stylebox("panel", "GraphEdit", graph_bg)
 
 	# GraphNode
-	var node_panel := styles.create_panel(settings.primary, true)
+	var node_panel: StyleBoxFlat = styles.create_panel(settings.primary, true)
 	node_panel.border_color = settings.border
 	node_panel.shadow_color = settings.with_alpha(Color.BLACK, 0.10)
 	node_panel.shadow_size = 12
 
-	var node_selected := node_panel.duplicate()
+	var node_selected: StyleBoxFlat = node_panel.duplicate()
 	node_selected.border_color = settings.accent
 
 	theme.set_constant("separation", "GraphNode", styles.base_spacing)

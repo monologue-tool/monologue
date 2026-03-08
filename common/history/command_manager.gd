@@ -15,7 +15,7 @@ func _init(max_history: int = 200) -> void:
 
 
 func execute(command: Command, merge_mode: UndoRedo.MergeMode = UndoRedo.MERGE_ENDS) -> void:
-	var description = command.get_description()
+	var description: String = command.get_description()
 	undo_redo.create_action(description, merge_mode)
 	undo_redo.add_do_method(command.execute.bind())
 	undo_redo.add_undo_method(command.undo.bind())
@@ -68,7 +68,7 @@ func get_redo_description() -> String:
 	return undo_redo.get_action_name(undo_redo.get_version())
 
 
-func clear():
+func clear() -> void:
 	undo_redo.clear_history()
 	history_changed.emit()
 
@@ -81,22 +81,22 @@ func get_history_count() -> int:
 	return undo_redo.get_history_count()
 
 
-func _on_version_changed():
+func _on_version_changed() -> void:
 	history_changed.emit()
 
 
-func begin_group(description: String = "Group"):
+func begin_group(description: String = "Group") -> void:
 	undo_redo.create_action(description, UndoRedo.MERGE_DISABLE)
 
 
-func add_to_group(command: Command):
+func add_to_group(command: Command) -> void:
 	undo_redo.add_do_method(command.execute.bind())
 	undo_redo.add_undo_method(command.undo.bind())
 	undo_redo.add_do_reference(command)
 	undo_redo.add_undo_reference(command)
 
 
-func end_group():
+func end_group() -> void:
 	undo_redo.commit_action()
 	command_executed.emit()
 	history_changed.emit()

@@ -1,18 +1,20 @@
 # Autoload
 extends Bucket
 
-const DEFAULT_FIELDS_LOCATION := "res://common/fields/"
+const DEFAULT_FIELDS_LOCATION: String = "res://common/fields/"
 
 var _next_type_id: int = 1
 
 
-func register_descriptor(descriptor: FieldDescriptor) -> void:
-	if descriptor == null:
+func register_descriptor(descriptor: BucketDescriptor) -> void:
+	if descriptor == null or descriptor is not FieldDescriptor:
 		push_warning("Attempted to register a null FieldDescriptor.")
 		return
-	if descriptor.default_settings == null:
+	@warning_ignore_start("unsafe_property_access")
+	if not descriptor.default_settings:
 		descriptor.default_settings = {}
 	descriptor.type_id = _next_type_id
+	@warning_ignore_restore("unsafe_property_access")
 	_next_type_id += 1
 	super.register_descriptor(descriptor)
 
@@ -84,11 +86,11 @@ func _search_types() -> void:
 		var script_path: String = DEFAULT_FIELDS_LOCATION.path_join(dir).path_join("index.gd")
 		if not FileAccess.file_exists(script_path):
 			continue
-		var script = load(script_path)
+		var script: GDScript = load(script_path)
 		if script == null:
 			push_warning("Failed to load field indexer at %s" % script_path)
 			continue
-		var indexer = script.new()
+		var indexer: MonologueIndexer = script.new()
 		var descriptor: FieldDescriptor = _descriptor_from_indexer(indexer)
 		if descriptor:
 			descriptor.default_settings = (
@@ -100,21 +102,18 @@ func _search_types() -> void:
 func is_compatible(type_id_a: int, type_id_b: int) -> bool:
 	if type_id_a == type_id_b:
 		return true
-	for descriptor in list_descriptors():
-		if not descriptor is FieldDescriptor:
+	for descriptor: FieldDescriptor in list_descriptors():
+		if descriptor.type_id != type_id_a and descriptor.type_id != type_id_b:
 			continue
-		var fd := descriptor as FieldDescriptor
-		if fd.type_id != type_id_a and fd.type_id != type_id_b:
-			continue
-		var other_id := type_id_b if fd.type_id == type_id_a else type_id_a
-		for compat_name: String in fd.compatible_types:
+		var other_id: int = type_id_b if descriptor.type_id == type_id_a else type_id_a
+		for compat_name: String in descriptor.compatible_types:
 			if get_type_id(compat_name) == other_id:
 				return true
 	return false
 
 
-func _descriptor_from_indexer(indexer) -> FieldDescriptor:
-	var descriptor
+func _descriptor_from_indexer(indexer: MonologueIndexer) -> FieldDescriptor:
+	var descriptor: FieldDescriptor
 	if indexer and indexer.has_method("get_descriptor"):
 		descriptor = indexer.call("get_descriptor")
 		if descriptor is FieldDescriptor:
@@ -128,10 +127,10 @@ func _descriptor_from_indexer(indexer) -> FieldDescriptor:
 		scene = indexer.call("get_scene")
 	if descriptor_name.is_empty():
 		return null
-	var new_descriptor := FieldDescriptor.new(descriptor_name, scene, metadata)
-	var compat_raw = metadata.get("compatible_types", [])
+	var new_descriptor: FieldDescriptor = FieldDescriptor.new(descriptor_name, scene, metadata)
+	var compat_raw: Variant = metadata.get("compatible_types", [])
 	if compat_raw is Array:
-		for item in compat_raw:
+		for item: Variant in compat_raw:
 			if item is String:
 				new_descriptor.compatible_types.append(item)
 	return new_descriptor

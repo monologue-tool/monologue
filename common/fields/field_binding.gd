@@ -81,6 +81,7 @@ func _sync_from_property() -> void:
 	var _sync_value: Variant = property.get_value()
 	if _sync_value == null and descriptor != null and descriptor.default_value != null:
 		var _dv: Variant = descriptor.default_value
+		@warning_ignore("unsafe_method_access")
 		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
 	field.set_value(_sync_value)
 	field.clear_error()
@@ -121,17 +122,17 @@ func _on_field_preview_changed() -> void:
 func _process_field_value(value: Variant, is_commit: bool) -> void:
 	if not property or descriptor == null:
 		return
-	var validation_result = descriptor.validate(value)
+	var validation_result: FieldValidationResult = descriptor.validate(value)
 	if not validation_result.is_valid:
 		field.display_error(validation_result.message)
 		return
 	# Per-property settings: required + validation dict (min_length, max_length, …)
-	var settings_result := _validate_property_settings(value)
+	var settings_result: FieldValidationResult = _validate_property_settings(value)
 	if not settings_result.is_valid:
 		field.display_error(settings_result.message)
 		return
 	field.clear_error()
-	var formatted_value = descriptor.format(value)
+	var formatted_value: Variant = descriptor.format(value)
 	if owner and not is_commit:
 		return
 	# Unique constraint check — only makes sense when the owner is a ListItem
@@ -185,6 +186,7 @@ func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> voi
 	var _sync_value: Variant = property.get_value()
 	if _sync_value == null and descriptor != null and descriptor.default_value != null:
 		var _dv: Variant = descriptor.default_value
+		@warning_ignore("unsafe_method_access")
 		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
 	field.set_value(_sync_value)
 	field.clear_error()
@@ -210,14 +212,14 @@ func _validate_property_settings(value: Variant) -> FieldValidationResult:
 	var str_value: String = str(value) if value != null else ""
 
 	if rules.has("min_length"):
-		var min_len: int = int(rules["min_length"])
+		var min_len: int = str(rules["min_length"]).to_int()
 		if str_value.length() < min_len:
 			return FieldValidationResult.failure(
 				"Must be at least %d character(s)." % min_len
 			)
 
 	if rules.has("max_length"):
-		var max_len: int = int(rules["max_length"])
+		var max_len: int = str(rules["max_length"]).to_int()
 		if str_value.length() > max_len:
 			return FieldValidationResult.failure(
 				"Must be at most %d character(s)." % max_len

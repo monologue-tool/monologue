@@ -11,7 +11,7 @@ var _is_initialized: bool = false
 
 ## Register a descriptor. Subclasses may override to perform extra setup
 ## (e.g. assigning a sequential type_id) before calling super.
-func register_descriptor(descriptor) -> void:
+func register_descriptor(descriptor: BucketDescriptor) -> void:
 	if descriptor == null:
 		push_warning("Attempted to register a null descriptor.")
 		return
@@ -40,14 +40,14 @@ func list_descriptors() -> Array:
 
 ## Returns metadata dictionaries for all registered descriptors.
 func list_metadata() -> Array[Dictionary]:
-	return list_descriptors().map(func(d) -> Dictionary: return d.to_metadata())
+	return list_descriptors().map(func(d: BucketDescriptor) -> Dictionary: return d.to_metadata())
 
 
 ## Returns a sorted list of unique category names across all descriptors.
 func get_categories() -> PackedStringArray:
 	_ensure_initialized()
 	var categories: PackedStringArray = []
-	for descriptor in _descriptors.values():
+	for descriptor: BucketDescriptor in _descriptors.values():
 		if descriptor.category in categories:
 			continue
 		categories.append(descriptor.category)
@@ -59,7 +59,7 @@ func get_categories() -> PackedStringArray:
 func get_descriptors_by_category(category: String) -> Array:
 	_ensure_initialized()
 	var result: Array = []
-	for descriptor in _descriptors.values():
+	for descriptor: BucketDescriptor in _descriptors.values():
 		if descriptor.category == category:
 			result.append(descriptor)
 	result.sort_custom(_sort_descriptors)

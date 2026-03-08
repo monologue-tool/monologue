@@ -2,7 +2,7 @@ extends Control
 
 @export_file var load_scene: String
 
-@onready var sprite = $AnimatedSprite2D
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 func _ready() -> void:
@@ -12,10 +12,10 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var status := ResourceLoader.load_threaded_get_status(load_scene)
+	var status: ResourceLoader.ThreadLoadStatus = ResourceLoader.load_threaded_get_status(load_scene)
 
 	if status == ResourceLoader.ThreadLoadStatus.THREAD_LOAD_LOADED:
-		var scene := ResourceLoader.load_threaded_get(load_scene)
+		var scene: PackedScene = ResourceLoader.load_threaded_get(load_scene)
 
 		sprite.play("blink")
 		await sprite.animation_finished

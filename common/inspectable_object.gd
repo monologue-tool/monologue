@@ -35,7 +35,7 @@ func define_property(
 	var property: Property = Property.new(pname, default_value, type, merged_settings)
 	_properties.set(pname, property)
 
-	property.value_changed.connect(func(_old, _new): _notify_change(pname))
+	property.value_changed.connect(func(_old: Variant, _new: Variant) -> void: _notify_change(pname))
 
 
 func add_observer(callable: Callable) -> void:
@@ -60,7 +60,7 @@ func _notify_change(pname: String) -> void:
 
 func get_properties() -> Array[Property]:
 	var properties: Array[Property] = []
-	for pname in _properties.keys():
+	for pname: String in _properties.keys():
 		properties.append(_properties[pname])
 
 	return properties
@@ -97,7 +97,7 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 	_notify_change(pname)
 
 
-func set_property_settings_value(pname: String, skey: Variant, svalue: Variant) -> void:
+func set_property_settings_value(pname: String, skey: String, svalue: Variant) -> void:
 	if not _properties.has(pname):
 		return
 

@@ -17,6 +17,7 @@ func _init(p_name: String = "", metadata: Dictionary = {}) -> void:
 	category = metadata.get("category", category)
 	description = metadata.get("description", "")
 	if metadata.has("tags") and metadata["tags"] is Array:
+		@warning_ignore("unsafe_method_access")
 		tags = metadata["tags"].duplicate(true)
 
 

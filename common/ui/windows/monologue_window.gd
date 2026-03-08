@@ -13,11 +13,11 @@ func update_size() -> void:
 	size.x = size.x
 
 
-func _on_resized():
+func _on_resized() -> void:
 	update_size()
 
 
-func _on_visibility_changed():
+func _on_visibility_changed() -> void:
 	if visible:
 		EventBus.show_dimmer.emit()
 		return

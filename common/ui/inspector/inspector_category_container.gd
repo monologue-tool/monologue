@@ -1,4 +1,4 @@
-extends FoldableContainer
+class_name InspectorCategoryContainer extends FoldableContainer
 
 @onready var _vbox: VBoxContainer = %VBox
 

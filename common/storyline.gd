@@ -20,7 +20,7 @@ func _init(sname: String, sfile_path: String = "") -> void:
 	name = sname
 	file_path = sfile_path
 
-	var command_manager = CommandManager.new()
+	var command_manager: CommandManager = CommandManager.new()
 	command_manager.command_executed.connect(_on_command_executed)
 	command_manager.undone.connect(_on_undo)
 	command_manager.redone.connect(_on_redo)
@@ -36,7 +36,7 @@ func add_node(node: InspectableNode) -> void:
 
 func remove_node(node: InspectableNode) -> void:
 	if not node in nodes:
-		push_warning("Can't remove node %s " % node.id)
+		push_warning("Can't remove node %s " % str(node.get_property_value("id")))
 		return
 
 	var node_id: String = node.get_property_value("id")
@@ -46,7 +46,7 @@ func remove_node(node: InspectableNode) -> void:
 
 
 func create_node(node_type: String) -> InspectableNode:
-	var node = NodeBucket.create_node(node_type, history)
+	var node: InspectableNode = NodeBucket.create_node(node_type, history)
 	_register_node(node)
 	return node
 
@@ -138,18 +138,18 @@ func build_graph_preview() -> Array[Control]:
 	return []
 
 
-func _on_command_executed():
+func _on_command_executed() -> void:
 	is_dirty = true
 	content_changed.emit()
 	undo_redo_changed.emit()
 
 
-func _on_undo():
+func _on_undo() -> void:
 	content_changed.emit()
 	undo_redo_changed.emit()
 
 
-func _on_redo():
+func _on_redo() -> void:
 	is_dirty = true
 	content_changed.emit()
 	undo_redo_changed.emit()
@@ -168,7 +168,7 @@ func _create_default_nodes() -> void:
 	var choice_node: InspectableNode = NodeBucket.create_node("choice", history)
 	var choice_mp: Property = choice_node.get_main_property()
 	var choice_opt: Array[Dictionary] = []
-	for _i in range(3):
+	for _i: int in range(3):
 		choice_opt.append(CollectionBucket.create_item("option", history)._to_dict())
 	
 	sent_node.get_property("position").set_value([240.0, 0])
@@ -211,7 +211,8 @@ func _to_dict() -> Dictionary:
 	for node: InspectableNode in nodes:
 		if node is RootNode:
 			root_node_id = node.get_property("id").get_value()
-		dict["nodes"].append(node._to_dict())
+		var nodes_arr: Array = dict["nodes"]
+		nodes_arr.append(node._to_dict())
 
 	dict["root_node_id"] = root_node_id
 

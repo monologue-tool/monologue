@@ -33,7 +33,7 @@ func _ready() -> void:
 
 
 func _on_storyline_switched() -> void:
-	var storyline = StorylineManager.get_active_storyline()
+	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
 	if not storyline:
 		return
 	var h: CommandManager = storyline.history
@@ -49,17 +49,18 @@ func _on_history_undo_redo() -> void:
 	if _inspection_stack.is_empty():
 		return
 	_resolve_stack()
-	rebuild()
+	await rebuild()
 
 
 func inspect(object: InspectableObject) -> void:
 	# Save category states for the current level before switching.
 	_save_current_category_states()
 
-	var old_root := _get_root_object()
+	var old_root: InspectableObject = _get_root_object()
 	if old_root and old_root != object:
-		if old_root is InspectableNode and is_instance_valid(old_root.graph_view):
-			old_root.graph_view.selected = false
+		var old_node: InspectableNode = old_root as InspectableNode
+		if old_node and is_instance_valid(old_node.graph_view):
+			old_node.graph_view.selected = false
 	# Remove observer from old root
 	if old_root:
 		old_root.remove_observer(_on_root_property_changed)
@@ -73,7 +74,7 @@ func inspect(object: InspectableObject) -> void:
 		"category_states": {},
 	})
 
-	rebuild()
+	await rebuild()
 
 	# Observe the root so that property changes trigger a rebuild.
 	if object:
@@ -83,7 +84,7 @@ func inspect(object: InspectableObject) -> void:
 ## Drill into a ListItem child of the currently inspected object.
 ## Called when the user clicks "edit" on a list item.
 func inspect_child(property_owner: InspectableObject, property_name: String, item_index: int) -> void:
-	var parent := property_owner if property_owner else current_object
+	var parent: InspectableObject = property_owner if property_owner else current_object
 	if not parent:
 		return
 
@@ -92,29 +93,32 @@ func inspect_child(property_owner: InspectableObject, property_name: String, ite
 		return
 
 	var list_value: Variant = prop.get_value()
-	if not list_value is Array or item_index < 0 or item_index >= list_value.size():
+	if not list_value is Array:
+		return
+	var list_arr: Array = list_value
+	if item_index < 0 or item_index >= list_arr.size():
 		return
 
 	var collection_name: String = prop.get_settings_value("collection", "")
 	if collection_name.is_empty():
 		return
 
-	var item: ListItem = _create_list_item_from_data(collection_name, list_value[item_index])
+	var item: ListItem = _create_list_item_from_data(collection_name, list_arr[item_index])
 	if not item:
 		return
 
 	# Rebuild all sibling ListItems so the item has valid list_siblings metadata
 	# for unique-constraint checks and snapshot pushes.
 	var siblings: Array[ListItem] = []
-	for i in list_value.size():
+	for i: int in list_arr.size():
 		if i == item_index:
 			siblings.append(item)
 		else:
-			var sib: ListItem = _create_list_item_from_data(collection_name, list_value[i])
+			var sib: ListItem = _create_list_item_from_data(collection_name, list_arr[i])
 			if sib:
 				siblings.append(sib)
 
-	for sib in siblings:
+	for sib: ListItem in siblings:
 		sib.set_meta("list_siblings", siblings)
 		sib.set_meta("_list_field_ref", WeakRef.new())  # null ref — no live ListField
 		sib.set_meta("_parent_owner", parent)
@@ -122,14 +126,14 @@ func inspect_child(property_owner: InspectableObject, property_name: String, ite
 
 	# If the parent is not in the current stack (e.g. storyline collections),
 	# inspect the ListItem directly as root instead of drilling.
-	var in_stack := false
-	for entry in _inspection_stack:
+	var in_stack: bool = false
+	for entry: Dictionary in _inspection_stack:
 		if entry["object"] == parent:
 			in_stack = true
 			break
 
 	if not in_stack:
-		inspect(item)
+		await inspect(item)
 		return
 
 	# Parent is in the stack — drill into the item as a child level.
@@ -142,7 +146,7 @@ func inspect_child(property_owner: InspectableObject, property_name: String, ite
 		"category_states": {},
 	})
 
-	rebuild()
+	await rebuild()
 
 
 ## Navigate back to a specific level in the stack (0 = root).
@@ -156,20 +160,20 @@ func navigate_to_level(level: int) -> void:
 	# Truncate the stack.
 	_inspection_stack.resize(level + 1)
 
-	rebuild()
+	await rebuild()
 
 
 func rebuild() -> void:
-	var inspected := current_object
+	var inspected: InspectableObject = current_object
 	run_button.visible = _get_root_object() is InspectableNode
 	
 	# Store the current focus owner before rebuilding
-	var focus_owner = get_viewport().gui_get_focus_owner()
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
 	var focused_property_name: String = ""
 
 	# Try to identify which property had focus by walking up to the tagged p_container
 	if focus_owner and focus_owner.is_inside_tree():
-		var node = focus_owner
+		var node: Control = focus_owner
 		while node:
 			if node.has_meta("property_name"):
 				focused_property_name = node.get_meta("property_name")
@@ -200,13 +204,13 @@ func rebuild() -> void:
 	var properties: Array[Property] = inspected.get_properties()
 	var categories: Dictionary = _group_by_category(properties)
 	for category_name: String in categories.keys():
-		var props = categories[category_name]
+		var props: Array = categories[category_name]
 
 		if category_name.begins_with("Special"):
 			var special_category: String = category_name.trim_prefix("Special:")
 			_handle_special_category_section(special_category, props)
 			continue
-		_create_category_section(category_name, props, category_states)
+		await _create_category_section(category_name, props, category_states)
 
 	post_build(category_states)
 
@@ -221,14 +225,14 @@ func rebuild() -> void:
 func _find_labels(node: Node, labels: Array) -> void:
 	if node is Label:
 		labels.append(node)
-	for child in node.get_children():
+	for child: Node in node.get_children():
 		_find_labels(child, labels)
 
 
 func _restore_focus_to_property(property_name: String) -> void:
 	# Walk into each category container and find the p_container tagged with property_name
-	for category in property_container.get_children():
-		for p_container in category.get_children():
+	for category: Node in property_container.get_children():
+		for p_container: Node in category.get_children():
 			if not p_container.has_meta("property_name"):
 				continue
 			if p_container.get_meta("property_name") != property_name:
@@ -236,7 +240,8 @@ func _restore_focus_to_property(property_name: String) -> void:
 			var fields: Array = []
 			_find_focusable_fields(p_container, fields)
 			if fields.size() > 0:
-				fields[0].grab_focus()
+				var first_field: Control = fields[0]
+				first_field.grab_focus()
 			return
 
 
@@ -245,13 +250,13 @@ func _find_focusable_fields(node: Node, fields: Array) -> void:
 			or node is CheckBox or node is SpinBox or node is ColorPickerButton \
 			or (node is Button and not node is TextureButton):
 		fields.append(node)
-	for child in node.get_children():
+	for child: Node in node.get_children():
 		_find_focusable_fields(child, fields)
 
 
-func _group_by_category(properties: Array) -> Dictionary:
+func _group_by_category(properties: Array[Property]) -> Dictionary:
 	var groups: Dictionary = {}
-	for prop in properties:
+	for prop: Property in properties:
 		# Skip properties not visible in inspector
 		if not prop.get_settings_value("visible_in_inspector", true):
 			continue
@@ -262,15 +267,16 @@ func _group_by_category(properties: Array) -> Dictionary:
 
 		if not groups.has(category):
 			groups[category] = []
-		groups[category].append(prop)
+		var cat_arr: Array = groups[category]
+		cat_arr.append(prop)
 	return groups
 
 
-func _create_category_section(category_name: String, properties: Array, category_states: Dictionary) -> void:
+func _create_category_section(category_name: String, properties: Array[Property], category_states: Dictionary) -> void:
 	if not property_container.is_node_ready():
 		await property_container.ready
 
-	var container: FoldableContainer = inspector_category_container.instantiate()
+	var container: InspectorCategoryContainer = inspector_category_container.instantiate()
 	container.title = category_name
 	property_container.add_child(container)
 	_apply_category_state(container, category_name, category_states)
@@ -281,7 +287,7 @@ func _create_category_section(category_name: String, properties: Array, category
 			container.add_control(property_editor)
 
 
-func _handle_special_category_section(category_name: String, properties: Array) -> void:
+func _handle_special_category_section(category_name: String, properties: Array[Property]) -> void:
 	var container: Control
 
 	match category_name:
@@ -346,17 +352,19 @@ func _create_property_editor(property: Property) -> Control:
 	else:
 		p_field = FieldBucket.safe_create_field(property.type)
 		if p_field is Field:
-			var _owner := current_object
-			(func(): property.bind_field(p_field, _owner)).call_deferred()
+			var _owner: InspectableObject = current_object
+			var _field: Field = p_field as Field
+			(func() -> void: property.bind_field(_field, _owner)).call_deferred()
 
 	if property.type == "list":
 		var add_btn: Button = Button.new()
 		add_btn.icon = preload("res://ui/assets/icons/plus_min.svg")
 		add_btn.flat = true
 		add_btn.tooltip_text = "Add item"
-		add_btn.pressed.connect(func():
-			if p_field is ListField:
-				p_field.add_item()
+		add_btn.pressed.connect(func() -> void:
+			var list_field: ListField = p_field as ListField
+			if list_field:
+				list_field.add_item()
 		)
 		p_hbox.add_child(add_btn)
 
@@ -385,12 +393,13 @@ func _create_property_editor(property: Property) -> Control:
 
 func _cache_category_states(category_states: Dictionary) -> void:
 	for child: Control in property_container.get_children():
-		if child is FoldableContainer:
-			category_states[child.title] = child.folded
+		var fc: FoldableContainer = child as FoldableContainer
+		if fc:
+			category_states[fc.title] = fc.folded
 
 
 func _apply_category_state(container: FoldableContainer, category_name: String, category_states: Dictionary) -> void:
-	var stored_state = category_states.get(category_name)
+	var stored_state: Variant = category_states.get(category_name)
 	if stored_state is bool:
 		container.folded = stored_state
 	else:
@@ -404,8 +413,9 @@ func _apply_category_state(container: FoldableContainer, category_name: String, 
 
 func post_build(category_states: Dictionary) -> void:
 	for child: Control in property_container.get_children():
-		if child is FoldableContainer and child.is_empty():
-			child.queue_free()
+		var fc: InspectorCategoryContainer = child as InspectorCategoryContainer
+		if fc and fc.is_empty():
+			fc.queue_free()
 
 	_cache_category_states(category_states)
 
@@ -426,15 +436,15 @@ func _on_inspect_connected_node(property: Property) -> void:
 	if not node.graph_view or not node.graph_view.get_parent():
 		return
 
-	var graph_edit := node.graph_view.get_parent()
-	if not (graph_edit is GraphEdit):
+	var graph_edit: MonologueGraphEdit = node.graph_view.get_parent() as MonologueGraphEdit
+	if not graph_edit:
 		return
 
 	if not graph_edit.connection_manager:
 		return
 
 	# Get the connected node from the connection manager
-	var connected_node = graph_edit.connection_manager.get_connected_node(node, property.name)
+	var connected_node: InspectableNode = graph_edit.connection_manager.get_connected_node(node, property.name)
 
 	if connected_node and connected_node.graph_view:
 		EventBus.request_node_selection.emit(connected_node, connected_node.storyline_id)
@@ -466,18 +476,18 @@ func _on_external_property_changed(
 	_pending_expand_category = property.get_category()
 
 	if obj == current_object:
-		rebuild()
+		await rebuild()
 		return
 
 	# If the changed object is somewhere in our stack (e.g. root while we are
 	# viewing a child ListItem), re-resolve and rebuild without losing position.
-	for entry in _inspection_stack:
+	for entry: Dictionary in _inspection_stack:
 		if entry["object"] == obj:
 			_resolve_stack()
-			rebuild()
+			await rebuild()
 			return
 
-	inspect(obj)
+	await inspect(obj)
 
 
 # ---------------------------------------------------------------------------
@@ -493,7 +503,8 @@ func _get_root_object() -> InspectableObject:
 func _get_current_category_states() -> Dictionary:
 	if _inspection_stack.is_empty():
 		return {}
-	return _inspection_stack.back().get("category_states", {})
+	var top: Dictionary = _inspection_stack.back()
+	return top.get("category_states", {})
 
 
 func _save_current_category_states() -> void:
@@ -511,7 +522,7 @@ func _resolve_stack() -> void:
 	if _inspection_stack.size() <= 1:
 		return
 
-	for i in range(1, _inspection_stack.size()):
+	for i: int in range(1, _inspection_stack.size()):
 		var entry: Dictionary = _inspection_stack[i]
 		var parent_object: InspectableObject = _inspection_stack[i - 1]["object"]
 		var prop_name: String = entry["property_name"]
@@ -523,7 +534,11 @@ func _resolve_stack() -> void:
 			return
 
 		var list_value: Variant = prop.get_value()
-		if not list_value is Array or item_idx < 0 or item_idx >= list_value.size():
+		if not list_value is Array:
+			_inspection_stack.resize(i)
+			return
+		var list_arr: Array = list_value
+		if item_idx < 0 or item_idx >= list_arr.size():
 			_inspection_stack.resize(i)
 			return
 
@@ -532,7 +547,7 @@ func _resolve_stack() -> void:
 			_inspection_stack.resize(i)
 			return
 
-		var item: ListItem = _create_list_item_from_data(collection_name, list_value[item_idx])
+		var item: ListItem = _create_list_item_from_data(collection_name, list_arr[item_idx])
 		if not item:
 			_inspection_stack.resize(i)
 			return
@@ -544,15 +559,16 @@ func _resolve_stack() -> void:
 func _create_list_item_from_data(collection_name: String, data: Variant) -> ListItem:
 	if not data is Dictionary:
 		return null
+	var dict_data: Dictionary = data
 	var item: ListItem = CollectionBucket.create_item(collection_name, CommandManager.new())
 	if not item:
 		return null
-	item._from_dict(data)
+	item._from_dict(dict_data)
 	return item
 
 
 func _rebuild_breadcrumb() -> void:
-	for child in breadcrumb_container.get_children():
+	for child: Node in breadcrumb_container.get_children():
 		child.queue_free()
 
 	if _inspection_stack.size() <= 1:
@@ -561,16 +577,16 @@ func _rebuild_breadcrumb() -> void:
 
 	breadcrumb_container.visible = true
 
-	for i in _inspection_stack.size():
+	for i: int in _inspection_stack.size():
 		if i > 0:
-			var sep := Label.new()
+			var sep: Label = Label.new()
 			sep.text = " > "
 			sep.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 			breadcrumb_container.add_child(sep)
 
 		var entry: Dictionary = _inspection_stack[i]
 		var label_text: String = _breadcrumb_label_for(entry, i)
-		var btn := Button.new()
+		var btn: Button = Button.new()
 		btn.text = label_text
 		btn.flat = true
 		if i < _inspection_stack.size() - 1:
@@ -592,10 +608,10 @@ func _breadcrumb_label_for(entry: Dictionary, level: int) -> String:
 	var display: String = Util.to_readable_name(prop_name)
 
 	if obj:
-		var name_val = obj.get_property_value("name")
+		var name_val: Variant = obj.get_property_value("name")
 		if name_val and not str(name_val).is_empty():
 			return "%s: %s" % [display, str(name_val)]
-		var id_val = obj.get_property_value("id")
+		var id_val: Variant = obj.get_property_value("id")
 		if id_val:
 			return "%s[%s]" % [display, str(id_val)]
 
@@ -605,7 +621,7 @@ func _breadcrumb_label_for(entry: Dictionary, level: int) -> String:
 ## Pushes edited ListItem data back to the parent property value so that
 ## changes made while inspecting a child are persisted correctly.
 func _push_child_snapshot() -> void:
-	for i in range(_inspection_stack.size() - 1, 0, -1):
+	for i: int in range(_inspection_stack.size() - 1, 0, -1):
 		var child_entry: Dictionary = _inspection_stack[i]
 		var parent_entry: Dictionary = _inspection_stack[i - 1]
 		var parent_obj: InspectableObject = parent_entry["object"]
@@ -618,9 +634,12 @@ func _push_child_snapshot() -> void:
 			continue
 
 		var list_value: Variant = prop.get_value()
-		if not list_value is Array or item_idx < 0 or item_idx >= list_value.size():
+		if not list_value is Array:
+			continue
+		var list_arr: Array = list_value
+		if item_idx < 0 or item_idx >= list_arr.size():
 			continue
 
-		var snapshot: Array = list_value.duplicate(true)
+		var snapshot: Array = list_arr.duplicate(true)
 		snapshot[item_idx] = child_obj._to_dict()
 		parent_obj.set_property_value(prop_name, snapshot)

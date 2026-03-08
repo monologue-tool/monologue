@@ -14,7 +14,7 @@ func _init(color_settings: ThemeSettings) -> void:
 
 ## Creates a basic panel StyleBoxFlat
 func create_panel(bg_color: Color, with_border: bool = false) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = bg_color
 	style.set_corner_radius_all(corner_radius)
 	style.set_content_margin_all(base_spacing)
@@ -28,7 +28,7 @@ func create_panel(bg_color: Color, with_border: bool = false) -> StyleBoxFlat:
 
 ## Creates a button StyleBoxFlat
 func create_button(bg_color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = bg_color
 	style.set_corner_radius_all(corner_radius)
 	style.content_margin_left = base_spacing * 2.0
@@ -40,7 +40,7 @@ func create_button(bg_color: Color) -> StyleBoxFlat:
 
 ## Creates an input field StyleBoxFlat
 func create_input(bg_color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = bg_color
 	style.set_corner_radius_all(corner_radius)
 	style.content_margin_left = base_spacing * 2.0
@@ -54,7 +54,7 @@ func create_input(bg_color: Color) -> StyleBoxFlat:
 
 ## Creates an empty StyleBoxFlat (no background)
 func create_empty() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.draw_center = false
 	style.set_content_margin_all(base_spacing)
 	style.set_corner_radius_all(corner_radius)
@@ -63,7 +63,7 @@ func create_empty() -> StyleBoxFlat:
 
 ## Creates a separator StyleBoxLine
 func create_separator(vertical: bool = false) -> StyleBoxLine:
-	var style := StyleBoxLine.new()
+	var style: StyleBoxLine = StyleBoxLine.new()
 	style.color = settings.border
 	style.vertical = vertical
 	style.grow_begin = 0

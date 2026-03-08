@@ -20,7 +20,7 @@ func display_option(option: Dictionary, language: String = "English") -> void:
 
 func _clear() -> void:
 	hide()
-	for child in vbox.get_children():
+	for child: Node in vbox.get_children():
 		vbox.remove_child(child)
 		child.queue_free()
 

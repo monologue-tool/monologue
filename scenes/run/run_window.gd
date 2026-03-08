@@ -13,7 +13,7 @@ func _ready() -> void:
 	force_native = true
 	transient = true
 
-	var test_scene = test_instance.instantiate()
+	var test_scene: Node = test_instance.instantiate()
 	if from_node:
 		test_scene.from_node = from_node
 	test_scene.file_path = file_path

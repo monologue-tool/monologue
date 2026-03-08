@@ -1,6 +1,6 @@
 extends Bucket
 
-const DEFAULT_NODES_LOCATION := "res://common/nodes/"
+const DEFAULT_NODES_LOCATION: String = "res://common/nodes/"
 
 
 func create_node(descriptor_name: String, history: CommandManager) -> InspectableNode:
@@ -14,25 +14,21 @@ func create_node(descriptor_name: String, history: CommandManager) -> Inspectabl
 func _search_types() -> void:
 	var directories: Array = DirAccess.get_directories_at(DEFAULT_NODES_LOCATION)
 	for dir_path: String in directories:
-		var index_path := DEFAULT_NODES_LOCATION.path_join(dir_path).path_join("index.gd")
+		var index_path: String = DEFAULT_NODES_LOCATION.path_join(dir_path).path_join("index.gd")
 		if not FileAccess.file_exists(index_path):
 			continue
-		var index_script: Script = load(index_path)
+		var index_script: GDScript = load(index_path)
 		if index_script == null:
 			push_warning("Failed to load node indexer at %s" % index_path)
 			continue
-		var indexer = index_script.new()
+		var indexer: MonologueIndexer = index_script.new()
 		var descriptor: GraphNodeDescriptor = _descriptor_from_indexer(indexer)
 		if descriptor:
 			register_descriptor(descriptor)
 
 
-func _descriptor_from_indexer(indexer) -> GraphNodeDescriptor:
-	if not indexer:
-		return null
-	if not indexer.has_method("get_metadata"):
-		return null
-	var metadata: Dictionary = indexer.call("get_metadata")
+func _descriptor_from_indexer(indexer: MonologueIndexer) -> GraphNodeDescriptor:
+	var metadata: Dictionary = indexer.get_metadata()
 	if metadata.get("type") != MonologueIndexer.ObjectType.NODE:
 		return null
 	var descriptor_name: String = metadata.get("name", "")
@@ -42,11 +38,8 @@ func _descriptor_from_indexer(indexer) -> GraphNodeDescriptor:
 	if indexer.has_method("get_node_script"):
 		script_resource = indexer.call("get_node_script")
 	elif metadata.has("script"):
-		var raw_script = metadata.get("script")
-		if raw_script is Script:
-			script_resource = raw_script
-		elif raw_script is String and not raw_script.is_empty():
-			script_resource = load(raw_script)
+		var raw_script: GDScript = metadata.get("script")
+		script_resource = raw_script
 	if script_resource == null:
 		push_warning("Indexer for '%s' missing script reference." % descriptor_name)
 		return null

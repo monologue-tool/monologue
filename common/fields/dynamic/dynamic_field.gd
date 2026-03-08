@@ -53,7 +53,7 @@ func _setup_property_case_listener() -> void:
 
 
 func _update_case_field() -> void:
-	for child in field_container.get_children():
+	for child: Node in field_container.get_children():
 		child.queue_free()
 
 	var field_owner: InspectableObject = _binding.owner

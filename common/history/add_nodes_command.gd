@@ -17,7 +17,7 @@ func execute() -> void:
 	if not storyline:
 		return
 
-	for node in nodes:
+	for node: InspectableNode in nodes:
 		storyline.add_node(node)
 
 
@@ -26,7 +26,7 @@ func undo() -> void:
 	if not storyline:
 		return
 
-	for node in nodes:
+	for node: InspectableNode in nodes:
 		storyline.remove_node(node)
 
 

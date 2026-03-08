@@ -1,7 +1,7 @@
 class_name WelcomeWindow extends MonologueWindow
 
 ## Callback for loading projects after file selection.
-var file_callback = func(path): EventBus.load_project.emit(path)
+var file_callback: Callable = func(path: String) -> void: EventBus.load_project.emit(path)
 
 @onready var close_button: BaseButton = %CloseButton
 @onready var recent_files: RecentFilesContainer = %RecentFilesContainer
@@ -10,12 +10,13 @@ var file_callback = func(path): EventBus.load_project.emit(path)
 var is_startup: bool = false
 
 
-func _ready():
+func _ready() -> void:
 	super._ready()
 	is_startup = true
 	version_label.text = "v" + ProjectSettings.get("application/config/version")
 	EventBus.show_welcome.connect(show)
 	EventBus.hide_welcome.connect(_on_hide)
+	EventBus.window_out.connect(_on_hide)
 
 
 func _input(_event: InputEvent) -> void:

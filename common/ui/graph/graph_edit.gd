@@ -92,13 +92,17 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 	if _pending_positions.has(node.graph_view):
 		return
 
-	var position_property := node.get_property("position")
+	var position_property: Property = node.get_property("position")
 	var raw: Variant = position_property.get_value() if position_property else null
 	var desired_position: Vector2
 	if raw is Vector2:
 		desired_position = raw
-	elif raw is Array and raw.size() >= 2:
-		desired_position = Vector2(raw[0], raw[1])
+	elif raw is Array:
+		var raw_arr: Array = raw
+		if raw_arr.size() >= 2:
+			var x_val: float = raw_arr[0] if raw_arr[0] is float else 0.0
+			var y_val: float = raw_arr[1] if raw_arr[1] is float else 0.0
+			desired_position = Vector2(x_val, y_val)
 	else:
 		desired_position = Vector2.ZERO
 
@@ -143,8 +147,8 @@ func _on_connection_request(
 		return
 
 	# Get property names at the port indices
-	var from_property_name = get_property_name_at_port(String(from_view_name), from_port, true)
-	var to_property_name = get_property_name_at_port(String(to_view_name), to_port, false)
+	var from_property_name: String = get_property_name_at_port(String(from_view_name), from_port, true)
+	var to_property_name: String = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():
 		push_warning("Cannot create connection: property not found at port")
@@ -153,8 +157,8 @@ func _on_connection_request(
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
 		self,
-		from_node.get_property_value("id"),
-		to_node.get_property_value("id"),
+		str(from_node.get_property_value("id")),
+		str(to_node.get_property_value("id")),
 		from_property_name,
 		to_property_name
 	)
@@ -162,21 +166,21 @@ func _on_connection_request(
 
 
 func _has_connection_at_slot(node_name: StringName, port_index: int, is_output: bool) -> bool:
-	var node_key := "from_node" if is_output else "to_node"
-	var port_key := "from_port" if is_output else "to_port"
-	var target_name := String(node_name)
+	var node_key: String = "from_node" if is_output else "to_node"
+	var port_key: String = "from_port" if is_output else "to_port"
+	var target_name: String = String(node_name)
 
 	for connection: Dictionary in get_connection_list():
-		if String(connection.get(node_key, "")) != target_name:
+		if str(connection.get(node_key, "")) != target_name:
 			continue
-		if int(connection.get(port_key, -1)) == port_index:
+		if str(connection.get(port_key, -1)).to_int() == port_index:
 			return true
 
 	return false
 
 
 func get_all_graph_nodes() -> Array:
-	return get_children().filter(func(child) -> bool: return child is GraphNode)
+	return get_children().filter(func(child: Node) -> bool: return child is GraphNode)
 
 
 ## Reconnect all slots based on tracked connections in connection_manager
@@ -185,13 +189,13 @@ func _reconnect_all_slots() -> void:
 		return
 
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	var all_connections = connection_manager.get_all_connections()
+	var all_connections: Array[Dictionary] = connection_manager.get_all_connections()
 
-	for conn in all_connections:
-		var from_node_id = conn["from_node_id"]
-		var from_property = conn["from_property"]
-		var to_node_id = conn["to_node_id"]
-		var to_property = conn["to_property"]
+	for conn: Dictionary in all_connections:
+		var from_node_id: String = conn["from_node_id"]
+		var from_property: String = conn["from_property"]
+		var to_node_id: String = conn["to_node_id"]
+		var to_property: String = conn["to_property"]
 
 		var from_node: InspectableNode = storyline.get_node(from_node_id)
 		var to_node: InspectableNode = storyline.get_node(to_node_id)
@@ -199,8 +203,8 @@ func _reconnect_all_slots() -> void:
 		var to_view_name: String = to_node.graph_view.name
 
 		# Get port indices for the properties
-		var from_port = get_port_index_for_property(from_view_name, from_property, true)
-		var to_port = get_port_index_for_property(to_view_name, to_property, false)
+		var from_port: int = get_port_index_for_property(from_view_name, from_property, true)
+		var to_port: int = get_port_index_for_property(to_view_name, to_property, false)
 
 		# Only connect if both ports are valid
 		if from_port >= 0 and to_port >= 0:
@@ -220,8 +224,8 @@ func get_port_index_for_property(node_name: String, property_name: String, is_ou
 	if not node:
 		return -1
 
-	var rows := GraphNodeViewFactory._build_rows(node)
-	var count := 0
+	var rows: Array[GraphNodeRow] = GraphNodeViewFactory._build_rows(node)
+	var count: int = 0
 	for row: GraphNodeRow in rows:
 		var has_port: bool = row._enable_right_port if is_output else row._enable_left_port
 		if not has_port:
@@ -249,8 +253,8 @@ func get_property_name_at_port(node_name: String, port_index: int, is_output: bo
 	if not node:
 		return ""
 
-	var rows := GraphNodeViewFactory._build_rows(node)
-	var count := 0
+	var rows: Array[GraphNodeRow] = GraphNodeViewFactory._build_rows(node)
+	var count: int = 0
 	for row: GraphNodeRow in rows:
 		var has_port: bool = row._enable_right_port if is_output else row._enable_left_port
 		if not has_port:
@@ -274,7 +278,7 @@ func _on_end_node_move() -> void:
 		_pending_positions.clear()
 		return
 
-	for graph_node in _pending_positions.keys():
+	for graph_node: Variant in _pending_positions.keys():
 		if not is_instance_valid(graph_node):
 			continue
 
@@ -283,7 +287,7 @@ func _on_end_node_move() -> void:
 			continue
 
 		var target_position: Array = [_pending_positions[graph_node].x, _pending_positions[graph_node].y]
-		var position_property := node.get_property("position")
+		var position_property: Property = node.get_property("position")
 		if not position_property:
 			continue
 		if not position_property.get_value() is Array:
@@ -292,7 +296,7 @@ func _on_end_node_move() -> void:
 		if positon_value == target_position:
 			continue
 
-		var command := PropertyChangeCommand.new(
+		var command: PropertyChangeCommand = PropertyChangeCommand.new(
 			node, "position", positon_value, target_position
 		)
 		history.execute(command, UndoRedo.MERGE_DISABLE)
@@ -319,8 +323,8 @@ func _on_disconnection_request(
 		return
 
 	# Get property names at the port indices
-	var from_property_name = get_property_name_at_port(String(from_view_name), from_port, true)
-	var to_property_name = get_property_name_at_port(String(to_view_name), to_port, false)
+	var from_property_name: String = get_property_name_at_port(String(from_view_name), from_port, true)
+	var to_property_name: String = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():
 		push_warning("Cannot create connection: property not found at port")
@@ -329,8 +333,8 @@ func _on_disconnection_request(
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
 		self,
-		from_node.get_property_value("id"),
-		to_node.get_property_value("id"),
+		str(from_node.get_property_value("id")),
+		str(to_node.get_property_value("id")),
 		from_property_name,
 		to_property_name
 	)
@@ -352,10 +356,12 @@ func _on_copy_nodes_request() -> void:
 		return
 	_copied_nodes.clear()
 
-	for node in get_children():
+	for node: Node in get_children():
 		if node is GraphNode and _selected_nodes.get(node, false):
-			var duplicated: InspectableNode = _node_map.get(node).duplicate(true)
-			_copied_nodes.append(duplicated)
+			var source_node: InspectableNode = _node_map.get(node)
+			if source_node:
+				var duplicated: InspectableNode = source_node.duplicate(true)
+				_copied_nodes.append(duplicated)
 
 
 func _on_paste_nodes_request() -> void:
@@ -372,11 +378,13 @@ func _on_cut_nodes_request() -> void:
 
 	var nodes_to_delete: Array[InspectableNode] = []
 
-	for node in get_children():
+	for node: Node in get_children():
 		if node is GraphNode and _selected_nodes.get(node, false):
-			var duplicated: InspectableNode = _node_map.get(node).duplicate(true)
-			_copied_nodes.append(duplicated)
-			nodes_to_delete.append(_node_map.get(node))
+			var source_node: InspectableNode = _node_map.get(node)
+			if source_node:
+				var duplicated: InspectableNode = source_node.duplicate(true)
+				_copied_nodes.append(duplicated)
+				nodes_to_delete.append(source_node)
 
 	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
 	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline_id, nodes_to_delete)

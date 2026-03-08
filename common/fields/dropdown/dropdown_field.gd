@@ -17,7 +17,7 @@ func set_value(value: Variant) -> void:
 
 	# If value is a string, find it in the list
 	if value is String:
-		for i in range(option_button.item_count):
+		for i: int in range(option_button.item_count):
 			if option_button.get_item_text(i) == value:
 				option_button.selected = i
 				return
@@ -30,7 +30,7 @@ func set_value(value: Variant) -> void:
 
 
 func get_value() -> Variant:
-	var selected_idx = option_button.selected
+	var selected_idx: int = option_button.selected
 	if selected_idx >= 0:
 		return option_button.get_item_text(selected_idx)
 	return ""
@@ -42,7 +42,7 @@ func set_editable(is_editable: bool) -> void:
 
 func _on_initialize() -> void:
 	super._on_initialize()
-	_populate_options()
+	await _populate_options()
 	_setup_source_listener()
 
 
@@ -55,7 +55,7 @@ func _setup_source_listener() -> void:
 
 	if not source.is_empty():
 		# Listen for changes to the source property
-		var storyline = _get_storyline()
+		var storyline: InspectableObject = _get_storyline()
 		if storyline:
 			storyline.add_observer(_on_source_changed)
 			if not _is_listening and storyline.history:
@@ -72,14 +72,13 @@ func _on_source_changed(_obj: InspectableObject, property_name: String) -> void:
 	var source: String = _binding.property.get_settings_value("source", "")
 	if property_name == source:
 		# Source data changed, repopulate options
-		_populate_options()
-		_set_value_to_existing()
+		await _populate_options()
+	await _set_value_to_existing()
 
 
 func _on_storyline_command_executed() -> void:
-	_populate_options()
-	_set_value_to_existing()
-
+	await _populate_options()
+	await _set_value_to_existing()
 
 func _populate_options() -> void:
 	option_button.clear()
@@ -96,10 +95,10 @@ func _populate_options() -> void:
 	if options.is_empty():
 		options = _static_options.duplicate()
 
-	for option in options:
+	for option: Variant in options:
 		option_button.add_item(str(option))
 
-	_set_value_to_existing()
+	await _set_value_to_existing()
 
 
 func _set_value_to_existing() -> void:
@@ -107,31 +106,34 @@ func _set_value_to_existing() -> void:
 		if _static_options.is_empty():
 			return
 		var default_value: Variant = _static_options[0] if _static_options.size() > 0 else ""
-		set_value(default_value)
+		await set_value(default_value)
 		return
 
 	var current_value: Variant = _binding.property.get_value()
 	if current_value == null:
 		return
-	set_value(current_value)
+	await set_value(current_value)
 
 
 func set_static_options(options: Variant) -> void:
 	_static_options = _normalize_options_array(options)
 	if is_node_ready():
-		_populate_options()
+		await _populate_options()
 	else:
 		call_deferred("_populate_options")
 
 
 func _normalize_options_array(source: Variant) -> Array:
 	if source is Array:
-		return (source as Array).duplicate()
+		var source_arr: Array = source
+		return source_arr.duplicate()
 	if source is PackedStringArray:
-		return Array(source)
+		var source_psa: PackedStringArray = source
+		return Array(source_psa)
 	if source is PackedInt32Array:
 		var arr: Array = []
-		for value in source:
+		var source_pia: PackedInt32Array = source
+		for value: int in source_pia:
 			arr.append(value)
 		return arr
 	if source is String:
@@ -163,16 +165,19 @@ func _get_options_from_source(source: String) -> Array:
 	if not list_property:
 		return result
 
-	var list_value = list_property.get_value()
+	var list_value: Variant = list_property.get_value()
 	if not list_value is Array:
 		return result
 
+	var list_arr: Array = list_value
 	# Extract names from list items
-	for item in list_value:
+	for item: Variant in list_arr:
 		if item is Dictionary:
-			var entry_name: Variant = item.get("name", item.get("id", "<unknown>"))
+			var item_dict: Dictionary = item
+			var entry_name: Variant = item_dict.get("name", item_dict.get("id", "<unknown>"))
 			if entry_name is Dictionary:
-				entry_name = entry_name.get("value", "<unknown>")
+				var entry_dict: Dictionary = entry_name
+				entry_name = entry_dict.get("value", "<unknown>")
 			result.append(entry_name)
 		else:
 			result.append(str(item))
@@ -184,12 +189,12 @@ func _get_storyline() -> InspectableObject:
 	if not _binding or not _binding.owner:
 		return null
 
-	var story_owner = _binding.owner
+	var story_owner: InspectableObject = _binding.owner
 
 	# If owner is a node, get its storyline
 	if story_owner is InspectableNode:
 		var node: InspectableNode = story_owner
-		var storyline_id = node.storyline_id
+		var storyline_id: String = node.storyline_id
 		if storyline_id:
 			return StorylineManager.get_storyline(storyline_id)
 
@@ -201,7 +206,7 @@ func _get_storyline() -> InspectableObject:
 
 
 func _on_item_selected(index: int) -> void:
-	var text = option_button.get_item_text(index)
+	var text: String = option_button.get_item_text(index)
 	emit_value_changed(text)
 	emit_value_committed(text)
 
@@ -209,7 +214,7 @@ func _on_item_selected(index: int) -> void:
 func _exit_tree() -> void:
 	if not _binding or not _binding.property:
 		return
-	var storyline = _get_storyline()
+	var storyline: InspectableObject = _get_storyline()
 	if storyline:
 		storyline.remove_observer(_on_source_changed)
 		if _is_listening and storyline.history:

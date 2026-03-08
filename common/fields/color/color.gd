@@ -1,7 +1,7 @@
 extends Field
 
 # Sweetie 16 Palette by GrafxKid
-const COLORS = [
+const COLORS: Array[String] = [
 	"#000000",
 	"#b13e53",
 	"#ef7d57",
@@ -27,7 +27,7 @@ var color: Color = Color(COLORS[0])
 
 
 func _ready() -> void:
-	for color_string in COLORS:
+	for color_string: String in COLORS:
 		var swatch: ColorSwatch = Swatch.instantiate()
 		swatch.color = color_string
 		color_selector.add_child(swatch)

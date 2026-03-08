@@ -23,7 +23,7 @@ func _on_initialize() -> void:
 		push_error("Collection is missing.")
 		return
 	
-	if not CollectionBucket.get_descriptor(collection):
+	if not CollectionBucket.get_descriptor(str(collection)):
 		push_error("Can't find collection %s." % str(collection))
 	
 	_collection_name = collection
@@ -90,9 +90,9 @@ func set_editable(is_editable: bool) -> void:
 	if not is_instance_valid(items_container):
 		return
 
-	for child in items_container.get_children():
+	for child: Node in items_container.get_children():
 		if child.has_method("set_editable"):
-			child.set_editable(is_editable)
+			child.call("set_editable", is_editable)
 
 
 func _clear_container() -> void:
@@ -104,7 +104,7 @@ func _rebuild_ui() -> void:
 	_clear_container()
 	
 	for item: ListItem in _list_items:
-		var item_container = PanelContainer.new()
+		var item_container: PanelContainer = PanelContainer.new()
 		item_container.theme_type_variation = "ListItemContainer"
 		
 		var main_vbox : VBoxContainer = _create_item_view()
@@ -124,7 +124,7 @@ func _create_item_view() -> VBoxContainer:
 
 
 func _populate_item_view(item_view: VBoxContainer, item: ListItem) -> void:
-	var index = get_item_index(item)
+	var index: int = get_item_index(item)
 	
 	for prop: Property in item.get_properties():
 		if not prop.name in item.get_preview_property_names():
@@ -147,10 +147,10 @@ func _create_field_title(prop: Property) -> HBoxContainer:
 	var field_name: String = prop.name
 	var field_config: Dictionary = prop.get_settings()
 	
-	var title_container = HBoxContainer.new()
+	var title_container: HBoxContainer = HBoxContainer.new()
 	title_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	var label = Label.new()
+	var label: Label = Label.new()
 	label.text = Util.to_readable_name(field_name)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
@@ -165,11 +165,11 @@ func _get_or_create_header_container(content: Control) -> HBoxContainer:
 	if content.get_child_count() == 0:
 		return HBoxContainer.new()
 
-	var first_child = content.get_child(0)
+	var first_child: Node = content.get_child(0)
 	if not first_child is BoxContainer or first_child.get_child_count() == 0:
 		return HBoxContainer.new()
 
-	var header_candidate = first_child.get_child(0)
+	var header_candidate: Node = first_child.get_child(0)
 	if header_candidate is HBoxContainer:
 		return header_candidate
 
@@ -181,9 +181,9 @@ func _make_item_header(
 	index: int,
 	item: ListItem,
 ) -> HBoxContainer:
-	var header = _get_or_create_header_container(content)
-	var is_protected = item.get_property_value("protected") == true
-	var actions = ["edit", "duplicate", "delete"] if not is_protected else ["edit"]
+	var header: HBoxContainer = _get_or_create_header_container(content)
+	var is_protected: bool = item.get_property_value("protected") == true
+	var actions: Array = ["edit", "duplicate", "delete"] if not is_protected else ["edit"]
 	var icons: Dictionary = {
 		"delete": preload("res://ui/assets/icons/trash.svg"),
 		"edit": preload("res://ui/assets/icons/pen.svg"),
@@ -191,12 +191,13 @@ func _make_item_header(
 	}
 
 	for action: String in actions:
+		var icon: Texture2D = icons[action]
 		_add_button(
 			header,
 			index,
 			action,
 			action.capitalize() + " item",
-			icons[action],
+			icon,
 		)
 
 	return header
@@ -208,7 +209,7 @@ func _add_button(
 	tooltip: String,
 	icon: Texture2D
 ) -> void:
-	var button = Button.new()
+	var button: Button = Button.new()
 	button.icon = icon
 	button.tooltip_text = tooltip
 	button.pressed.connect(call.bind("_on_%s_item" % action_name, index))
@@ -225,7 +226,7 @@ func _on_duplicate_item(index: int) -> void:
 		new_item._from_dict(item_data)
 		new_item.set_meta("list_siblings", _list_items)
 		# make sure name is valid
-		var name_prop = new_item.get_property("name")
+		var name_prop: Property = new_item.get_property("name")
 		if name_prop:
 			name_prop.value = str(name_prop.value) + " (Copy)"
 		
@@ -241,7 +242,7 @@ func _on_delete_item(index: int) -> void:
 	if not _is_valid_index(index):
 		return
 
-	var item = _list_items[index]
+	var item: ListItem = _list_items[index]
 
 	if item.get_property_value("protected") == true:
 		push_warning("Cannot delete protected item")
@@ -277,7 +278,11 @@ func add_item() -> void:
 		while _value_exists_in_list(prop.name, prop.value):
 			prop.value = "%s %d" % [base_val, attempt]
 			attempt += 1
-	var new_item_list: Array = _binding.property.get_value().duplicate(true)
+	var prop_value: Variant = _binding.property.get_value()
+	var new_item_list: Array = []
+	if prop_value is Array:
+		var arr: Array = prop_value
+		new_item_list = arr.duplicate(true)
 	new_item_list.append(item_object._to_dict())
 	_binding.owner.set_property_value(_binding.property.name, new_item_list)
 
@@ -309,20 +314,20 @@ func _populate_external_items() -> void:
 		return
 
 	for ext_data: Dictionary in externals:
-		var item_container := PanelContainer.new()
+		var item_container: PanelContainer = PanelContainer.new()
 		item_container.theme_type_variation = "ListItemContainer"
 		item_container.modulate = Color(1, 1, 1, 0.6)
 
-		var main_vbox := VBoxContainer.new()
+		var main_vbox: VBoxContainer = VBoxContainer.new()
 		item_container.add_child(main_vbox)
 
-		var header := HBoxContainer.new()
-		var ext_label := Label.new()
+		var header: HBoxContainer = HBoxContainer.new()
+		var ext_label: Label = Label.new()
 		ext_label.text = ext_data.get("name", "External")
 		ext_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		header.add_child(ext_label)
 
-		var badge := Label.new()
+		var badge: Label = Label.new()
 		badge.text = "(imported)"
 		badge.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		header.add_child(badge)
@@ -330,11 +335,12 @@ func _populate_external_items() -> void:
 		main_vbox.add_child(header)
 
 		# Show text preview if available
-		var text_val = ext_data.get("text", "")
+		var text_val: Variant = ext_data.get("text", "")
 		if text_val is Dictionary:
-			text_val = text_val.get("value", "")
+			var text_dict: Dictionary = text_val
+			text_val = text_dict.get("value", "")
 		if not str(text_val).is_empty():
-			var text_label := Label.new()
+			var text_label: Label = Label.new()
 			text_label.text = str(text_val)
 			text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			text_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))

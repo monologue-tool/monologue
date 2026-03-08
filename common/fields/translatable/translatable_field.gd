@@ -29,7 +29,7 @@ func _populate_option(languages: Array) -> void:
 func _sync_option_to_global() -> void:
 	var storyline := StorylineManager.get_active_storyline()
 	var active: String = storyline.active_language_code if storyline else "en"
-	for i in localization_option.item_count:
+	for i: int in localization_option.item_count:
 		if localization_option.get_item_metadata(i) == active:
 			localization_option.select(i)
 			return

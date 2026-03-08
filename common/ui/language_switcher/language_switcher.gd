@@ -19,7 +19,7 @@ func load_languages(languages: Array = [], graph: MonologueGraphEdit = null) -> 
 	clear()
 
 	var seen_codes: PackedStringArray = []
-	for i in languages.size():
+	for i: int in languages.size():
 		var lang: Dictionary = languages[i]
 		var lang_code: String = lang.get("code", {}).get("value", "en")
 		var lang_name: String = lang.get("name", {}).get("value", "Language %d" % (i + 1))
@@ -38,7 +38,7 @@ func load_languages(languages: Array = [], graph: MonologueGraphEdit = null) -> 
 
 
 func select_by_locale(locale_code: String) -> void:
-	for i in item_count:
+	for i: int in item_count:
 		if get_item_metadata(i) == locale_code:
 			select(i)
 			_apply_selection(i)
@@ -60,7 +60,7 @@ func _on_global_refresh() -> void:
 		return
 	var storyline: StorylineDocument = _get_storyline()
 	var active: String = storyline.active_language_code if storyline else "en"
-	for i in item_count:
+	for i: int in item_count:
 		if get_item_metadata(i) == active:
 			if selected != i:
 				select(i)

@@ -32,7 +32,7 @@ func _update_window(update_size: bool = false) -> void:
 
 
 func _load_preferences() -> void:
-	var err := preferences.load(Constants.PREFERENCES_PATH)
+	var err: Error = preferences.load(Constants.PREFERENCES_PATH)
 	if err != OK:
 		push_warning("Failed to load preferences from %s" % Constants.PREFERENCES_PATH)
 
@@ -40,7 +40,7 @@ func _load_preferences() -> void:
 ## Returns the optimal window scale factor for the current screen.
 ## Logic adapted from Godot editor/editor_settings.cpp:1564.
 func _get_auto_display_scale() -> float:
-	var os_name := OS.get_name()
+	var os_name: String = OS.get_name()
 	if os_name in ["Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD"]:
 		if DisplayServer.get_name() == "Wayland":
 			var main_window_scale: float = DisplayServer.screen_get_scale(

@@ -1,6 +1,6 @@
 class_name CollectionDescriptor extends BucketDescriptor
 
-var collection_script: Script
+var collection_script: GDScript
 var default_settings: Dictionary = {}
 
 
@@ -13,7 +13,7 @@ func instantiate_item(history: CommandManager) -> ListItem:
 	if collection_script == null:
 		push_warning("Descriptor '%s' missing script for instantiation." % name)
 		return null
-	var instance = collection_script.new(history)
+	var instance: ListItem = collection_script.new(history)
 	if instance is ListItem:
 		return instance
 	push_error("Descriptor '%s' does not create an InspectableNode." % name)

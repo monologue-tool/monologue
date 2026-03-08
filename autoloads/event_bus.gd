@@ -32,3 +32,6 @@ signal enable_picker_mode(
 signal expand_text_edit(text_edit: TextEdit)
 signal show_dimmer
 signal hide_dimmer
+
+signal window_out
+signal ask_dialog(callback: Callable, header: String, description: String, confirm_text: String, deny_text: String, cancel_text: String)

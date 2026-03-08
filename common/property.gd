@@ -10,10 +10,10 @@ var type: String = ""
 var _base_settings: Dictionary = {}
 ## Runtime overrides set by the user (serialized as "_editor_settings" in JSON).
 var _overrides: Dictionary = {}
-var descriptor
-var _bindings: Array = []
+var descriptor: FieldDescriptor
+var _bindings: Array[FieldBinding] = []
 
-const DEFAULT_SETTINGS := {
+const DEFAULT_SETTINGS: Dictionary = {
 	"visible_in_graph": true,
 	"visible_in_inspector": true,
 	"editable": true,
@@ -44,7 +44,11 @@ var connected_to: Array[Dictionary] = []
 
 func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary = {}) -> void:
 	name = pname
-	value = pvalue.call() if pvalue is Callable else pvalue
+	value = pvalue
+	if pvalue is Callable:
+		@warning_ignore("unsafe_method_access")
+		value = pvalue.call()
+	
 	type = ptype
 	descriptor = FieldBucket.get_descriptor(ptype)
 	_base_settings = DEFAULT_SETTINGS.duplicate(true)
@@ -58,7 +62,7 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 		_base_settings.erase("label")
 
 
-func bind_field(field: Field, target_owner: InspectableObject = null):
+func bind_field(field: Field, target_owner: InspectableObject = null) -> FieldBinding:
 	if not is_instance_valid(field):
 		return null
 	if not field.is_inside_tree():
@@ -66,7 +70,7 @@ func bind_field(field: Field, target_owner: InspectableObject = null):
 			_on_field_tree_entered.bind(field, target_owner), CONNECT_ONE_SHOT
 		)
 		return null
-	var binding = FieldBucket.bind(self, field, target_owner)
+	var binding: FieldBinding = FieldBucket.bind(self, field, target_owner)
 	if binding:
 		_bindings.append(binding)
 	return binding
@@ -98,7 +102,7 @@ func get_settings() -> Dictionary:
 	return merged_settings
 
 
-func has_settings(skey) -> bool:
+func has_settings(skey: Variant) -> bool:
 	return get_settings().has(skey)
 
 
@@ -132,47 +136,47 @@ func is_port_connected() -> bool:
 ## Returns true if this property should appear as a row in the graph node view.
 ## A property is visible when visible_in_graph is true, or it has at least one port.
 func is_visible_in_graph() -> bool:
-	var has_input := bool(get_settings_value("exposed", false))
-	var has_output := bool(get_settings_value("export", false))
+	var has_input: bool = get_settings_value("exposed", false) == true
+	var has_output: bool = get_settings_value("export", false) == true
 	if not get_settings_value("visible_in_graph", true) and not (has_input or has_output):
 		return false
 	return true
 
 
 func add_connection_from(node_id: String, property_name: String) -> void:
-	var conn = {"node_id": node_id, "property_name": property_name}
+	var conn: Dictionary = {"node_id": node_id, "property_name": property_name}
 	if conn not in connected_from:
 		connected_from.append(conn)
 		connection_changed.emit()
 
 
 func add_connection_to(node_id: String, property_name: String) -> void:
-	var conn = {"node_id": node_id, "property_name": property_name}
+	var conn: Dictionary = {"node_id": node_id, "property_name": property_name}
 	if conn not in connected_to:
 		connected_to.append(conn)
 		connection_changed.emit()
 
 
 func remove_connection_from(node_id: String, property_name: String) -> void:
-	var old_size := connected_from.size()
+	var old_size: int = connected_from.size()
 	connected_from.assign(connected_from.filter(
-		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
+		func(c: Dictionary) -> bool: return not (c["node_id"] == node_id and c["property_name"] == property_name)
 	))
 	if connected_from.size() != old_size:
 		connection_changed.emit()
 
 
 func remove_connection_to(node_id: String, property_name: String) -> void:
-	var old_size := connected_to.size()
+	var old_size: int = connected_to.size()
 	connected_to.assign(connected_to.filter(
-		func(c): return not (c["node_id"] == node_id and c["property_name"] == property_name)
+		func(c: Dictionary) -> bool: return not (c["node_id"] == node_id and c["property_name"] == property_name)
 	))
 	if connected_to.size() != old_size:
 		connection_changed.emit()
 
 
 func clear_connections() -> void:
-	var had_connections := not connected_from.is_empty() or not connected_to.is_empty()
+	var had_connections: bool = not connected_from.is_empty() or not connected_to.is_empty()
 	connected_from.clear()
 	connected_to.clear()
 	if had_connections:
@@ -180,12 +184,12 @@ func clear_connections() -> void:
 
 
 func refresh_bindings() -> void:
-	_bindings = _bindings.filter(func(binding): return binding and binding.is_active())
-	for binding in _bindings:
+	_bindings = _bindings.filter(func(binding: FieldBinding) -> bool: return binding and binding.is_active())
+	for binding: FieldBinding in _bindings:
 		binding.refresh()
 
 
-func get_descriptor():
+func get_descriptor() -> FieldDescriptor:
 	if descriptor == null:
 		descriptor = FieldBucket.get_descriptor(type)
 	return descriptor
@@ -214,6 +218,8 @@ func _from_dict(raw: Dictionary) -> void:
 	value = raw.get("value", value)
 	_overrides = raw.get("_editor_settings", _overrides)
 	if raw.get("from_node"):
-		connected_from.assign(raw.get("from_node", []))
+		var from_arr: Array = raw.get("from_node", [])
+		connected_from.assign(from_arr)
 	if raw.get("to_node"):
-		connected_to.assign(raw.get("to_node", []))
+		var to_arr: Array = raw.get("to_node", [])
+		connected_to.assign(to_arr)

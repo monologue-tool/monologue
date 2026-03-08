@@ -33,7 +33,7 @@ func _on_item_selected(index: int) -> void:
 	if not node:
 		return
 		
-	for child in get_children():
+	for child: Node in get_children():
 		if child == _dropdown:
 			continue
 			

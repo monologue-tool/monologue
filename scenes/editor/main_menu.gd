@@ -1,6 +1,6 @@
 extends MenuButton
 
-@onready var search_icon = preload("res://ui/assets/icons/search.svg")
+@onready var search_icon: Texture2D = preload("res://ui/assets/icons/search.svg")
 
 
 func _ready() -> void:

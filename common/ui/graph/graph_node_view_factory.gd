@@ -1,11 +1,11 @@
 class_name GraphNodeViewFactory extends RefCounted
 
-const SLOT_IN_TEXTURE := preload("res://ui/assets/icons/slot_in.svg")
-const SLOT_OUT_TEXTURE := preload("res://ui/assets/icons/slot_out.svg")
+const SLOT_IN_TEXTURE: Texture2D = preload("res://ui/assets/icons/slot_in.svg")
+const SLOT_OUT_TEXTURE: Texture2D = preload("res://ui/assets/icons/slot_out.svg")
 
 
 static func build(node: InspectableNode) -> GraphNode:
-	var graph_node := GraphNode.new()
+	var graph_node: GraphNode = GraphNode.new()
 	graph_node.custom_minimum_size.x = 192
 	graph_node.draggable = true
 	graph_node.selectable = true
@@ -21,7 +21,7 @@ static func modulate_stylebox(graph_node: GraphNode, node: InspectableNode) -> v
 	if not color_prop:
 		return
 
-	var node_color: Color = Color(color_prop.get_value())
+	var node_color: Color = Color(str(color_prop.get_value()))
 	var sb_names: Array = ["panel", "panel_selected"]
 
 	for sb_name: String in sb_names:
@@ -34,11 +34,12 @@ static func modulate_stylebox(graph_node: GraphNode, node: InspectableNode) -> v
 		var base_sb: StyleBox = graph_node.get_theme_stylebox(sb_name)
 
 		if base_sb is StyleBoxFlat:
-			var new_sb: StyleBoxFlat = base_sb.duplicate()
-			var new_bg_color = Color(node_color, 0.35)
-			var new_border_color = Color(node_color, 0.35)
-			new_bg_color = base_sb.bg_color.blend(new_bg_color)
-			new_border_color = base_sb.border_color.blend(new_border_color)
+			var flat_sb: StyleBoxFlat = base_sb as StyleBoxFlat
+			var new_sb: StyleBoxFlat = flat_sb.duplicate()
+			var new_bg_color: Color = Color(node_color, 0.35)
+			var new_border_color: Color = Color(node_color, 0.35)
+			new_bg_color = flat_sb.bg_color.blend(new_bg_color)
+			new_border_color = flat_sb.border_color.blend(new_border_color)
 			new_sb.bg_color = new_bg_color
 			new_sb.border_color = new_border_color
 			graph_node.add_theme_stylebox_override(sb_name, new_sb)
@@ -61,24 +62,24 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 	if title_bar:
 		title_bar.hide()
 
-	var rows := _build_rows(node)
-	for idx in rows.size():
+	var rows: Array[GraphNodeRow] = _build_rows(node)
+	for idx: int in rows.size():
 		var row: GraphNodeRow = rows[idx]
-		var container := HBoxContainer.new()
+		var container: HBoxContainer = HBoxContainer.new()
 		container.mouse_filter = Control.MOUSE_FILTER_PASS
 		container.theme_type_variation = "GraphNodeViewRownHBox"
 
-		var key_label := Label.new()
+		var key_label: Label = Label.new()
 		key_label.mouse_filter = Control.MOUSE_FILTER_PASS
 		key_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		key_label.text = row.get_key()
 
-		var value_label := Label.new()
+		var value_label: Label = Label.new()
 		value_label.mouse_filter = Control.MOUSE_FILTER_PASS
 		if row.get_type():
 			value_label.text = "[%s]" % row.get_type()
 
-		var field_metadata := FieldBucket.get_metadata(row.get_type())
+		var field_metadata: Dictionary = FieldBucket.get_metadata(row.get_type())
 		var slot_color: Color = field_metadata.get("color", Color.WHITE)
 
 		value_label.label_settings = LabelSettings.new()
@@ -121,8 +122,8 @@ static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void
 		return
 	graph_node.title = Util.to_readable_name(node.get_type())
 	# Use node id as the graph node name to make connections rely on ids only
-	var id_prop := node.get_property("id")
-	graph_node.name = String(id_prop.get_value()) if id_prop else _derive_node_name(node)
+	var id_prop: Property = node.get_property("id")
+	graph_node.name = str(id_prop.get_value()) if id_prop else _derive_node_name(node)
 
 
 static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
@@ -131,7 +132,7 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 		if not prop.is_visible_in_graph():
 			continue
 
-		var row := _build_property_row(prop)
+		var row: GraphNodeRow = _build_property_row(prop)
 		if prop.get_settings_value("is_main_property"):
 			rows.push_front(row)
 			continue
@@ -145,9 +146,9 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 
 
 static func _build_property_row(prop: Property) -> GraphNodeRow:
-	var enable_left: bool = bool(prop.get_settings_value("exposed", false))
-	var enable_right: bool = bool(prop.get_settings_value("export", false))
-	var label := (
+	var enable_left: bool = prop.get_settings_value("exposed", false) == true
+	var enable_right: bool = prop.get_settings_value("export", false) == true
+	var label: String = (
 		prop.get_display_name() if prop.get_settings_value("is_main_property") else prop.name
 	)
 	# For list properties, resolve port type from the collection's field type
@@ -155,10 +156,10 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	if prop.type == "list":
 		var collection_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
 		if not collection_name.is_empty():
-			var field_descriptor = FieldBucket.get_field_descriptor(collection_name)
+			var field_descriptor: FieldDescriptor = FieldBucket.get_field_descriptor(collection_name)
 			if field_descriptor:
 				row_type = collection_name
-	var row := GraphNodeRow.new(label, row_type, enable_left, enable_right)
+	var row: GraphNodeRow = GraphNodeRow.new(label, row_type, enable_left, enable_right)
 	row._property_name = prop.name
 	row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")
 	return row
@@ -177,15 +178,15 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 	# Internal items from the property value
 	var list_value: Variant = prop.get_value()
 	if list_value is Array:
-		for item_data in list_value:
+		for item_data: Dictionary in list_value:
 			if not item_data is Dictionary:
 				continue
-			var item_id := _extract_dict_string(item_data, "id")
+			var item_id: String = _extract_dict_string(item_data, "id")
 			if item_id.is_empty():
 				continue
-			var item_name := _extract_dict_string(item_data, "name")
-			var sub_label := "  %s" % [item_name if not item_name.is_empty() else item_id]
-			var sub_row := GraphNodeRow.new(sub_label, "context", false, true)
+			var item_name: String = _extract_dict_string(item_data, "name")
+			var sub_label: String = "  %s" % [item_name if not item_name.is_empty() else item_id]
+			var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
 			sub_row.sub_property_id = "%s:%s" % [prop.name, item_id]
 			sub_rows.append(sub_row)
 
@@ -196,8 +197,8 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 		var ext_src_id: String = ext_data.get("source_node_id", "")
 		if ext_src_id.is_empty():
 			continue
-		var sub_label := "  %s" % [ext_name if not ext_name.is_empty() else ext_src_id]
-		var sub_row := GraphNodeRow.new(sub_label, "context", false, true)
+		var sub_label: String = "  %s" % [ext_name if not ext_name.is_empty() else ext_src_id]
+		var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
 		sub_row.sub_property_id = "%s:ext_%s" % [prop.name, ext_src_id]
 		sub_rows.append(sub_row)
 
@@ -206,9 +207,10 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 
 ## Extracts a string from a dict value that can be either a raw String or a {value: String} dict.
 static func _extract_dict_string(data: Dictionary, key: String) -> String:
-	var raw = data.get(key, {})
+	var raw: Variant = data.get(key, {})
 	if raw is Dictionary:
-		return str(raw.get("value", ""))
+		var raw_dict: Dictionary = raw
+		return str(raw_dict.get("value", ""))
 	elif raw is String:
 		return raw
 	return ""
@@ -216,10 +218,10 @@ static func _extract_dict_string(data: Dictionary, key: String) -> String:
 
 static func _derive_node_name(node: InspectableNode) -> String:
 	# Fallback to id (no type prefix) if needed
-	var id_value := ""
-	var id_property := node.get_property("id")
+	var id_value: String = ""
+	var id_property: Property = node.get_property("id")
 	if id_property:
-		id_value = String(id_property.get_value())
+		id_value = str(id_property.get_value())
 	if id_value.is_empty():
 		id_value = IDGen.generate(5)
 	return id_value

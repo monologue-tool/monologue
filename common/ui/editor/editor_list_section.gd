@@ -18,7 +18,7 @@ func _ready() -> void:
 
 
 func clear() -> void:
-	for child in vbox.get_children():
+	for child: Node in vbox.get_children():
 		child.queue_free()
 
 

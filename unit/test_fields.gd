@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 
 
-func test_create_all_fields():
+func test_create_all_fields() -> void:
 	for field_name: String in FieldBucket._descriptors:
 		if field_name == "context":
 			continue

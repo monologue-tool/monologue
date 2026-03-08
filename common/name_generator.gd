@@ -9,7 +9,7 @@ static func generate() -> String:
 
 
 # Taken from https://cerol.itch.io/godot-name-generator-class
-const _female_first_names = [
+const _female_first_names: Array[String] = [
 	"Aaliyah",
 	"Aarti",
 	"Abbe",
@@ -3985,7 +3985,7 @@ const _female_first_names = [
 	"Zuzana",
 ]
 
-const _male_first_names = [
+const _male_first_names: Array[String] = [
 	"Aakash",
 	"Aamir",
 	"Aaron",
@@ -7503,7 +7503,7 @@ const _male_first_names = [
 	"Zvi"
 ]
 
-const _last_names = [
+const _last_names: Array[String] = [
 	"Aaberg",
 	"Aalst",
 	"Aara",

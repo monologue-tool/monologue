@@ -12,7 +12,7 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	for i in range(line_count):
+	for i: int in range(line_count):
 		var line_x: float = (size.x/(line_count+1)) * (i+1)
 		draw_line(Vector2(line_x, 0), Vector2(line_x, size.y), Color("ffffff3f"), 1.0)
 		var line_y: float = (size.y/(line_count+1)) * (i+1)

@@ -7,14 +7,14 @@ var from_node: String
 ## The port in which the picker was spawned/dragged from.
 var from_port: int
 ## Mouse release global position.
-var release = null
+var release: Variant = null
 ## Release position adjusted to the graph's scroll and zoom.
-var graph_release = null
+var graph_release: Variant = null
 ## Center position of the graph.
-var center = null
+var center: Variant = null
 
 
-func _ready():
+func _ready() -> void:
 	hide()
 	force_native = true
 	EventBus.enable_picker_mode.connect(_on_enable_picker_mode)
@@ -23,11 +23,11 @@ func _ready():
 func _on_enable_picker_mode(
 	node: String = "",
 	port: int = -1,
-	mouse_pos = null,
-	graph_release_pos = null,
-	center_pos = null,
+	mouse_pos: Variant = null,
+	graph_release_pos: Variant = null,
+	center_pos: Variant = null,
 	center_window: bool = false
-):
+) -> void:
 	open_for_node(node, port, mouse_pos, graph_release_pos, center_pos, center_window)
 
 
@@ -59,9 +59,9 @@ func flush() -> void:
 func open_for_node(
 	node: String = "",
 	port: int = -1,
-	mouse_pos = null,
-	graph_release_pos = null,
-	center_pos = null,
+	mouse_pos: Variant = null,
+	graph_release_pos: Variant = null,
+	center_pos: Variant = null,
 	_center_window: bool = false
 ) -> void:
 	flush()

@@ -34,7 +34,7 @@ func _init(command_manager: CommandManager = null) -> void:
 		"Special:Header"
 	)
 	# Keep all connection references in sync when the id changes
-	var _id_prop := get_property("id")
+	var _id_prop: Property = get_property("id")
 	if _id_prop and not _id_prop.value_changed.is_connected(_on_id_value_changed):
 		_id_prop.value_changed.connect(_on_id_value_changed)
 	super._init(command_manager)
@@ -145,21 +145,21 @@ func rebuild_preview() -> void:
 
 
 func _on_id_value_changed(old_value: Variant, new_value: Variant) -> void:
-	var old_id := String(old_value)
-	var new_id := String(new_value)
+	var old_id: String = str(old_value)
+	var new_id: String = str(new_value)
 	if old_id == new_id:
 		return
 
 	# Update all connection references via connection manager
 	if is_instance_valid(graph_view):
-		var graph_edit := graph_view.get_parent()
+		var graph_edit: MonologueGraphEdit = graph_view.get_parent()
 		if graph_edit and graph_edit is MonologueGraphEdit and graph_edit.connection_manager:
 			graph_edit.connection_manager.rename_node_id(old_id, new_id)
 
 	# Ensure the GraphNode uses the new id as its name and reconnect
 	if is_instance_valid(graph_view):
 		graph_view.name = new_id
-		var gv_parent := graph_view.get_parent()
+		var gv_parent: MonologueGraphEdit = graph_view.get_parent()
 		if gv_parent and gv_parent is MonologueGraphEdit:
 			gv_parent.clear_connections()
 			gv_parent._reconnect_all_slots()

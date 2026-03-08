@@ -1,7 +1,7 @@
 ## Represents the graph area which creates and connects MonologueGraphNodes.
 class_name CustomGraphEdit extends GraphEdit
 
-const SCROLLBAR_OVERRIDE_KEYS := ["grabber", "scroll"]
+const SCROLLBAR_OVERRIDE_KEYS: Array[String] = ["grabber", "scroll"]
 
 var connecting_mode: bool
 var mouse_hovering: bool = false
@@ -12,25 +12,27 @@ func _ready() -> void:
 
 
 func _hide_default_scrollbars() -> void:
-	for child in get_children(true):
+	for child: Node in get_children(true):
 		if child is GraphNode:
 			continue
-		for subchild in child.get_children(true):
-			if subchild is ScrollBar:
-				for key in SCROLLBAR_OVERRIDE_KEYS:
-					subchild.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+		for subchild: Node in child.get_children(true):
+			if not subchild is ScrollBar:
+				continue
+			for key: String in SCROLLBAR_OVERRIDE_KEYS:
+				@warning_ignore("unsafe_method_access")
+				subchild.add_theme_stylebox_override(key, StyleBoxEmpty.new())
 
 
 func _on_connection_to_empty(node: String, port: int, release: Vector2) -> void:
-	var center = (get_local_mouse_position() + scroll_offset) / zoom
-	var graph_release = (release + scroll_offset) / zoom
+	var center: Vector2 = (get_local_mouse_position() + scroll_offset) / zoom
+	var graph_release: Vector2 = (release + scroll_offset) / zoom
 	EventBus.enable_picker_mode.emit(node, port, release, graph_release, center)
 
 
 func _on_gui_input(event: InputEvent) -> void:
 	if mouse_hovering:
-		var cursor_drag := Input.is_action_pressed("Spacebar")
-		var cursor_hand_closed := cursor_drag and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		var cursor_drag: bool = Input.is_action_pressed("Spacebar")
+		var cursor_hand_closed: bool = cursor_drag and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
 			cursor_hand_closed = true
 		if cursor_hand_closed:
@@ -40,6 +42,7 @@ func _on_gui_input(event: InputEvent) -> void:
 		else:
 			DisplayServer.cursor_set_custom_image(Cursor.ARROW)
 
+	@warning_ignore("unsafe_property_access")
 	if (
 		event is InputEventMouseButton
 		and event.is_pressed()

@@ -35,8 +35,8 @@ func save_current_theme() -> void:
 		push_error("No theme to save")
 		return
 
-	var theme_path = current_settings.get_path()
-	var err = ResourceSaver.save(current_theme, theme_path)
+	var theme_path: String = current_settings.get_path()
+	var err: Error = ResourceSaver.save(current_theme, theme_path)
 
 	if err == OK:
 		print("Theme saved to: %s" % theme_path)

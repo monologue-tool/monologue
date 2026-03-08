@@ -1,39 +1,54 @@
-class_name PromptWindow extends MonologueWindow
+class_name Prompt extends MonologueWindow
+
+enum {
+	CONFIRMED,
+	DENIED,
+	CANCELLED
+}
 
 signal confirmed
 signal denied
 signal cancelled
 
-const SAVE_PROMPT = "%s has been modified."
+@onready var title_label: Label = %TitleLabel
+@onready var description_label: Label = %DescriptionLabel
+@onready var confirm_button: Button = %ConfirmButton
+@onready var deny_button: Button = %DenyButton
+@onready var cancel_button: Button = %CancelButton
 
-@onready var title_label = %TitleLabel
-@onready var description_label = %DescriptionLabel
-@onready var confirm_button = %ConfirmButton
-@onready var deny_button = %DenyButton
-@onready var cancel_button = %CancelButton
+var _callback: Callable
 
 
-func prompt_save(filename: String) -> void:
-	if title_label:
-		title_label.text = SAVE_PROMPT % Util.truncate_filename(filename.get_file())
-		description_label.text = "The document you have opened will be closed. Do you want to save the changes?"
-	show()
+func _ready() -> void:
+	EventBus.ask_dialog.connect(_on_ask_request)
+	EventBus.window_out.connect(_on_cancel_button_pressed)
 
 
 func _on_confirm_button_pressed() -> void:
-	queue_free()
+	hide()
 	confirmed.emit()
+	if _callback: _callback.call(Prompt.CONFIRMED)
 
 
 func _on_deny_button_pressed() -> void:
-	queue_free()
+	hide()
 	denied.emit()
+	if _callback: _callback.call(Prompt.DENIED)
 
 
 func _on_cancel_button_pressed() -> void:
-	queue_free()
+	hide()
 	cancelled.emit()
+	if _callback: _callback.call(Prompt.CANCELLED)
 
 
-func _on_tree_exited() -> void:
-	EventBus.hide_dimmer.emit()
+func _on_ask_request(callback: Callable, header: String, description: String, confirm_text: String = "Yes", deny_text: String = "No", cancel_text: String = "Cancel") -> void:
+	_callback = callback
+	
+	title_label.text = header
+	description_label.text = description
+	confirm_button.text = confirm_text
+	deny_button.text = deny_text
+	cancel_button.text = cancel_text
+	
+	show()

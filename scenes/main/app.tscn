@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://bim51g1aibuw0"]
 
 [ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/editor/editor.tscn" id="1_kiov6"]
+[ext_resource type="Script" uid="uid://ck2cqoxpk1mto" path="res://scenes/main/dimmer.gd" id="2_y0d3j"]
 [ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/ui/expanded_text_edit/expanded_text_edit_container.tscn" id="6_cqyrh"]
+[ext_resource type="PackedScene" uid="uid://bkreq3xdr7gxw" path="res://common/ui/windows/prompt_window/prompt_window.tscn" id="7_k15gm"]
 [ext_resource type="PackedScene" uid="uid://d3f7d4bb40iht" path="res://common/ui/windows/preview_window/preview_window.tscn" id="8_7qdje"]
 [ext_resource type="PackedScene" uid="uid://bqqcww601rcx5" path="res://common/ui/windows/welcome_window/welcome_window.tscn" id="9_fp7qq"]
 [ext_resource type="Script" uid="uid://b2l7hjfyrnr3x" path="res://common/ui/windows/file_dialog/file_dialog.gd" id="10_r77hi"]
@@ -18,7 +20,6 @@ size_flags_vertical = 3
 
 [node name="Frame" type="PanelContainer" parent="." unique_id=1777561432]
 clip_children = 2
-z_index = 1
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -37,21 +38,40 @@ layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
 file_dialog = NodePath("../../../FileDialog")
 
+[node name="GraphEdit" parent="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph" parent_id_path=PackedInt32Array(1963406996, 116496835) index="0" unique_id=2027188591]
+scroll_offset = Vector2(-12, -12)
+
+[node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0)
+script = ExtResource("2_y0d3j")
+
 [node name="ExpandedTextEditContainer" parent="." unique_id=881659617 instance=ExtResource("6_cqyrh")]
 visible = false
 z_index = 2
 layout_mode = 1
 
 [node name="PreviewWindow" parent="." unique_id=1909948793 instance=ExtResource("8_7qdje")]
+oversampling_override = 1.0
 visible = false
 
 [node name="WelcomeWindow" parent="." unique_id=979035935 instance=ExtResource("9_fp7qq")]
+oversampling_override = 1.0
 size = Vector2i(450, 300)
+visible = false
+
+[node name="PromptWindow" parent="." unique_id=2120395406 instance=ExtResource("7_k15gm")]
 visible = false
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=1731826877]
 auto_translate_mode = 1
-size = Vector2i(419, 201)
+oversampling_override = 1.0
+size = Vector2i(505, 201)
 access = 2
 use_native_dialog = true
 script = ExtResource("10_r77hi")

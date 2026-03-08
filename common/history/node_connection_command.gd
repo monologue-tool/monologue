@@ -26,8 +26,8 @@ func _init(
 
 func execute() -> void:
 	# Recalculate port indices in case they changed
-	var from_port = graph_view.get_port_index_for_property(from_node_id, from_property_name, true)
-	var to_port = graph_view.get_port_index_for_property(to_node_id, to_property_name, false)
+	var from_port: int = graph_view.get_port_index_for_property(from_node_id, from_property_name, true)
+	var to_port: int = graph_view.get_port_index_for_property(to_node_id, to_property_name, false)
 
 	if disconnect_node:
 		if graph_view.connection_manager:
@@ -51,8 +51,8 @@ func execute() -> void:
 
 func undo() -> void:
 	# Recalculate port indices in case they changed
-	var from_port = graph_view.get_port_index_for_property(from_node_id, from_property_name, true)
-	var to_port = graph_view.get_port_index_for_property(to_node_id, to_property_name, false)
+	var from_port: int = graph_view.get_port_index_for_property(from_node_id, from_property_name, true)
+	var to_port: int = graph_view.get_port_index_for_property(to_node_id, to_property_name, false)
 
 	if not disconnect_node:
 		if graph_view.connection_manager:

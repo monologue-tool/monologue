@@ -8,7 +8,7 @@ signal value_changed(value: Variant)
 @export var step: float = 1
 @export var suffix: String
 
-@onready var spin_box = $HBoxContainer/SpinBox
+@onready var spin_box: SpinBox = $HBoxContainer/SpinBox
 
 var value: Variant:
 	get():
@@ -17,7 +17,7 @@ var value: Variant:
 		spin_box.value = value
 
 
-func _ready():
+func _ready() -> void:
 	var line_edit: LineEdit = spin_box.get_line_edit()
 	line_edit.connect("focus_exited", _on_focus_exited)
 	line_edit.connect("text_submitted", _on_text_submitted)
@@ -25,7 +25,7 @@ func _ready():
 	_update_settings()
 
 
-func _update_settings():
+func _update_settings() -> void:
 	spin_box.min_value = min_value
 	spin_box.max_value = max_value
 	spin_box.step = step

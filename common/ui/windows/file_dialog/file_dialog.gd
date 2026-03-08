@@ -3,7 +3,7 @@ class_name GlobalFileDialog extends FileDialog
 var _callback: Callable
 
 
-func _ready():
+func _ready() -> void:
 	EventBus.save_file_request.connect(_on_save_file_request)
 	EventBus.open_file_request.connect(_on_open_file_request)
 	EventBus.open_files_request.connect(_on_open_files_request)

@@ -32,15 +32,15 @@ func get_description() -> String:
 
 
 func _broadcast_change(is_undo: bool = false) -> void:
-	if not (target is InspectableNode):
+	if target is not InspectableNode:
 		return
 
-	var node := target as InspectableNode
+	var node: InspectableNode = target
 	var property: Property = node.get_property(property_name)
 	if not property:
 		return
 
-	if target is InspectableNode and property_name == "position":
+	if property_name == "position":
 		EventBus.request_node_selection.emit(node, node.storyline_id, true)
 
 	if not property.get_settings_value("visible_in_inspector", true):

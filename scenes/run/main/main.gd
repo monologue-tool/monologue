@@ -14,8 +14,8 @@ func _ready() -> void:
 
 
 func _on_quit_btn_pressed() -> void:
-	var menu_instance = load("res://scenes/run/menu/menu.tscn")
-	var menu_scene_instance = menu_instance.instantiate()
+	var menu_instance: Resource = load("res://scenes/run/menu/menu.tscn")
+	var menu_scene_instance: Node = menu_instance.instantiate()
 	menu_scene_instance.from_node = from_node
 	menu_scene_instance.file_path = file_path
 	get_window().add_scene(menu_scene_instance)

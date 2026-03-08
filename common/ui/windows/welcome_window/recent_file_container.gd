@@ -15,7 +15,7 @@ func _ready() -> void:
 
 ## Adds a new filepath as recent file and saves it to the history file.
 func add(filepath: String) -> void:
-	var file = FileAccess.open(save_path, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(save_path, FileAccess.WRITE)
 	if file:
 		recent_filepaths.erase(filepath)
 		recent_filepaths.push_front(filepath)
@@ -25,8 +25,8 @@ func add(filepath: String) -> void:
 
 
 func create_button(filepath: String) -> Button:
-	var btn = button_scene.instantiate()
-	var btn_text = filepath.replace("\\", "/")
+	var btn: Node = button_scene.instantiate()
+	var btn_text: Variant = filepath.replace("\\", "/")
 	btn_text = btn_text.replace("//", "/")
 	btn_text = btn_text.split("/")
 	if btn_text.size() >= 2:
@@ -49,27 +49,27 @@ func create_file() -> void:
 
 ## Load the recent file history save and create buttons for it.
 func load_file() -> void:
-	var file = FileAccess.open(save_path, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(save_path, FileAccess.READ)
 	if file:
-		var data = parse_history(file.get_as_text())
+		var data: Array = parse_history(file.get_as_text())
 		file.close()
 
-		for path in data.slice(0, 3):
+		for path: Variant in data.slice(0, 3):
 			recent_filepaths.append(path)
 			create_button(path)
 
 
 ## Return only the recent files that still exist as a JSON array.
 func parse_history(text: String) -> Array:
-	var data = JSON.parse_string(text)
+	var data: Variant = JSON.parse_string(text)
 	if data is Array:
-		return data.filter(func(p): return FileAccess.file_exists(p))
+		return data.filter(func(p: Variant) -> bool: return FileAccess.file_exists(p))
 	return []
 
 
 ## Remake the recent file list.
 func refresh() -> void:
-	for child in button_container.get_children():
+	for child: Node in button_container.get_children():
 		child.queue_free()
 	recent_filepaths.clear()
 	create_file()
