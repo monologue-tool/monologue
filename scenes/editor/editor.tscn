@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/editor/editor.gd" id="1_ovo1o"]
-[ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="3_mei7o"]
+[ext_resource type="Texture2D" uid="uid://ctciioed1ksts" path="res://ui/assets/icons/menu.svg" id="3_syr16"]
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/editor/main_menu.gd" id="4_pwbil"]
 [ext_resource type="Script" uid="uid://clpwbag6bi7y3" path="res://common/ui/editor/list_container.gd" id="5_xylao"]
 [ext_resource type="Script" uid="uid://cpi3ixjp3ye17" path="res://scenes/editor/tab_bar.gd" id="6_2cy6n"]
@@ -52,9 +52,8 @@ theme_override_constants/separation = 0
 [node name="MainPopupMenu" type="MenuButton" parent="VBox/_Tabs/TabBar" unique_id=1198892440]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-icon = ExtResource("3_mei7o")
+icon = ExtResource("3_syr16")
 icon_alignment = 1
-expand_icon = true
 script = ExtResource("4_pwbil")
 
 [node name="VSeparator" type="VSeparator" parent="VBox/_Tabs/TabBar" unique_id=259404606]
@@ -136,18 +135,15 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.5
+offset_top = -5.0
 grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("15_35jwg")
+metadata/_edit_lock_ = true
 
 [node name="SearchBar" parent="SearchBarContainer" unique_id=1503058853 instance=ExtResource("16_n4eqx")]
 visible = false
 layout_mode = 2
-
-[node name="SplitContainer" type="SplitContainer" parent="." unique_id=1793924887]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
 
 [connection signal="add_document" from="VBox/_Tabs" to="." method="_on__tabs_add_document"]
 [connection signal="tab_changed" from="VBox/_Tabs/TabBar/TabBar" to="VBox/_Tabs" method="_on_tab_bar_tab_changed"]

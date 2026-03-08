@@ -156,10 +156,27 @@ func _on_redo():
 
 
 func _create_default_nodes() -> void:
-	var defaults := ["root", "sentence", "text"]
-	for node_type: String in defaults:
-		var node = NodeBucket.create_node(node_type, history)
-		_register_node(node)
+	var root_node: InspectableNode = NodeBucket.create_node("root", history)
+	var root_mp: Property = root_node.get_main_property()
+	
+	var sent_node: InspectableNode = NodeBucket.create_node("sentence", history)
+	var sent_mp: Property = sent_node.get_main_property()
+	
+	var choice_node: InspectableNode = NodeBucket.create_node("choice", history)
+	var choice_mp: Property = choice_node.get_main_property()
+	var choice_opt: Array[Dictionary] = []
+	for _i in range(3):
+		choice_opt.append(CollectionBucket.create_item("option", history)._to_dict())
+	
+	_register_node(root_node)
+	_register_node(sent_node)
+	_register_node(choice_node)
+	
+	sent_node.set_property_value("position", [240.0, 0])
+	choice_node.set_property_value("position", [480.0, 0])
+	choice_node.set_property_value("choices", choice_opt)
+	root_mp.add_connection_to(sent_node.get_id(), sent_mp.name)
+	sent_mp.add_connection_to(choice_node.get_id(), choice_mp.name)
 
 
 func _register_node(node: InspectableNode) -> void:

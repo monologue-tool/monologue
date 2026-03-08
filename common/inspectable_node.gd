@@ -104,6 +104,21 @@ func define_property(
 	super.define_property(pname, default_value, ptype, psettings, category)
 
 
+func get_id() -> String:
+	return get_property_value("id")
+
+func get_main_property() -> Property:
+	if not _main_property_defined:
+		return null
+	
+	for prop: Property in get_properties():
+		if not prop.get_settings_value("is_main_property", false):
+			continue
+		return prop
+	
+	return null
+
+
 func rebuild_preview() -> void:
 	if not is_instance_valid(graph_view):
 		return

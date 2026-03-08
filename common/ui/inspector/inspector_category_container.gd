@@ -9,7 +9,6 @@ func add_control(
 	internal: InternalMode = InternalMode.INTERNAL_MODE_DISABLED
 ) -> void:
 	if not is_node_ready():
-		# FIXME: Do weird stuff
 		return
 
 	if not is_instance_valid(node):

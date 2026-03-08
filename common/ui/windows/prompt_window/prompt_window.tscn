@@ -1,10 +1,11 @@
 [gd_scene format=3 uid="uid://bkreq3xdr7gxw"]
 
 [ext_resource type="Script" uid="uid://bb5cq5tmook8s" path="res://common/ui/windows/prompt_window/prompt_window.gd" id="1_u0ucq"]
-[ext_resource type="Texture2D" uid="uid://cfc0nhupnhixg" path="res://icon_min.png" id="2_kx1ym"]
+[ext_resource type="Texture2D" uid="uid://bou7qelcr5dwn" path="res://icon.png" id="2_kx1ym"]
 
-[node name="PromptWindow" type="Window"]
+[node name="PromptWindow" type="Window" unique_id=2120395406]
 transparent_bg = true
+oversampling_override = 1.0
 initial_position = 2
 size = Vector2i(798, 226)
 wrap_controls = true
@@ -15,7 +16,7 @@ transparent = true
 popup_window = true
 script = ExtResource("1_u0ucq")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=488027916]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -31,35 +32,35 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_type_variation = &"OuterPanel"
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1352960012]
 layout_mode = 2
 theme_override_constants/margin_left = 25
 theme_override_constants/margin_top = 25
 theme_override_constants/margin_right = 25
 theme_override_constants/margin_bottom = 25
 
-[node name="HBox" type="HBoxContainer" parent="PanelContainer/MarginContainer"]
+[node name="HBox" type="HBoxContainer" parent="PanelContainer/MarginContainer" unique_id=264572394]
 layout_mode = 2
 theme_override_constants/separation = 25
 
-[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/HBox"]
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/HBox" unique_id=1691622229]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 texture = ExtResource("2_kx1ym")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/HBox"]
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/HBox" unique_id=125036158]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"VBoxContainer_Big"
 
-[node name="LabelHBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/HBox/VBox"]
+[node name="LabelHBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/HBox/VBox" unique_id=186543798]
 layout_mode = 2
 theme_type_variation = &"VBoxContainer_Medium"
 
-[node name="TitleLabel" type="Label" parent="PanelContainer/MarginContainer/HBox/VBox/LabelHBox"]
+[node name="TitleLabel" type="Label" parent="PanelContainer/MarginContainer/HBox/VBox/LabelHBox" unique_id=1794345615]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
@@ -67,7 +68,7 @@ text = "Save changes?"
 clip_text = true
 text_overrun_behavior = 2
 
-[node name="DescriptionLabel" type="Label" parent="PanelContainer/MarginContainer/HBox/VBox/LabelHBox"]
+[node name="DescriptionLabel" type="Label" parent="PanelContainer/MarginContainer/HBox/VBox/LabelHBox" unique_id=2108403130]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(500, 75)
 layout_mode = 2
@@ -75,23 +76,23 @@ theme_type_variation = &"NoteLabel"
 text = "The document you have opened will be closed. Do you want to save the changes?"
 autowrap_mode = 3
 
-[node name="HBox" type="HBoxContainer" parent="PanelContainer/MarginContainer/HBox/VBox"]
+[node name="HBox" type="HBoxContainer" parent="PanelContainer/MarginContainer/HBox/VBox" unique_id=1773416990]
 layout_mode = 2
 theme_type_variation = &"HBoxContainer_Big"
 
-[node name="ConfirmButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox"]
+[node name="ConfirmButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox" unique_id=1491844496]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 text = "Yes"
 
-[node name="DenyButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox"]
+[node name="DenyButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox" unique_id=768820840]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 text = "No"
 
-[node name="CancelButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox"]
+[node name="CancelButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox" unique_id=1596929283]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
