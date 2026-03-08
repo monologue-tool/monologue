@@ -29,6 +29,11 @@ layout_mode = 2
 icon = ExtResource("2_34x8o")
 icon_alignment = 1
 
+[node name="Breadcrumb" type="HBoxContainer" parent="VBox" unique_id=888888888]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
 [node name="Scroller" type="ScrollContainer" parent="VBox" unique_id=150618628]
 clip_contents = false
 layout_mode = 2

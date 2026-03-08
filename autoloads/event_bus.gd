@@ -10,6 +10,7 @@ signal refresh
 signal add_graph_node(descriptor_name: String, window: Window)
 signal request_node_selection(node: InspectableNode, storyline_id: String, skip_history: bool)
 signal request_object_inspection(object: InspectableObject)
+signal request_child_inspection(owner: InspectableObject, property_name: String, item_index: int)
 signal select_new_node
 signal inspector_property_changed(object: InspectableObject, property_name: String, is_undo: bool)
 
