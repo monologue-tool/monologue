@@ -162,21 +162,34 @@ func _create_default_nodes() -> void:
 	var sent_node: InspectableNode = NodeBucket.create_node("sentence", history)
 	var sent_mp: Property = sent_node.get_main_property()
 	
+	var option_node: InspectableNode = NodeBucket.create_node("option", history)
+	var option_mp: Property = option_node.get_main_property()
+	
 	var choice_node: InspectableNode = NodeBucket.create_node("choice", history)
 	var choice_mp: Property = choice_node.get_main_property()
 	var choice_opt: Array[Dictionary] = []
 	for _i in range(3):
 		choice_opt.append(CollectionBucket.create_item("option", history)._to_dict())
 	
+	sent_node.get_property("position").set_value([240.0, 0])
+	option_node.get_property("position").set_value([240.0, 120.0])
+	choice_node.get_property("position").set_value([480.0, 0])
+	choice_node.get_property("choices").set_value(choice_opt)
+	choice_node.get_property("choices").set_settings_value("exposed", true)
+	
 	_register_node(root_node)
 	_register_node(sent_node)
+	_register_node(option_node)
 	_register_node(choice_node)
 	
-	sent_node.set_property_value("position", [240.0, 0])
-	choice_node.set_property_value("position", [480.0, 0])
-	choice_node.set_property_value("choices", choice_opt)
 	root_mp.add_connection_to(sent_node.get_id(), sent_mp.name)
+	sent_mp.add_connection_from(root_node.get_id(), root_mp.name)
+
 	sent_mp.add_connection_to(choice_node.get_id(), choice_mp.name)
+	choice_mp.add_connection_from(sent_node.get_id(), sent_mp.name)
+
+	option_mp.add_connection_to(choice_node.get_id(), "choices")
+	choice_node.get_property("choices").add_connection_from(option_node.get_id(), option_mp.name)
 
 
 func _register_node(node: InspectableNode) -> void:

@@ -71,12 +71,21 @@ func _update_case_field() -> void:
 	var _case_coerce: Variant = case_data.get("coerce")  # TODO: Coerce value
 
 	var new_field: Control = FieldBucket.safe_create_field(case_type)
+	field_container.add_child(new_field)
 	_field = null
 	if new_field is Field:
 		_field = new_field
-		_binding.property.call_deferred("bind_field", new_field, _binding.owner)
-	field_container.add_child(new_field)
+		_binding.property.bind_field.call_deferred(new_field, _binding.owner)
 
 
 func _on_property_case_changed(_old_value: Variant, _new_value: Variant) -> void:
 	_update_case_field()
+
+
+func _exit_tree() -> void:
+	if not _binding or not _binding.owner:
+		return
+	var field_owner: InspectableObject = _binding.owner
+	var case_property: Property = field_owner.get_property(_case_property)
+	if case_property and case_property.value_changed.is_connected(_on_property_case_changed):
+		case_property.value_changed.disconnect(_on_property_case_changed)

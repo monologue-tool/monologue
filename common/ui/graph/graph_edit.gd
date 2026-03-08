@@ -209,26 +209,7 @@ func _reconnect_all_slots() -> void:
 
 ## Get visible properties in the same order as displayed in graph
 func _get_visible_properties(node: InspectableNode) -> Array[Property]:
-	var visible_props: Array[Property] = []
-	var properties = node.get_properties()
-
-	for prop: Property in properties:
-		if not prop.get_settings_value("visible_in_graph", true):
-			continue
-		var exposed = prop.get_settings_value("exposed", false) or false
-		var export = prop.get_settings_value("export", false) or false
-
-		# Skip if no ports
-		if not exposed and not export:
-			continue
-
-		# Main property goes first
-		if prop.get_settings_value("is_main_property"):
-			visible_props.push_front(prop)
-		else:
-			visible_props.append(prop)
-
-	return visible_props
+	return node.get_visible_properties()
 
 
 ## Get the port index for a specific property by name.

@@ -88,6 +88,10 @@ func get_value() -> Variant:
 	return value
 
 
+func set_settings_value(sname: String, svalue: Variant) -> void:
+	_overrides[sname] = svalue
+
+
 func get_settings() -> Dictionary:
 	var merged_settings: Dictionary = _overrides.duplicate(true)
 	merged_settings.merge(_base_settings)
@@ -123,6 +127,16 @@ func is_output_connected() -> bool:
 
 func is_port_connected() -> bool:
 	return is_input_connected() or is_output_connected()
+
+
+## Returns true if this property should appear as a row in the graph node view.
+## A property is visible when visible_in_graph is true, or it has at least one port.
+func is_visible_in_graph() -> bool:
+	var has_input := bool(get_settings_value("exposed", false))
+	var has_output := bool(get_settings_value("export", false))
+	if not get_settings_value("visible_in_graph", true) and not (has_input or has_output):
+		return false
+	return true
 
 
 func add_connection_from(node_id: String, property_name: String) -> void:

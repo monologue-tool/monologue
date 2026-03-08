@@ -204,3 +204,19 @@ func _on_item_selected(index: int) -> void:
 	var text = option_button.get_item_text(index)
 	emit_value_changed(text)
 	emit_value_committed(text)
+
+
+func _exit_tree() -> void:
+	if not _binding or not _binding.property:
+		return
+	var storyline = _get_storyline()
+	if storyline:
+		storyline.remove_observer(_on_source_changed)
+		if _is_listening and storyline.history:
+			if storyline.history.command_executed.is_connected(_on_storyline_command_executed):
+				storyline.history.command_executed.disconnect(_on_storyline_command_executed)
+			if storyline.history.redone.is_connected(_on_storyline_command_executed):
+				storyline.history.redone.disconnect(_on_storyline_command_executed)
+			if storyline.history.undone.is_connected(_on_storyline_command_executed):
+				storyline.history.undone.disconnect(_on_storyline_command_executed)
+			_is_listening = false

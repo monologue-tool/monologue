@@ -32,10 +32,8 @@ func initialize() -> void:
 		return
 	field.initialize(self)
 	field.value_changed.connect(_on_field_value_changed)
-	if field.has_signal("value_committed"):
-		field.value_committed.connect(_on_field_value_committed)
-	if field.has_signal("preview_changed"):
-		field.preview_changed.connect(_on_field_preview_changed)
+	field.value_committed.connect(_on_field_value_committed)
+	field.preview_changed.connect(_on_field_preview_changed)
 	if property:
 		property.value_changed.connect(_on_property_value_changed)
 	field.tree_exiting.connect(_on_field_tree_exiting)
@@ -51,11 +49,10 @@ func release() -> void:
 	if is_instance_valid(field):
 		if field.value_changed.is_connected(_on_field_value_changed):
 			field.value_changed.disconnect(_on_field_value_changed)
-		if (
-			field.has_signal("value_committed")
-			and field.value_committed.is_connected(_on_field_value_committed)
-		):
+		if field.value_committed.is_connected(_on_field_value_committed):
 			field.value_committed.disconnect(_on_field_value_committed)
+		if field.preview_changed.is_connected(_on_field_preview_changed):
+			field.preview_changed.disconnect(_on_field_preview_changed)
 		if field.tree_exiting.is_connected(_on_field_tree_exiting):
 			field.tree_exiting.disconnect(_on_field_tree_exiting)
 	if property and property.value_changed.is_connected(_on_property_value_changed):
@@ -76,9 +73,9 @@ func _sync_from_property() -> void:
 		return
 	if not field.is_inside_tree():
 		return
-	# Guard: don't clobber a ListField that is broadcasting its own snapshot —
-	# the list items are already the source of truth during that call.
-	if field is ListField and (field as ListField)._is_emitting_snapshot:
+	# Guard: don't clobber a field that is broadcasting its own snapshot —
+	# the field data is already the source of truth during that call.
+	if field.is_emitting_snapshot:
 		return
 	_is_syncing = true
 	var _sync_value: Variant = property.get_value()

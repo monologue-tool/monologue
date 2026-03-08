@@ -4,10 +4,6 @@ var _list_items: Array[ListItem] = []
 var _hide_items: Array[int] = []
 var _collection_name: String = ""
 var _command_manager: CommandManager
-## Guard flag: true while this field is broadcasting its own value snapshot.
-## Used by FieldBinding._sync_from_property() to skip redundant set_value() calls
-## that would destroy live ListItem references.
-var _is_emitting_snapshot: bool = false
 var _inspected_index: int = -1
 
 @onready var items_container: VBoxContainer = %ItemsContainer
@@ -75,7 +71,7 @@ func set_value(value: Variant) -> void:
 
 	_rebuild_ui()
 
-	if not _is_emitting_snapshot and _inspected_index >= 0:
+	if not is_emitting_snapshot and _inspected_index >= 0:
 		if _inspected_index < _list_items.size():
 			EventBus.request_object_inspection.emit(_list_items[_inspected_index])
 		else:
@@ -319,10 +315,10 @@ func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
 
 
 func _emit_snapshot() -> void:
-	_is_emitting_snapshot = true
+	is_emitting_snapshot = true
 	emit_value_changed(get_value())
 	emit_value_committed(get_value())
-	_is_emitting_snapshot = false
+	is_emitting_snapshot = false
 
 
 func _on_connection_changed() -> void:

@@ -119,6 +119,20 @@ func get_main_property() -> Property:
 	return null
 
 
+## Returns properties visible in the graph, ordered with main property first.
+## Used for port index calculation and graph node display.
+func get_visible_properties() -> Array[Property]:
+	var visible: Array[Property] = []
+	for prop: Property in get_properties():
+		if not prop.is_visible_in_graph():
+			continue
+		if prop.get_settings_value("is_main_property"):
+			visible.push_front(prop)
+		else:
+			visible.append(prop)
+	return visible
+
+
 func rebuild_preview() -> void:
 	if not is_instance_valid(graph_view):
 		return
@@ -136,29 +150,11 @@ func _on_id_value_changed(old_value: Variant, new_value: Variant) -> void:
 	if old_id == new_id:
 		return
 
-	# Update all connection references via connection manager if available
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
-	if storyline:
-		# Try to find a graph_edit and its connection manager
-		var graph_edit := graph_view.get_parent() if is_instance_valid(graph_view) else null
+	# Update all connection references via connection manager
+	if is_instance_valid(graph_view):
+		var graph_edit := graph_view.get_parent()
 		if graph_edit and graph_edit is MonologueGraphEdit and graph_edit.connection_manager:
 			graph_edit.connection_manager.rename_node_id(old_id, new_id)
-		else:
-			# Fallback: direct update across storyline
-			for node: InspectableNode in storyline.nodes:
-				for prop: Property in node.get_properties():
-					# Update outgoing connections
-					for i in range(prop.connected_to.size()):
-						var conn: Dictionary = prop.connected_to[i]
-						if conn.get("node_id", "") == old_id:
-							conn["node_id"] = new_id
-							prop.connected_to[i] = conn
-					# Update incoming connections
-					for i in range(prop.connected_from.size()):
-						var conn_in: Dictionary = prop.connected_from[i]
-						if conn_in.get("node_id", "") == old_id:
-							conn_in["node_id"] = new_id
-							prop.connected_from[i] = conn_in
 
 	# Ensure the GraphNode uses the new id as its name and reconnect
 	if is_instance_valid(graph_view):

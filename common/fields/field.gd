@@ -1,12 +1,26 @@
 @abstract
 class_name Field extends VBoxContainer
 
+## Emitted on every real-time input change (keystroke, drag, slider move).
+## FieldBinding uses this for live validation and error feedback only.
+## The value is NOT persisted and does NOT create an undo/redo entry.
 signal value_changed(new_value: Variant)
+
+## Emitted when the user confirms the value (Enter, focus lost, item selected, drag end).
+## FieldBinding persists the value into the Property, creating an undo/redo entry.
+## This is the only signal that writes data to the model.
 signal value_committed(new_value: Variant)
+
+## Emitted when the GraphNode visual should be refreshed (e.g. color or label changed).
+## FieldBinding calls owner.rebuild_preview(). Independent of data persistence.
 signal preview_changed
 
 var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
+
+## Guard flag: true while this field is broadcasting its own snapshot value.
+## FieldBinding checks this to avoid clobbering live data during emission.
+var is_emitting_snapshot: bool = false
 
 var settings: Dictionary = {}
 

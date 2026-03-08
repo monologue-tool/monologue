@@ -43,6 +43,7 @@ func _on_choices_connection_changed() -> void:
 
 func get_external_list_items(property_name: String) -> Array[Dictionary]:
 	if property_name == "choices":
+		_sync_external_options()
 		return _external_options
 	return []
 

@@ -249,16 +249,8 @@ func rename_node_id(old_id: String, new_id: String) -> void:
 	# Update connections on all properties
 	for node: InspectableNode in _storyline.nodes:
 		for prop: Property in node.get_properties():
-			for i in range(prop.connected_to.size()):
-				var conn: Dictionary = prop.connected_to[i]
-				if conn.get("node_id", "") == old_id:
-					conn["node_id"] = new_id
-					prop.connected_to[i] = conn
-			for i in range(prop.connected_from.size()):
-				var conn_in: Dictionary = prop.connected_from[i]
-				if conn_in.get("node_id", "") == old_id:
-					conn_in["node_id"] = new_id
-					prop.connected_from[i] = conn_in
+			_update_connection_node_id(prop.connected_to, old_id, new_id)
+			_update_connection_node_id(prop.connected_from, old_id, new_id)
 
 	# Update suspended connection snapshots
 	var keys := _suspended_connections.keys()
@@ -270,18 +262,22 @@ func rename_node_id(old_id: String, new_id: String) -> void:
 			continue
 		var new_key := "%s::%s" % [new_id, parts[1]]
 		var snapshot: Dictionary = _suspended_connections[k]
-		# Update inner arrays
 		for dir in ["incoming", "outgoing"]:
 			if snapshot.has(dir):
-				var arr: Array = snapshot[dir]
-				for i in range(arr.size()):
-					var c: Dictionary = arr[i]
-					if c.get("node_id", "") == old_id:
-						c["node_id"] = new_id
-						arr[i] = c
-				snapshot[dir] = arr
+				_update_connection_node_id(snapshot[dir], old_id, new_id)
 		_suspended_connections.erase(k)
 		_suspended_connections[new_key] = snapshot
+
+
+## Replaces old_id with new_id in an array of connection dictionaries.
+static func _update_connection_node_id(
+	connections: Array, old_id: String, new_id: String
+) -> void:
+	for i in range(connections.size()):
+		var conn: Dictionary = connections[i]
+		if conn.get("node_id", "") == old_id:
+			conn["node_id"] = new_id
+			connections[i] = conn
 
 
 func suspend_incoming_property_connections(node_id: String, property_name: String) -> void:
@@ -375,23 +371,7 @@ func _get_node_view_by_id(node_id: String) -> InspectableNode:
 
 ## Helper: Get property at a specific port index in the graph view
 func _get_property_at_port(node: InspectableNode, port: int) -> Property:
-	var properties = node.get_properties()
-	var visible_props: Array[Property] = []
-
-	# Build list of visible properties in graph (matching graph display logic)
-	for prop: Property in properties:
-		if not prop.get_settings_value("visible_in_graph", true):
-			continue
-		var has_input = prop.get_settings_value("exposed", false)
-		var has_output = prop.get_settings_value("export", false)
-		if not has_input and not has_output:
-			continue
-
-		# Main property goes first
-		if prop.get_settings_value("is_main_property"):
-			visible_props.push_front(prop)
-		else:
-			visible_props.append(prop)
+	var visible_props: Array[Property] = node.get_visible_properties()
 
 	if port >= 0 and port < visible_props.size():
 		return visible_props[port]

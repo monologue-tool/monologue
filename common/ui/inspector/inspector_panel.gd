@@ -237,8 +237,8 @@ func _create_property_editor(property: Property) -> Control:
 		p_field = inspect_button
 	else:
 		p_field = FieldBucket.safe_create_field(property.type)
-		if p_field is Field:
-			property.call_deferred("bind_field", p_field, current_object)
+		if p_field is Field and current_object is InspectableObject:
+			property.bind_field.call_deferred(p_field, current_object)
 
 	if property.type == "list":
 		var add_btn: Button = Button.new()
@@ -262,7 +262,6 @@ func _create_property_editor(property: Property) -> Control:
 		_on_property_expose_state_changed.bind(current_object, property.name)
 	)
 
-	# Apply read-only visual treatment: muted opacity + lock-icon tooltip suffix.
 	# The actual field.set_editable(false) is called by FieldBinding._update_editable_state().
 	if is_read_only:
 		p_container.modulate = Color(1, 1, 1, 0.6)
