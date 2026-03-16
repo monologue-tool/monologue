@@ -1,6 +1,10 @@
 extends PanelContainer
 
 @export_range(0, 20) var line_count: int = 3
+@export var ball_speed: float = 1.0
+
+var _ball_progress: float = 0.0
+var _ball_direction: int = 1
 
 @onready var path: Path2D = %Path2D
 @onready var cp1: BezierControlPoint = %CP1
@@ -9,6 +13,14 @@ extends PanelContainer
 
 func _ready() -> void:
 	item_rect_changed.connect(_on_item_rect_changed)
+
+
+func _process(delta: float) -> void:
+	_ball_progress += ball_speed * delta * _ball_direction
+	if _ball_progress > 1.0 or _ball_progress < 0.0:
+		_ball_direction*=-1
+		_ball_progress = clamp(_ball_progress, 0.0, 1.0)
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -25,6 +37,11 @@ func _draw() -> void:
 	draw_dashed_line(cp1.position + cp1.size/2, Vector2(0, size.y), Color("ffffff3f"), 1.0, 5.0)
 	draw_dashed_line(cp2.position + cp2.size/2, Vector2(size.x, 0), Color("ffffff3f"), 1.0, 5.0)
 	draw_dashed_line(Vector2(0, size.y), Vector2(size.x, 0), Color("ffffff3f"), 1.0, 5.0)
+	
+	# Preview
+	var curve_position: Vector2 = curve.sample_baked(_ball_progress * curve.get_baked_length())
+	var ball_position: Vector2 = Vector2(curve_position.x, size.y/2)
+	draw_circle(ball_position, 12.0, Color("ffffff3f"))
 
 
 func _on_item_rect_changed() -> void:

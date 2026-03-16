@@ -87,7 +87,7 @@ func request_node_selection(node: InspectableNode, skip_history: bool = false) -
 		storyline.id, current_node, node, Callable(self, "_apply_selection")
 	)
 
-	history.execute(command, UndoRedo.MERGE_ENDS)
+	history.execute(command)
 
 
 func _apply_selection(node: InspectableNode, storyline_id: String) -> void:

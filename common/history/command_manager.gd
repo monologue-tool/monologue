@@ -14,7 +14,7 @@ func _init(max_history: int = 200) -> void:
 	undo_redo.version_changed.connect(_on_version_changed)
 
 
-func execute(command: Command, merge_mode: UndoRedo.MergeMode = UndoRedo.MERGE_ENDS) -> void:
+func execute(command: Command, merge_mode: UndoRedo.MergeMode = UndoRedo.MERGE_DISABLE) -> void:
 	var description: String = command.get_description()
 	undo_redo.create_action(description, merge_mode)
 	undo_redo.add_do_method(command.execute.bind())
