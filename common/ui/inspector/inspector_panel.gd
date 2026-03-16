@@ -49,7 +49,7 @@ func _on_history_undo_redo() -> void:
 	if _inspection_stack.is_empty():
 		return
 	_resolve_stack()
-	await rebuild()
+	rebuild()
 
 
 func inspect(object: InspectableObject) -> void:
@@ -74,7 +74,7 @@ func inspect(object: InspectableObject) -> void:
 		"category_states": {},
 	})
 
-	await rebuild()
+	rebuild()
 
 	# Observe the root so that property changes trigger a rebuild.
 	if object:
@@ -133,7 +133,7 @@ func inspect_child(property_owner: InspectableObject, property_name: String, ite
 			break
 
 	if not in_stack:
-		await inspect(item)
+		inspect(item)
 		return
 
 	# Parent is in the stack — drill into the item as a child level.
@@ -146,7 +146,7 @@ func inspect_child(property_owner: InspectableObject, property_name: String, ite
 		"category_states": {},
 	})
 
-	await rebuild()
+	rebuild()
 
 
 ## Navigate back to a specific level in the stack (0 = root).
@@ -160,26 +160,13 @@ func navigate_to_level(level: int) -> void:
 	# Truncate the stack.
 	_inspection_stack.resize(level + 1)
 
-	await rebuild()
+	rebuild()
 
 
 func rebuild() -> void:
 	var inspected: InspectableObject = current_object
 	run_button.visible = _get_root_object() is InspectableNode
 	
-	# Store the current focus owner before rebuilding
-	var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	var focused_property_name: String = ""
-
-	# Try to identify which property had focus by walking up to the tagged p_container
-	if focus_owner and focus_owner.is_inside_tree():
-		var node: Control = focus_owner
-		while node:
-			if node.has_meta("property_name"):
-				focused_property_name = node.get_meta("property_name")
-				break
-			node = node.get_parent()
-
 	var category_states: Dictionary = _get_current_category_states()
 	_cache_category_states(category_states)
 
@@ -203,6 +190,11 @@ func rebuild() -> void:
 
 	var properties: Array[Property] = inspected.get_properties()
 	var categories: Dictionary = _group_by_category(properties)
+	
+	# Ensure property_container is ready before adding children
+	if not property_container.is_node_ready():
+		await property_container.ready
+	
 	for category_name: String in categories.keys():
 		var props: Array = categories[category_name]
 
@@ -210,14 +202,22 @@ func rebuild() -> void:
 			var special_category: String = category_name.trim_prefix("Special:")
 			_handle_special_category_section(special_category, props)
 			continue
-		await _create_category_section(category_name, props, category_states)
+		_create_category_section(category_name, props, category_states)
 
 	post_build(category_states)
-
-	# Restore focus if we had a focused property
-	if not focused_property_name.is_empty():
-		await get_tree().process_frame
-		_restore_focus_to_property(focused_property_name)
+	
+	# Restore focus after rebuild completes
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if focus_owner and focus_owner.is_inside_tree():
+		var node: Node = focus_owner
+		while node:
+			if node.has_meta("property_name"):
+				var prop_name: String = str(node.get_meta("property_name"))
+				# Property had focus before rebuild
+				await get_tree().process_frame
+				_restore_focus_to_property(prop_name)
+				break
+			node = node.get_parent()
 
 	_pending_expand_category = ""
 
@@ -255,7 +255,7 @@ func _find_focusable_fields(node: Node, fields: Array) -> void:
 
 
 func _group_by_category(properties: Array[Property]) -> Dictionary:
-	var groups: Dictionary = {}
+	var groups: Dictionary[String, Array] = {}
 	for prop: Property in properties:
 		# Skip properties not visible in inspector
 		if not prop.get_settings_value("visible_in_inspector", true):
@@ -267,14 +267,12 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 
 		if not groups.has(category):
 			groups[category] = []
-		var cat_arr: Array = groups[category]
-		cat_arr.append(prop)
+
+		groups[category].append(prop)
 	return groups
 
 
-func _create_category_section(category_name: String, properties: Array[Property], category_states: Dictionary) -> void:
-	if not property_container.is_node_ready():
-		await property_container.ready
+func _create_category_section(category_name: String, properties: Array, category_states: Dictionary) -> void:
 
 	var container: InspectorCategoryContainer = inspector_category_container.instantiate()
 	container.title = category_name
@@ -287,7 +285,7 @@ func _create_category_section(category_name: String, properties: Array[Property]
 			container.add_control(property_editor)
 
 
-func _handle_special_category_section(category_name: String, properties: Array[Property]) -> void:
+func _handle_special_category_section(category_name: String, properties: Array) -> void:
 	var container: Control
 
 	match category_name:
@@ -456,7 +454,7 @@ func _on_inspect_connected_node(property: Property) -> void:
 func _on_root_property_changed(obj: InspectableObject, _property_name: String) -> void:
 	if not obj:
 		return
-	_resolve_stack.call_deferred()
+	_resolve_stack()
 	rebuild.call_deferred()
 
 
@@ -476,7 +474,7 @@ func _on_external_property_changed(
 	_pending_expand_category = property.get_category()
 
 	if obj == current_object:
-		await rebuild()
+		rebuild()
 		return
 
 	# If the changed object is somewhere in our stack (e.g. root while we are
@@ -484,15 +482,11 @@ func _on_external_property_changed(
 	for entry: Dictionary in _inspection_stack:
 		if entry["object"] == obj:
 			_resolve_stack()
-			await rebuild()
+			rebuild()
 			return
 
-	await inspect(obj)
+	inspect(obj)
 
-
-# ---------------------------------------------------------------------------
-#  Stack helpers
-# ---------------------------------------------------------------------------
 
 func _get_root_object() -> InspectableObject:
 	if _inspection_stack.is_empty():

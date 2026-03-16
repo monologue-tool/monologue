@@ -81,7 +81,6 @@ func _sync_from_property() -> void:
 	var _sync_value: Variant = property.get_value()
 	if _sync_value == null and descriptor != null and descriptor.default_value != null:
 		var _dv: Variant = descriptor.default_value
-		@warning_ignore("unsafe_method_access")
 		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
 	field.set_value(_sync_value)
 	field.clear_error()
@@ -186,7 +185,6 @@ func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> voi
 	var _sync_value: Variant = property.get_value()
 	if _sync_value == null and descriptor != null and descriptor.default_value != null:
 		var _dv: Variant = descriptor.default_value
-		@warning_ignore("unsafe_method_access")
 		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
 	field.set_value(_sync_value)
 	field.clear_error()

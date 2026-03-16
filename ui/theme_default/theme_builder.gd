@@ -1,5 +1,4 @@
 @tool
-@warning_ignore_start("inferred_declaration")
 class_name ThemeBuilder extends RefCounted
 ## Modular theme builder that constructs Monologue themes from theme settingss
 

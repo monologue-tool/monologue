@@ -8,10 +8,8 @@ func register_descriptor(descriptor: BucketDescriptor) -> void:
 	if descriptor == null or descriptor is not CollectionDescriptor:
 		push_warning("Attempted to register a null CollectionDescriptor.")
 		return
-	@warning_ignore_start("unsafe_property_access")
 	if not descriptor.default_settings:
 		descriptor.default_settings = {}
-	@warning_ignore_restore("unsafe_property_access")
 	super.register_descriptor(descriptor)
 
 

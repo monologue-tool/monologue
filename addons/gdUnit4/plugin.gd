@@ -43,7 +43,6 @@ func _enter_tree() -> void:
 	# Install the GdUnit Console
 	_gd_console = (load("res://addons/gdUnit4/src/ui/GdUnitConsole.tscn") as PackedScene).instantiate()
 	var control: Control = add_control_to_bottom_panel(_gd_console, "gdUnitConsole")
-	@warning_ignore("unsafe_method_access")
 	await _gd_console.setup_update_notification(control)
 	if GdUnit4CSharpApiLoader.is_api_loaded():
 		prints("GdUnit4Net version '%s' loaded." % GdUnit4CSharpApiLoader.version())
@@ -67,7 +66,6 @@ func _exit_tree() -> void:
 		remove_control_from_bottom_panel(_gd_console)
 		_gd_console.free()
 	var gdUnitTools: GDScript = load("res://addons/gdUnit4/src/core/GdUnitTools.gd")
-	@warning_ignore("unsafe_method_access")
 	gdUnitTools.dispose_all(true)
 	prints("Unload GdUnit4 Plugin success")
 

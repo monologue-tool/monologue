@@ -7,7 +7,6 @@ static func is_equal(a: Variant, b: Variant) -> bool:
 	var type_a: int = typeof(a)
 	var type_b: int = typeof(b)
 	if type_a == type_b:
-		@warning_ignore_start("unsafe_method_access")
 		match type_a:
 			TYPE_DICTIONARY, TYPE_OBJECT:
 				return a.hash() == b.hash()
@@ -21,7 +20,6 @@ static func is_equal(a: Variant, b: Variant) -> bool:
 					return premise
 			_:
 				return a == b
-	@warning_ignore_restore("unsafe_method_access")
 	return false
 
 

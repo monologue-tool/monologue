@@ -1,7 +1,7 @@
 extends MonologueIndexer
 
 const NODE_SCRIPT := preload("uid://csx2ec4ra5m8k")
-const ICON_PATH := "res://ui/assets/icons/root.svg"
+const ICON_PATH: String = "res://ui/assets/icons/root.svg"
 
 
 func get_scene() -> PackedScene:

@@ -19,7 +19,6 @@ func _hide_default_scrollbars() -> void:
 			if not subchild is ScrollBar:
 				continue
 			for key: String in SCROLLBAR_OVERRIDE_KEYS:
-				@warning_ignore("unsafe_method_access")
 				subchild.add_theme_stylebox_override(key, StyleBoxEmpty.new())
 
 
@@ -42,7 +41,6 @@ func _on_gui_input(event: InputEvent) -> void:
 		else:
 			DisplayServer.cursor_set_custom_image(Cursor.ARROW)
 
-	@warning_ignore("unsafe_property_access")
 	if (
 		event is InputEventMouseButton
 		and event.is_pressed()

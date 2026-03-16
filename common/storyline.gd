@@ -168,7 +168,7 @@ func _create_default_nodes() -> void:
 	var choice_node: InspectableNode = NodeBucket.create_node("choice", history)
 	var choice_mp: Property = choice_node.get_main_property()
 	var choice_opt: Array[Dictionary] = []
-	for _i: int in range(3):
+	for _i: int in range(2):
 		choice_opt.append(CollectionBucket.create_item("option", history)._to_dict())
 	
 	sent_node.get_property("position").set_value([240.0, 0])

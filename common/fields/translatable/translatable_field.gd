@@ -16,6 +16,9 @@ func _ready() -> void:
 
 
 func _populate_option(languages: Array) -> void:
+	if languages.size() <= 1:
+		localization_option.hide()
+	
 	localization_option.clear()
 	for lang: Dictionary in languages:
 		var code: String = lang.get("code", {}).get("value", "")
@@ -98,7 +101,7 @@ func _on_textarea_focus_exited() -> void:
 	emit_value_committed(_values.duplicate())
 
 
-func _on_load_languages(languages: Array, _graph) -> void:
+func _on_load_languages(languages: Array, _graph: MonologueGraphEdit) -> void:
 	_populate_option(languages)
 	_refresh_widget_text()
 

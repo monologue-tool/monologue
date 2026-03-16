@@ -13,7 +13,7 @@ func _ready() -> void:
 func _on_initialize() -> void:
 	var raw_filters: Variant = settings.get(PropertySettings.KEY_FILE_FILTERS, [])
 	if raw_filters is Array:
-		_filters = PackedStringArray(raw_filters)
+		_filters = PackedStringArray(raw_filters as Array)
 	else:
 		_filters = PackedStringArray()
 
@@ -33,16 +33,16 @@ func set_editable(is_editable: bool) -> void:
 
 
 func _on_browse_pressed() -> void:
-	var root_dir := ""
-	var active_doc := StorylineManager.get_active_storyline()
+	var root_dir: String = ""
+	var active_doc: StorylineDocument = StorylineManager.get_active_storyline()
 	if active_doc and not active_doc.file_path.is_empty():
 		root_dir = active_doc.file_path.get_base_dir()
 	EventBus.open_file_request.emit(_on_file_selected, _filters, root_dir)
 
 
 func _on_file_selected(absolute_path: String) -> void:
-	var relative_path := absolute_path
-	var active_doc := StorylineManager.get_active_storyline()
+	var relative_path: String = absolute_path
+	var active_doc: StorylineDocument = StorylineManager.get_active_storyline()
 	if active_doc and not active_doc.file_path.is_empty():
 		relative_path = PathUtil.absolute_to_relative(absolute_path, active_doc.file_path)
 	path_line_edit.text = relative_path

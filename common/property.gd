@@ -46,7 +46,6 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 	name = pname
 	value = pvalue
 	if pvalue is Callable:
-		@warning_ignore("unsafe_method_access")
 		value = pvalue.call()
 	
 	type = ptype

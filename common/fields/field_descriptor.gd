@@ -12,7 +12,6 @@ var default_value: Variant = null
 
 
 func _init(p_name: String = "", p_scene: PackedScene = null, metadata: Dictionary = {}) -> void:
-	@warning_ignore_start("unsafe_method_access")
 	super._init(p_name, metadata)
 	scene = p_scene
 	default_value = metadata.get("default_value", null)
@@ -31,7 +30,6 @@ func _init(p_name: String = "", p_scene: PackedScene = null, metadata: Dictionar
 	var raw_formatter: Variant = metadata.get("formatter")
 	if raw_formatter is Callable and raw_formatter.is_valid():
 		formatter = raw_formatter
-	@warning_ignore_restore("unsafe_method_access")
 
 
 func instantiate_field() -> Field:

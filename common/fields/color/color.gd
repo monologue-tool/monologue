@@ -36,7 +36,9 @@ func _ready() -> void:
 
 
 func set_value(value: Variant) -> void:
-	color = Color(value)
+	if value is not String:
+		value = "ffffff"
+	color = Color(str(value))
 	_update_preview()
 
 

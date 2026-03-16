@@ -10,11 +10,9 @@ func register_descriptor(descriptor: BucketDescriptor) -> void:
 	if descriptor == null or descriptor is not FieldDescriptor:
 		push_warning("Attempted to register a null FieldDescriptor.")
 		return
-	@warning_ignore_start("unsafe_property_access")
 	if not descriptor.default_settings:
 		descriptor.default_settings = {}
 	descriptor.type_id = _next_type_id
-	@warning_ignore_restore("unsafe_property_access")
 	_next_type_id += 1
 	super.register_descriptor(descriptor)
 
