@@ -299,7 +299,7 @@ func _on_end_node_move() -> void:
 		var command: PropertyChangeCommand = PropertyChangeCommand.new(
 			node, "position", positon_value, target_position
 		)
-		history.execute(command, UndoRedo.MERGE_DISABLE)
+		history.execute(command)
 
 	_is_applying_position = false
 	_pending_positions.clear()

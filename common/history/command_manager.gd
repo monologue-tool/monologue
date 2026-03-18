@@ -86,7 +86,7 @@ func _on_version_changed() -> void:
 
 
 func begin_group(description: String = "Group") -> void:
-	undo_redo.create_action(description, UndoRedo.MERGE_DISABLE)
+	undo_redo.create_action(description)
 
 
 func add_to_group(command: Command) -> void:
