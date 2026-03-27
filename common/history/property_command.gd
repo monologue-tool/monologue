@@ -16,7 +16,6 @@ func _init(p_target: InspectableObject, p_property: String, p_old: Variant, p_ne
 func execute() -> void:
 	var property: Property = target.get_property(property_name)
 	property.set_value(new_value)
-	target.property_changed.emit(property_name)
 	_broadcast_change()
 
 

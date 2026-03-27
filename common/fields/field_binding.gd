@@ -73,7 +73,7 @@ func _sync_from_property() -> void:
 		return
 	if not field.is_inside_tree():
 		return
-	# Guard: don't clobber a field that is broadcasting its own snapshot —
+	# Guard: don't clobber a field that is broadcasting its own snapshot
 	# the field data is already the source of truth during that call.
 	if field.is_emitting_snapshot:
 		return

@@ -47,7 +47,6 @@ func inspect(object: InspectableObject) -> void:
 			old_node.graph_view.selected = false
 	
 	current_object = object
-	print(current_object)
 
 	rebuild()
 
@@ -56,9 +55,10 @@ func rebuild() -> void:
 	var inspected: InspectableObject = current_object
 	run_button.visible = current_object is InspectableNode
 	_fields.clear()
+	await get_tree().process_frame # TODO: Bad practice
 
-	for prop: Control in field_container.get_children():
-		prop.queue_free()
+	for field: Control in field_container.get_children():
+		field.queue_free()
 
 	for field: Control in _special_fields:
 		field.queue_free()
@@ -76,10 +76,6 @@ func rebuild() -> void:
 	var properties: Array[Property] = inspected.get_properties()
 	var categories: Dictionary = _group_by_category(properties)
 	
-	# Ensure field_container is ready before adding children
-	if not field_container.is_node_ready():
-		await field_container.ready
-	
 	for category_name: String in categories.keys():
 		var props: Array = categories[category_name]
 
@@ -91,17 +87,17 @@ func rebuild() -> void:
 		_create_category_section(category_name, props)
 	
 	# Restore focus after rebuild completes
-	var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	if focus_owner and focus_owner.is_inside_tree():
-		var node: Node = focus_owner
-		while node:
-			if node.has_meta("property_name"):
-				var prop_name: String = str(node.get_meta("property_name"))
-				# Property had focus before rebuild
-				await get_tree().process_frame
-				_restore_focus_to_property(prop_name)
-				break
-			node = node.get_parent()
+	#var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	#if focus_owner and focus_owner.is_inside_tree():
+		#var node: Node = focus_owner
+		#while node:
+			#if node.has_meta("property_name"):
+				#var prop_name: String = str(node.get_meta("property_name"))
+				## Property had focus before rebuild
+				#await get_tree().process_frame
+				#_restore_focus_to_property(prop_name)
+				#break
+			#node = node.get_parent()
 
 	_pending_expand_category = ""
 
@@ -156,7 +152,7 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 	return groups
 
 
-func _create_category_section(category_name: String, properties: Array=) -> void:
+func _create_category_section(category_name: String, properties: Array) -> void:
 	var container: InspectorCategoryContainer = inspector_category_container.instantiate()
 	container.title = category_name
 	field_container.add_child(container)
@@ -336,6 +332,7 @@ func _on_external_property_changed(
 		return
 	
 	if current_object in obj.get_property_children(property_name):
+		print("yooo")
 		return
 
 	_pending_expand_category = property.get_category()

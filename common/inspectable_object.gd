@@ -76,8 +76,6 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)
 	history.execute(command)
 
-	property_changed.emit(pname)
-
 
 func set_property_settings_value(pname: String, skey: String, svalue: Variant) -> void:
 	if not _properties.has(pname):

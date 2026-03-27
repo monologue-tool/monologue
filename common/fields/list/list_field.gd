@@ -100,10 +100,10 @@ func _rebuild_ui() -> void:
 
 
 func _connect_item_observer(item: ListItem) -> void:
-	item.property_changed.connect(_on_item_changed.bind(item))
+	item.property_changed.connect(_on_item_changed)
 
 
-func _on_item_changed(_item: ListItem, _prop_name: String) -> void:
+func _on_item_changed(_prop_name: String) -> void:
 	_emit_snapshot()
 
 
@@ -303,11 +303,14 @@ func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
 	return false
 
 
-func _emit_snapshot() -> void:
+func emit_value_committed(value: Variant) -> void:
 	is_emitting_snapshot = true
-	emit_value_changed(get_value())
-	emit_value_committed(get_value())
+	super.emit_value_committed(value)
 	is_emitting_snapshot = false
+	
+
+func _emit_snapshot() -> void:
+	emit_value_committed(get_value())
 
 
 func _on_connection_changed() -> void:

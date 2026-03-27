@@ -216,7 +216,7 @@ func _exit_tree() -> void:
 		return
 	var storyline: InspectableObject = _get_storyline()
 	if storyline:
-		storyline.remove_observer(_on_source_changed)
+		storyline.property_changed.disconnect(_on_source_changed)
 		if _is_listening and storyline.history:
 			if storyline.history.command_executed.is_connected(_on_storyline_command_executed):
 				storyline.history.command_executed.disconnect(_on_storyline_command_executed)
