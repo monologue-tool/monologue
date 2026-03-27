@@ -56,25 +56,27 @@ func set_value(value: Variant) -> void:
 		return
 
 	var prop_name: String = _binding.property.name
-	var current: Array = _binding.owner.get_property_children(prop_name)
+	var items: Array = _get_children()
 	var data: Array = value if value is Array else []
-
-	while current.size() > data.size():
-		current.pop_back()
+	
+	while items.size() > data.size():
+		_binding.owner.remove_property_children(prop_name, items.back())
+		items = _get_children()
 
 	var command_manager: CommandManager = _binding.owner.history
-	while current.size() < data.size():
+	while items.size() < data.size():
 		var new_item: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
 		if not new_item:
 			continue
 		_connect_item_observer(new_item)
-		current.append(new_item)
+		items.append(new_item)
 
 	for i: int in data.size():
-		current[i]._from_dict(data[i])
-		current[i].set_meta("list_siblings", current)
+		var current: ListItem = items[i]
+		current._from_dict(data[i])
+		current.set_meta("list_siblings", items)
 
-	_binding.owner.set_property_children(prop_name, current)
+	_binding.owner.set_property_children(prop_name, items)
 	_rebuild_ui()
 
 
@@ -256,7 +258,7 @@ func _on_delete_item(index: int) -> void:
 	if item.get_property_value("protected") == true:
 		push_warning("Cannot delete protected item")
 		return
-
+	
 	_binding.owner.remove_property_children(_binding.property.name, item)
 	_rebuild_ui()
 	_emit_snapshot()
@@ -275,7 +277,9 @@ func _is_valid_index(index: int) -> bool:
 func add_item() -> void:
 	if not _binding or not _binding.owner:
 		return
-	var item_object: ListItem = CollectionBucket.create_item(_collection_name, _command_manager)
+	
+	var command_manager: CommandManager = _binding.owner.history
+	var item_object: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
 	if not item_object:
 		return
 	for prop: Property in item_object.get_properties():
@@ -361,16 +365,10 @@ func _populate_external_items() -> void:
 
 
 func undo() -> void:
-	if not _command_manager:
-		return
-		
-	_command_manager.undo()
+	#_command_manager.undo()
 	_rebuild_ui()
 
 
 func redo() -> void:
-	if not _command_manager:
-		return
-	
-	_command_manager.redo()
+	#_command_manager.redo()
 	_rebuild_ui()

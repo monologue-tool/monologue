@@ -39,7 +39,7 @@ welcome_window = NodePath("../../../WelcomeWindow")
 file_dialog = NodePath("../../../FileDialog")
 
 [node name="GraphEdit" parent="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph" parent_id_path=PackedInt32Array(1963406996, 116496835) index="0" unique_id=2027188591]
-scroll_offset = Vector2(-12, -12)
+scroll_offset = Vector2(0, 0)
 
 [node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
 layout_mode = 1
