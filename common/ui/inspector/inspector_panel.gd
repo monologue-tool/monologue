@@ -1,28 +1,21 @@
 class_name InspectorPanel extends PanelContainer
 
-var _inspection_stack: Array[Dictionary] = []
 var _fields: Array[Field] = []
-var _cache_fields: Array[Field] = []
 var _special_fields: Array[Control] = []
 var _pending_expand_category: String = ""
 
 @onready var header_container: VBoxContainer = %Header
-@onready var breadcrumb_container: HBoxContainer = %Breadcrumb
+#@onready var breadcrumb_container: HBoxContainer = %Breadcrumb
 @onready var field_container: VBoxContainer = %Fields
 @onready var run_button: Button = %RunButton
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
-var current_object: InspectableObject:
-	get:
-		if _inspection_stack.is_empty():
-			return null
-		return _inspection_stack.back()["object"]
+var current_object: InspectableObject
 
 
 func _ready() -> void:
 	EventBus.request_object_inspection.connect(inspect)
-	EventBus.request_child_inspection.connect(inspect_child)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
 	StorylineManager.storyline_switched.connect(_on_storyline_switched)
 	# Handle the storyline that is already active at startup.
@@ -43,8 +36,6 @@ func _on_storyline_switched() -> void:
 ## Called after every undo or redo. Re-resolves the inspection stack from the
 ## root so stale ListItem references are replaced with fresh objects, then rebuilds.
 func _on_history_undo_redo() -> void:
-	if _inspection_stack.is_empty():
-		return
 	rebuild()
 
 
@@ -54,42 +45,11 @@ func inspect(object: InspectableObject) -> void:
 		var old_node: InspectableNode = old_root as InspectableNode
 		if old_node and is_instance_valid(old_node.graph_view):
 			old_node.graph_view.selected = false
-
-	# Build a fresh stack with a single root entry.
-	_inspection_stack.clear()
-	_inspection_stack.append({
-		"object": object,
-		"property_name": "",
-		"item_index": -1,
-		"category_states": {},
-	})
+	
+	current_object = object
+	print(current_object)
 
 	rebuild()
-
-
-## Drill into a ListItem child of the currently inspected object.
-## Called when the user clicks "edit" on a list item.
-func inspect_child(property_owner: InspectableObject, property_name: String, item_index: int) -> void:
-	var parent: InspectableObject = property_owner if property_owner else current_object
-	if not parent: return
-
-	var prop: Property = parent.get_property(property_name)
-	if not prop: return
-
-	var list_value: Variant = prop.get_value()
-	if not list_value is Array: return
-	
-	var list_arr: Array = list_value
-	if item_index < 0 or item_index >= list_arr.size(): return
-
-	var collection_name: String = prop.get_settings_value("collection", "")
-	if collection_name.is_empty(): return
-
-	var item: ListItem = _create_list_item_from_data(collection_name, list_arr[item_index])
-	if not item: return
-
-	_cache_fields = _fields
-	inspect(item)
 
 
 func rebuild() -> void:
@@ -205,7 +165,6 @@ func _create_category_section(category_name: String, properties: Array=) -> void
 		var property_editor: Control = _create_property_editor(property)
 		if property_editor:
 			container.add_control(property_editor)
-
 
 
 func _handle_special_category_section(category_name: String, properties: Array) -> void:
@@ -375,6 +334,9 @@ func _on_external_property_changed(
 
 	if not property.get_settings_value("visible_in_inspector", true):
 		return
+	
+	if current_object in obj.get_property_children(property_name):
+		return
 
 	_pending_expand_category = property.get_category()
 
@@ -383,15 +345,3 @@ func _on_external_property_changed(
 		return
 
 	inspect(obj)
-
-
-## Creates a ListItem from serialized dictionary data.
-func _create_list_item_from_data(collection_name: String, data: Variant) -> ListItem:
-	if not data is Dictionary:
-		return null
-	var dict_data: Dictionary = data
-	var item: ListItem = CollectionBucket.create_item(collection_name, CommandManager.new())
-	if not item:
-		return null
-	item._from_dict(dict_data)
-	return item

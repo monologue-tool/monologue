@@ -1,6 +1,5 @@
 class_name ListField extends Field
 
-var _list_items: Array[ListItem] = []
 var _hide_items: Array[int] = []
 var _collection_name: String = ""
 var _command_manager: CommandManager
@@ -33,6 +32,12 @@ func _on_initialize() -> void:
 		property.connection_changed.connect(_on_connection_changed)
 
 
+func _get_children() -> Array:
+	if not _binding:
+		return []
+	return _binding.owner.get_property_children(_binding.property.name)
+
+
 func hide_item(idx: int) -> void:
 	_hide_items.append(idx)
 	_rebuild_ui()
@@ -46,44 +51,64 @@ func show_all_items() -> void:
 func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
-		
-	_list_items.clear()
-	for property_data: Dictionary in value:
-		var new_item: ListItem = CollectionBucket.create_item(_collection_name, _command_manager)
+
+	if not _binding or not _binding.owner:
+		return
+
+	var prop_name: String = _binding.property.name
+	var current: Array = _binding.owner.get_property_children(prop_name)
+	var data: Array = value if value is Array else []
+
+	while current.size() > data.size():
+		current.pop_back()
+
+	var command_manager: CommandManager = _binding.owner.history
+	while current.size() < data.size():
+		var new_item: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
 		if not new_item:
 			continue
-		
-		new_item._from_dict(property_data)
-		new_item.set_meta("list_siblings", _list_items)
 		_connect_item_observer(new_item)
-		_list_items.append(new_item)
+		current.append(new_item)
 
+	for i: int in data.size():
+		current[i]._from_dict(data[i])
+		current[i].set_meta("list_siblings", current)
+
+	_binding.owner.set_property_children(prop_name, current)
 	_rebuild_ui()
 
 
+func get_value() -> Variant:
+	var result: Array = []
+	for item: InspectableObject in _get_children():
+		result.append(item._to_dict())
+	return result
+
+
+func _rebuild_ui() -> void:
+	_clear_container()
+
+	for item: InspectableObject in _get_children():
+		var item_container: PanelContainer = PanelContainer.new()
+		item_container.theme_type_variation = "ListItemContainer"
+		var main_vbox: VBoxContainer = _create_item_view()
+		item_container.add_child(main_vbox)
+		items_container.add_child(item_container)
+		_populate_item_view(main_vbox, item)
+
+	_populate_external_items()
+
+
 func _connect_item_observer(item: ListItem) -> void:
-	item.add_observer(_on_item_changed)
-	# Store the information needed to push a snapshot even after this ListField node is freed
-	# WeakRef lets callers detect the freed state cheaply without keeping it alive.
-	item.set_meta("_list_field_ref", weakref(self))
-	if _binding:
-		item.set_meta("_parent_owner", _binding.owner)       # InspectableObject (Resource)
-		item.set_meta("_parent_prop_name", _binding.property.name)
+	item.property_changed.connect(_on_item_changed.bind(item))
 
 
 func _on_item_changed(_item: ListItem, _prop_name: String) -> void:
 	_emit_snapshot()
 
 
-func get_value() -> Variant:
-	var result: Array = []
-	for item: ListItem in _list_items:
-		result.append(item._to_dict())
-	return result
-
-
 func get_item_index(item: ListItem) -> int:
-	return _list_items.find(item)
+	return _get_children().find(item)
 
 
 func set_editable(is_editable: bool) -> void:
@@ -100,27 +125,9 @@ func _clear_container() -> void:
 		item.queue_free()
 
 
-func _rebuild_ui() -> void:
-	_clear_container()
-	
-	for item: ListItem in _list_items:
-		var item_container: PanelContainer = PanelContainer.new()
-		item_container.theme_type_variation = "ListItemContainer"
-		
-		var main_vbox : VBoxContainer = _create_item_view()
-		item_container.add_child(main_vbox)
-		items_container.add_child(item_container)
-		
-		_populate_item_view(main_vbox, item)
-
-	# Show external (imported) items at the end
-	_populate_external_items()
-
-
 func _create_item_view() -> VBoxContainer:
 	var vbox: VBoxContainer = VBoxContainer.new()
 	return vbox
-	
 
 
 func _populate_item_view(item_view: VBoxContainer, item: ListItem) -> void:
@@ -216,40 +223,41 @@ func _add_button(
 	header.add_child(button)
 
 
-
 func _on_duplicate_item(index: int) -> void:
+	var children: Array[InspectableObject] = _get_children()
 	if not _is_valid_index(index):
 		return
-	var item_data: Dictionary = _list_items[index]._to_dict()
-	var new_item: ListItem = CollectionBucket.create_item(_collection_name, _command_manager)
-	if new_item:
-		new_item._from_dict(item_data)
-		new_item.set_meta("list_siblings", _list_items)
-		# make sure name is valid
-		var name_prop: Property = new_item.get_property("name")
-		if name_prop:
-			name_prop.value = str(name_prop.value) + " (Copy)"
-		
-		# Since we don't have make_all_values_unique anymore on standard items unless it's in logic,
-		# we'll just insert it.
-		_connect_item_observer(new_item)
-		_list_items.insert(index + 1, new_item)
-		_rebuild_ui()
-		_emit_snapshot()
+
+	var item_data: Dictionary = children[index]._to_dict()
+	var command_manager: CommandManager = _binding.owner.history
+	var new_item: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
+	if not new_item:
+		return
+
+	new_item._from_dict(item_data)
+	new_item.set_meta("list_siblings", children)
+	var name_prop: Property = new_item.get_property("name")
+	if name_prop:
+		name_prop.value = str(name_prop.value) + " (Copy)"
+
+	_connect_item_observer(new_item)
+	children.insert(index + 1, new_item)
+	_binding.owner.set_property_children(_binding.property.name, children)
+	_rebuild_ui()
+	_emit_snapshot()
 
 
 func _on_delete_item(index: int) -> void:
+	var children: Array = _get_children()
 	if not _is_valid_index(index):
 		return
 
-	var item: ListItem = _list_items[index]
-
+	var item: ListItem = children[index]
 	if item.get_property_value("protected") == true:
 		push_warning("Cannot delete protected item")
 		return
 
-	if index >= 0 and index < _list_items.size():
-		_list_items.remove_at(index)
+	_binding.owner.remove_property_children(_binding.property.name, item)
 	_rebuild_ui()
 	_emit_snapshot()
 
@@ -257,11 +265,11 @@ func _on_delete_item(index: int) -> void:
 func _on_edit_item(index: int) -> void:
 	if not _binding or not _binding.property:
 		return
-	EventBus.request_child_inspection.emit(_binding.owner, _binding.property.name, index)
+	EventBus.request_object_inspection.emit(_get_children()[index])
 
 
 func _is_valid_index(index: int) -> bool:
-	return index >= 0 and index < _list_items.size()
+	return index >= 0 and index < _get_children().size()
 
 
 func add_item() -> void:
@@ -288,7 +296,7 @@ func add_item() -> void:
 
 
 func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
-	for item: ListItem in _list_items:
+	for item: InspectableObject in _get_children():
 		var prop: Property = item.get_property(pname)
 		if prop and prop.value == pvalue:
 			return true

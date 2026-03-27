@@ -1,8 +1,10 @@
 @abstract
 class_name InspectableObject extends Resource
 
+signal property_changed(property_name: String)
+
 var _properties: Dictionary[String, Property] = {}
-var _observers: Array[Callable] = []
+var _children: Dictionary[String, Array] = {} # Children object of properties
 var history: CommandManager
 var settings: Dictionary = {}
 
@@ -35,27 +37,7 @@ func define_property(
 	var property: Property = Property.new(pname, default_value, type, merged_settings)
 	_properties.set(pname, property)
 
-	property.value_changed.connect(func(_old: Variant, _new: Variant) -> void: _notify_change(pname))
-
-
-func add_observer(callable: Callable) -> void:
-	if callable in _observers:
-		push_warning("Observer is already registered.")
-		return
-
-	_observers.append(callable)
-
-
-func remove_observer(callable: Callable) -> void:
-	_observers.erase(callable)
-
-
-func _notify_change(pname: String) -> void:
-	for observer: Callable in _observers:
-		if not observer or not observer.is_valid() or observer.get_object() == null:
-			_observers.erase(observer)
-			continue
-		observer.call(self, pname)
+	property.value_changed.connect(func(_old: Variant, _new: Variant) -> void: property_changed.emit(pname))
 
 
 func get_properties() -> Array[Property]:
@@ -94,7 +76,7 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)
 	history.execute(command)
 
-	_notify_change(pname)
+	property_changed.emit(pname)
 
 
 func set_property_settings_value(pname: String, skey: String, svalue: Variant) -> void:
@@ -107,6 +89,25 @@ func set_property_settings_value(pname: String, skey: String, svalue: Variant) -
 		self, pname, skey, old_value, svalue
 	)
 	history.execute(command)
+
+
+func get_property_children(property_name: String) -> Array:
+	return _children.get(property_name, [])
+
+
+func set_property_children(property_name: String, objects: Array) -> void:
+	return _children.set(property_name, objects)
+
+
+func add_property_children(property_name: String, object: InspectableObject) -> void:
+	_children.get_or_add(property_name)
+	_children.get(property_name).append(object)
+
+
+func remove_property_children(property_name: String, object: InspectableObject) -> void:
+	if not property_name in _children:
+		return
+	_children.get(property_name).erase(object)
 
 
 func _to_dict() -> Dictionary:

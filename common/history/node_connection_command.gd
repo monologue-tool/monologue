@@ -85,11 +85,11 @@ func _notify_node_changes() -> void:
 
 	if not from_nodes.is_empty():
 		var from_node: InspectableNode = from_nodes[0]
-		from_node._notify_change(from_node_id)
+		from_node.property_changed.emit(from_node_id)
 
 	if not to_nodes.is_empty():
 		var to_node: InspectableNode = to_nodes[0]
-		to_node._notify_change(to_property_name)
+		to_node.property_changed.emit(to_property_name)
 
 
 func get_description() -> String:

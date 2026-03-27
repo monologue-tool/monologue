@@ -21,10 +21,6 @@ func _init(command_manager: CommandManager = null) -> void:
 	super._init(command_manager)
 
 
-func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
-	pass
-
-
 ## Define a main property for this list item.
 ## Items with a main property are automatically exported as sub-ports on the graph.
 func define_main_property(pname: String, type: String) -> void:
@@ -37,6 +33,10 @@ func define_main_property(pname: String, type: String) -> void:
 
 func has_main_property() -> bool:
 	return _main_property_defined
+
+
+func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
+	pass
 
 
 @abstract func get_preview_property_names() -> Array[String]

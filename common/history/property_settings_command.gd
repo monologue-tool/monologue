@@ -25,7 +25,7 @@ func execute() -> void:
 	var property: Property = target.get_property(property_name)
 	property._overrides[settings_name] = new_value
 	_handle_connection_visibility(new_value)
-	target._notify_change(property_name)
+	target.property_changed.emit(property_name)
 	property.refresh_bindings()
 
 
@@ -36,7 +36,7 @@ func undo() -> void:
 	else:
 		property._overrides.erase(settings_name)
 	_handle_connection_visibility(old_value)
-	target._notify_change(property_name)
+	target.property_changed.emit(property_name)
 	property.refresh_bindings()
 
 

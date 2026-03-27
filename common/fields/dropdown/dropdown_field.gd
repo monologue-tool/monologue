@@ -57,7 +57,7 @@ func _setup_source_listener() -> void:
 		# Listen for changes to the source property
 		var storyline: InspectableObject = _get_storyline()
 		if storyline:
-			storyline.add_observer(_on_source_changed)
+			storyline.property_changed.connect(_on_source_changed)
 			if not _is_listening and storyline.history:
 				storyline.history.command_executed.connect(_on_storyline_command_executed)
 				storyline.history.redone.connect(_on_storyline_command_executed)
@@ -65,7 +65,7 @@ func _setup_source_listener() -> void:
 				_is_listening = true
 
 
-func _on_source_changed(_obj: InspectableObject, property_name: String) -> void:
+func _on_source_changed(property_name: String) -> void:
 	if not _binding or not _binding.property:
 		return
 

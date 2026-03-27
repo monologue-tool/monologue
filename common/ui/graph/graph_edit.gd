@@ -67,8 +67,8 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 	# Add to scene and set initial position
 	add_child(graph_node)
-	if not _on_inspectable_node_property_changed in node._observers:
-		node.add_observer(_on_inspectable_node_property_changed)
+	if node.property_changed.is_connected(_on_inspectable_node_property_changed):
+		node.property_changed.connect(_on_inspectable_node_property_changed)
 
 	# Apply initial position from property
 	_sync_position_from_property(node)
