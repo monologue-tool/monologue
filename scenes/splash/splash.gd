@@ -16,7 +16,10 @@ func _process(_delta: float) -> void:
 
 	if status == ResourceLoader.ThreadLoadStatus.THREAD_LOAD_LOADED:
 		var scene: PackedScene = ResourceLoader.load_threaded_get(load_scene)
+		_switch_to_scene(scene)
 
+
+func _switch_to_scene(scene: PackedScene) -> void:
 		sprite.play("blink")
 		await sprite.animation_finished
 

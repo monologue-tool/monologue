@@ -1,23 +1,12 @@
 @abstract
 class_name ListItem extends InspectableObject
 
-const ID_LENGTH: int = 6
 
 var storyline_id: String = ""
 var _main_property_defined: bool = false
 
 
 func _init(command_manager: CommandManager = null) -> void:
-	define_property(
-		"id",
-		IDGen.generate(ID_LENGTH),
-		"text",
-		{
-			"visible_in_inspector": true,
-			"flat": true,
-		},
-		"Special:Header"
-	)
 	super._init(command_manager)
 
 

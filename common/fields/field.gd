@@ -45,7 +45,7 @@ func emit_value_changed(value: Variant) -> void:
 
 
 func emit_value_committed(value: Variant) -> void:
-	Log.debug("Field value of property '%s' has been committed." % _binding.property.name)
+	Log.info("Field value of property '%s' has been committed." % _binding.property.name)
 	value_committed.emit(value)
 
 

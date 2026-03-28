@@ -1,8 +1,6 @@
 @abstract
 class_name InspectableNode extends InspectableObject
 
-const ID_LENGTH: int = 6
-
 var graph_view: GraphNode
 var storyline_id: String = ""
 var _main_property_defined: bool = false
@@ -18,18 +16,6 @@ func _init(command_manager: CommandManager = null) -> void:
 			"visible_in_inspector": true,
 			"flat": true,
 			"expand": false,
-		},
-		"Special:Header"
-	)
-	define_property(
-		"id",
-		IDGen.generate(ID_LENGTH),
-		"text",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"flat": true,
-			"unique": true,
 		},
 		"Special:Header"
 	)

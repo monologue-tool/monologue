@@ -226,7 +226,7 @@ func _add_button(
 
 
 func _on_duplicate_item(index: int) -> void:
-	var children: Array[InspectableObject] = _get_children()
+	var children: Array = _get_children()
 	if not _is_valid_index(index):
 		return
 

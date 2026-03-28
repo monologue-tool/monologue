@@ -40,6 +40,7 @@ func _on_history_undo_redo() -> void:
 
 
 func inspect(object: InspectableObject) -> void:
+	Log.info("Inspect object", object.get_property_value("id") if object else "<null>")
 	var old_root: InspectableObject = current_object
 	if old_root and old_root != object:
 		var old_node: InspectableNode = old_root as InspectableNode
@@ -53,7 +54,6 @@ func inspect(object: InspectableObject) -> void:
 
 func rebuild() -> void:
 	var inspected: InspectableObject = current_object
-	Log.info("InspectorPanel, rebuild triggered.")
 	run_button.visible = current_object is InspectableNode
 	_fields.clear()
 	await get_tree().process_frame # TODO: Bad practice
@@ -71,36 +71,35 @@ func rebuild() -> void:
 		label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		field_container.add_child(label)
-		_pending_expand_category = ""
-		return
-
-	var properties: Array[Property] = inspected.get_properties()
-	var categories: Dictionary = _group_by_category(properties)
-	
-	for category_name: String in categories.keys():
-		var props: Array = categories[category_name]
-
-		if category_name.begins_with("Special"):
-			var special_category: String = category_name.trim_prefix("Special:")
-			_handle_special_category_section(special_category, props)
-			continue
+	else:
+		var properties: Array[Property] = inspected.get_properties()
+		var categories: Dictionary = _group_by_category(properties)
 		
-		_create_category_section(category_name, props)
-	
-	# Restore focus after rebuild completes
-	#var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	#if focus_owner and focus_owner.is_inside_tree():
-		#var node: Node = focus_owner
-		#while node:
-			#if node.has_meta("property_name"):
-				#var prop_name: String = str(node.get_meta("property_name"))
-				## Property had focus before rebuild
-				#await get_tree().process_frame
-				#_restore_focus_to_property(prop_name)
-				#break
-			#node = node.get_parent()
+		for category_name: String in categories.keys():
+			var props: Array = categories[category_name]
+
+			if category_name.begins_with("Special"):
+				var special_category: String = category_name.trim_prefix("Special:")
+				_handle_special_category_section(special_category, props)
+				continue
+			
+			_create_category_section(category_name, props)
+		
+		# Restore focus after rebuild completes
+		#var focus_owner: Control = get_viewport().gui_get_focus_owner()
+		#if focus_owner and focus_owner.is_inside_tree():
+			#var node: Node = focus_owner
+			#while node:
+				#if node.has_meta("property_name"):
+					#var prop_name: String = str(node.get_meta("property_name"))
+					## Property had focus before rebuild
+					#await get_tree().process_frame
+					#_restore_focus_to_property(prop_name)
+					#break
+				#node = node.get_parent()
 
 	_pending_expand_category = ""
+	Log.info("Inspector rebuilt")
 
 
 func _find_labels(node: Node, labels: Array) -> void:
@@ -351,6 +350,8 @@ func _refresh_all_property_bindings() -> void:
 		return
 	for property: Property in current_object.get_properties():
 		property.refresh_bindings()
+	
+	Log.debug("Property bindings refreshed")
 
 
 func _refresh_property_binding(property_name: String) -> bool:

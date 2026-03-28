@@ -1,6 +1,8 @@
 @abstract
 class_name InspectableObject extends Resource
 
+const ID_LENGTH: int = 6
+
 signal property_changed(property_name: String)
 
 var _properties: Dictionary[String, Property] = {}
@@ -13,6 +15,19 @@ func _init(command_manager: CommandManager = null) -> void:
 	if not command_manager:
 		push_warning("InspectableObject does not have a command manager.")
 	history = command_manager
+	
+	define_property(
+		"id",
+		IDGen.generate(ID_LENGTH),
+		"text",
+		{
+			"visible_in_graph": false,
+			"visible_in_inspector": true,
+			"flat": true,
+			"unique": true,
+		},
+		"Special:Header"
+	)
 
 	initialize_properties()
 	_load_settings()
