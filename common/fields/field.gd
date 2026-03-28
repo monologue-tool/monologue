@@ -11,10 +11,6 @@ signal value_changed(new_value: Variant)
 ## This is the only signal that writes data to the model.
 signal value_committed(new_value: Variant)
 
-## Emitted when the GraphNode visual should be refreshed (e.g. color or label changed).
-## FieldBinding calls owner.rebuild_preview(). Independent of data persistence.
-signal preview_changed
-
 var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
 
@@ -44,14 +40,12 @@ func _on_initialize() -> void:
 
 
 func emit_value_changed(value: Variant) -> void:
+	Log.debug("Field value of property '%s' has changed." % _binding.property.name)
 	value_changed.emit(value)
 
 
-func emit_preview_changed() -> void:
-	preview_changed.emit()
-
-
 func emit_value_committed(value: Variant) -> void:
+	Log.debug("Field value of property '%s' has been committed." % _binding.property.name)
 	value_committed.emit(value)
 
 

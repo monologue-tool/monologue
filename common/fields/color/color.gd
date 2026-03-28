@@ -62,9 +62,7 @@ func _on_color_swatch_pressed(color_string: String) -> void:
 	color_popup.hide()
 	_update_preview()
 
-	emit_value_changed(color_string)
 	emit_value_committed(color_string)
-	emit_preview_changed()
 
 
 func _update_preview() -> void:

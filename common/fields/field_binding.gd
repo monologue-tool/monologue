@@ -33,7 +33,6 @@ func initialize() -> void:
 	field.initialize(self)
 	field.value_changed.connect(_on_field_value_changed)
 	field.value_committed.connect(_on_field_value_committed)
-	field.preview_changed.connect(_on_field_preview_changed)
 	if property:
 		property.value_changed.connect(_on_property_value_changed)
 	field.tree_exiting.connect(_on_field_tree_exiting)
@@ -51,8 +50,6 @@ func release() -> void:
 			field.value_changed.disconnect(_on_field_value_changed)
 		if field.value_committed.is_connected(_on_field_value_committed):
 			field.value_committed.disconnect(_on_field_value_committed)
-		if field.preview_changed.is_connected(_on_field_preview_changed):
-			field.preview_changed.disconnect(_on_field_preview_changed)
 		if field.tree_exiting.is_connected(_on_field_tree_exiting):
 			field.tree_exiting.disconnect(_on_field_tree_exiting)
 	if property and property.value_changed.is_connected(_on_property_value_changed):
@@ -114,7 +111,11 @@ func _on_field_value_committed(value: Variant) -> void:
 	_process_field_value(value, true)
 
 
-func _on_field_preview_changed() -> void:
+func _refresh_owner_preview_from_change() -> void:
+	if _is_syncing or _is_released:
+		return
+	if not owner or not is_instance_valid(owner):
+		return
 	owner.rebuild_preview()
 
 

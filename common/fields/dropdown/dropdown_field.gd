@@ -207,7 +207,6 @@ func _get_storyline() -> InspectableObject:
 
 func _on_item_selected(index: int) -> void:
 	var text: String = option_button.get_item_text(index)
-	emit_value_changed(text)
 	emit_value_committed(text)
 
 
