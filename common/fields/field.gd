@@ -14,10 +14,6 @@ signal value_committed(new_value: Variant)
 var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
 
-## Guard flag: true while this field is broadcasting its own snapshot value.
-## FieldBinding checks this to avoid clobbering live data during emission.
-var is_emitting_snapshot: bool = false
-
 var settings: Dictionary = {}
 
 
@@ -56,10 +52,6 @@ func display_error(message: String) -> void:
 
 func clear_error() -> void:
 	display_error("")
-
-
-func after_commit(_value: Variant) -> void:
-	pass
 
 
 @abstract func set_value(value: Variant) -> void

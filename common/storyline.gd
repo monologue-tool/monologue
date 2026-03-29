@@ -5,7 +5,7 @@ signal node_removed
 signal content_changed
 signal undo_redo_changed
 
-var id: String = IDGen.generate()
+var id: String : get = _get_id
 var name: String = ""
 var nodes: Array[InspectableNode] = []
 var file_path: String = ""
@@ -136,6 +136,10 @@ func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Varia
 
 func build_graph_preview() -> Array[Control]:
 	return []
+
+
+func _get_id() -> String:
+	return get_property_value("id")
 
 
 func _on_command_executed() -> void:

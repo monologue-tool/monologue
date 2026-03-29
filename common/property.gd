@@ -5,6 +5,7 @@ signal connection_changed()
 
 var name: String = ""
 var value: Variant = 0
+var default_value: Variant = null
 var type: String = ""
 ## Base settings: defaults + descriptor defaults + constructor overrides. Read-only after init.
 var _base_settings: Dictionary = {}
@@ -44,6 +45,7 @@ var connected_to: Array[Dictionary] = []
 
 func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary = {}) -> void:
 	name = pname
+	default_value = pvalue
 	value = pvalue
 	if pvalue is Callable:
 		value = pvalue.call()

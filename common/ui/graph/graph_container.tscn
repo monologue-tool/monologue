@@ -22,7 +22,7 @@ script = ExtResource("1_plmop")
 [node name="GraphEdit" parent="." unique_id=2027188591 instance=ExtResource("8_qfao8")]
 unique_name_in_owner = true
 layout_mode = 2
-scroll_offset = Vector2(-45, -12)
+scroll_offset = Vector2(-12, -12)
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1346988199]
 layout_mode = 2

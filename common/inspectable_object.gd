@@ -1,7 +1,7 @@
 @abstract
 class_name InspectableObject extends Resource
 
-const ID_LENGTH: int = 6
+const ID_LENGTH: int = 8
 
 signal property_changed(property_name: String)
 
@@ -109,11 +109,16 @@ func get_property_children(property_name: String) -> Array:
 
 
 func set_property_children(property_name: String, objects: Array) -> void:
+	for object: InspectableObject in objects:
+		object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+	
 	return _children.set(property_name, objects)
 
 
 func add_property_children(property_name: String, object: InspectableObject) -> void:
-	_children.get_or_add(property_name)
+	object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+	
+	_children.get_or_add(property_name, [])
 	_children.get(property_name).append(object)
 
 
@@ -121,6 +126,29 @@ func remove_property_children(property_name: String, object: InspectableObject) 
 	if not property_name in _children:
 		return
 	_children.get(property_name).erase(object)
+
+
+func move_property_child(property_name: String, object: InspectableObject, to_index: int) -> void:
+	if not property_name in _children:
+		return
+	
+	var children_array: Array = _children.get(property_name)
+	var current_index: int = children_array.find(object)
+	
+	if current_index == -1:
+		return
+	
+	children_array.remove_at(current_index)
+	children_array.insert(to_index, object)
+
+
+func _on_property_children_property_change(_children_property_name: String, property_name: String) -> void:
+	var childrens: Array = get_property_children(property_name)
+	var value: Array = []
+	for object: InspectableObject in childrens:
+		value.append(object._to_dict())
+	
+	set_property_value(property_name, value)
 
 
 func _to_dict() -> Dictionary:

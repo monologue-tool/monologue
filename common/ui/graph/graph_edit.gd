@@ -14,6 +14,18 @@ var _is_applying_position: bool = false
 func _ready() -> void:
 	super._ready()
 	StorylineManager.storyline_switched.connect(_on_storyline_switched)
+	
+	connection_request.connect(_on_connection_request)
+	connection_to_empty.connect(_on_connection_to_empty)
+	copy_nodes_request.connect(_on_copy_nodes_request) 
+	cut_nodes_request.connect(_on_cut_nodes_request)
+	delete_nodes_request.connect(_on_delete_nodes_request)
+	disconnection_request.connect(_on_disconnection_request)
+	#duplicate_nodes_request.connect(_on_duplicate_node_request)
+	end_node_move.connect(_on_end_node_move)
+	node_deselected.connect(_on_node_deselected)
+	node_selected.connect(_on_node_selected)
+	paste_nodes_request.connect(_on_paste_nodes_request)
 
 
 func refresh() -> void:
@@ -67,15 +79,15 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 	# Add to scene and set initial position
 	add_child(graph_node)
-	if node.property_changed.is_connected(_on_inspectable_node_property_changed):
-		node.property_changed.connect(_on_inspectable_node_property_changed)
+	if not node.property_changed.is_connected(_on_inspectable_node_property_changed):
+		node.property_changed.connect(_on_inspectable_node_property_changed.bind(node))
 
 	# Apply initial position from property
 	_sync_position_from_property(node)
 
 
 ## Called when InspectableNode property changes (undo/redo, programmatic)
-func _on_inspectable_node_property_changed(node: InspectableNode, property_name: String) -> void:
+func _on_inspectable_node_property_changed(property_name: String, node: InspectableNode) -> void:
 	if property_name == "position":
 		if not _is_applying_position:
 			_sync_position_from_property(node)

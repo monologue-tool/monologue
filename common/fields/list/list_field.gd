@@ -18,16 +18,10 @@ func _on_initialize() -> void:
 		push_error("ListField is not binded.")
 	
 	var collection: Variant = property.get_settings_value("collection")
-	if not collection:
-		push_error("Collection is missing.")
-		return
-	
-	if not CollectionBucket.get_descriptor(str(collection)):
+	if not collection or  not CollectionBucket.get_descriptor(str(collection)):
 		push_error("Can't find collection %s." % str(collection))
-	
 	_collection_name = collection
 
-	# Listen for connection changes to rebuild imported items
 	if not property.connection_changed.is_connected(_on_connection_changed):
 		property.connection_changed.connect(_on_connection_changed)
 
@@ -49,34 +43,38 @@ func show_all_items() -> void:
 
 
 func set_value(value: Variant) -> void:
-	if not is_node_ready():
-		await ready
+	var outdated_childrens: Array = _get_children().duplicate()
+	for item_data: Dictionary in value:
+		var child_found: bool = false
+		for child: ListItem in outdated_childrens:
+			if item_data != child._to_dict():
+				continue
+			
+			outdated_childrens.erase(child)
+			child_found = true
+		
+		 # If there is no ListItem for this item, we create one.
+		if not child_found:
+			var item: ListItem = _create_new_list_item(item_data)
+			_binding.owner.add_property_children(_binding.property.name, item)
 
-	if not _binding or not _binding.owner:
-		return
-
-	var prop_name: String = _binding.property.name
-	var items: Array = _get_children()
-	var data: Array = value if value is Array else []
 	
-	while items.size() > data.size():
-		_binding.owner.remove_property_children(prop_name, items.back())
-		items = _get_children()
-
-	var command_manager: CommandManager = _binding.owner.history
-	while items.size() < data.size():
-		var new_item: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
-		if not new_item:
+	for child: ListItem in outdated_childrens:
+		_binding.owner.remove_property_children(_binding.property.name, child)
+	
+	for child: ListItem in _get_children():
+		if child.property_changed.is_connected(_on_item_property_changed):
 			continue
-		_connect_item_observer(new_item)
-		items.append(new_item)
-
-	for i: int in data.size():
-		var current: ListItem = items[i]
-		current._from_dict(data[i])
-		current.set_meta("list_siblings", items)
-
-	_binding.owner.set_property_children(prop_name, items)
+		
+		child.property_changed.connect(_on_item_property_changed.bind(child))
+	
+	for i in range(value.size()):
+		var item_data: Dictionary = value[i]
+		for child: ListItem in _get_children():
+			if child._to_dict() == item_data:
+				_binding.owner.move_property_child(_binding.property.name, child, i)
+				break
+	
 	_rebuild_ui()
 
 
@@ -87,39 +85,11 @@ func get_value() -> Variant:
 	return result
 
 
-func _rebuild_ui() -> void:
-	_clear_container()
-
-	for item: InspectableObject in _get_children():
-		var item_container: PanelContainer = PanelContainer.new()
-		item_container.theme_type_variation = "ListItemContainer"
-		var main_vbox: VBoxContainer = _create_item_view()
-		item_container.add_child(main_vbox)
-		items_container.add_child(item_container)
-		_populate_item_view(main_vbox, item)
-
-	_populate_external_items()
-
-
-func _connect_item_observer(item: ListItem) -> void:
-	item.property_changed.connect(_on_item_changed)
-
-
-func _on_item_changed(_prop_name: String) -> void:
-	_emit_snapshot()
-
-
-func get_item_index(item: ListItem) -> int:
-	return _get_children().find(item)
-
-
-func set_editable(is_editable: bool) -> void:
-	if not is_instance_valid(items_container):
-		return
-
-	for child: Node in items_container.get_children():
-		if child.has_method("set_editable"):
-			child.call("set_editable", is_editable)
+func _create_new_list_item(from_data: Dictionary = {}) -> ListItem:
+	var item: ListItem = CollectionBucket.create_item(_collection_name, _binding.owner.history)
+	item._from_dict(from_data)
+	
+	return item
 
 
 func _clear_container() -> void:
@@ -127,147 +97,86 @@ func _clear_container() -> void:
 		item.queue_free()
 
 
-func _create_item_view() -> VBoxContainer:
-	var vbox: VBoxContainer = VBoxContainer.new()
-	return vbox
-
-
-func _populate_item_view(item_view: VBoxContainer, item: ListItem) -> void:
-	var index: int = get_item_index(item)
+func _rebuild_ui() -> void:
+	if not is_node_ready():
+		await ready
 	
-	for prop: Property in item.get_properties():
-		if not prop.name in item.get_preview_property_names():
-			continue
-			
-		var field_container: VBoxContainer = VBoxContainer.new()
-		var field: Field = FieldBucket.create_field(prop.type)
-		var field_title: HBoxContainer = _create_field_title(prop)
-		
-		field_container.add_child(field_title)
-		field_container.add_child(field)
-		item_view.add_child(field_container)
-		
-		prop.bind_field(field, item)
-		
-	_make_item_header(item_view, index, item)
-
-
-func _create_field_title(prop: Property) -> HBoxContainer:
-	var field_name: String = prop.name
-	var field_config: Dictionary = prop.get_settings()
+	_clear_container()
 	
-	var title_container: HBoxContainer = HBoxContainer.new()
-	title_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var label: Label = Label.new()
-	label.text = Util.to_readable_name(field_name)
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	if field_config.has("tooltip"):
-		label.tooltip_text = field_config["tooltip"]
-
-	title_container.add_child(label)
-	return title_container
+	var items: Array = _get_children()
+	for item: ListItem in items:
+		var item_view: VBoxContainer = VBoxContainer.new()
+		var item_idx: int = items.find(item)
+		
+		items_container.add_child.call_deferred(item_view)
+		ListItemHelper.populate_item_view.call_deferred(self, item_view, item, item_idx)
+	
+	_populate_external_items()
 
 
-func _get_or_create_header_container(content: Control) -> HBoxContainer:
-	if content.get_child_count() == 0:
-		return HBoxContainer.new()
-
-	var first_child: Node = content.get_child(0)
-	if not first_child is BoxContainer or first_child.get_child_count() == 0:
-		return HBoxContainer.new()
-
-	var header_candidate: Node = first_child.get_child(0)
-	if header_candidate is HBoxContainer:
-		return header_candidate
-
-	return HBoxContainer.new()
+func get_item_index(item: ListItem) -> int:
+	return _get_children().find(item)
 
 
-func _make_item_header(
-	content: Control,
-	index: int,
-	item: ListItem,
-) -> HBoxContainer:
-	var header: HBoxContainer = _get_or_create_header_container(content)
-	var is_protected: bool = item.get_property_value("protected") == true
-	var actions: Array = ["edit", "duplicate", "delete"] if not is_protected else ["edit"]
-	var icons: Dictionary = {
-		"delete": preload("res://ui/assets/icons/trash.svg"),
-		"edit": preload("res://ui/assets/icons/pen.svg"),
-		"duplicate": preload("res://ui/assets/icons/copy.png")
-	}
+func set_editable(is_editable: bool) -> void:
+	if not is_node_ready():
+		await ready
+	
+	for child: Node in items_container.get_children():
+		if child.has_method("set_editable"):
+			child.call("set_editable", is_editable)
 
-	for action: String in actions:
-		var icon: Texture2D = icons[action]
-		_add_button(
-			header,
-			index,
-			action,
-			action.capitalize() + " item",
-			icon,
-		)
+func _on_item_property_changed(_property_name: String, _item: ListItem) -> void:
+	# The undo/redo is handle by the ListItem it self.
+	# We're just updating the value of the list property.
+	_binding.property.value = get_value()
 
-	return header
 
-func _add_button(
-	header: HBoxContainer,
-	index: int,
-	action_name: String,
-	tooltip: String,
-	icon: Texture2D
-) -> void:
-	var button: Button = Button.new()
-	button.icon = icon
-	button.tooltip_text = tooltip
-	button.pressed.connect(call.bind("_on_%s_item" % action_name, index))
-	header.add_child(button)
+func _on_edit_item(index: int) -> void:
+	var item: ListItem = _get_children()[index]
+	EventBus.request_object_inspection.emit(item)
 
 
 func _on_duplicate_item(index: int) -> void:
 	var children: Array = _get_children()
 	if not _is_valid_index(index):
 		return
-
+		
 	var item_data: Dictionary = children[index]._to_dict()
-	var command_manager: CommandManager = _binding.owner.history
-	var new_item: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
-	if not new_item:
-		return
-
+	var new_item: ListItem = CollectionBucket.create_item(_collection_name, _binding.owner.history)
 	new_item._from_dict(item_data)
-	new_item.set_meta("list_siblings", children)
-	var name_prop: Property = new_item.get_property("name")
-	if name_prop:
-		name_prop.value = str(name_prop.value) + " (Copy)"
-
-	_connect_item_observer(new_item)
-	children.insert(index + 1, new_item)
-	_binding.owner.set_property_children(_binding.property.name, children)
-	_rebuild_ui()
-	_emit_snapshot()
+	
+	for prop: Property in new_item.get_properties():
+		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
+			continue
+		
+		if prop.name == "id":
+			prop.value = IDGen.generate(InspectableObject.ID_LENGTH)
+		
+		var base_val: String = str(prop.value)
+		var regex := RegEx.new()
+		regex.compile(r"^(.*?)(\d+)$")
+		var result := regex.search(base_val)
+		var name_base: String = base_val + " "
+		var attempt: int = 1
+		
+		if result:
+			name_base = result.get_string(1) 
+			attempt = int(result.get_string(2)) + 1
+		
+		while _value_exists_in_list(prop.name, prop.value):
+			prop.value = "%s%d" % [name_base, attempt]
+			attempt += 1
+			
+	_binding.owner.add_property_children(_binding.property.name, new_item)
+	emit_value_committed(get_value())
 
 
 func _on_delete_item(index: int) -> void:
-	var children: Array = _get_children()
-	if not _is_valid_index(index):
-		return
-
-	var item: ListItem = children[index]
-	if item.get_property_value("protected") == true:
-		push_warning("Cannot delete protected item")
-		return
-	
+	var item: ListItem = _get_children()[index]
 	_binding.owner.remove_property_children(_binding.property.name, item)
-	_rebuild_ui()
-	_emit_snapshot()
-
-
-func _on_edit_item(index: int) -> void:
-	if not _binding or not _binding.property:
-		return
-	EventBus.request_object_inspection.emit(_get_children()[index])
+	
+	emit_value_committed(get_value())
 
 
 func _is_valid_index(index: int) -> bool:
@@ -275,28 +184,10 @@ func _is_valid_index(index: int) -> bool:
 
 
 func add_item() -> void:
-	if not _binding or not _binding.owner:
-		return
+	var new_item: ListItem = _create_new_list_item()
+	_binding.owner.add_property_children(_binding.property.name, new_item)
 	
-	var command_manager: CommandManager = _binding.owner.history
-	var item_object: ListItem = CollectionBucket.create_item(_collection_name, command_manager)
-	if not item_object:
-		return
-	for prop: Property in item_object.get_properties():
-		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
-			continue
-		var base_val: String = str(prop.value)
-		var attempt: int = 1
-		while _value_exists_in_list(prop.name, prop.value):
-			prop.value = "%s %d" % [base_val, attempt]
-			attempt += 1
-	var prop_value: Variant = _binding.property.get_value()
-	var new_item_list: Array = []
-	if prop_value is Array:
-		var arr: Array = prop_value
-		new_item_list = arr.duplicate(true)
-	new_item_list.append(item_object._to_dict())
-	_binding.owner.set_property_value(_binding.property.name, new_item_list)
+	emit_value_committed(get_value())
 
 
 func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
@@ -307,68 +198,14 @@ func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
 	return false
 
 
-func emit_value_committed(value: Variant) -> void:
-	is_emitting_snapshot = true
-	super.emit_value_committed(value)
-	is_emitting_snapshot = false
-	
-
-func _emit_snapshot() -> void:
-	emit_value_committed(get_value())
-
-
 func _on_connection_changed() -> void:
 	_rebuild_ui()
 
 
 func _populate_external_items() -> void:
-	if not _binding or not _binding.owner:
-		return
 	var externals: Array[Dictionary] = _binding.owner.get_external_list_items(_binding.property.name)
-	if externals.is_empty():
-		return
-
+	
 	for ext_data: Dictionary in externals:
-		var item_container: PanelContainer = PanelContainer.new()
-		item_container.theme_type_variation = "ListItemContainer"
-		item_container.modulate = Color(1, 1, 1, 0.6)
-
-		var main_vbox: VBoxContainer = VBoxContainer.new()
-		item_container.add_child(main_vbox)
-
-		var header: HBoxContainer = HBoxContainer.new()
-		var ext_label: Label = Label.new()
-		ext_label.text = ext_data.get("name", "External")
-		ext_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		header.add_child(ext_label)
-
-		var badge: Label = Label.new()
-		badge.text = "(imported)"
-		badge.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-		header.add_child(badge)
-
-		main_vbox.add_child(header)
-
-		# Show text preview if available
-		var text_val: Variant = ext_data.get("text", "")
-		if text_val is Dictionary:
-			var text_dict: Dictionary = text_val
-			text_val = text_dict.get("value", "")
-		if not str(text_val).is_empty():
-			var text_label: Label = Label.new()
-			text_label.text = str(text_val)
-			text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			text_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
-			main_vbox.add_child(text_label)
-
-		items_container.add_child(item_container)
-
-
-func undo() -> void:
-	#_command_manager.undo()
-	_rebuild_ui()
-
-
-func redo() -> void:
-	#_command_manager.redo()
-	_rebuild_ui()
+		var item_view: PanelContainer = PanelContainer.new()
+		ListItemHelper.populate_external_item_view(item_view, ext_data.get("name", "<unknown>"))
+		items_container.add_child.call_deferred(item_view)

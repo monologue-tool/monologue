@@ -70,10 +70,6 @@ func _sync_from_property() -> void:
 		return
 	if not field.is_inside_tree():
 		return
-	# Guard: don't clobber a field that is broadcasting its own snapshot
-	# the field data is already the source of truth during that call.
-	if field.is_emitting_snapshot:
-		return
 	_is_syncing = true
 	var _sync_value: Variant = property.get_value()
 	if _sync_value == null and descriptor != null and descriptor.default_value != null:
@@ -96,7 +92,7 @@ func _update_editable_state() -> void:
 
 
 func _on_field_value_changed(value: Variant) -> void:
-	if _is_syncing or _is_released:
+	if _is_syncing or _is_released or value == property.get_value():
 		return
 	if not is_instance_valid(field) or not field.is_inside_tree():
 		return
@@ -104,11 +100,13 @@ func _on_field_value_changed(value: Variant) -> void:
 
 
 func _on_field_value_committed(value: Variant) -> void:
-	if _is_syncing or _is_released:
+	if _is_syncing or _is_released or value == property.get_value():
 		return
 	if not is_instance_valid(field) or not field.is_inside_tree():
 		return
 	_process_field_value(value, true)
+	_refresh_owner_preview_from_change()
+
 
 
 func _refresh_owner_preview_from_change() -> void:
@@ -135,46 +133,27 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 	var formatted_value: Variant = descriptor.format(value)
 	if owner and not is_commit:
 		return
-	# Unique constraint check — only makes sense when the owner is a ListItem
-	# embedded inside a ListField. We use the stored siblings array (not the
-	# ListField node itself, which may have been freed if the inspector switched).
+	# Generic unique validation check warning
 	if is_commit and property.get_settings_value(PropertySettings.KEY_UNIQUE, false):
-		if owner is ListItem and owner.has_meta("list_siblings"):
-			var siblings: Array = owner.get_meta("list_siblings")
-			for sibling: ListItem in siblings:
-				if not is_instance_valid(sibling):
-					continue
-				if sibling.get_instance_id() == owner.get_instance_id():
-					continue
-				var sibling_prop: Property = sibling.get_property(property.name)
-				if sibling_prop and sibling_prop.get_value() == formatted_value:
-					if is_instance_valid(field):
-						field.display_error("Value already exists.")
-					return
+		if owner and not owner.has_method("apply_property_commit"):
+			push_warning("Unique validation requires an owner with 'apply_property_commit'.")
+
 	_is_syncing = true
-	if owner:
+	
+	if owner and is_commit and owner.has_method("apply_property_commit"):
+		var commit_success: bool = owner.apply_property_commit(property.name, formatted_value)
+		if not commit_success:
+			if is_instance_valid(field):
+				field.display_error("Value already exists.")
+			_is_syncing = false
+			return
+	elif owner:
 		owner.set_property_value(property.name, formatted_value)
-		# When a ListItem is inspected directly, its parent ListField may already be
-		# freed. In that case the normal _on_item_changed → _emit_snapshot() path is
-		# gone, so we push the snapshot to the parent property ourselves.
-		if owner is ListItem and owner.has_meta("_list_field_ref"):
-			var lf_ref: WeakRef = owner.get_meta("_list_field_ref")
-			if lf_ref.get_ref() == null:  # ListField has been freed
-				var parent_owner: InspectableObject = owner.get_meta("_parent_owner", null)
-				var parent_prop_name: String = owner.get_meta("_parent_prop_name", "")
-				if is_instance_valid(parent_owner) and not parent_prop_name.is_empty():
-					var siblings: Array = owner.get_meta("list_siblings", [])
-					var snapshot: Array = []
-					for s: ListItem in siblings:
-						if is_instance_valid(s):
-							snapshot.append(s._to_dict())
-					parent_owner.set_property_value(parent_prop_name, snapshot)
 	else:
 		property.set_value(formatted_value)
+		
 	_is_syncing = false
 	_sync_from_property()
-	if is_commit:
-		field.after_commit(property.get_value())
 
 
 func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> void:

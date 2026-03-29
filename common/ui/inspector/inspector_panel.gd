@@ -36,7 +36,7 @@ func _on_storyline_switched() -> void:
 ## Called after every undo or redo. Re-resolves the inspection stack from the
 ## root so stale ListItem references are replaced with fresh objects, then rebuilds.
 func _on_history_undo_redo() -> void:
-	_refresh_all_property_bindings()
+	rebuild()
 
 
 func inspect(object: InspectableObject) -> void:
@@ -99,7 +99,6 @@ func rebuild() -> void:
 				#node = node.get_parent()
 
 	_pending_expand_category = ""
-	Log.info("Inspector rebuilt")
 
 
 func _find_labels(node: Node, labels: Array) -> void:
@@ -332,33 +331,13 @@ func _on_external_property_changed(
 		return
 	
 	if current_object in obj.get_property_children(property_name):
+		print("yooo")
 		return
 
 	_pending_expand_category = property.get_category()
 
 	if obj == current_object:
-		if _refresh_property_binding(property_name):
-			return
 		rebuild()
 		return
 
 	inspect(obj)
-
-
-func _refresh_all_property_bindings() -> void:
-	if not current_object:
-		return
-	for property: Property in current_object.get_properties():
-		property.refresh_bindings()
-	
-	Log.debug("Property bindings refreshed")
-
-
-func _refresh_property_binding(property_name: String) -> bool:
-	if not current_object:
-		return false
-	var property: Property = current_object.get_property(property_name)
-	if not property:
-		return false
-	property.refresh_bindings()
-	return true

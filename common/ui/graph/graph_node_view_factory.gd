@@ -93,7 +93,6 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		container.add_child(value_label)
 		graph_node.add_child(container)
 
-		# Apply large port size if configured
 		if row.port_size == "large":
 			container.custom_minimum_size.y = 32
 
@@ -121,7 +120,6 @@ static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void
 	if not is_instance_valid(graph_node):
 		return
 	graph_node.title = Util.to_readable_name(node.get_type())
-	# Use node id as the graph node name to make connections rely on ids only
 	var id_prop: Property = node.get_property("id")
 	graph_node.name = str(id_prop.get_value()) if id_prop else _derive_node_name(node)
 
@@ -138,7 +136,6 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 			continue
 		rows.append(row)
 
-		# For list properties with a main_property collection, auto-export all items
 		if prop.type == "list":
 			rows.append_array(_build_list_sub_rows(node, prop))
 
@@ -205,15 +202,10 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 	return sub_rows
 
 
-## Extracts a string from a dict value that can be either a raw String or a {value: String} dict.
+## Extracts a string from a dict value.
 static func _extract_dict_string(data: Dictionary, key: String) -> String:
-	var raw: Variant = data.get(key, {})
-	if raw is Dictionary:
-		var raw_dict: Dictionary = raw
-		return str(raw_dict.get("value", ""))
-	elif raw is String:
-		return raw
-	return ""
+	var raw_dict: Dictionary = data.get(key, {})
+	return str(raw_dict.get("value", ""))
 
 
 static func _derive_node_name(node: InspectableNode) -> String:

@@ -16,33 +16,13 @@ func _init(p_target: InspectableObject, p_property: String, p_old: Variant, p_ne
 func execute() -> void:
 	var property: Property = target.get_property(property_name)
 	property.set_value(new_value)
-	_broadcast_change()
 
 
 func undo() -> void:
 	var property: Property = target.get_property(property_name)
 	property.set_value(old_value)
 	target.property_changed.emit(property_name)
-	_broadcast_change(true)
 
 
 func get_description() -> String:
 	return "Change value of `%s` property" % property_name
-
-
-func _broadcast_change(is_undo: bool = false) -> void:
-	if target is not InspectableNode:
-		return
-
-	var node: InspectableNode = target
-	var property: Property = node.get_property(property_name)
-	if not property:
-		return
-
-	if property_name == "position":
-		EventBus.request_node_selection.emit(node, node.storyline_id, true)
-
-	if not property.get_settings_value("visible_in_inspector", true):
-		return
-
-	EventBus.inspector_property_changed.emit(node, property_name, is_undo)

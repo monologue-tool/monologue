@@ -20,6 +20,7 @@ func create_storyline(fname: String = "unnamed_storyline") -> StorylineDocument:
 	_documents.set(doc.id, doc)
 	storyline_created.emit()
 	set_active_storyline(doc.id)
+	Log.info("Storyline", doc.id, "created!")
 	return doc
 
 
