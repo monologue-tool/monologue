@@ -9,6 +9,21 @@ var _properties: Dictionary[String, Property] = {}
 var _children: Dictionary[String, Array] = {} # Children object of properties
 var history: CommandManager
 var settings: Dictionary = {}
+var _parent_object: InspectableObject
+var _parent_property_name: String
+
+
+func get_parent_object() -> InspectableObject:
+	return _parent_object
+
+
+func get_parent_property_name() -> String:
+	return _parent_property_name
+
+
+func _set_parent_info(parent: InspectableObject, pname: String) -> void:
+	_parent_object = parent
+	_parent_property_name = pname
 
 
 func _init(command_manager: CommandManager = null) -> void:
@@ -110,13 +125,17 @@ func get_property_children(property_name: String) -> Array:
 
 func set_property_children(property_name: String, objects: Array) -> void:
 	for object: InspectableObject in objects:
-		object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+		if not object.property_changed.is_connected(_on_property_children_property_change):
+			object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+		object._set_parent_info(self, property_name)
 	
-	return _children.set(property_name, objects)
+	_children[property_name] = objects
 
 
 func add_property_children(property_name: String, object: InspectableObject) -> void:
-	object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+	if not object.property_changed.is_connected(_on_property_children_property_change):
+		object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+	object._set_parent_info(self, property_name)
 	
 	_children.get_or_add(property_name, [])
 	_children.get(property_name).append(object)
@@ -125,6 +144,9 @@ func add_property_children(property_name: String, object: InspectableObject) -> 
 func remove_property_children(property_name: String, object: InspectableObject) -> void:
 	if not property_name in _children:
 		return
+	if object.property_changed.is_connected(_on_property_children_property_change):
+		object.property_changed.disconnect(_on_property_children_property_change)
+	object._set_parent_info(null, "")
 	_children.get(property_name).erase(object)
 
 

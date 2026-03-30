@@ -108,7 +108,6 @@ func _on_field_value_committed(value: Variant) -> void:
 	_refresh_owner_preview_from_change()
 
 
-
 func _refresh_owner_preview_from_change() -> void:
 	if _is_syncing or _is_released:
 		return
@@ -122,38 +121,34 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 		return
 	var validation_result: FieldValidationResult = descriptor.validate(value)
 	if not validation_result.is_valid:
-		field.display_error(validation_result.message)
+		if is_commit:
+			_sync_from_property()
+		else:
+			field.display_error(validation_result.message)
 		return
+	
 	# Per-property settings: required + validation dict (min_length, max_length, …)
 	var settings_result: FieldValidationResult = _validate_property_settings(value)
 	if not settings_result.is_valid:
-		field.display_error(settings_result.message)
+		if is_commit:
+			_sync_from_property()
+		else:
+			field.display_error(settings_result.message)
 		return
 	field.clear_error()
 	var formatted_value: Variant = descriptor.format(value)
-	if owner and not is_commit:
-		return
-	# Generic unique validation check warning
-	if is_commit and property.get_settings_value(PropertySettings.KEY_UNIQUE, false):
-		if owner and not owner.has_method("apply_property_commit"):
-			push_warning("Unique validation requires an owner with 'apply_property_commit'.")
-
-	_is_syncing = true
 	
-	if owner and is_commit and owner.has_method("apply_property_commit"):
-		var commit_success: bool = owner.apply_property_commit(property.name, formatted_value)
-		if not commit_success:
-			if is_instance_valid(field):
-				field.display_error("Value already exists.")
-			_is_syncing = false
-			return
-	elif owner:
+	if not is_commit:
+		return
+	
+	# If we update through owner, it triggers an Undo/Redo command and emits property value_changed, 
+	# which in turn will automatically trigger _sync_from_property().
+	# However, we'll manually call it below if we just set the property directly.
+	if owner:
 		owner.set_property_value(property.name, formatted_value)
 	else:
 		property.set_value(formatted_value)
-		
-	_is_syncing = false
-	_sync_from_property()
+		_sync_from_property()
 
 
 func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> void:
@@ -182,33 +177,49 @@ func _validate_property_settings(value: Variant) -> FieldValidationResult:
 		if str_val.is_empty():
 			return FieldValidationResult.failure("This field is required.")
 
+	# Unique check
+	if property.get_settings_value(PropertySettings.KEY_UNIQUE, false) and is_instance_valid(owner):
+		var parent_obj: InspectableObject = owner.get_parent_object() if owner.has_method("get_parent_object") else null
+		if parent_obj:
+			var parent_prop: String = owner.get_parent_property_name()
+			var siblings: Array = parent_obj.get_property_children(parent_prop)
+			
+			for sibling: InspectableObject in siblings:
+				if sibling == owner:
+					continue
+				var sib_prop: Property = sibling.get_property(property.name)
+				if sib_prop and sib_prop.value == value:
+					return FieldValidationResult.failure("This value must be unique.")
+
 	# Validation dict: min_length, max_length, min, max
-	var rules: Dictionary = property.get_settings_value(PropertySettings.KEY_VALIDATION, {})
-	if rules.is_empty():
+	var rules: Variant = property.get_settings_value(PropertySettings.KEY_VALIDATION, {})
+	if typeof(rules) != TYPE_DICTIONARY or rules.is_empty():
 		return FieldValidationResult.success()
 
 	var str_value: String = str(value) if value != null else ""
 
 	if rules.has("min_length"):
-		var min_len: int = str(rules["min_length"]).to_int()
+		var min_len: int = int(rules["min_length"])
 		if str_value.length() < min_len:
 			return FieldValidationResult.failure(
 				"Must be at least %d character(s)." % min_len
 			)
 
 	if rules.has("max_length"):
-		var max_len: int = str(rules["max_length"]).to_int()
+		var max_len: int = int(rules["max_length"])
 		if str_value.length() > max_len:
 			return FieldValidationResult.failure(
 				"Must be at most %d character(s)." % max_len
 			)
 
 	if rules.has("min") and value != null:
-		if float(str(value)) < float(str(rules["min"])):
-			return FieldValidationResult.failure("Must be at least %s." % str(rules["min"]))
+		if str(value).is_valid_float() or value is int or value is float:
+			if float(value) < float(rules["min"]):
+				return FieldValidationResult.failure("Must be at least %s." % str(rules["min"]))
 
 	if rules.has("max") and value != null:
-		if float(str(value)) > float(str(rules["max"])):
-			return FieldValidationResult.failure("Must be at most %s." % str(rules["max"]))
+		if str(value).is_valid_float() or value is int or value is float:
+			if float(value) > float(rules["max"]):
+				return FieldValidationResult.failure("Must be at most %s." % str(rules["max"]))
 
 	return FieldValidationResult.success()

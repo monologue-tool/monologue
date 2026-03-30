@@ -47,13 +47,22 @@ func set_value(value: Variant) -> void:
 	for item_data: Dictionary in value:
 		var child_found: bool = false
 		for child: ListItem in outdated_childrens:
-			if item_data != child._to_dict():
-				continue
+			var dict_match := false
+			var item_id: Variant = item_data.get("id", {}).get("value") if item_data.has("id") else null
+			var child_id: Variant = child.get_property_value("id")
 			
-			outdated_childrens.erase(child)
-			child_found = true
+			if item_id != null and child_id != null:
+				dict_match = (item_id == child_id)
+			else:
+				dict_match = (item_data == child._to_dict())
+				
+			if dict_match:
+				child._from_dict(item_data)
+				outdated_childrens.erase(child)
+				child_found = true
+				break
 		
-		 # If there is no ListItem for this item, we create one.
+		# If there is no ListItem for this item, we create one.
 		if not child_found:
 			var item: ListItem = _create_new_list_item(item_data)
 			_binding.owner.add_property_children(_binding.property.name, item)
@@ -94,6 +103,7 @@ func _create_new_list_item(from_data: Dictionary = {}) -> ListItem:
 
 func _clear_container() -> void:
 	for item: Control in items_container.get_children():
+		items_container.remove_child(item)
 		item.queue_free()
 
 
@@ -108,8 +118,8 @@ func _rebuild_ui() -> void:
 		var item_view: VBoxContainer = VBoxContainer.new()
 		var item_idx: int = items.find(item)
 		
-		items_container.add_child.call_deferred(item_view)
-		ListItemHelper.populate_item_view.call_deferred(self, item_view, item, item_idx)
+		items_container.add_child(item_view)
+		ListItemHelper.populate_item_view(self, item_view, item, item_idx)
 	
 	_populate_external_items()
 
@@ -145,8 +155,14 @@ func _on_duplicate_item(index: int) -> void:
 	var item_data: Dictionary = children[index]._to_dict()
 	var new_item: ListItem = CollectionBucket.create_item(_collection_name, _binding.owner.history)
 	new_item._from_dict(item_data)
+	_make_item_unique(new_item)
 	
-	for prop: Property in new_item.get_properties():
+	_binding.owner.add_property_children(_binding.property.name, new_item)
+	emit_value_committed(get_value())
+
+
+func _make_item_unique(item: ListItem) -> void:
+	for prop: Property in item.get_properties():
 		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
 			continue
 		
@@ -165,11 +181,11 @@ func _on_duplicate_item(index: int) -> void:
 			attempt = int(result.get_string(2)) + 1
 		
 		while _value_exists_in_list(prop.name, prop.value):
-			prop.value = "%s%d" % [name_base, attempt]
-			attempt += 1
-			
-	_binding.owner.add_property_children(_binding.property.name, new_item)
-	emit_value_committed(get_value())
+			if prop.name == "id":
+				prop.value = IDGen.generate(InspectableObject.ID_LENGTH)
+			else:
+				prop.value = "%s%d" % [name_base, attempt]
+				attempt += 1
 
 
 func _on_delete_item(index: int) -> void:
@@ -185,6 +201,7 @@ func _is_valid_index(index: int) -> bool:
 
 func add_item() -> void:
 	var new_item: ListItem = _create_new_list_item()
+	_make_item_unique(new_item)
 	_binding.owner.add_property_children(_binding.property.name, new_item)
 	
 	emit_value_committed(get_value())
@@ -208,4 +225,4 @@ func _populate_external_items() -> void:
 	for ext_data: Dictionary in externals:
 		var item_view: PanelContainer = PanelContainer.new()
 		ListItemHelper.populate_external_item_view(item_view, ext_data.get("name", "<unknown>"))
-		items_container.add_child.call_deferred(item_view)
+		items_container.add_child(item_view)
