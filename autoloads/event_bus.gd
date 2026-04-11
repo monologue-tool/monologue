@@ -10,12 +10,14 @@ signal refresh
 signal add_graph_node(descriptor_name: String, window: Window)
 signal request_node_selection(node: InspectableNode, storyline_id: String, skip_history: bool)
 signal request_object_inspection(object: InspectableObject)
+signal request_storyline_inspection(storyline: StorylineDocument)
 signal select_new_node
 signal inspector_property_changed(object: InspectableObject, property_name: String, is_undo: bool)
 
 signal save_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String)
 signal open_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String)
 signal open_files_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String)
+signal open_dir_request(callable: Callable, root_subdir: String)
 
 signal load_languages(languages: Array, graph: MonologueGraphEdit)
 signal show_languages(can_see: bool)

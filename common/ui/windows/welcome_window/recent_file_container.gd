@@ -25,18 +25,17 @@ func add(filepath: String) -> void:
 
 
 func create_button(filepath: String) -> Button:
-	var btn: Node = button_scene.instantiate()
-	var btn_text: Variant = filepath.replace("\\", "/")
-	btn_text = btn_text.replace("//", "/")
-	btn_text = btn_text.split("/")
-	if btn_text.size() >= 2:
-		btn_text = btn_text.slice(-2, btn_text.size())
-		btn_text = btn_text[0].path_join(btn_text[1])
-	else:
-		btn_text = btn_text.back()
+	var btn: Button = button_scene.instantiate()
+	var path: String = filepath.replace("\\", "/")
+	path = path.replace("//", "/")
+	var paths: Array = path.split("/")
+	var btn_text: String = ""
+	btn_text = paths.back()
 
-	btn.text = Util.truncate_filename(btn_text)
+	btn.text = btn_text
+	btn.flat = true
 	btn.pressed.connect(EventBus.load_project.emit.bind(filepath))
+	btn.tooltip_text = filepath
 	button_container.add_child(btn)
 	return btn
 

@@ -15,8 +15,8 @@ func load_scene(scene: PackedScene) -> void:
 	var main_scene: Node = scene.instantiate()
 	main_scene.from_node = from_node if from_node else ""
 	main_scene.file_path = file_path
-	var storyline := StorylineManager.get_active_storyline()
-	main_scene.locale = storyline.active_language_code if storyline else "en"
+	var project := ProjectManager.current_project
+	main_scene.locale = project.active_language_code if project else "en"
 	get_window().add_scene(main_scene)
 	queue_free()
 

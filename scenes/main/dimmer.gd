@@ -2,8 +2,11 @@ class_name Dimmer extends ColorRect
 
 
 func _ready() -> void:
+	release_focus()
 	color = Color.TRANSPARENT
-	focus_entered.connect(_on_focus_entered)
+	EventBus.show_dimmer.connect(show)
+	EventBus.hide_dimmer.connect(hide)
+	#focus_entered.connect(_on_focus_entered)
 
 
 func _process(_delta: float) -> void:
@@ -19,5 +22,6 @@ func _process(_delta: float) -> void:
 	hide()
 
 
-func _on_focus_entered() -> void:
-	EventBus.window_out.emit()
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		EventBus.window_out.emit()

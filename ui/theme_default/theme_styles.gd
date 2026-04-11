@@ -31,10 +31,10 @@ func create_button(bg_color: Color) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = bg_color
 	style.set_corner_radius_all(corner_radius)
-	style.content_margin_left = base_spacing * 2.0
-	style.content_margin_right = base_spacing * 2.0
-	style.content_margin_top = base_spacing
-	style.content_margin_bottom = base_spacing
+	style.content_margin_left = base_spacing
+	style.content_margin_right = base_spacing
+	style.content_margin_top = base_spacing / 2
+	style.content_margin_bottom = base_spacing / 2
 	return style
 
 

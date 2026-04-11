@@ -7,6 +7,7 @@ func _ready() -> void:
 	EventBus.save_file_request.connect(_on_save_file_request)
 	EventBus.open_file_request.connect(_on_open_file_request)
 	EventBus.open_files_request.connect(_on_open_files_request)
+	EventBus.open_dir_request.connect(_on_open_dir_request)
 
 
 func save_file(
@@ -44,6 +45,16 @@ func _on_open_files_request(
 		files_selected.connect(_on_files_selected)
 
 	_core_request(callable, filter_list, root_subdir)
+
+
+func _on_open_dir_request(
+		callable: Callable, root_subdir: String = ""
+) -> void:
+	title = "Open"
+	ok_button_text = "Open"
+	file_mode = FileDialog.FILE_MODE_OPEN_DIR
+	
+	_core_request(callable, [], root_subdir)
 
 
 func _core_request(

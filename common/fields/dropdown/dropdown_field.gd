@@ -144,34 +144,38 @@ func _normalize_options_array(source: Variant) -> Array:
 
 
 func _get_options_from_source(source: String) -> Array:
-	var result: Array = []
-
-	var source_owner: InspectableObject
+	if not source.begins_with("self:"):
+		var values: Array = ProjectManager.current_project.get_collection_value(source)
+		return extract_list_values(values)
+	
 	# TODO: Better source path
-	if source.begins_with("self:"):
-		if not _binding or not _binding.owner:
-			return result
-			
-		source_owner = _binding.owner
-		source = source.trim_prefix("self:")
-	else:
-		source_owner = _get_storyline()
+	var source_owner: InspectableObject
+	if not _binding or not _binding.owner:
+		return []
+		
+	source_owner = _binding.owner
+	source = source.trim_prefix("self:")
 	
 	if not source_owner:
-		return result
+		return []
 
 	# Get the list property from source_owner
 	var list_property: Property = source_owner.get_property(source)
 	if not list_property:
-		return result
+		return []
 
 	var list_value: Variant = list_property.get_value()
 	if not list_value is Array:
-		return result
+		return []
 
 	var list_arr: Array = list_value
-	# Extract names from list items
-	for item: Variant in list_arr:
+	return extract_list_values(list_arr)
+
+
+func extract_list_values(values: Array) -> Array:
+	var result: Array = []
+	
+	for item: Variant in values:
 		if item is Dictionary:
 			var item_dict: Dictionary = item
 			var entry_name: Variant = item_dict.get("name", item_dict.get("id", "<unknown>"))
@@ -181,7 +185,7 @@ func _get_options_from_source(source: String) -> Array:
 			result.append(entry_name)
 		else:
 			result.append(str(item))
-
+	
 	return result
 
 
@@ -196,7 +200,7 @@ func _get_storyline() -> InspectableObject:
 		var node: InspectableNode = story_owner
 		var storyline_id: String = node.storyline_id
 		if storyline_id:
-			return StorylineManager.get_storyline(storyline_id)
+			return ProjectManager.current_project.get_storyline(storyline_id)
 
 	# If owner is already a storyline, return it
 	if story_owner is StorylineDocument:

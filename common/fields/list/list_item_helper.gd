@@ -1,5 +1,7 @@
 class_name ListItemHelper extends RefCounted
 
+enum MenuActions { EDIT, DUPLICATE, DELETE }
+
 
 static func populate_item_view(owner: ListField, item_view: VBoxContainer, item: ListItem, item_index: int) -> void:
 	for prop: Property in item.get_properties():
@@ -60,39 +62,40 @@ static func _make_item_header(
 ) -> HBoxContainer:
 	var header: HBoxContainer = _get_or_create_header_container(content)
 	var is_protected: bool = item.get_property_value("protected") == true
-	var actions: Array = ["edit", "duplicate", "delete"] if not is_protected else ["edit"]
 	var icons: Dictionary = {
 		"delete": preload("res://ui/assets/icons/trash.svg"),
 		"edit": preload("res://ui/assets/icons/pen.svg"),
 		"duplicate": preload("res://ui/assets/icons/copy.png")
 	}
+	
+	var edit_button: Button = Button.new()
+	edit_button.icon = icons["edit"]
+	edit_button.tooltip_text = "Edit item"
+	edit_button.pressed.connect(owner.call.bind("_on_edit_item", index))
+	header.add_child(edit_button)
+	
+	if not is_protected:
+		var menu_button: MenuButton = MenuButton.new()
+		menu_button.icon = preload("res://ui/assets/icons/vertical_dots.svg")
+		var menu_popup: PopupMenu = menu_button.get_popup()
+		menu_popup.add_item("Duplicate", MenuActions.DUPLICATE)
+		menu_popup.add_separator()
+		menu_popup.add_item("Delete", MenuActions.DELETE)
+		menu_popup.id_pressed.connect(_on_menu_button_id_pressed.bind(owner, index))
 
-	for action: String in actions:
-		var icon: Texture2D = icons[action]
-		_add_button(
-			owner,
-			header,
-			index,
-			action,
-			action.capitalize() + " item",
-			icon,
-		)
+		header.add_child(menu_button)
 
 	return header
 
-static func _add_button(
-	owner: ListField,
-	header: HBoxContainer,
-	index: int,
-	action_name: String,
-	tooltip: String,
-	icon: Texture2D
-) -> void:
-	var button: Button = Button.new()
-	button.icon = icon
-	button.tooltip_text = tooltip
-	button.pressed.connect(owner.call.bind("_on_%s_item" % action_name, index))
-	header.add_child(button)
+
+static func _on_menu_button_id_pressed(id: MenuActions, owner: ListField, index: int) -> void:
+	match id:
+		MenuActions.EDIT:
+			owner._on_edit_item(index)
+		MenuActions.DUPLICATE:
+			owner._on_duplicate_item(index)
+		MenuActions.DELETE:
+			owner._on_delete_item(index)
 
 
 static func populate_external_item_view(item_view: PanelContainer, name: String) -> void:

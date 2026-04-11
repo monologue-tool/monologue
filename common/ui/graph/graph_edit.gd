@@ -13,8 +13,6 @@ var _is_applying_position: bool = false
 
 func _ready() -> void:
 	super._ready()
-	StorylineManager.storyline_switched.connect(_on_storyline_switched)
-	
 	connection_request.connect(_on_connection_request)
 	connection_to_empty.connect(_on_connection_to_empty)
 	copy_nodes_request.connect(_on_copy_nodes_request) 
@@ -28,8 +26,12 @@ func _ready() -> void:
 	paste_nodes_request.connect(_on_paste_nodes_request)
 
 
+func get_storyline() -> StorylineDocument:
+	return ProjectManager.current_project.get_storyline(storyline_id)
+
+
 func refresh() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	if not storyline:
 		return
 
@@ -166,7 +168,7 @@ func _on_connection_request(
 		push_warning("Cannot create connection: property not found at port")
 		return
 
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
 		self,
 		str(from_node.get_property_value("id")),
@@ -200,7 +202,7 @@ func _reconnect_all_slots() -> void:
 	if not connection_manager:
 		return
 
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var all_connections: Array[Dictionary] = connection_manager.get_all_connections()
 
 	for conn: Dictionary in all_connections:
@@ -211,6 +213,10 @@ func _reconnect_all_slots() -> void:
 
 		var from_node: InspectableNode = storyline.get_node(from_node_id)
 		var to_node: InspectableNode = storyline.get_node(to_node_id)
+		
+		if not from_node or not to_node:
+			continue
+		
 		var from_view_name: String = from_node.graph_view.name
 		var to_view_name: String = to_node.graph_view.name
 
@@ -250,7 +256,7 @@ func get_port_index_for_property(node_name: String, property_name: String, is_ou
 
 
 func get_node_from_view_name(graph_view_name: String) -> InspectableNode:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 
 	for node: InspectableNode in storyline.nodes:
 		if node.graph_view.name == graph_view_name:
@@ -283,7 +289,7 @@ func _on_end_node_move() -> void:
 
 	_is_applying_position = true
 
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var history: CommandManager = storyline.history if storyline else null
 	if not history:
 		_is_applying_position = false
@@ -342,7 +348,7 @@ func _on_disconnection_request(
 		push_warning("Cannot create connection: property not found at port")
 		return
 
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
 		self,
 		str(from_node.get_property_value("id")),
@@ -351,16 +357,6 @@ func _on_disconnection_request(
 		to_property_name
 	)
 	storyline.history.execute(command)
-
-
-func _on_storyline_switched() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	if not storyline.node_added.is_connected(refresh):
-		storyline.node_added.connect(refresh)
-	if not storyline.node_removed.is_connected(refresh):
-		storyline.node_removed.connect(refresh)
-
-	refresh()
 
 
 func _on_copy_nodes_request() -> void:
@@ -378,7 +374,7 @@ func _on_copy_nodes_request() -> void:
 
 func _on_paste_nodes_request() -> void:
 	# TODO: Move nodes based on the cursor position
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var command: AddNodesCommand = AddNodesCommand.new(storyline_id, _copied_nodes)
 	storyline.history.execute(command)
 
@@ -398,13 +394,13 @@ func _on_cut_nodes_request() -> void:
 				_copied_nodes.append(duplicated)
 				nodes_to_delete.append(source_node)
 
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline_id, nodes_to_delete)
 	storyline.history.execute(command)
 
 
 func _on_delete_nodes_request(graph_nodes: Array[StringName]) -> void:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = get_storyline()
 	var nodes: Array[InspectableNode] = []
 	for node_name: StringName in graph_nodes:
 		var graph_node: GraphNode = get_node("%s" % node_name)

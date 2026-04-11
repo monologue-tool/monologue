@@ -23,6 +23,8 @@ const FONT_SEMIBOLD: FontFile = preload("res://ui/assets/fonts/GeneralSans-Semib
 
 ## Build a complete theme from a theme settings
 static func build_theme(settings: ThemeSettings) -> Theme:
+	var time: float = Time.get_unix_time_from_system()
+	
 	var theme: Theme = Theme.new()
 	var styles: ThemeStyles = ThemeStyles.new(settings)
 
@@ -42,6 +44,10 @@ static func build_theme(settings: ThemeSettings) -> Theme:
 	_build_graph_elements(theme, settings, styles)
 	_build_popup_menu(theme, settings, styles)
 	_build_labels(theme, settings, styles)
+	
+	var time_elapsed: float = Time.get_unix_time_from_system() - time
+	if not Engine.is_editor_hint():
+		Log.info("Theme generated in %s seconds" % time_elapsed)
 
 	return theme
 
@@ -54,35 +60,36 @@ static func _build_buttons(theme: Theme, settings: ThemeSettings, styles: ThemeS
 	var btn_pressed := styles.create_button(settings.button_pressed)
 	var btn_disabled := styles.create_button(settings.darken(settings.button_background, 0.3))
 	var btn_empty := styles.create_empty()
+	
+	for type: String in ["Button", "TextureButton", "MenuButton"]:
+		theme.set_stylebox("normal", type, btn_normal)
+		theme.set_stylebox("hover", type, btn_hover)
+		theme.set_stylebox("pressed", type, btn_pressed)
+		theme.set_stylebox("disabled", type, btn_disabled)
+		theme.set_stylebox("focus", type, btn_empty)
 
-	theme.set_stylebox("normal", "Button", btn_normal)
-	theme.set_stylebox("hover", "Button", btn_hover)
-	theme.set_stylebox("pressed", "Button", btn_pressed)
-	theme.set_stylebox("disabled", "Button", btn_disabled)
-	theme.set_stylebox("focus", "Button", btn_empty)
+		# Mirror variants
+		theme.set_stylebox("normal_mirrored", type, btn_normal)
+		theme.set_stylebox("hover_mirrored", type, btn_hover)
+		theme.set_stylebox("pressed_mirrored", type, btn_pressed)
+		theme.set_stylebox("hover_pressed", type, btn_pressed)
+		theme.set_stylebox("hover_pressed_mirrored", type, btn_pressed)
+		theme.set_stylebox("disabled_mirrored", type, btn_disabled)
 
-	# Mirror variants
-	theme.set_stylebox("normal_mirrored", "Button", btn_normal)
-	theme.set_stylebox("hover_mirrored", "Button", btn_hover)
-	theme.set_stylebox("pressed_mirrored", "Button", btn_pressed)
-	theme.set_stylebox("hover_pressed", "Button", btn_pressed)
-	theme.set_stylebox("hover_pressed_mirrored", "Button", btn_pressed)
-	theme.set_stylebox("disabled_mirrored", "Button", btn_disabled)
+		# Button colors
+		theme.set_color("font_color", type, Color(settings.text, 0.80))
+		theme.set_color("font_disabled_color", type, settings.text_disabled)
+		theme.set_color("font_focus_color", type, settings.text)
+		theme.set_color("font_hover_color", type, settings.text)
+		theme.set_color("font_hover_pressed_color", type, settings.text)
+		theme.set_color("font_pressed_color", type, settings.text)
+		theme.set_color("icon_disabled_color", type, settings.text_disabled)
+		theme.set_color("icon_normal_color", type, settings.text_secondary)
 
-	# Button colors
-	theme.set_color("font_color", "Button", Color(settings.text, 0.80))
-	theme.set_color("font_disabled_color", "Button", settings.text_disabled)
-	theme.set_color("font_focus_color", "Button", settings.text)
-	theme.set_color("font_hover_color", "Button", settings.text)
-	theme.set_color("font_hover_pressed_color", "Button", settings.text)
-	theme.set_color("font_pressed_color", "Button", settings.text)
-	theme.set_color("icon_disabled_color", "Button", settings.text_disabled)
-	theme.set_color("icon_normal_color", "Button", settings.text_secondary)
-
-	# Button constants
-	theme.set_constant("outline_size", "Button", 0)
-	theme.set_constant("icon_max_width", "Button", 15)
-	theme.set_constant("h_separation", "Button", styles.base_spacing)
+		# Button constants
+		theme.set_constant("outline_size", type, 0)
+		theme.set_constant("icon_max_width", type, 15)
+		theme.set_constant("h_separation", type, styles.base_spacing)
 
 	# ButtonAccent variation
 	theme.set_type_variation("ButtonAccent", "Button")
@@ -682,12 +689,12 @@ static func _build_tabs(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 ## Build tree styles
 static func _build_tree(theme: Theme, settings: ThemeSettings, styles: ThemeStyles) -> void:
 	var tree_panel := styles.create_panel(settings.tertiary)
-	var tree_empty := styles.create_empty()
+	var tree_empty := styles.create_button(Color.TRANSPARENT)
 	var tree_hover := styles.create_button(settings.button_hover)
 	var tree_selected := styles.create_button(settings.button_pressed)
 
 	theme.set_color("relationship_line_color", "Tree", settings.with_alpha(settings.border, 0.5))
-	theme.set_constant("icon_max_width", "Tree", 14)
+	theme.set_constant("icon_max_width", "Tree", 18)
 	theme.set_constant("h_separation", "Tree", styles.base_spacing)
 	theme.set_constant("v_separation", "Tree", styles.base_spacing / 2)
 	theme.set_constant("inner_item_margin_bottom", "Tree", styles.base_spacing/2)
@@ -709,6 +716,13 @@ static func _build_tree(theme: Theme, settings: ThemeSettings, styles: ThemeStyl
 	theme.set_stylebox("hovered_dimmed", "Tree", tree_hover)
 	theme.set_stylebox("selected", "Tree", tree_selected)
 	theme.set_stylebox("selected_focus", "Tree", tree_selected)
+	theme.set_stylebox("hovered_selected", "Tree", tree_selected)
+	theme.set_stylebox("hovered_selected_focus", "Tree", tree_selected)
+	theme.set_stylebox("button_hovered", "Tree", tree_hover)
+	theme.set_stylebox("button_pressed", "Tree", tree_selected)
+	theme.set_stylebox("custom_button", "Tree", tree_hover)
+	theme.set_stylebox("custom_button_hovered", "Tree", tree_hover)
+	theme.set_stylebox("custom_button_pressed", "Tree", tree_selected)
 
 
 ## Build graph-related styles

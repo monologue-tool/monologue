@@ -15,17 +15,21 @@ var _current_lang_prop: Property = null  # tracked to disconnect on storyline sw
 func _ready() -> void:
 	graph.node_view_selected.connect(_on_graph_edit_node_view_selected)
 	EventBus.request_node_selection.connect(_on_request_node_selection)
-	StorylineManager.storyline_changed.connect(refresh)
-	StorylineManager.storyline_switched.connect(_on_storyline_switched)
+	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
+
+	ProjectManager.project_loaded.connect(_on_project_loaded)
 
 
-func refresh() -> void:
-	pass
+func _on_project_loaded() -> void:
+	await get_tree().process_frame
+	
+	var storyline: StorylineDocument = ProjectManager.current_project.storylines[0]
+	load_storyline(storyline)
 
 
-func _on_storyline_switched() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
+func load_storyline(storyline: StorylineDocument) -> void:
 	graph.storyline_id = storyline.id
+	graph.connection_manager = ConnectionManager.new(storyline)
 	graph.refresh()
 
 	# Disconnect from the previous storyline's languages property
@@ -59,13 +63,18 @@ func _on_request_node_selection(
 		return
 	request_node_selection(object, skip_history)
 
+func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
+	if graph.storyline_id == storyline.id:
+		return
+	
+	load_storyline(storyline)
+
 
 func request_node_selection(node: InspectableNode, skip_history: bool = false) -> void:
 	if _is_applying_selection:
 		return
 
-	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	var current_node: InspectableNode = _selected_nodes.get(storyline.id)
+	var current_node: InspectableNode = _selected_nodes.get(graph.storyline_id)
 	var needs_selection_update := current_node != node
 	if not needs_selection_update:
 		if graph and node and is_instance_valid(node.graph_view):
@@ -75,16 +84,16 @@ func request_node_selection(node: InspectableNode, skip_history: bool = false) -
 		return
 
 	if skip_history:
-		_apply_selection(node, storyline.id)
+		_apply_selection(node, graph.storyline_id)
 		return
 
-	var history: CommandManager = storyline.history if storyline else null
+	var history: CommandManager = ProjectManager.current_project.command_manager
 	if not history:
-		_apply_selection(node, storyline.id)
+		_apply_selection(node, graph.storyline_id)
 		return
 
 	var command := NodeSelectionCommand.new(
-		storyline.id, current_node, node, Callable(self, "_apply_selection")
+		graph.storyline_id, current_node, node, Callable(self, "_apply_selection")
 	)
 
 	history.execute(command)

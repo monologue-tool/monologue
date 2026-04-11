@@ -10,9 +10,9 @@ func _ready() -> void:
 	localization_option.item_selected.connect(_on_localization_option_selected)
 	EventBus.load_languages.connect(_on_load_languages)
 	EventBus.refresh.connect(_on_language_refresh)
-	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	if storyline:
-		_populate_option(storyline.get_property_value("languages"))
+	var project: MonologueProject = ProjectManager.current_project
+	if project:
+		_populate_option(project.get_collection_value("languages"))
 
 
 func _populate_option(languages: Array) -> void:
@@ -30,8 +30,8 @@ func _populate_option(languages: Array) -> void:
 
 
 func _sync_option_to_global() -> void:
-	var storyline := StorylineManager.get_active_storyline()
-	var active: String = storyline.active_language_code if storyline else "en"
+	var project: MonologueProject = ProjectManager.current_project
+	var active: String = project.active_language_code if project else "en"
 	for i: int in localization_option.item_count:
 		if localization_option.get_item_metadata(i) == active:
 			localization_option.select(i)
@@ -41,8 +41,8 @@ func _sync_option_to_global() -> void:
 
 
 func _current_language_code() -> String:
-	var storyline := StorylineManager.get_active_storyline()
-	var code: String = storyline.active_language_code if storyline else "en"
+	var project: MonologueProject = ProjectManager.current_project
+	var code: String = project.active_language_code if project else "en"
 	return code if not code.is_empty() else "en"
 
 
@@ -113,9 +113,9 @@ func _on_language_refresh() -> void:
 
 func _on_localization_option_selected(idx: int) -> void:
 	var code: String = localization_option.get_item_metadata(idx)
-	var storyline := StorylineManager.get_active_storyline()
-	if storyline and storyline.active_language_code == code:
+	var project: MonologueProject = ProjectManager.current_project
+	if project and project.active_language_code == code:
 		return
-	if storyline:
-		storyline.active_language_code = code
+	if project:
+		project.active_language_code = code
 	EventBus.refresh.emit()

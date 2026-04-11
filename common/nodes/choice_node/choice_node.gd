@@ -78,7 +78,7 @@ func _sync_external_options() -> void:
 func _find_node_by_id(node_id: String) -> InspectableNode:
 	if storyline_id.is_empty():
 		return null
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(storyline_id)
 	if not storyline:
 		return null
 	return storyline.get_node(node_id)

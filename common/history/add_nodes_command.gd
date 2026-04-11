@@ -13,7 +13,7 @@ func _init(
 
 
 func execute() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(storyline_id)
 	if not storyline:
 		return
 
@@ -22,7 +22,7 @@ func execute() -> void:
 
 
 func undo() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(storyline_id)
+	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(storyline_id)
 	if not storyline:
 		return
 

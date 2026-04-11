@@ -34,16 +34,16 @@ func set_editable(is_editable: bool) -> void:
 
 func _on_browse_pressed() -> void:
 	var root_dir: String = ""
-	var active_doc: StorylineDocument = StorylineManager.get_active_storyline()
-	if active_doc and not active_doc.file_path.is_empty():
-		root_dir = active_doc.file_path.get_base_dir()
+	var project: MonologueProject = ProjectManager.current_project
+	if project and not project.file_path.is_empty():
+		root_dir = project.file_path.get_base_dir()
 	EventBus.open_file_request.emit(_on_file_selected, _filters, root_dir)
 
 
 func _on_file_selected(absolute_path: String) -> void:
 	var relative_path: String = absolute_path
-	var active_doc: StorylineDocument = StorylineManager.get_active_storyline()
-	if active_doc and not active_doc.file_path.is_empty():
-		relative_path = PathUtil.absolute_to_relative(absolute_path, active_doc.file_path)
+	var project: MonologueProject = ProjectManager.current_project
+	if project and not project.file_path.is_empty():
+		relative_path = PathUtil.absolute_to_relative(absolute_path, project.file_path)
 	path_line_edit.text = relative_path
 	emit_value_committed(get_value())

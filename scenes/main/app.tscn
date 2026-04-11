@@ -38,17 +38,19 @@ layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
 file_dialog = NodePath("../../../FileDialog")
 
-[node name="GraphEdit" parent="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph" parent_id_path=PackedInt32Array(1963406996, 116496835) index="0" unique_id=2027188591]
-scroll_offset = Vector2(0, 0)
+[node name="HSplitContainer" parent="Frame/VBoxContainer/MonologueEditor/VBox/HBoxContainer" parent_id_path=PackedInt32Array(1963406996, 2043137277) index="1" unique_id=109031884]
+split_offsets = PackedInt32Array(800)
+split_offset = 800
 
 [node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
+z_index = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(1, 1, 1, 0)
+color = Color(1, 1, 1, 0.019607844)
 script = ExtResource("2_y0d3j")
 
 [node name="ExpandedTextEditContainer" parent="." unique_id=881659617 instance=ExtResource("6_cqyrh")]
@@ -61,9 +63,6 @@ oversampling_override = 1.0
 visible = false
 
 [node name="WelcomeWindow" parent="." unique_id=979035935 instance=ExtResource("9_fp7qq")]
-oversampling_override = 1.0
-size = Vector2i(450, 300)
-visible = false
 
 [node name="PromptWindow" parent="." unique_id=2120395406 instance=ExtResource("7_k15gm")]
 visible = false
@@ -79,5 +78,4 @@ script = ExtResource("10_r77hi")
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 
 [editable path="Frame/VBoxContainer/MonologueEditor"]
-[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Graph"]
-[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/HSplitContainer/Inspector"]
+[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HBoxContainer/HSplitContainer/Inspector"]

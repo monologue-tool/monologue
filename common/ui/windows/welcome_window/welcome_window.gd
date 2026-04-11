@@ -4,7 +4,7 @@ class_name WelcomeWindow extends MonologueWindow
 var file_callback: Callable = func(path: String) -> void: EventBus.load_project.emit(path)
 
 @onready var close_button: BaseButton = %CloseButton
-@onready var recent_files: RecentFilesContainer = %RecentFilesContainer
+@onready var recent_files: RecentFilesContainer = %RecentProjectsContainer
 @onready var version_label: Label = %VersionLabel
 
 var is_startup: bool = false
@@ -39,3 +39,11 @@ func _on_open_file_btn_pressed() -> void:
 
 func load_callback(path: String) -> void:
 	EventBus.load_project.emit(path)
+
+
+func _on_github_btn_pressed() -> void:
+	OS.shell_open("https://github.com/monologue-tool/monologue")
+
+
+func _on_bug_report_btn_pressed() -> void:
+	OS.shell_open("https://github.com/monologue-tool/monologue/issues/new?template=BUG-REPORT.yml")

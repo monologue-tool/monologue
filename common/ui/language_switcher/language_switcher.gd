@@ -58,8 +58,8 @@ func _on_global_refresh() -> void:
 	# update our selection to match without re-emitting refresh.
 	if _is_applying:
 		return
-	var storyline: StorylineDocument = _get_storyline()
-	var active: String = storyline.active_language_code if storyline else "en"
+	var project: MonologueProject = ProjectManager.current_project
+	var active: String = project.active_language_code if project else "en"
 	for i: int in item_count:
 		if get_item_metadata(i) == active:
 			if selected != i:
@@ -74,16 +74,10 @@ func _apply_selection(idx: int) -> void:
 		return
 	_is_applying = true
 	var code: String = get_item_metadata(idx)
-	var storyline: StorylineDocument = _get_storyline()
+	var project: MonologueProject = ProjectManager.current_project
 	if graph_edit:
 		graph_edit.current_language_index = idx
-	if storyline:
-		storyline.active_language_code = code
+	if project:
+		project.active_language_code = code
 	EventBus.refresh.emit()
 	_is_applying = false
-
-
-func _get_storyline() -> StorylineDocument:
-	if graph_edit:
-		return StorylineManager.get_storyline(graph_edit.storyline_id)
-	return StorylineManager.get_active_storyline()

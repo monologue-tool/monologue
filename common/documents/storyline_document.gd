@@ -1,30 +1,16 @@
-class_name StorylineDocument extends InspectableStorylineObject
+class_name StorylineDocument extends InspectableDocument
 
 signal node_added
 signal node_removed
-signal content_changed
-signal undo_redo_changed
 
 var id: String : get = _get_id
 var name: String = ""
 var nodes: Array[InspectableNode] = []
-var file_path: String = ""
-var is_dirty: bool = false
-## Active language code in the editor for this storyline (e.g. "en", "fr").
-var active_language_code: String = "en"
-## Fast lookup: node_id -> InspectableNode
 var _node_index: Dictionary = {}
 
 
-func _init(sname: String, sfile_path: String = "") -> void:
+func _init(sname: String, command_manager: CommandManager) -> void:
 	name = sname
-	file_path = sfile_path
-
-	var command_manager: CommandManager = CommandManager.new()
-	command_manager.command_executed.connect(_on_command_executed)
-	command_manager.undone.connect(_on_undo)
-	command_manager.redone.connect(_on_redo)
-
 	super._init(command_manager)
 
 	_create_default_nodes()
@@ -54,71 +40,8 @@ func create_node(node_type: String) -> InspectableNode:
 func get_node(node_id: String) -> InspectableNode:
 	return _node_index.get(node_id)
 
-
 func initialize_properties() -> void:
-	var default_narrator: ListItem = CollectionBucket.create_item("characters", history)
-	default_narrator.set_property_value("name", "Narrator")
-	default_narrator.set_property_value("protected", true)
-
-	define_property(
-		"characters",
-		[default_narrator._to_dict()],
-		"list",
-		{ "collection": "characters" },
-	)
-
-	define_property(
-		"variables",
-		[],
-		"list",
-		{ "collection": "variables" }
-	)
-
-	define_property(
-		"items",
-		[],
-		"list",
-		{ "collection": "items" }
-	)
-
-	define_property(
-		"locations",
-		[],
-		"list",
-		{ "collection": "locations" }
-	)
-
-	var default_language: ListItem = CollectionBucket.create_item("languages", history)
-	default_language.set_property_value("name", "English")
-	default_language.set_property_value("code", "en")
-	default_language.set_property_value("protected", true)
-	define_property(
-		"languages",
-		[default_language._to_dict()],
-		"list",
-		{ "collection": "languages" }
-	)
-	
-	var default_beziers: Dictionary = {
-		"Ease": [0.25, 0.10, 0.25, 1.0],
-		"Linear": [0.0, 0.0, 1.0, 1.0],
-		"Ease-In": [0.42, 0.0, 1.0, 1.0],
-		"Ease-Out": [0.0, 0.0, 0.58, 1.0],
-		"Ease-In-Out": [0.42, 0.0, 0.58, 1.0]
-	}
-	var beziers_data: Array = []
-	for bezier_name: String in default_beziers:
-		var bezier_item: ListItem = CollectionBucket.create_item("beziers", history)
-		bezier_item.set_property_value("name", bezier_name)
-		bezier_item.set_property_value("bezier", default_beziers.get(bezier_name))
-		beziers_data.append(bezier_item._to_dict())
-	
-	define_property(
-		"beziers",
-		beziers_data,
-		"list",
-		{ "collection": "beziers" }
-	)
+	pass
 
 
 func get_type() -> String:
@@ -129,34 +52,12 @@ func get_settings() -> Dictionary:
 	return {}
 
 
-func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
-	is_dirty = true
-	content_changed.emit()
-
-
 func build_graph_preview() -> Array[Control]:
 	return []
 
 
 func _get_id() -> String:
 	return get_property_value("id")
-
-
-func _on_command_executed() -> void:
-	is_dirty = true
-	content_changed.emit()
-	undo_redo_changed.emit()
-
-
-func _on_undo() -> void:
-	content_changed.emit()
-	undo_redo_changed.emit()
-
-
-func _on_redo() -> void:
-	is_dirty = true
-	content_changed.emit()
-	undo_redo_changed.emit()
 
 
 func _create_default_nodes() -> void:

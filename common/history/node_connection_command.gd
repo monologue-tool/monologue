@@ -75,7 +75,7 @@ func undo() -> void:
 
 
 func _notify_node_changes() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_storyline(graph_view.storyline_id)
+	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(graph_view.storyline_id)
 	var from_nodes: Array = storyline.nodes.filter(
 		func(n: InspectableNode) -> bool: return n.get_property_value("id") == from_node_id
 	)

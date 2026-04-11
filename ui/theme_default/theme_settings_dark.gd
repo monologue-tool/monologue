@@ -3,11 +3,11 @@ class_name ThemeSettingsDark extends ThemeSettings
 
 
 func define_settings() -> void:
-	text = Color("e8e8f0")
-	primary = Color("1c1c21ff")
-	secondary = Color("222229ff")
-	tertiary = Color("14141aff")
-	accent = Color("4870e8")
+	text = Color("ececec")
+	primary = Color("252525")
+	secondary = Color("353535")
+	tertiary = Color("1a1a1a")
+	accent = Color("5b8dff")
 
 
 func get_path() -> String:

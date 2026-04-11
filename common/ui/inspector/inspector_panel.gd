@@ -17,20 +17,14 @@ var current_object: InspectableObject
 func _ready() -> void:
 	EventBus.request_object_inspection.connect(inspect)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
-	StorylineManager.storyline_switched.connect(_on_storyline_switched)
-	# Handle the storyline that is already active at startup.
-	call_deferred("_on_storyline_switched")
+	
+	ProjectManager.project_loaded.connect(_on_project_loaded)
 
 
-func _on_storyline_switched() -> void:
-	var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	if not storyline:
-		return
-	var h: CommandManager = storyline.history
-	if not h.undone.is_connected(_on_history_undo_redo):
-		h.undone.connect(_on_history_undo_redo)
-	if not h.redone.is_connected(_on_history_undo_redo):
-		h.redone.connect(_on_history_undo_redo)
+func _on_project_loaded() -> void:
+	var command_manager: CommandManager = ProjectManager.current_project.command_manager
+	command_manager.undone.connect(_on_history_undo_redo)
+	command_manager.redone.connect(_on_history_undo_redo)
 
 
 ## Called after every undo or redo. Re-resolves the inspection stack from the
