@@ -41,6 +41,10 @@ func load_project(project: MonologueProject) -> void:
 	Log.info("Project loaded!")
 	current_project = project
 	project_loaded.emit.call_deferred()
+	EventBus.hide_welcome.emit()
+	
+	if not project.project_path.is_empty():
+		add_path_to_history(project.project_path)
 
 
 func save_project(project: MonologueProject) -> void:
@@ -55,6 +59,49 @@ func load_project_from_path(path: String) -> void:
 	var new_project: MonologueProject = await MonologueProject.from_path(path)
 	load_project(new_project)
 
+
+func add_path_to_history(path: String) -> void:
+	var paths: Array = get_history() as Array
+	paths.erase(path.simplify_path())
+	paths.push_front(path)
+	
+	_ensure_history_file()
+	var file: FileAccess = FileAccess.open(Constants.HISTORY_PATH, FileAccess.WRITE)
+	var content: String = JSON.stringify(paths)
+	file.store_string(content)
+	file.close()
+	
+
+func get_history() -> PackedStringArray:
+	if not FileAccess.file_exists(Constants.HISTORY_PATH):
+		FileAccess.open(Constants.HISTORY_PATH, FileAccess.WRITE)
+	
+	var file: FileAccess = FileAccess.open(Constants.HISTORY_PATH, FileAccess.READ)
+	var content: String = file.get_as_text()
+	file.close()
+	
+	var paths: Array = []
+	for path: String in _parse_history(content):
+		if path not in paths:
+			paths.append(path)
+	
+	for path: String in paths:
+		if not FileAccess.file_exists(path):
+			paths.erase(path)
+	
+	return paths as PackedStringArray
+
+
+func _parse_history(text: String) -> Array:
+	var data: Variant = JSON.parse_string(text)
+	if data is Array:
+		return data.filter(func(p: Variant) -> bool: return FileAccess.file_exists(p))
+	return []
+
+
+func _ensure_history_file() -> void:
+	if not FileAccess.file_exists(Constants.HISTORY_PATH):
+		FileAccess.open(Constants.HISTORY_PATH, FileAccess.WRITE)
 
 
 func _on_close_project_dialog_response(response: int) -> void:

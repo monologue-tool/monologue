@@ -19,11 +19,11 @@ var active_language_code: String = "en"
 
 
 func _init() -> void:
+	_init_documents.call_deferred()
+	
 	command_manager.command_executed.connect(_on_command_executed)
 	command_manager.undone.connect(_on_undo)
 	command_manager.redone.connect(_on_redo)
-		
-	_init_documents.call_deferred()
 
 
 func _init_documents() -> void:

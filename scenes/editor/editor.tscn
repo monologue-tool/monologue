@@ -100,7 +100,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 1
 theme_override_constants/minimum_grab_thickness = 18
-split_offsets = PackedInt32Array(1082)
+split_offsets = PackedInt32Array(1082, 303)
 split_offset = 1082
 
 [node name="Graph" parent="VBox/HBoxContainer/HSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]

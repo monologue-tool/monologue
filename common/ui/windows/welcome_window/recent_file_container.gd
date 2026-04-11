@@ -5,23 +5,9 @@ class_name RecentFilesContainer extends VBoxContainer
 
 @onready var button_scene: PackedScene = preload("uid://dqp3uifnpuc3b")
 
-var recent_filepaths: Array = []
-
 
 func _ready() -> void:
-	EventBus.load_successful.connect(add)
 	refresh()
-
-
-## Adds a new filepath as recent file and saves it to the history file.
-func add(filepath: String) -> void:
-	var file: FileAccess = FileAccess.open(save_path, FileAccess.WRITE)
-	if file:
-		recent_filepaths.erase(filepath)
-		recent_filepaths.push_front(filepath)
-		file.store_string(JSON.stringify(recent_filepaths.slice(0, 10)))
-		file.close()
-		refresh()
 
 
 func create_button(filepath: String) -> Button:
@@ -34,51 +20,28 @@ func create_button(filepath: String) -> Button:
 
 	btn.text = btn_text
 	btn.flat = true
-	btn.pressed.connect(EventBus.load_project.emit.bind(filepath))
+	btn.pressed.connect(_on_project_btn_pressed.bind(filepath))
 	btn.tooltip_text = filepath
 	button_container.add_child(btn)
 	return btn
 
 
-## Create the recent file history save in user directory if it doesn't exist.
-func create_file() -> void:
-	if not FileAccess.file_exists(save_path):
-		FileAccess.open(save_path, FileAccess.WRITE)
-
-
 ## Load the recent file history save and create buttons for it.
-func load_file() -> void:
-	var file: FileAccess = FileAccess.open(save_path, FileAccess.READ)
-	if file:
-		var data: Array = parse_history(file.get_as_text())
-		file.close()
+func load_history() -> void:
+	var data: Array = ProjectManager.get_history()
 
-		for path: Variant in data.slice(0, 3):
-			recent_filepaths.append(path)
-			create_button(path)
-
-
-## Return only the recent files that still exist as a JSON array.
-func parse_history(text: String) -> Array:
-	var data: Variant = JSON.parse_string(text)
-	if data is Array:
-		return data.filter(func(p: Variant) -> bool: return FileAccess.file_exists(p))
-	return []
+	for path: Variant in data.slice(0, 3):
+		create_button(path)
 
 
 ## Remake the recent file list.
 func refresh() -> void:
 	for child: Node in button_container.get_children():
 		child.queue_free()
-	recent_filepaths.clear()
-	create_file()
-	load_file()
-	show_or_hide()
+	
+	load_history()
 
 
-## Show container if recent file buttons are present, otherwise hide it.
-func show_or_hide() -> void:
-	if button_container.get_child_count() > 0:
-		show()
-	else:
-		hide()
+func _on_project_btn_pressed(path: String) -> void:
+	ProjectManager.load_project_from_path(path)
+	

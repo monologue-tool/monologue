@@ -132,7 +132,3 @@ func _on_window_drop_file(paths: PackedStringArray) -> void:
 		return
 	
 	ProjectManager.load_project_from_path(path)
-
-
-func _on__tabs_add_document() -> void:
-	welcome_window.show()
