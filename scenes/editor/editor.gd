@@ -20,11 +20,16 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
 
+	DisplayServer.window_set_drop_files_callback(_on_window_drop_file)
 	EventBus.add_graph_node.connect(add_node_from_global)
 	EventBus.select_new_node.connect(_select_new_node)
-	EventBus.load_project.connect(load_project)
 	EventBus.test_trigger.connect(test_project)
 	EventBus.save_current_project.connect(save)
+	
+	var args: PackedStringArray = OS.get_cmdline_args()
+	for arg: String in args:
+		if arg.ends_with(".mnlp") and FileAccess.file_exists(arg):
+			Log.warn("Attempt to open mlnp file on startup.")
 	
 	ProjectManager.load_project(MonologueProject.new())
 	
@@ -51,7 +56,7 @@ func _input(event: InputEvent) -> void:
 		ProjectManager.current_project.command_manager.redo()
 
 
-## Function callback for when the user wants to add a node from global context.
+## Function callback for when th e user wants to add a node from global context.
 ## Used by header menu and graph node selector (picker).
 func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> void:
 	var storyline_id: String = graph_container.graph.storyline_id
@@ -81,9 +86,8 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 	storyline.history.execute(command)
 
 
-func load_project(path: String, _new_graph: bool = false) -> void:
-	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	pass
+func load_project(path: String) -> void:
+	ProjectManager.load_project_from_path(path)
 
 
 func load_editor_sections() -> void:
@@ -97,33 +101,7 @@ func load_editor_sections() -> void:
 
 
 func save() -> void:
-	print("TODO: save logic")
-	pass
-	#var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	#if storyline.file_path.is_empty():
-		#file_dialog.save_file(save_file_logic, STORYLINE_EXTENSIONS)
-		#return
-	#save_file_logic(storyline.file_path)
-
-
-func save_file_logic(path: String) -> void:
-	pass
-	#var storyline: StorylineDocument = StorylineManager.get_active_storyline()
-	#var dict: Dictionary = storyline._to_dict()
-	#dict["editor_version"] = ProjectSettings.get_setting("application/config/version")
-	#var storyline_data: String = JSON.stringify(dict, "\t", false, true)
-#
-	#if path.get_extension().is_empty():
-		#path = path.trim_suffix(".")
-		#path = "%s.mnlg" % path
-#
-	#var access: FileAccess = FileAccess.open(path, FileAccess.WRITE_READ)
-	#access.store_string(storyline_data)
-#
-	#storyline.file_path = path
-	#storyline.name = path.get_file()
-	#storyline.is_dirty = false
-	#storyline.content_changed.emit()
+	ProjectManager.current_project.save()
 
 
 func _on_storyline_switched() -> void:
@@ -138,12 +116,22 @@ func test_project(_from_node: Variant = null) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		get_viewport().gui_release_focus()
-		# TODO: Handle unsaved changes before quitting
+		
+		if await ProjectManager.close_current_project():
+			get_tree().quit()
 
 
-func _on_button_sparkle_pressed() -> void:
-	# TODO: Create an undo/redo action for every nodes. Need to pack undo/redo action into one action.
-	pass
+func _on_window_drop_file(paths: PackedStringArray) -> void:
+	Log.info("%s file(s) have been dragged into the editor." % paths.size())
+	if paths.size() > 1:
+		Log.warn("Can't open multiple files.")
+	var path: String = paths[0]
+	
+	if not path.ends_with(".%s" % MonologueProject.FILE_FORMAT):
+		Log.error("Can't open file at '%s'. (wrong file format)" % path)
+		return
+	
+	ProjectManager.load_project_from_path(path)
 
 
 func _on__tabs_add_document() -> void:

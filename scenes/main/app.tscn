@@ -75,7 +75,9 @@ access = 2
 use_native_dialog = true
 script = ExtResource("10_r77hi")
 
+[connection signal="dir_selected" from="FileDialog" to="FileDialog" method="_on_dir_selected"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
+[connection signal="files_selected" from="FileDialog" to="FileDialog" method="_on_files_selected"]
 
 [editable path="Frame/VBoxContainer/MonologueEditor"]
 [editable path="Frame/VBoxContainer/MonologueEditor/VBox/HBoxContainer/HSplitContainer/Inspector"]
