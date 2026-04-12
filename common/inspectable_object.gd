@@ -1,7 +1,7 @@
 @abstract
 class_name InspectableObject extends Resource
 
-const ID_LENGTH: int = 8
+const ID_LENGTH: int = 4
 
 signal property_changed(property_name: String)
 
@@ -33,7 +33,7 @@ func _init(command_manager: CommandManager = null) -> void:
 	
 	define_property(
 		"id",
-		IDGen.generate(ID_LENGTH),
+		"%s-%s" % [get_type(), IDGen.generate(ID_LENGTH)],
 		"text",
 		{
 			"visible_in_graph": false,

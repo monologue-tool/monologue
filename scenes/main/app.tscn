@@ -68,9 +68,8 @@ visible = false
 visible = false
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=1731826877]
-auto_translate_mode = 1
 oversampling_override = 1.0
-size = Vector2i(505, 201)
+display_mode = 1
 access = 2
 use_native_dialog = true
 script = ExtResource("10_r77hi")
