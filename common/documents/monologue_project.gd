@@ -74,10 +74,18 @@ func get_documents() -> Array[InspectableDocument]:
 	
 	return documents
 
-func get_collection_value(collection_name: String) -> Array:
+
+func get_collection(collection_name: String) -> CollectionDocument:
 	for collection: CollectionDocument in collections:
 		if not collection.name == collection_name:
 			continue
+		return collection
+	return
+
+
+func get_collection_value(collection_name: String) -> Array:
+	var collection: CollectionDocument = get_collection(collection_name)
+	if collection:
 		return collection.get_value()
 	
 	Log.error("Can't find collection '%s'" % collection_name)

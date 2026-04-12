@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/editor/main_menu.gd" id="4_pwbil"]
 [ext_resource type="Script" uid="uid://creja611rnsop" path="res://common/ui/project_panel/project_panel.gd" id="4_syr16"]
 [ext_resource type="Texture2D" uid="uid://jeypaf8vd3sf" path="res://ui/assets/icons/minimize_ui.svg" id="5_qnluh"]
+[ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/h_auto_split_container.gd" id="6_syr16"]
 [ext_resource type="PackedScene" uid="uid://c8525nhvwt1y0" path="res://common/ui/graph/graph_container.tscn" id="9_qd5yd"]
 [ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/ui/inspector/inspector_panel.tscn" id="14_craj7"]
 [ext_resource type="Script" uid="uid://q0oqx6butjwn" path="res://scenes/editor/search_bar_container.gd" id="15_35jwg"]
@@ -28,7 +29,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ovo1o")
-graph_container = NodePath("VBox/HBoxContainer/HSplitContainer/Graph")
+graph_container = NodePath("VBox/HSplitContainer/Graph")
 
 [node name="VBox" type="VBoxContainer" parent="." unique_id=212421522]
 layout_mode = 1
@@ -68,48 +69,42 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBox" unique_id=2043137277]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 1
-
-[node name="ProjectPanel" type="PanelContainer" parent="VBox/HBoxContainer" unique_id=1336539805]
-layout_mode = 2
-script = ExtResource("4_syr16")
-
-[node name="ProjectTree" type="Tree" parent="VBox/HBoxContainer/ProjectPanel" unique_id=666690687]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(275, 0)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxEmpty_syr16")
-
-[node name="HBox" type="HBoxContainer" parent="VBox/HBoxContainer/ProjectPanel" unique_id=1538650942]
-layout_mode = 2
-size_flags_vertical = 0
-alignment = 2
-
-[node name="MinimizeButton" type="Button" parent="VBox/HBoxContainer/ProjectPanel/HBox" unique_id=1631365746]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-icon = ExtResource("5_qnluh")
-
-[node name="HSplitContainer" type="HSplitContainer" parent="VBox/HBoxContainer" unique_id=109031884]
+[node name="HSplitContainer" type="HSplitContainer" parent="VBox" unique_id=109031884]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 1
 theme_override_constants/minimum_grab_thickness = 18
-split_offsets = PackedInt32Array(1082, 303)
-split_offset = 1082
+split_offsets = PackedInt32Array(195, 1198)
+split_offset = 195
+script = ExtResource("6_syr16")
 
-[node name="Graph" parent="VBox/HBoxContainer/HSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
+[node name="ProjectPanel" type="PanelContainer" parent="VBox/HSplitContainer" unique_id=1336539805]
+layout_mode = 2
+script = ExtResource("4_syr16")
+
+[node name="ProjectTree" type="Tree" parent="VBox/HSplitContainer/ProjectPanel" unique_id=666690687]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_syr16")
+
+[node name="HBox" type="HBoxContainer" parent="VBox/HSplitContainer/ProjectPanel" unique_id=1538650942]
+layout_mode = 2
+size_flags_vertical = 0
+alignment = 2
+
+[node name="MinimizeButton" type="Button" parent="VBox/HSplitContainer/ProjectPanel/HBox" unique_id=1631365746]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+icon = ExtResource("5_qnluh")
+
+[node name="Graph" parent="VBox/HSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
 layout_mode = 2
 inspector_panel = NodePath("../Inspector")
 
-[node name="Inspector" parent="VBox/HBoxContainer/HSplitContainer" unique_id=667809004 instance=ExtResource("14_craj7")]
+[node name="Inspector" parent="VBox/HSplitContainer" unique_id=667809004 instance=ExtResource("14_craj7")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(330, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -136,6 +131,6 @@ visible = false
 layout_mode = 2
 
 [connection signal="tab_changed" from="VBox/_Tabs/TabBar/TabBar" to="VBox/_Tabs" method="_on_tab_bar_tab_changed"]
-[connection signal="pressed" from="VBox/HBoxContainer/ProjectPanel/HBox/MinimizeButton" to="VBox/HBoxContainer/ProjectPanel" method="_on_minimize_button_pressed"]
+[connection signal="pressed" from="VBox/HSplitContainer/ProjectPanel/HBox/MinimizeButton" to="VBox/HSplitContainer/ProjectPanel" method="_on_minimize_button_pressed"]
 
-[editable path="VBox/HBoxContainer/HSplitContainer/Inspector"]
+[editable path="VBox/HSplitContainer/Inspector"]

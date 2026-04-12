@@ -38,9 +38,9 @@ layout_mode = 2
 welcome_window = NodePath("../../../WelcomeWindow")
 file_dialog = NodePath("../../../FileDialog")
 
-[node name="HSplitContainer" parent="Frame/VBoxContainer/MonologueEditor/VBox/HBoxContainer" parent_id_path=PackedInt32Array(1963406996, 2043137277) index="1" unique_id=109031884]
-split_offsets = PackedInt32Array(800)
-split_offset = 800
+[node name="HSplitContainer" parent="Frame/VBoxContainer/MonologueEditor/VBox" parent_id_path=PackedInt32Array(1963406996, 212421522) index="1" unique_id=109031884]
+split_offsets = PackedInt32Array(250, 1088)
+split_offset = 250
 
 [node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
 z_index = 1
@@ -79,4 +79,4 @@ script = ExtResource("10_r77hi")
 [connection signal="files_selected" from="FileDialog" to="FileDialog" method="_on_files_selected"]
 
 [editable path="Frame/VBoxContainer/MonologueEditor"]
-[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HBoxContainer/HSplitContainer/Inspector"]
+[editable path="Frame/VBoxContainer/MonologueEditor/VBox/HSplitContainer/Inspector"]

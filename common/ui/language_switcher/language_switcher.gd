@@ -7,15 +7,26 @@ var _is_applying: bool = false
 
 func _ready() -> void:
 	item_selected.connect(_on_item_selected)
-	EventBus.load_languages.connect(load_languages)
+	ProjectManager.project_loaded.connect(_on_project_loaded)
 	EventBus.refresh.connect(_on_global_refresh)
 	EventBus.enable_language_switcher.connect(set_enabled)
 	EventBus.disable_language_switcher.connect(set_enabled.bind(false))
 	load_languages()
 
 
-func load_languages(languages: Array = [], graph: MonologueGraphEdit = null) -> void:
-	graph_edit = graph
+func _on_project_loaded() -> void:
+	var project: MonologueProject = ProjectManager.current_project
+	project.get_collection("languages").content_changed.connect(_on_languages_content_changed)
+	_on_languages_content_changed()
+
+
+func _on_languages_content_changed() -> void:
+	var project: MonologueProject = ProjectManager.current_project
+	var languages: Array = project.get_collection_value("languages")
+	load_languages(languages)
+
+
+func load_languages(languages: Array = []) -> void:
 	clear()
 
 	var seen_codes: PackedStringArray = []
@@ -30,8 +41,6 @@ func load_languages(languages: Array = [], graph: MonologueGraphEdit = null) -> 
 		set_item_metadata(item_count - 1, lang_code)
 
 	var restore_idx: int = 0
-	if graph_edit:
-		restore_idx = clampi(graph_edit.current_language_index, 0, item_count - 1)
 	if item_count > 0:
 		select(restore_idx)
 		_apply_selection(restore_idx)
