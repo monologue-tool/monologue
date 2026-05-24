@@ -8,11 +8,13 @@ signal undo_redo_changed
 signal _project_path_changed
 
 var manifest: ManifestDocument
+var settings: ProjectSettingsDocument
 var collections: Array[CollectionDocument]
 var storylines: Array[StorylineDocument]
 var compact: bool = true
 
 var command_manager: CommandManager = CommandManager.new()
+var name: String = "unsaved"
 var project_path: String = ""
 var is_dirty: bool = false
 var active_language_code: String = "en"
@@ -28,10 +30,46 @@ func _init() -> void:
 
 func _init_documents() -> void:
 	manifest = ManifestDocument.new(command_manager)
+	settings = ProjectSettingsDocument.new(command_manager)
 	storylines.append(StorylineDocument.new("main", command_manager))
 	_init_collections()
 	
 	ready.emit()
+
+
+func get_all_documents() -> Array[InspectableDocument]:
+	var documents: Array[InspectableDocument] = []
+	documents.append(manifest)
+	documents.append(settings)
+	documents.append_array(collections)
+	documents.append_array(storylines)
+	return documents
+
+
+func get_documents() -> Array[InspectableDocument]:
+	var documents: Array[InspectableDocument] = []
+	documents.append(manifest)
+	documents.append_array(collections)
+	documents.append_array(storylines)
+	return documents
+
+
+func get_project_structure() -> Dictionary[String, Variant]:
+	var structure: Dictionary[String, Variant] = {}
+	structure["manifest.json"] = manifest
+	structure["settings.json"] = settings
+	
+	var collections_map: Dictionary = {}
+	for collection: CollectionDocument in collections:
+		collections_map["%s.json" % collection.name] = collection
+	structure["collections"] = collections_map
+	
+	var storylines_map: Dictionary = {}
+	for storyline: StorylineDocument in storylines:
+		storylines_map["%s.json" % storyline.name] = storyline
+	structure["storylines"] = storylines_map
+	
+	return structure
 
 
 func _init_collections() -> void:
@@ -66,21 +104,11 @@ func _init_collections() -> void:
 	collections.append(CollectionDocument.new("beziers", beziers_data, command_manager))
 
 
-func get_documents() -> Array[InspectableDocument]:
-	var documents: Array[InspectableDocument] = []
-	documents.append(manifest)
-	documents.append_array(collections)
-	documents.append_array(storylines)
-	
-	return documents
-
-
 func get_collection(collection_name: String) -> CollectionDocument:
 	for collection: CollectionDocument in collections:
-		if not collection.name == collection_name:
-			continue
-		return collection
-	return
+		if collection.name == collection_name:
+			return collection
+	return null
 
 
 func get_collection_value(collection_name: String) -> Array:
@@ -94,55 +122,58 @@ func get_collection_value(collection_name: String) -> Array:
 
 func get_storyline(storyline_id: String) -> StorylineDocument:
 	for storyline: StorylineDocument in storylines:
-		if not storyline.id == storyline_id:
-			continue
-		return storyline
-	return
+		if storyline.id == storyline_id:
+			return storyline
+	return null
 
 
 func add_new_storyline() -> void:
 	var base_name: String = "new_storyline"
-	var try: int = 1
-	var name: String = base_name
-	var names: Array[String] = _get_all_documents_name(storylines)
+	var attempt: int = 1
+	var storyline_name: String = base_name
+	var existing_names: Array[String] = _get_all_document_names(storylines)
 	
-	while name in names:
-		name = base_name + " %s" % try
-		try += 1
+	while storyline_name in existing_names:
+		storyline_name = "%s_%d" % [base_name, attempt]
+		attempt += 1
 	
-	storylines.append(StorylineDocument.new(name, command_manager))
+	storylines.append(StorylineDocument.new(storyline_name, command_manager))
 
 
-func is_valid_storyline_name(name: String) -> bool:
-	for doc_name: String in _get_all_documents_name(storylines):
-		if doc_name == name:
+func is_valid_storyline_name(storyline_name: String) -> bool:
+	for doc_name: String in _get_all_document_names(storylines):
+		if doc_name == storyline_name:
 			return true
 	
 	return false
 
 
-func _get_all_documents_name(documents: Array) -> Array[String]:
+func _get_all_document_names(documents: Array) -> Array[String]:
 	var result: Array[String] = []
 	for doc: InspectableDocument in documents:
 		result.append(doc.name)
-	
 	return result
+
 
 func _on_command_executed() -> void:
 	is_dirty = true
 	content_changed.emit()
 	undo_redo_changed.emit()
+	ProjectManager._update_window_title()
 
 
 func _on_undo() -> void:
+	is_dirty = true
 	content_changed.emit()
 	undo_redo_changed.emit()
+	ProjectManager._update_window_title()
 
 
 func _on_redo() -> void:
 	is_dirty = true
 	content_changed.emit()
 	undo_redo_changed.emit()
+	ProjectManager._update_window_title()
 
 
 func save() -> void:
@@ -163,6 +194,7 @@ func save() -> void:
 		return
 	
 	pack_document(writer, manifest, "manifest.json")
+	pack_document(writer, settings, "settings.json")  # FIX: settings était omis
 	for collection: CollectionDocument in collections:
 		pack_document(writer, collection, "collections/%s.json" % collection.name)
 	for storyline: StorylineDocument in storylines:
@@ -171,12 +203,12 @@ func save() -> void:
 	writer.close()
 	is_dirty = false
 	Log.info("Project saved at path '%s'" % project_path)
+	ProjectManager._update_window_title()
 
 
 func pack_document(writer: ZIPPacker, document: InspectableDocument, path: String) -> void:
 	var data: Dictionary = document._to_dict()
 	var s_data: String = JSON.stringify(data, "\t")
-	
 	writer.start_file(path)
 	writer.write_file(s_data.to_utf8_buffer())
 	writer.close_file()
@@ -190,7 +222,7 @@ func _open_file_request_callback(path: String) -> void:
 static func from_path(path: String) -> MonologueProject:
 	if not path.ends_with(".%s" % FILE_FORMAT) or not FileAccess.file_exists(path):
 		Log.error("Can't load project from an invalid path.")
-		return
+		return null
 	
 	var reader: ZIPReader = ZIPReader.new()
 	reader.open(path)
@@ -200,12 +232,22 @@ static func from_path(path: String) -> MonologueProject:
 	await project.ready
 	
 	project.project_path = path
+	project.name = path.get_file()
 	project.is_dirty = false
 	
 	if reader.file_exists("manifest.json"):
-		var manifest_content: String = reader.read_file("manifest.json").get_string_from_utf8()
-		var manifest_data: Dictionary = JSON.parse_string(manifest_content)
+		var manifest_data: Dictionary = JSON.parse_string(
+			reader.read_file("manifest.json").get_string_from_utf8()
+		)
 		project.manifest._from_dict(manifest_data)
+	
+	if reader.file_exists("settings.json"):  # FIX: settings n'était pas chargé
+		var settings_data: Dictionary = JSON.parse_string(
+			reader.read_file("settings.json").get_string_from_utf8()
+		)
+		project.settings._from_dict(settings_data)
+	
+	project.storylines.clear()
 	
 	for file: String in files:
 		var paths: Array = file.split("/") as Array
@@ -215,36 +257,30 @@ static func from_path(path: String) -> MonologueProject:
 		var file_name: String = paths.back().get_basename()
 		var extension: String = paths.back().get_extension()
 		if extension != "json":
-			Log.error("Attempt to load an non-JSON file.")
+			Log.error("Attempt to load a non-JSON file: '%s'" % file)
 			continue
 		
-		if paths[0] == "collections":
-			var collection_content: String = reader.read_file(file).get_string_from_utf8()
-			_load_collection_from_file(project, file_name, collection_content)
+		var file_content: String = reader.read_file(file).get_string_from_utf8()
 		
-		project.storylines.clear()
-		if paths[0] == "storylines":
-			var storyline_content: String = reader.read_file(file).get_string_from_utf8()
-			_load_storyline_from_file(project, file_name, storyline_content)
-
+		match paths[0]:
+			"collections":
+				_load_collection_from_file(project, file_name, file_content)
+			"storylines":
+				_load_storyline_from_file(project, file_name, file_content)
+	
 	return project
 
 
 static func _load_collection_from_file(project: MonologueProject, collection_name: String, file_content: String) -> void:
-	for collection: CollectionDocument in project.collections:
-		if collection.name != collection_name:
-			continue
-		
-		var collection_data: Dictionary = JSON.parse_string(file_content)
-		collection._from_dict(collection_data)
+	var collection: CollectionDocument = project.get_collection(collection_name)
+	if not collection:
+		Log.error("Can't find the collection '%s' inside the project." % collection_name)
 		return
 	
-	Log.error("Can't find the collection '%s' inside the project.")
+	collection._from_dict(JSON.parse_string(file_content))
 
 
 static func _load_storyline_from_file(project: MonologueProject, storyline_name: String, file_content: String) -> void:
 	var storyline: StorylineDocument = StorylineDocument.new(storyline_name, project.command_manager)
-	var storyline_data: Dictionary = JSON.parse_string(file_content)
-		
-	storyline._from_dict(storyline_data)
+	storyline._from_dict(JSON.parse_string(file_content))
 	project.storylines.append(storyline)

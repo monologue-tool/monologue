@@ -3,14 +3,10 @@ extends Node
 # Reference DPI for a 23.8" 1920x1080 display
 const BASE_SCALE_DPI: float = 92.56
 
-# Application preferences config
-var preferences: ConfigFile = ConfigFile.new()
-
 
 func _ready() -> void:
-	_load_preferences()
 	_update_window(true)
-	get_window().connect("size_changed", Callable(self, "_on_window_size_changed"))
+	get_window().size_changed.connect(_on_window_size_changed)
 
 
 func _shortcut_input(event: InputEvent) -> void:
@@ -31,31 +27,30 @@ func _update_window(update_size: bool = false) -> void:
 		get_window().move_to_center()
 
 
-func _load_preferences() -> void:
-	var err: Error = preferences.load(Constants.PREFERENCES_PATH)
-	if err != OK:
-		push_warning("Failed to load preferences from %s" % Constants.PREFERENCES_PATH)
-
-
 ## Returns the optimal window scale factor for the current screen.
-## Logic adapted from Godot editor/editor_settings.cpp:1564.
+## Logic adapted from Godot editor/editor_settings.cpp#L1974.
 func _get_auto_display_scale() -> float:
 	var os_name: String = OS.get_name()
 	if os_name in ["Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD"]:
 		if DisplayServer.get_name() == "Wayland":
-			var main_window_scale: float = DisplayServer.screen_get_scale(
-				DisplayServer.SCREEN_OF_MAIN_WINDOW
-			)
-			if DisplayServer.get_screen_count() == 1:
+			var main_window_scale: float = DisplayServer.screen_get_scale(DisplayServer.SCREEN_OF_MAIN_WINDOW)
+			if DisplayServer.get_screen_count() == 1 or fmod(main_window_scale, 1.0) != 0.0:
 				return main_window_scale
 			return DisplayServer.screen_get_max_scale()
+	
 	if os_name in ["macOS", "Android"]:
 		return DisplayServer.screen_get_max_scale()
+	
 	var screen: int = DisplayServer.window_get_current_screen()
+	if DisplayServer.screen_get_size(screen) == Vector2i.ZERO:
+		return 1.0
+	
+	if os_name == "Windows":
+		return DisplayServer.screen_get_dpi(screen) / 96.0
+	
 	var screen_size: Vector2i = DisplayServer.screen_get_size(screen)
-	if screen_size == Vector2i():
-		return 1.0  # Invalid screen size
 	var smallest_dimension: int = min(screen_size.x, screen_size.y)
+	
 	var dpi: float = DisplayServer.screen_get_dpi(screen)
 	if dpi >= 192.0 and smallest_dimension >= 1440:
 		return 2.0  # hiDPI display
@@ -63,4 +58,16 @@ func _get_auto_display_scale() -> float:
 		return 1.5  # likely hiDPI
 	elif smallest_dimension <= 800:
 		return 0.75  # small loDPI display
+	return 1.0
+
+func get_windows_scale() -> float:
+	var output: Array = []
+	OS.execute("powershell", [
+		"-Command",
+		"(Get-ItemProperty 'HKCU:\\Control Panel\\Desktop' -Name LogPixels -ErrorAction SilentlyContinue).LogPixels"
+	], output)
+	
+	if output.size() > 0 and output[0].strip_edges() != "":
+		var logpixels: int = output[0].strip_edges().to_int()
+		return logpixels / 96.0
 	return 1.0

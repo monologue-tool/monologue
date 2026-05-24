@@ -1,0 +1,6 @@
+[gd_resource type="FontVariation" format=3 uid="uid://dbinvgq5ndfwt"]
+
+[ext_resource type="FontFile" uid="uid://dsredpdru3btl" path="res://ui/assets/fonts/sources/Inter-Regular.ttf" id="1_20plx"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("1_20plx")])

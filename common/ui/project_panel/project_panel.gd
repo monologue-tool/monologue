@@ -1,117 +1,120 @@
 extends PanelContainer
 
-enum Actions { DELETE_ITEM, NEW_STORYLINE }
+@onready var project_explorer: VBoxContainer = %ProjectExplorer
 
-@onready var tree: Tree = %ProjectTree
-
-@onready var folder_icon: DPITexture = preload("res://ui/assets/icons/folder.svg")
 @onready var delete_icon: DPITexture = preload("res://ui/assets/icons/trash.svg")
 @onready var add_icon: DPITexture = preload("res://ui/assets/icons/plus.svg")
 
-var _collapsed_cache: Dictionary[String, bool] = {}
+var collections_fc: FoldableContainer
+var collections_container: VBoxContainer
+var storylines_fc: FoldableContainer
+var storylines_container: VBoxContainer 
 
 
 func _ready() -> void:
-	ProjectManager.project_loaded.connect(rebuild_tree)
-	tree.item_selected.connect(_on_tree_item_selected)
-	tree.item_edited.connect(_on_tree_item_edited)
-	tree.item_collapsed.connect(_on_tree_item_collapsed)
-	tree.button_clicked.connect(_on_tree_button_pressed)
+	ProjectManager.project_loaded.connect(_rebuild_explorer)
+	EventBus.request_object_inspection.connect(_on_request_object_inspection)
+	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
 	
 	# FIXME: It's an ugly fix
-	delete_icon.set_size_override(Vector2(18, 18))
-	add_icon.set_size_override(Vector2(18, 18))
+	#var icon_size: Vector2i = ThemeLayout.icon_xs
+	#delete_icon.set_size_override(Vector2(icon_size, icon_size))
+	#add_icon.set_size_override(Vector2(icon_size, icon_size))
 	
-	rebuild_tree()
+	_rebuild_explorer()
 
 
-func rebuild_tree() -> void:
-	tree.clear()
+func _rebuild_explorer() -> void:
+	for child: Control in project_explorer.get_children():
+		child.queue_free()
+	
+	collections_fc = null
+	collections_container = null
+	storylines_fc = null
+	storylines_container = null
 	
 	var project: MonologueProject = ProjectManager.current_project
 	if not project:
 		return
 	
-	var root_item: TreeItem = tree.create_item()
-	if not root_item:
-		return
-	root_item.set_text(0, "<Unsaved Project>")
-	root_item.set_icon(0, folder_icon)
-	root_item.set_selectable(0, false)
 	
-	var manifest_item: TreeItem = tree.create_item(root_item)
-	manifest_item.set_text(0, "manifest")
-	manifest_item.set_meta("document", project.manifest)
-	var collections_item: TreeItem = tree.create_item(root_item)
-	collections_item.set_text(0, "Collections")
-	collections_item.set_meta("name", "collections")
-	collections_item.set_icon(0, folder_icon)
-	collections_item.collapsed = _collapsed_cache.get("collections", true)
-	var storylines_item: TreeItem = tree.create_item(root_item)
-	storylines_item.set_text(0, "Storylines")
-	storylines_item.set_meta("name", "storylines")
-	storylines_item.set_icon(0, folder_icon)
-	storylines_item.collapsed = _collapsed_cache.get("storylines", false)
-	storylines_item.add_button(0, add_icon, Actions.NEW_STORYLINE)
+	var display_name: String = project.name
+	if project.project_path.is_empty():
+		display_name = "<%s>" % display_name
+	if project.is_dirty:
+		display_name = "%s*" % display_name
 	
+	collections_fc = _create_foldable_container("Collections")
+	collections_container = VBoxContainer.new()
+	collections_fc.add_child(collections_container)
+	
+	storylines_fc = _create_foldable_container("Storylines")
+	storylines_container = VBoxContainer.new()
+	storylines_fc.add_child(storylines_container)
+	
+	var add_button: Button = Button.new()
+	add_button.theme_type_variation = "IconButton"
+	add_button.icon = add_icon
+	add_button.pressed.connect(_on_add_storyline_button_pressed)
+	storylines_fc.add_title_bar_control(add_button)
+	
+	var collection_button_group: ButtonGroup = ButtonGroup.new()
 	for collection: CollectionDocument in project.collections:
-		var collection_item: TreeItem = collections_item.create_child()
-		collection_item.set_text(0, collection.name)
-		collection_item.set_meta("document", collection)
+		var collection_btn: Button = Button.new()
+		collection_btn.text = collection.name
+		collection_btn.toggle_mode = true
+		collection_btn.theme_type_variation = "ToggleButton"
+		collection_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		collection_btn.button_group = collection_button_group
+		collection_btn.pressed.connect(_on_collection_button_pressed.bind(collection))
+		collection_btn.set_meta("document", collection)
+		collections_container.add_child(collection_btn)
 
-	
+	var storyline_button_group: ButtonGroup = ButtonGroup.new()
 	for storyline: StorylineDocument in project.storylines:
-		var storyline_item: TreeItem = storylines_item.create_child()
-		storyline_item.set_text(0, storyline.name)
-		storyline_item.set_meta("document", storyline)
-		storyline_item.add_button(0, delete_icon, Actions.DELETE_ITEM)
+		var storyline_btn: Button = Button.new()
+		storyline_btn.text = storyline.name
+		storyline_btn.toggle_mode = true
+		storyline_btn.theme_type_variation = "ToggleButton"
+		storyline_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		storyline_btn.button_group = storyline_button_group
+		storyline_btn.pressed.connect(_on_storyline_button_pressed.bind(storyline))
+		storyline_btn.set_meta("document", storyline)
+		storylines_container.add_child(storyline_btn)
 
 
-func _on_tree_item_selected() -> void:
-	var item: TreeItem = tree.get_selected()
-	
-	var document: InspectableDocument = item.get_meta("document")
-	if document == null:
+func _create_foldable_container(title: String) -> FoldableContainer:
+	var container: FoldableContainer = FoldableContainer.new()
+	container.title = title
+	container.title_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	project_explorer.add_child(container)
+	return container
+
+func _on_collection_button_pressed(collection: CollectionDocument) -> void:
+	EventBus.request_object_inspection.emit(collection)
+
+func _on_storyline_button_pressed(storyline: StorylineDocument) -> void:
+	EventBus.request_storyline_inspection.emit(storyline)
+
+func _on_add_storyline_button_pressed() -> void:
+	ProjectManager.current_project.add_new_storyline()
+	_rebuild_explorer()
+
+func _on_request_object_inspection(object: InspectableObject) -> void:
+	if not collections_container:
 		return
 	
-	if document is StorylineDocument:
-		item.set_editable.call_deferred(0, true)
-		EventBus.request_storyline_inspection.emit(document)
+	for button: Button in collections_container.get_children():
+		var collection: CollectionDocument = button.get_meta("document")
+		button.set_pressed_no_signal(collection == object)
+
+func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
+	if not storylines_container:
 		return
 	
-	EventBus.request_object_inspection.emit(document)
-
-
-func _on_tree_item_edited() -> void:
-	var item: TreeItem = tree.get_edited()
-	var new_name: String = item.get_text(0)
-	item.set_editable(0, false)
-	var document: InspectableDocument = item.get_meta("document")
-	if not document or not ProjectManager.current_project.is_valid_storyline_name(new_name):
-		rebuild_tree()
-		return
-	
-	document.name = new_name
-
-
-func _on_tree_button_pressed(_item: TreeItem, _column: int, id: int, mouse_button_index: int) -> void:
-	if not mouse_button_index == MOUSE_BUTTON_LEFT:
-		return
-	
-	match id:
-		Actions.NEW_STORYLINE:
-			ProjectManager.current_project.add_new_storyline()
-	
-	rebuild_tree()
-
-
-func _on_tree_item_collapsed(item: TreeItem) -> void:
-	var item_name: Variant = item.get_meta("name")
-	if not item_name:
-		return
-	
-	_collapsed_cache[item_name] = item.collapsed
-
+	for button: Button in storylines_container.get_children():
+		var btn_storyline: StorylineDocument = button.get_meta("document")
+		button.set_pressed_no_signal(btn_storyline == storyline)
 
 func _on_minimize_button_pressed() -> void:
-	tree.visible = !tree.visible
+	pass

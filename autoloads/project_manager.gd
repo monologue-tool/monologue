@@ -15,6 +15,7 @@ func _ready() -> void:
 
 func close_current_project() -> bool:
 	if not current_project:
+		_update_window_title()
 		return true
 	
 	if current_project and current_project.is_dirty:
@@ -30,7 +31,8 @@ func close_current_project() -> bool:
 	
 		if _cancel_close:
 			return false
-	
+			
+	_update_window_title()
 	return true
 
 
@@ -45,6 +47,8 @@ func load_project(project: MonologueProject) -> void:
 	
 	if not project.project_path.is_empty():
 		add_path_to_history(project.project_path)
+	
+	_update_window_title()
 
 
 func save_project(project: MonologueProject) -> void:
@@ -117,3 +121,21 @@ func _on_close_project_dialog_response(response: int) -> void:
 	_cancel_close = true
 	_file_prompt_done.emit()
 	return
+
+
+func _update_window_title() -> void:
+	var base_title: String = "Monologue %s" % ProjectSettings.get_setting("application/config/version")
+	
+	if not current_project:
+		DisplayServer.window_set_title(base_title)
+		return
+	
+	var title: String = "<unsaved>"
+	if current_project.project_path:
+		title = current_project.project_path.get_file().get_basename()
+	
+	if current_project.is_dirty:
+		title = "* " + title
+	
+	DisplayServer.window_set_title("%s - %s" % [title, base_title])
+		

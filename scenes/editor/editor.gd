@@ -9,13 +9,6 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var inspector_panel_node: InspectorPanel = %Inspector
 
-#@onready var characters_section := %Characters
-#@onready var variables_section := %Variables
-#@onready var items_section := %Items
-#@onready var locations_section := %Locations
-#@onready var languages_section := %Languages
-#@onready var beziers_section := %Beziers
-
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -24,7 +17,6 @@ func _ready() -> void:
 	EventBus.add_graph_node.connect(add_node_from_global)
 	EventBus.select_new_node.connect(_select_new_node)
 	EventBus.test_trigger.connect(test_project)
-	EventBus.save_current_project.connect(save)
 	
 	var args: PackedStringArray = OS.get_cmdline_args()
 	for arg: String in args:
@@ -32,10 +24,6 @@ func _ready() -> void:
 			Log.warn("Attempt to open mlnp file on startup.")
 	
 	ProjectManager.load_project(MonologueProject.new())
-	
-	# Load the editor sections after creating the storyline
-	await get_tree().process_frame
-	load_editor_sections()
 
 
 func _select_new_node() -> void:
@@ -44,7 +32,7 @@ func _select_new_node() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("Save"):
-		save()
+		ProjectManager.current_project.save()
 
 	if event.is_action_pressed("ui_undo"):
 		var focus_owner: Control = get_viewport().gui_get_focus_owner()
@@ -88,24 +76,6 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 
 func load_project(path: String) -> void:
 	ProjectManager.load_project_from_path(path)
-
-
-func load_editor_sections() -> void:
-	pass
-	#characters_section.load_items(storyline.get_property("characters"), storyline)
-	#variables_section.load_items(storyline.get_property("variables"), storyline)
-	#items_section.load_items(storyline.get_property("items"), storyline)
-	#locations_section.load_items(storyline.get_property("locations"), storyline)
-	#languages_section.load_items(storyline.get_property("languages"), storyline)
-	#beziers_section.load_items(storyline.get_property("beziers"), storyline)
-
-
-func save() -> void:
-	ProjectManager.current_project.save()
-
-
-func _on_storyline_switched() -> void:
-	load_editor_sections()
 
 
 func test_project(_from_node: Variant = null) -> void:

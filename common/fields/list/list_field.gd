@@ -15,11 +15,12 @@ func _on_initialize() -> void:
 	super._on_initialize()
 	var property: Property = _binding.property if _binding else null
 	if not property:
-		push_error("ListField is not binded.")
+		Log.warning("ListField is not binded.")
 	
 	var collection: Variant = property.get_settings_value("collection")
 	if not collection or  not CollectionBucket.get_descriptor(str(collection)):
-		push_error("Can't find collection %s." % str(collection))
+		Log.error("Can't find collection %s." % str(collection))
+		return
 	_collection_name = collection
 
 	if not property.connection_changed.is_connected(_on_connection_changed):
@@ -43,8 +44,14 @@ func show_all_items() -> void:
 
 
 func set_value(value: Variant) -> void:
+	if value is not Array:
+		value = []
+	
 	var outdated_childrens: Array = _get_children().duplicate()
 	for item_data: Dictionary in value:
+		if item_data is not Dictionary:
+			continue
+		
 		var child_found: bool = false
 		for child: ListItem in outdated_childrens:
 			var dict_match := false

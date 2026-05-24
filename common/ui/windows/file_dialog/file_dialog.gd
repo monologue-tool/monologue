@@ -75,6 +75,8 @@ func _core_request(
 		var opt_values: PackedStringArray = option.get("values", []) as PackedStringArray
 		var opt_default_value_index: int = option.get("default_value_index", 0) as int
 		add_option(opt_name, opt_values, opt_default_value_index)
+	
+	popup_centered()
 
 
 func _on_file_selected(path: String) -> void:

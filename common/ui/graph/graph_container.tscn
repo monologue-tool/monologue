@@ -1,56 +1,79 @@
 [gd_scene format=3 uid="uid://c8525nhvwt1y0"]
 
 [ext_resource type="Script" uid="uid://ffk7n7akpe7t" path="res://common/ui/graph/graph_container.gd" id="1_plmop"]
-[ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/ui/language_switcher/language_switcher.tscn" id="4_nyscr"]
-[ext_resource type="Texture2D" uid="uid://dd6wdpndndufl" path="res://ui/assets/icons/sparkles.svg" id="6_ya1cp"]
-[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="7_4poih"]
+[ext_resource type="Texture2D" uid="uid://bl4t6n5wyuelg" path="res://ui/assets/icons/magnet.svg" id="2_32s7k"]
+[ext_resource type="Texture2D" uid="uid://cvel6ifgyclof" path="res://ui/assets/icons/grid.svg" id="3_3el0f"]
 [ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/ui/graph/graph_edit.tscn" id="8_qfao8"]
 
-[sub_resource type="GDScript" id="GDScript_lenro"]
-script/source = "extends Button
-
-
-func _on_pressed() -> void:
-	EventBus.test_trigger.emit()
-"
-
 [node name="GraphContainer" type="PanelContainer" unique_id=379673752]
-offset_right = 359.0
-offset_bottom = 41.0
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"EditorGraphPanel"
 script = ExtResource("1_plmop")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=493267978]
 layout_mode = 2
+theme_type_variation = &"VBoxContainerCompact"
 
-[node name="ToolBar" type="HBoxContainer" parent="VBoxContainer" unique_id=1840524053]
+[node name="Header" type="PanelContainer" parent="VBoxContainer" unique_id=93875237]
 layout_mode = 2
 
-[node name="AddNodeBtn" type="Button" parent="VBoxContainer/ToolBar" unique_id=1427403872]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/Header" unique_id=2029044656]
 layout_mode = 2
-theme_type_variation = &"Button_Flat"
-text = "Add a node..."
 
-[node name="LanguageSwitcher" parent="VBoxContainer/ToolBar" unique_id=662667454 instance=ExtResource("4_nyscr")]
+[node name="HeaderLeft" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1180880832]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+
+[node name="EditButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=312964398]
+layout_mode = 2
+text = "Edit"
+
+[node name="ViewButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=548572994]
+layout_mode = 2
+text = "View"
+
+[node name="SelectButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1093210356]
+layout_mode = 2
+text = "Select"
+
+[node name="AddButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1597228810]
+layout_mode = 2
+text = "Add"
+
+[node name="HeaderCenter" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1840524053]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+
+[node name="HeaderRight" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1190022585]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+
+[node name="SnapButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderRight" unique_id=235394610]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"Button_Flat"
+tooltip_text = "Toggle snapping"
+theme_type_variation = &"ToggleIconButton"
+toggle_mode = true
+icon = ExtResource("2_32s7k")
 
-[node name="ButtonSparkle" type="Button" parent="VBoxContainer/ToolBar" unique_id=1177527376]
-visible = false
+[node name="GridButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderRight" unique_id=1985773366]
+unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("6_ya1cp")
-
-[node name="RunButton" type="Button" parent="VBoxContainer/ToolBar" unique_id=167719486]
-layout_mode = 2
-theme_type_variation = &"Button_Flat"
-icon = ExtResource("7_4poih")
-script = SubResource("GDScript_lenro")
+tooltip_text = "Toggle grid"
+theme_type_variation = &"ToggleIconButton"
+toggle_mode = true
+button_pressed = true
+icon = ExtResource("3_3el0f")
 
 [node name="GraphEdit" parent="VBoxContainer" unique_id=2027188591 instance=ExtResource("8_qfao8")]
 unique_name_in_owner = true
 layout_mode = 2
-scroll_offset = Vector2(-12, 0)
-
-[connection signal="pressed" from="VBoxContainer/ToolBar/AddNodeBtn" to="." method="_on_add_node_btn_pressed"]
-[connection signal="pressed" from="VBoxContainer/ToolBar/RunButton" to="VBoxContainer/ToolBar/RunButton" method="_on_pressed"]
+scroll_offset = Vector2(0, -35)

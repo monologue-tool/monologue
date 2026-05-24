@@ -4,7 +4,9 @@ extends MonologueWindow
 
 
 func _ready() -> void:
+	# TODO
 	EventBus.window_out.connect(hide)
+	return
 	var version: Variant = ProjectSettings.get("application/config/version")
 	var is_pre_release: bool = version.split("-").size() > 1
 
@@ -18,7 +20,8 @@ func _ready() -> void:
 
 
 func _on_button_pressed() -> void:
-	if dns_checkbox:
+	# TODO
+	if dns_checkbox and false:
 		var checked: bool = dns_checkbox.button_pressed
 		var version: Variant = ProjectSettings.get("application/config/version")
 		App.preferences.set_value("Preview", "do_not_show", checked)

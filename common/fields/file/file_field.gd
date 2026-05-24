@@ -35,8 +35,8 @@ func set_editable(is_editable: bool) -> void:
 func _on_browse_pressed() -> void:
 	var root_dir: String = ""
 	var project: MonologueProject = ProjectManager.current_project
-	if project and not project.file_path.is_empty():
-		root_dir = project.file_path.get_base_dir()
+	if project and not project.project_path.is_empty():
+		root_dir = project.project_path.get_base_dir()
 	EventBus.open_file_request.emit(_on_file_selected, _filters, root_dir)
 
 

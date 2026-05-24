@@ -3,6 +3,10 @@ class_name InspectorCategoryContainer extends FoldableContainer
 @onready var _vbox: VBoxContainer = %VBox
 
 
+func _ready() -> void:
+	title_alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+
 func add_control(
 	node: Node,
 	force_readable_name: bool = false,

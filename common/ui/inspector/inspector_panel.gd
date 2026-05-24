@@ -1,10 +1,9 @@
 class_name InspectorPanel extends PanelContainer
 
 var _fields: Array[Field] = []
-var _special_fields: Array[Control] = []
 var _pending_expand_category: String = ""
 
-@onready var header_container: VBoxContainer = %Header
+@onready var header_container: HBoxContainer = %FieldHeader
 #@onready var breadcrumb_container: HBoxContainer = %Breadcrumb
 @onready var field_container: VBoxContainer = %Fields
 @onready var run_button: Button = %RunButton
@@ -55,9 +54,12 @@ func rebuild() -> void:
 	for field: Control in field_container.get_children():
 		field.queue_free()
 
-	for field: Control in _special_fields:
-		field.queue_free()
-	_special_fields.clear()
+	for child: Control in header_container.get_children():
+		child.queue_free()
+	
+	var separator: HSeparator = HSeparator.new()
+	separator.theme_type_variation = "UltraWideHSeparator"
+	field_container.add_child(separator)
 
 	if not inspected:
 		var label: Label = Label.new()
@@ -91,7 +93,7 @@ func rebuild() -> void:
 					#_restore_focus_to_property(prop_name)
 					#break
 				#node = node.get_parent()
-
+	
 	_pending_expand_category = ""
 
 
@@ -146,9 +148,12 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 
 
 func _create_category_section(category_name: String, properties: Array) -> void:
+	var separator: HSeparator = HSeparator.new()
+	separator.theme_type_variation = "UltraWideHSeparator"
 	var container: InspectorCategoryContainer = inspector_category_container.instantiate()
 	container.title = category_name
 	field_container.add_child(container)
+	field_container.add_child(separator)
 
 	for property: Property in properties:
 		var property_editor: Control = _create_property_editor(property)
@@ -164,22 +169,15 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 			container = header_container
 
 	for property: Property in properties:
-		var index: int = properties.find(property)
-		var property_editor: Control = _create_property_editor(property)
+		var property_editor: Control = _create_property_editor(property, true)
 		if not property_editor:
 			continue
 
-		_special_fields.append(property_editor)
-
-		if container.get_child_count() >= index:
-			var sub_container: Control = container.get_child(index - 1)
-			sub_container.add_child(property_editor)
-			sub_container.move_child(property_editor, 0)
-			continue
 		container.add_child(property_editor)
+		container.move_child(property_editor, 0)
 
 
-func _create_property_editor(property: Property) -> Control:
+func _create_property_editor(property: Property, hide_left: bool = false) -> Control:
 	var is_editable: bool = property.get_settings_value(PropertySettings.KEY_EDITABLE, true)
 	var is_read_only: bool = property.get_settings_value(PropertySettings.KEY_READ_ONLY, false)
 	var has_port: bool = (
@@ -192,23 +190,35 @@ func _create_property_editor(property: Property) -> Control:
 
 	var p_container: PanelContainer = PanelContainer.new()
 	p_container.set_meta("property_name", property.name)
-	var p_hbox: HBoxContainer = HBoxContainer.new()
-	var p_vbox: VBoxContainer = VBoxContainer.new()
-	var p_expose_button: TextureButton = expose_button.instantiate()
-	var p_label: Label = Label.new()
-
 	p_container.theme_type_variation = "FieldContainer"
-
-	p_label.text = property.get_display_name()
+	
+	var p_hbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
+	p_hbox.ratio = [2, 3]
+	p_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	p_container.add_child(p_hbox)
+	
+	var p_left_main_container: HBoxContainer = HBoxContainer.new()
+	p_left_main_container.visible = not hide_left
+	p_left_main_container.clip_contents = true
+	p_hbox.add_child(p_left_main_container)
+	
+	var p_left_container: HBoxContainer = HBoxContainer.new()
+	p_left_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	p_left_container.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	p_left_main_container.add_child(p_left_container)
+	
+	var p_expose_button: TextureButton = expose_button.instantiate()
+	p_left_container.add_child(p_expose_button)
+	
+	var p_label: Label = Label.new()
+	p_label.clip_text = true
 	p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p_hbox.add_child(p_expose_button)
-	p_hbox.add_child(p_label)
-
-	p_vbox.add_child(p_hbox)
+	p_label.text = property.name
+	p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
+	p_left_container.add_child(p_label)
 
 	if property.get_settings_value("flat"):
 		p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-		p_hbox.hide()
 
 	var p_field: Control
 	if property.is_input_connected() and property.type != "list":
@@ -236,10 +246,9 @@ func _create_property_editor(property: Property) -> Control:
 			if list_field:
 				list_field.add_item()
 		)
-		p_hbox.add_child(add_btn)
+		p_left_container.add_child(add_btn)
 
-	p_vbox.add_child(p_field)
-	p_container.add_child(p_vbox)
+	p_hbox.add_child(p_field)
 	if property.get_settings_value("expand", true):
 		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 

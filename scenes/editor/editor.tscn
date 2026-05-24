@@ -1,20 +1,28 @@
 [gd_scene format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/editor/editor.gd" id="1_ovo1o"]
-[ext_resource type="Texture2D" uid="uid://ctciioed1ksts" path="res://ui/assets/icons/menu.svg" id="3_syr16"]
-[ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/editor/main_menu.gd" id="4_pwbil"]
+[ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/ui/language_switcher/language_switcher.tscn" id="2_p4u40"]
+[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="3_syr16"]
 [ext_resource type="Script" uid="uid://creja611rnsop" path="res://common/ui/project_panel/project_panel.gd" id="4_syr16"]
 [ext_resource type="Texture2D" uid="uid://jeypaf8vd3sf" path="res://ui/assets/icons/minimize_ui.svg" id="5_qnluh"]
+[ext_resource type="Script" uid="uid://bw5hfxuolu4p3" path="res://common/ui/search_bar.gd" id="6_hg2ka"]
 [ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/h_auto_split_container.gd" id="6_syr16"]
+[ext_resource type="Script" uid="uid://dvcbv5akqxtp5" path="res://common/ui/tooltip_label.gd" id="9_pq70c"]
 [ext_resource type="PackedScene" uid="uid://c8525nhvwt1y0" path="res://common/ui/graph/graph_container.tscn" id="9_qd5yd"]
+[ext_resource type="Script" uid="uid://bi4poj4ni2xba" path="res://common/ui/label_memory_usage.gd" id="9_qnluh"]
+[ext_resource type="Script" uid="uid://db0p0vwsnoa06" path="res://common/ui/version_label.gd" id="10_i3ywb"]
 [ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/ui/inspector/inspector_panel.tscn" id="14_craj7"]
 [ext_resource type="Script" uid="uid://q0oqx6butjwn" path="res://scenes/editor/search_bar_container.gd" id="15_35jwg"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/ui/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
 [ext_resource type="PackedScene" uid="uid://cvum3eaenloix" path="res://common/ui/search_bar/search_bar.tscn" id="16_n4eqx"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sr1k3"]
+[sub_resource type="GDScript" id="GDScript_qnluh"]
+script/source = "extends Button
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_syr16"]
+
+func _on_pressed() -> void:
+	EventBus.test_trigger.emit()
+"
 
 [node name="MonologueEditor" type="Control" unique_id=1841160578 node_paths=PackedStringArray("graph_container")]
 clip_contents = true
@@ -22,14 +30,12 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 5.0
-offset_bottom = 5.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ovo1o")
-graph_container = NodePath("VBox/HSplitContainer/Graph")
+graph_container = NodePath("VBox/MarginContainer/HBoxContainer/HSplitContainer/Graph")
 
 [node name="VBox" type="VBoxContainer" parent="." unique_id=212421522]
 layout_mode = 1
@@ -38,75 +44,164 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"VBoxContainerCompact"
 
-[node name="_Tabs" type="PanelContainer" parent="VBox" unique_id=1564791734]
-unique_name_in_owner = true
-visible = false
+[node name="Header" type="PanelContainer" parent="VBox" unique_id=906026547]
+custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_sr1k3")
+theme_type_variation = &"EditorHeader"
 
-[node name="TabBar" type="HBoxContainer" parent="VBox/_Tabs" unique_id=476231330]
-custom_minimum_size = Vector2(0, 30)
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/Header" unique_id=4725878]
 layout_mode = 2
-theme_override_constants/separation = 0
+theme_type_variation = &"VBoxContainerMedium"
 
-[node name="MainPopupMenu" type="MenuButton" parent="VBox/_Tabs/TabBar" unique_id=1198892440]
-custom_minimum_size = Vector2(30, 0)
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/Header/HBoxContainer" unique_id=1514409931]
 layout_mode = 2
+
+[node name="Button" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1902954852]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "File"
+
+[node name="Button2" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1206611088]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Edit"
+
+[node name="Button3" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=608330261]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "View"
+
+[node name="Button4" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1637718995]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Help"
+
+[node name="VSeparator" type="VSeparator" parent="VBox/Header/HBoxContainer" unique_id=372438984]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="LanguageSwitcher" parent="VBox/Header/HBoxContainer" unique_id=348986612 instance=ExtResource("2_p4u40")]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "Switch language"
+
+[node name="RunButton" type="Button" parent="VBox/Header/HBoxContainer" unique_id=927762726]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "Run project"
+theme_type_variation = &"IconButton"
 icon = ExtResource("3_syr16")
-icon_alignment = 1
-script = ExtResource("4_pwbil")
+script = SubResource("GDScript_qnluh")
 
-[node name="VSeparator" type="VSeparator" parent="VBox/_Tabs/TabBar" unique_id=259404606]
-visible = false
+[node name="MarginContainer" type="MarginContainer" parent="VBox" unique_id=1332047674]
 layout_mode = 2
-theme_type_variation = &"VSeparatorGrow"
-
-[node name="TabBar" type="TabBar" parent="VBox/_Tabs/TabBar" unique_id=1352580265]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 4
-
-[node name="HSplitContainer" type="HSplitContainer" parent="VBox" unique_id=109031884]
-layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 1
-theme_override_constants/minimum_grab_thickness = 18
-split_offsets = PackedInt32Array(195, 1198)
-split_offset = 195
-script = ExtResource("6_syr16")
+theme_type_variation = &"MediumMarginContainer"
 
-[node name="ProjectPanel" type="PanelContainer" parent="VBox/HSplitContainer" unique_id=1336539805]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/MarginContainer" unique_id=1373149190]
 layout_mode = 2
+theme_type_variation = &"HBoxContainerLarge"
+
+[node name="ProjectPanel" type="PanelContainer" parent="VBox/MarginContainer/HBoxContainer" unique_id=1336539805]
+clip_contents = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_type_variation = &"EditorPanel"
 script = ExtResource("4_syr16")
 
-[node name="ProjectTree" type="Tree" parent="VBox/HSplitContainer/ProjectPanel" unique_id=666690687]
+[node name="VBox" type="VBoxContainer" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel" unique_id=1441810060]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox" unique_id=1375920705]
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox/Header" unique_id=1007037601]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("6_hg2ka")
+
+[node name="MinimizeButton" type="Button" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox/Header" unique_id=1631365746]
+layout_mode = 2
+theme_type_variation = &"ToggleIconButton"
+toggle_mode = true
+icon = ExtResource("5_qnluh")
+
+[node name="ProjectExplorer" type="VBoxContainer" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox" unique_id=375721155]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxEmpty_syr16")
 
-[node name="HBox" type="HBoxContainer" parent="VBox/HSplitContainer/ProjectPanel" unique_id=1538650942]
+[node name="HSplitContainer" type="HSplitContainer" parent="VBox/MarginContainer/HBoxContainer" unique_id=109031884]
 layout_mode = 2
-size_flags_vertical = 0
-alignment = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/minimum_grab_thickness = 18
+split_offsets = PackedInt32Array(902)
+drag_area_highlight_in_editor = true
+split_offset = 902
+script = ExtResource("6_syr16")
 
-[node name="MinimizeButton" type="Button" parent="VBox/HSplitContainer/ProjectPanel/HBox" unique_id=1631365746]
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-icon = ExtResource("5_qnluh")
-
-[node name="Graph" parent="VBox/HSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
+[node name="Graph" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
 layout_mode = 2
 inspector_panel = NodePath("../Inspector")
 
-[node name="Inspector" parent="VBox/HSplitContainer" unique_id=667809004 instance=ExtResource("14_craj7")]
+[node name="Inspector" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=667809004 instance=ExtResource("14_craj7")]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"EditorPanel"
+
+[node name="RunButton" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector/VBox/Header/SearchBar" parent_id_path=PackedInt32Array(667809004, 711294994) index="1" unique_id=62143223]
+tooltip_text = "Run project from this node"
+theme_type_variation = &"IconButton"
+
+[node name="StatusBar" type="PanelContainer" parent="VBox" unique_id=1614990059]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+theme_type_variation = &"EditorHeader"
+
+[node name="Left" type="HBoxContainer" parent="VBox/StatusBar" unique_id=246129797]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="TooltipLabel" type="Label" parent="VBox/StatusBar/Left" unique_id=1184545247]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"NoteLabel"
+script = ExtResource("9_pq70c")
+
+[node name="Right" type="HBoxContainer" parent="VBox/StatusBar" unique_id=27361139]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+theme_type_variation = &"EditorHeader"
+alignment = 2
+
+[node name="MemoryUsageLabel" type="Label" parent="VBox/StatusBar/Right" unique_id=2113438421]
+layout_mode = 2
+mouse_filter = 0
+theme_type_variation = &"NoteLabel"
+text = "Memory: 40.0 MB"
+script = ExtResource("9_qnluh")
+
+[node name="VSeparator" type="VSeparator" parent="VBox/StatusBar/Right" unique_id=1516301607]
+layout_mode = 2
+
+[node name="VersionLabel" type="Label" parent="VBox/StatusBar/Right" unique_id=2049826380]
+layout_mode = 2
+theme_type_variation = &"NoteLabel"
+text = "3.0.0"
+script = ExtResource("10_i3ywb")
 
 [node name="GraphNodePicker" parent="." unique_id=1110402275 instance=ExtResource("15_q62vd")]
 unique_name_in_owner = true
@@ -130,7 +225,7 @@ metadata/_edit_lock_ = true
 visible = false
 layout_mode = 2
 
-[connection signal="tab_changed" from="VBox/_Tabs/TabBar/TabBar" to="VBox/_Tabs" method="_on_tab_bar_tab_changed"]
-[connection signal="pressed" from="VBox/HSplitContainer/ProjectPanel/HBox/MinimizeButton" to="VBox/HSplitContainer/ProjectPanel" method="_on_minimize_button_pressed"]
+[connection signal="pressed" from="VBox/Header/HBoxContainer/RunButton" to="VBox/Header/HBoxContainer/RunButton" method="_on_pressed"]
+[connection signal="pressed" from="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox/Header/MinimizeButton" to="VBox/MarginContainer/HBoxContainer/ProjectPanel" method="_on_minimize_button_pressed"]
 
-[editable path="VBox/HSplitContainer/Inspector"]
+[editable path="VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector"]

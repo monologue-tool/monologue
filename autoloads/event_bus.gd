@@ -2,8 +2,6 @@ extends Node
 
 @warning_ignore_start("unused_signal")
 signal load_project(path: String)
-signal load_successful(path: String)
-signal save_current_project
 signal test_trigger
 
 signal refresh
