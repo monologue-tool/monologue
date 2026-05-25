@@ -4,3 +4,4 @@
 
 [resource]
 fallbacks = Array[Font]([ExtResource("1_20plx")])
+base_font = ExtResource("1_20plx")

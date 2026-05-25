@@ -46,4 +46,5 @@ func sync_theme() -> void:
 	theme_changed.emit()
 
 func sync_fonts() -> void:
-	ThemeLayout.rebuild_fonts()
+	#ThemeLayout.rebuild_fonts()
+	pass

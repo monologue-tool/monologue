@@ -52,7 +52,7 @@ static func recalculate_colors() -> void:
 	text_primary_color = Color("d3d3d3") if is_theme_dark else Color("2c2c2c")
 	text_muted_color = Color("777777") if is_theme_dark else Color("888888")
 	border_color = Color("323232") if is_theme_dark else Color("d0d0d0")
-	selection_color = Color(accent_color, 0.5)
+	selection_color = Color(bg_higher_color, 0.5)
 	disabled_selection_color = Color(bg_elevated_color, 0.5)
 	
 	accent_color = Color("b44040")
@@ -82,6 +82,7 @@ static func generate_theme() -> Theme:
 	_setup_margincontainer(theme)
 	_setup_label(theme)
 	_setup_textedit(theme)
+	_setup_richtextlabel(theme)
 	_setup_foldablecontainer(theme)
 	_setup_boxcontainer(theme)
 	_setup_graphnode(theme)
@@ -320,8 +321,7 @@ static func _setup_lineedit(theme: Theme) -> void:
 	theme.set_color("font_color", "LineEdit", text_primary_color)
 	theme.set_color("font_uneditable_color", "LineEdit", text_muted_color)
 	theme.set_color("font_placeholder_color", "LineEdit", text_muted_color)
-	theme.set_color("font_selected_color", "LineEdit", text_primary_color)
-	theme.set_color("section_color", "LineEdit", selection_color)
+	theme.set_color("selection_color", "LineEdit", selection_color)
 	theme.set_color("disabled_selection_color", "LineEdit", selection_color)
 	theme.set_font_size("font_size", "LineEdit", font_size_sm)
 	theme.set_font("font", "LineEdit", font_typing)
@@ -344,7 +344,9 @@ static func _setup_lineedit(theme: Theme) -> void:
 	var hover_stylebox: StyleBoxFlat = stylebox.duplicate()
 	hover_stylebox.draw_center = false
 	theme.set_stylebox("hover", "LineEdit", hover_stylebox)
-	theme.set_stylebox("focus", "LineEdit", hover_stylebox)
+	
+	var focus_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
+	theme.set_stylebox("focus", "LineEdit", focus_stylebox)
 
 static func _setup_scrollbar(theme: Theme) -> void:
 	theme.add_type("HScrollBar")
@@ -489,18 +491,33 @@ static func _setup_textedit(theme: Theme) -> void:
 	var normal_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	normal_stylebox.bg_color = bg_primary_color
 	normal_stylebox.set_corner_radius_all(radius_sm)
-	normal_stylebox.content_margin_top = margin_sm.x
-	normal_stylebox.content_margin_bottom = margin_sm.x
-	normal_stylebox.content_margin_left = margin_sm.y
-	normal_stylebox.content_margin_right = margin_sm.y
+	normal_stylebox.content_margin_top = margin_sm.y
+	normal_stylebox.content_margin_bottom = margin_sm.y
+	normal_stylebox.content_margin_left = margin_sm.x
+	normal_stylebox.content_margin_right = margin_sm.x
 	theme.set_stylebox("normal", "TextEdit", normal_stylebox)
 	
-	var focus_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
+	var focus_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
 	theme.set_stylebox("focus", "TextEdit", focus_stylebox)
 	
 	var disabled_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
 	disabled_stylebox.bg_color = bg_elevated_color
 	theme.set_stylebox("read_only", "TextEdit", disabled_stylebox)
+
+
+static func _setup_richtextlabel(theme: Theme) -> void:
+	theme.add_type("RichTextLabel")
+	theme.set_color("default_color", "RichTextLabel", text_primary_color)
+	theme.set_color("selection_color", "RichTextLabel", selection_color)
+	theme.set_color("table_odd_row_bg", "RichTextLabel", Color(bg_higher_color, 0.25))
+	theme.set_color("table_even_row_bg", "RichTextLabel", Color(bg_higher_color, 0.1))
+	theme.set_color("table_border", "RichTextLabel", border_color)
+	theme.set_font_size("normal_font_size", "RichTextLabel", font_size_sm)
+	theme.set_font_size("bold_font_size", "RichTextLabel", font_size_sm)
+	theme.set_font_size("bold_italics_font_size", "RichTextLabel", font_size_sm)
+	theme.set_font_size("italics_font_size", "RichTextLabel", font_size_sm)
+	theme.set_font_size("mono_font_size", "RichTextLabel", font_size_sm)
+	
 
 static func _setup_foldablecontainer(theme: Theme) -> void:
 	theme.add_type("FoldableContainer")

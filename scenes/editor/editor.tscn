@@ -13,9 +13,7 @@
 [ext_resource type="Script" uid="uid://bi4poj4ni2xba" path="res://common/ui/label_memory_usage.gd" id="9_qnluh"]
 [ext_resource type="Script" uid="uid://db0p0vwsnoa06" path="res://common/ui/version_label.gd" id="10_i3ywb"]
 [ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/ui/inspector/inspector_panel.tscn" id="14_craj7"]
-[ext_resource type="Script" uid="uid://q0oqx6butjwn" path="res://scenes/editor/search_bar_container.gd" id="15_35jwg"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/ui/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
-[ext_resource type="PackedScene" uid="uid://cvum3eaenloix" path="res://common/ui/search_bar/search_bar.tscn" id="16_n4eqx"]
 
 [sub_resource type="GDScript" id="GDScript_qnluh"]
 script/source = "extends Button
@@ -218,21 +216,6 @@ visible = false
 keep_title_visible = false
 content_scale_mode = 2
 content_scale_aspect = 1
-
-[node name="SearchBarContainer" type="CenterContainer" parent="." unique_id=192479822]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = -5.0
-grow_horizontal = 2
-mouse_filter = 2
-script = ExtResource("15_35jwg")
-metadata/_edit_lock_ = true
-
-[node name="SearchBar" parent="SearchBarContainer" unique_id=1503058853 instance=ExtResource("16_n4eqx")]
-visible = false
-layout_mode = 2
 
 [connection signal="pressed" from="VBox/Header/HBoxContainer/RunButton" to="VBox/Header/HBoxContainer/RunButton" method="_on_pressed"]
 [connection signal="pressed" from="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox/Header/MinimizeButton" to="VBox/MarginContainer/HBoxContainer/ProjectPanel" method="_on_minimize_button_pressed"]

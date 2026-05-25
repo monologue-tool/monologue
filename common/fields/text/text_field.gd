@@ -33,9 +33,16 @@ func _on_initialize() -> void:
 
 
 func _apply_textarea_height(te: TextEdit, rows: int) -> void:
+	var reset_te: bool = not te.text
+	if reset_te:
+		te.text = " "
+		
 	var sb: StyleBox = te.get_theme_stylebox("normal")
 	var padding: float = (sb.content_margin_bottom + sb.content_margin_top) if sb else 8.0
 	te.custom_minimum_size.y = te.get_line_height() * rows + padding
+	
+	if reset_te:
+		te.text = ""
 
 
 func set_value(value: Variant) -> void:
