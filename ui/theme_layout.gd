@@ -151,6 +151,16 @@ static func _setup_panel(theme: Theme) -> void:
 	editor_graph_panel_stylebox.border_color = bg_surface_color
 	theme.set_stylebox("panel", "EditorGraphPanel", editor_graph_panel_stylebox)
 	
+	theme.add_type("ConsolePanel")
+	theme.set_type_variation("ConsolePanel", "PanelContainer")
+	var console_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	console_panel_stylebox.bg_color = bg_primary_color
+	editor_graph_panel_stylebox.set_corner_radius_all(radius_md)
+	console_panel_stylebox.content_margin_top = margin_md.y
+	console_panel_stylebox.content_margin_bottom = margin_md.y
+	console_panel_stylebox.content_margin_left = margin_md.x
+	console_panel_stylebox.content_margin_right = margin_md.x
+	theme.set_stylebox("panel", "ConsolePanel", console_panel_stylebox)
 	
 static func _setup_button(theme: Theme) -> void:
 	theme.add_type("Button")

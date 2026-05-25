@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://dqdrf7wtegye6"]
+
+[ext_resource type="Script" uid="uid://deismshtx4vjv" path="res://common/ui/console/console.gd" id="1_td4wj"]
+[ext_resource type="Texture2D" uid="uid://b0umav8s8l2qa" path="res://ui/assets/icons/cross.svg" id="2_s7pde"]
+
+[node name="Console" type="PanelContainer" unique_id=588975871]
+anchors_preset = -1
+anchor_right = 0.95400006
+anchor_bottom = 0.4
+offset_right = -0.60009766
+script = ExtResource("1_td4wj")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=267045498]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="VBox" unique_id=65218473]
+layout_mode = 2
+
+[node name="FileButton" type="Button" parent="VBox/Header" unique_id=936758374]
+layout_mode = 2
+text = "File"
+
+[node name="ViewButton" type="Button" parent="VBox/Header" unique_id=961613032]
+layout_mode = 2
+text = "View"
+
+[node name="EditButton" type="Button" parent="VBox/Header" unique_id=402743143]
+layout_mode = 2
+text = "Edit
+"
+
+[node name="Spacer" type="HBoxContainer" parent="VBox/Header" unique_id=2082345106]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="VBox/Header" unique_id=1972092265]
+layout_mode = 2
+theme_type_variation = &"IconButton"
+icon = ExtResource("2_s7pde")
+
+[node name="PanelContainer" type="PanelContainer" parent="VBox" unique_id=1470435110]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"ConsolePanel"
+
+[node name="Log" type="RichTextLabel" parent="VBox/PanelContainer" unique_id=428105729]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 2
+bbcode_enabled = true
+scroll_following = true
+selection_enabled = true
+
+[connection signal="pressed" from="VBox/Header/CloseButton" to="." method="_on_close_button_pressed"]

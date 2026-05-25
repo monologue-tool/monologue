@@ -19,7 +19,6 @@ func create_button(filepath: String) -> Button:
 	btn_text = paths.back()
 
 	btn.text = btn_text
-	btn.flat = true
 	btn.pressed.connect(_on_project_btn_pressed.bind(filepath))
 	btn.tooltip_text = filepath
 	button_container.add_child(btn)

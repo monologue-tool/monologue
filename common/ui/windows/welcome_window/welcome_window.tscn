@@ -41,10 +41,6 @@ theme_type_variation = &"OuterPanel"
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1396188399]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=931898420]
 layout_mode = 2
@@ -88,22 +84,17 @@ text = "New Project"
 [node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer" unique_id=979534612]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 0
 
 [node name="NewDefaultBtn" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer/VBox" unique_id=1461901955]
 layout_mode = 2
-mouse_default_cursor_shape = 2
 text = "Default"
 icon = ExtResource("3_myesc")
-flat = true
 alignment = 0
 
 [node name="New" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer/VBox" unique_id=565168940]
 layout_mode = 2
-mouse_default_cursor_shape = 2
 text = "Advanced"
 icon = ExtResource("3_myesc")
-flat = true
 alignment = 0
 
 [node name="RecentProjectsContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop" unique_id=1536484239 node_paths=PackedStringArray("button_container")]
@@ -122,7 +113,6 @@ text = "Recent Projects"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 0
 
 [node name="HSeparator" type="HSeparator" parent="PanelContainer/MarginContainer/VBox/VBox" unique_id=929910609]
 layout_mode = 2
@@ -133,35 +123,27 @@ layout_mode = 2
 [node name="VBoxOpen" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom" unique_id=840436526]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 0
 
 [node name="OpenFileBtn" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom/VBoxOpen" unique_id=524926956]
 layout_mode = 2
-mouse_default_cursor_shape = 2
 text = "Open..."
 icon = ExtResource("4_b8nur")
-flat = true
 alignment = 0
 
 [node name="VBoxLink" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom" unique_id=1152916866]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 0
 
 [node name="GitHubBtn" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom/VBoxLink" unique_id=943099583]
 layout_mode = 2
-mouse_default_cursor_shape = 2
 text = "GitHub"
 icon = ExtResource("6_drngv")
-flat = true
 alignment = 0
 
 [node name="BugReportBtn" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom/VBoxLink" unique_id=1758014313]
 layout_mode = 2
-mouse_default_cursor_shape = 2
 text = "Report Bug"
 icon = ExtResource("6_drngv")
-flat = true
 alignment = 0
 
 [node name="CloseButton" parent="PanelContainer/MarginContainer" unique_id=2052377836 instance=ExtResource("5_h3u5k")]

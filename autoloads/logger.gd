@@ -1,6 +1,8 @@
 extends Node
 # TODO save logs in files
 
+signal log_message(message: String, bbcode_message: String)
+
 enum Levels {DEBUG, INFO, WARN, ERROR, FATAL}
 
 var log_level: Levels = Levels.INFO
@@ -25,8 +27,10 @@ func _log(level: Levels, levelname: String, colorname: String, args: Array, bold
 	bbcode_args.append("[/color]")
 	
 	print_rich.callv(bbcode_args)
-	var _raw_log: String = _bbcode_to_plain("".join(bbcode_args))
+	var bbcode: String = "".join(bbcode_args)
+	var raw_log: String = _bbcode_to_plain(bbcode)
 	
+	log_message.emit(raw_log, bbcode)
 
 
 func msg(...args: Array) -> void:

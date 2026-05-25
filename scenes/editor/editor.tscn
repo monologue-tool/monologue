@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://jeypaf8vd3sf" path="res://ui/assets/icons/minimize_ui.svg" id="5_qnluh"]
 [ext_resource type="Script" uid="uid://bw5hfxuolu4p3" path="res://common/ui/search_bar.gd" id="6_hg2ka"]
 [ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/h_auto_split_container.gd" id="6_syr16"]
+[ext_resource type="PackedScene" uid="uid://dqdrf7wtegye6" path="res://common/ui/console/console.tscn" id="9_oljq2"]
 [ext_resource type="Script" uid="uid://dvcbv5akqxtp5" path="res://common/ui/tooltip_label.gd" id="9_pq70c"]
 [ext_resource type="PackedScene" uid="uid://c8525nhvwt1y0" path="res://common/ui/graph/graph_container.tscn" id="9_qd5yd"]
 [ext_resource type="Script" uid="uid://bi4poj4ni2xba" path="res://common/ui/label_memory_usage.gd" id="9_qnluh"]
@@ -35,7 +36,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ovo1o")
-graph_container = NodePath("VBox/MarginContainer/HBoxContainer/HSplitContainer/Graph")
+graph_container = NodePath("VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer/Graph")
 
 [node name="VBox" type="VBoxContainer" parent="." unique_id=212421522]
 layout_mode = 1
@@ -150,9 +151,17 @@ drag_area_highlight_in_editor = true
 split_offset = 902
 script = ExtResource("6_syr16")
 
-[node name="Graph" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
+[node name="VSplitContainer" type="VSplitContainer" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=1564704533]
 layout_mode = 2
-inspector_panel = NodePath("../Inspector")
+split_offsets = PackedInt32Array(510)
+split_offset = 510
+
+[node name="Graph" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
+layout_mode = 2
+inspector_panel = NodePath("../../Inspector")
+
+[node name="Console" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer" unique_id=588975871 instance=ExtResource("9_oljq2")]
+layout_mode = 2
 
 [node name="Inspector" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=667809004 instance=ExtResource("14_craj7")]
 unique_name_in_owner = true
