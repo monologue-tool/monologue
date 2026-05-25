@@ -23,7 +23,7 @@ func define_main_property(pname: String, type: String) -> void:
 func has_main_property() -> bool:
 	return _main_property_defined
 
-func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
+func _on_property_changed(_pname: String) -> void:
 	pass
 
 

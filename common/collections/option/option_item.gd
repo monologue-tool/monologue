@@ -15,7 +15,7 @@ func get_type() -> String:
 	return "option"
 
 
-func _on_property_changed(_pname: String, _old_value: Variant, _new_value: Variant) -> void:
+func _on_property_changed(_pname: String) -> void:
 	pass
 
 

@@ -67,7 +67,10 @@ func define_property(
 	var property: Property = Property.new(pname, default_value, type, merged_settings)
 	_properties.set(pname, property)
 
-	property.value_changed.connect(func(_old: Variant, _new: Variant) -> void: property_changed.emit(pname))
+	property.value_changed.connect(
+		func(_old: Variant, _new: Variant) -> void: 
+			property_changed.emit(pname)
+	)
 
 
 func get_properties() -> Array[Property]:
