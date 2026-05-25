@@ -506,10 +506,10 @@ static func _setup_foldablecontainer(theme: Theme) -> void:
 	
 	var title_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	title_panel_stylebox.bg_color = bg_surface_color
-	title_panel_stylebox.content_margin_top = margin_md.y
-	title_panel_stylebox.content_margin_bottom = margin_md.y
-	title_panel_stylebox.content_margin_left = margin_md.x
-	title_panel_stylebox.content_margin_right = margin_md.x
+	title_panel_stylebox.content_margin_top = margin_sm.y
+	title_panel_stylebox.content_margin_bottom = margin_sm.y
+	title_panel_stylebox.content_margin_left = margin_sm.x
+	title_panel_stylebox.content_margin_right = margin_sm.x
 	theme.set_stylebox("title_panel", "FoldableContainer", title_panel_stylebox)
 	
 	var title_hover_panel_stylebox: StyleBoxFlat = title_panel_stylebox.duplicate()

@@ -147,18 +147,25 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 	return groups
 
 
-func _create_category_section(category_name: String, properties: Array) -> void:
+func _create_category_section(category_name: String, properties: Array) -> InspectorCategoryContainer:
+	# If the section only contains list properties.
+	var is_ghost_section: bool = properties.filter(func(p: Property) -> bool: return _is_list(p)).size() == properties.size() and properties.size() != 0
+	
 	var separator: HSeparator = HSeparator.new()
 	separator.theme_type_variation = "UltraWideHSeparator"
 	var container: InspectorCategoryContainer = inspector_category_container.instantiate()
 	container.title = category_name
-	field_container.add_child(container)
-	field_container.add_child(separator)
+	
+	if not is_ghost_section:
+		field_container.add_child(container)
+		field_container.add_child(separator)
 
 	for property: Property in properties:
 		var property_editor: Control = _create_property_editor(property)
 		if property_editor:
 			container.add_control(property_editor)
+	
+	return container
 
 
 func _handle_special_category_section(category_name: String, properties: Array) -> void:
@@ -178,6 +185,7 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 
 
 func _create_property_editor(property: Property, hide_left: bool = false) -> Control:
+	var is_list: bool = _is_list(property)
 	var is_editable: bool = property.get_settings_value(PropertySettings.KEY_EDITABLE, true)
 	var is_read_only: bool = property.get_settings_value(PropertySettings.KEY_READ_ONLY, false)
 	var has_port: bool = (
@@ -191,6 +199,8 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 	var p_container: PanelContainer = PanelContainer.new()
 	p_container.set_meta("property_name", property.name)
 	p_container.theme_type_variation = "FieldContainer"
+	if property.get_settings_value("expand", true):
+		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	var p_hbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
 	p_hbox.ratio = [2, 3]
@@ -208,6 +218,11 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 	p_left_main_container.add_child(p_left_container)
 	
 	var p_expose_button: TextureButton = expose_button.instantiate()
+	p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
+	p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+	p_expose_button.toggled.connect(
+		_on_property_expose_state_changed.bind(current_object, property.name)
+	)
 	p_left_container.add_child(p_expose_button)
 	
 	var p_label: Label = Label.new()
@@ -217,11 +232,11 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 	p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
 	p_left_container.add_child(p_label)
 
-	if property.get_settings_value("flat"):
-		p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	#if property.get_settings_value("flat"):
+		#p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
 	var p_field: Control
-	if property.is_input_connected() and property.type != "list":
+	if property.is_input_connected() and not is_list:
 		var inspect_button: Button = Button.new()
 		inspect_button.text = "Go to connected node"
 		inspect_button.tooltip_text = "Inspect connected node"
@@ -230,44 +245,27 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 		p_field = inspect_button
 	else:
 		p_field = FieldBucket.safe_create_field(property.type)
-		if p_field is Field:
-			var _owner: InspectableObject = current_object
-			var _field: Field = p_field as Field
-			_fields.append(_field)
-			(func() -> void: property.bind_field(_field, _owner)).call_deferred()
+	
+	if p_field is not Field:
+		p_hbox.add_child(p_field)
+		return p_container
+	_fields.append(p_field)
 
-	if property.type == "list":
+	if is_list:
+		var list_section: InspectorCategoryContainer = _create_category_section(property.get_display_name(), [])
+		p_left_main_container.hide()
+		
 		var add_btn: Button = Button.new()
+		add_btn.theme_type_variation = "IconButton"
 		add_btn.icon = preload("res://ui/assets/icons/plus_min.svg")
-		add_btn.flat = true
 		add_btn.tooltip_text = "Add item"
-		add_btn.pressed.connect(func() -> void:
-			var list_field: ListField = p_field as ListField
-			if list_field:
-				list_field.add_item()
-		)
-		p_left_container.add_child(add_btn)
-
+		add_btn.pressed.connect(p_field.add_item)
+		list_section.add_title_bar_control(add_btn)
+		list_section.add_control.call_deferred(p_container)
+	
+	property.bind_field.call_deferred(p_field, current_object)
 	p_hbox.add_child(p_field)
-	if property.get_settings_value("expand", true):
-		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
-	p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
-	p_expose_button.toggled.connect(
-		_on_property_expose_state_changed.bind(current_object, property.name)
-	)
-
-	# Apply read-only visual treatment: muted opacity + lock-icon tooltip suffix.
-	# The actual field.set_editable(false) is called by FieldBinding._update_editable_state().
-	if is_read_only:
-		p_container.modulate = Color(1, 1, 1, 0.6)
-		if p_label.tooltip_text.is_empty():
-			p_label.tooltip_text = "(read-only)"
-		else:
-			p_label.tooltip_text += " (read-only)"
-
-	return p_container
+	return p_container if not is_list else null
 
 
 func _cache_category_states(category_states: Dictionary) -> void:
@@ -318,6 +316,10 @@ func _on_inspect_connected_node(property: Property) -> void:
 
 	if connected_node and connected_node.graph_view:
 		EventBus.request_node_selection.emit(connected_node, connected_node.storyline_id)
+
+
+func _is_list(property: Property) -> bool:
+	return property.type == "list"
 
 
 func _on_external_property_changed(
