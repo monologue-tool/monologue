@@ -15,13 +15,15 @@ func _ready() -> void:
 	ProjectManager.project_loaded.connect(_rebuild_explorer)
 	EventBus.request_object_inspection.connect(_on_request_object_inspection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
+	EventBus.show_project_explorer.connect(_on_event_show_project_panel)
 	
-	# FIXME: It's an ugly fix
-	#var icon_size: Vector2i = ThemeLayout.icon_xs
-	#delete_icon.set_size_override(Vector2(icon_size, icon_size))
-	#add_icon.set_size_override(Vector2(icon_size, icon_size))
+	visible = ConfigManager.get_config("show_project_explorer")
 	
 	_rebuild_explorer()
+
+
+func _on_event_show_project_panel(_visible: bool) -> void:
+	visible = ConfigManager.get_config("show_project_explorer")
 
 
 func _rebuild_explorer() -> void:
@@ -115,6 +117,3 @@ func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
 	for button: Button in storylines_container.get_children():
 		var btn_storyline: StorylineDocument = button.get_meta("document")
 		button.set_pressed_no_signal(btn_storyline == storyline)
-
-func _on_minimize_button_pressed() -> void:
-	pass

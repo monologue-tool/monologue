@@ -1,6 +1,10 @@
 class_name ConfigurationDocument extends InspectableDocument
 
 func initialize_properties() -> void:
+	define_property("show_project_explorer", true, "bool", {}, "Interface")
+	define_property("show_inspector", true, "bool", {}, "Interface")
+	define_property("show_console", false, "bool", {}, "Interface")
+	
 	define_property("snap", false, "bool", {}, "Graph")
 	define_property("show_grid", true, "bool", {}, "Graph")
 

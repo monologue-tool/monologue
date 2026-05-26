@@ -16,14 +16,20 @@ var current_object: InspectableObject
 func _ready() -> void:
 	EventBus.request_object_inspection.connect(inspect)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
+	EventBus.show_inspector.connect(_on_event_show_inspector)
 	
 	ProjectManager.project_loaded.connect(_on_project_loaded)
+	visible = ConfigManager.get_config("show_inspector")
 
 
 func _on_project_loaded() -> void:
 	var command_manager: CommandManager = ProjectManager.current_project.command_manager
 	command_manager.undone.connect(_on_history_undo_redo)
 	command_manager.redone.connect(_on_history_undo_redo)
+
+
+func _on_event_show_inspector(_visible: bool) -> void:
+	inspect(current_object)
 
 
 ## Called after every undo or redo. Re-resolves the inspection stack from the
@@ -33,21 +39,25 @@ func _on_history_undo_redo() -> void:
 
 
 func inspect(object: InspectableObject) -> void:
+	var old_root: InspectableObject = current_object
+	if object and old_root and old_root != object:
+		var old_node: InspectableNode = old_root as InspectableNode
+		if old_node and is_instance_valid(old_node.graph_view):
+			old_node.graph_view.selected = false
+			
+	current_object = object
 	if not object or object is not InspectableObject:
 		hide()
 		Log.warn("Inspector hidden due to invalid object")
 		return
 	
+	if not ConfigManager.get_config("show_inspector"):
+		hide()
+		return
+	
 	show()
 	Log.info("Inspect object", object.get_property_value("id") if object else "<null>")
-	var old_root: InspectableObject = current_object
-	if old_root and old_root != object:
-		var old_node: InspectableNode = old_root as InspectableNode
-		if old_node and is_instance_valid(old_node.graph_view):
-			old_node.graph_view.selected = false
 	
-	current_object = object
-
 	rebuild()
 
 

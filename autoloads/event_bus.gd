@@ -28,6 +28,12 @@ signal hide_welcome
 signal enable_picker_mode(
 	node: GraphNode, port: int, release: Vector2, graph_release: Vector2, center: Vector2
 )
+signal show_inspector(visible: bool)
+signal show_project_explorer(visible: bool)
+signal show_console(visible: bool)
+signal graph_snap(enabled: bool)
+signal graph_show_grid(visible: bool)
+
 signal expand_text_edit(text_edit: TextEdit)
 signal show_dimmer
 signal hide_dimmer

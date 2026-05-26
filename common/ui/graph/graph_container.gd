@@ -25,6 +25,8 @@ func _ready() -> void:
 	
 	EventBus.request_node_selection.connect(_on_request_node_selection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
+	EventBus.graph_snap.connect(_on_event_graph_snap)
+	EventBus.graph_show_grid.connect(_on_event_show_grid)
 
 	ProjectManager.project_loaded.connect(_on_project_loaded)
 
@@ -135,3 +137,12 @@ func _on_snap_button_pressed() -> void:
 func _on_grid_button_pressed() -> void:
 	graph.show_grid = grid_button.button_pressed
 	ConfigManager.set_config("show_grid", grid_button.button_pressed)
+
+func _on_event_graph_snap(enabled: bool) -> void:
+	graph.snapping_enabled = enabled
+	snap_button.button_pressed = enabled
+
+
+func _on_event_show_grid(grid_visible: bool) -> void:
+	graph.show_grid = grid_visible
+	grid_button.button_pressed = grid_visible
