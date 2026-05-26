@@ -34,10 +34,6 @@ layout_mode = 2
 welcome_window = NodePath("../../WelcomeWindow")
 file_dialog = NodePath("../../FileDialog")
 
-[node name="RunButton" parent="Frame/MonologueEditor/VBox/MarginContainer/HSplitContainer/Inspector/VBox/Header/SearchBar" parent_id_path=PackedInt32Array(1963406996, 667809004, 711294994) index="1" unique_id=62143223]
-tooltip_text = "Run project from this node"
-theme_type_variation = &"IconButton"
-
 [node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
 z_index = 1
 layout_mode = 1
@@ -75,4 +71,4 @@ script = ExtResource("10_r77hi")
 [connection signal="files_selected" from="FileDialog" to="FileDialog" method="_on_files_selected"]
 
 [editable path="Frame/MonologueEditor"]
-[editable path="Frame/MonologueEditor/VBox/MarginContainer/HSplitContainer/Inspector"]
+[editable path="Frame/MonologueEditor/VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector"]

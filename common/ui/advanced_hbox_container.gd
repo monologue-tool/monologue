@@ -5,6 +5,11 @@ class_name AdvancedHBoxContainer extends Container
 		ratio = v
 		queue_sort()
 
+@export var force_ratio: bool = false:
+	set(v):
+		force_ratio = v
+		queue_sort()
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SORT_CHILDREN:
 		_sort()
@@ -36,43 +41,44 @@ func _sort() -> void:
 	if total <= 0.0:
 		return
 
-	# Résolution itérative : les enfants trop contraints prennent leur minimum,
-	# l'espace restant est redistribué aux autres jusqu'à stabilisation
 	var final_sizes: Array[float] = []
 	final_sizes.resize(children.size())
 
-	var locked: Array[bool] = []
-	locked.resize(children.size())
-	for i in children.size():
-		locked[i] = false
-
-	var remaining_space: float = available
-	var remaining_ratio: float = total
-
-	var changed: bool = true
-	while changed:
-		changed = false
+	if force_ratio:
 		for i in children.size():
-			if locked[i]:
-				continue
-			var allocated: float = ratios[i] / remaining_ratio * remaining_space
-			var min_w: float = children[i].get_combined_minimum_size().x
-			if allocated < min_w:
-				final_sizes[i] = min_w
-				remaining_space -= min_w
-				remaining_ratio -= ratios[i]
-				locked[i] = true
-				changed = true
+			final_sizes[i] = ratios[i] / total * available
+	else:
+		var locked: Array[bool] = []
+		locked.resize(children.size())
+		for i in children.size():
+			locked[i] = false
 
-	for i in children.size():
-		if not locked[i]:
-			final_sizes[i] = ratios[i] / remaining_ratio * remaining_space if remaining_ratio > 0.0 else 0.0
+		var remaining_space: float = available
+		var remaining_ratio: float = total
+
+		var changed: bool = true
+		while changed:
+			changed = false
+			for i in children.size():
+				if locked[i]:
+					continue
+				var allocated: float = ratios[i] / remaining_ratio * remaining_space
+				var min_w: float = children[i].get_combined_minimum_size().x
+				if allocated < min_w:
+					final_sizes[i] = min_w
+					remaining_space -= min_w
+					remaining_ratio -= ratios[i]
+					locked[i] = true
+					changed = true
+
+		for i in children.size():
+			if not locked[i]:
+				final_sizes[i] = ratios[i] / remaining_ratio * remaining_space if remaining_ratio > 0.0 else 0.0
 
 	var x_offset: float = 0.0
 	for i in children.size():
 		children[i].position = Vector2(x_offset, 0.0)
-		children[i].set_deferred("size", Vector2(final_sizes[i], size.y))
-		
+		children[i].size = Vector2(final_sizes[i], size.y)
 		x_offset += final_sizes[i] + sep
 
 func _get_minimum_size() -> Vector2:
@@ -88,8 +94,10 @@ func _get_minimum_size() -> Vector2:
 	var min_w: float = 0.0
 	var max_h: float = 0.0
 	for child: Control in children:
-		min_w += child.get_combined_minimum_size().x
+		if not force_ratio:
+			min_w += child.get_combined_minimum_size().x
 		max_h = maxf(max_h, child.get_combined_minimum_size().y)
 
-	min_w += sep * (children.size() - 1)
+	if not force_ratio:
+		min_w += sep * (children.size() - 1)
 	return Vector2(min_w, max_h)

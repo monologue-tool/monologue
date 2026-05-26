@@ -486,7 +486,7 @@ static func _setup_textedit(theme: Theme) -> void:
 	theme.set_color("font_readonly_color", "TextEdit", text_muted_color)
 	theme.set_color("font_placeholder_color", "TextEdit", text_muted_color)
 	theme.set_font("font", "TextEdit", font_typing)
-	theme.set_font_size("font_size", "TextEdit", 14)
+	theme.set_font_size("font_size", "TextEdit", font_size_sm)
 	
 	var normal_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	normal_stylebox.bg_color = bg_primary_color

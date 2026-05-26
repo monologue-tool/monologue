@@ -18,8 +18,10 @@ func _ready() -> void:
 	graph.node_view_selected.connect(_on_graph_edit_node_view_selected)
 	snap_button.pressed.connect(_on_snap_button_pressed)
 	grid_button.pressed.connect(_on_grid_button_pressed)
-	snap_button.button_pressed = graph.snapping_enabled
-	grid_button.button_pressed = graph.show_grid
+	snap_button.button_pressed = ConfigManager.get_config("snap")
+	grid_button.button_pressed = ConfigManager.get_config("show_grid")
+	_on_snap_button_pressed()
+	_on_grid_button_pressed()
 	
 	EventBus.request_node_selection.connect(_on_request_node_selection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
@@ -127,7 +129,9 @@ func _on_add_node_btn_pressed() -> void:
 
 func _on_snap_button_pressed() -> void:
 	graph.snapping_enabled = snap_button.button_pressed
+	ConfigManager.set_config("snap", snap_button.button_pressed)
 
 
 func _on_grid_button_pressed() -> void:
 	graph.show_grid = grid_button.button_pressed
+	ConfigManager.set_config("show_grid", grid_button.button_pressed)

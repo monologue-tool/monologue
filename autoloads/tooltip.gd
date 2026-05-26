@@ -12,7 +12,7 @@ func _input(event: InputEvent) -> void:
 	var control: Control = get_viewport().gui_get_hovered_control()
 	
 	text = ""
-	if control and control.tooltip_text or control.has_meta("tooltip"):
+	if control and (control.tooltip_text or control.has_meta("tooltip")):
 		text = control.tooltip_text if control.tooltip_text else control.get_meta("tooltip", "")
 
 	tooltip_update.emit()

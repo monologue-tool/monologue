@@ -20,7 +20,7 @@ func _log(level: Levels, levelname: String, colorname: String, args: Array, bold
 	var message: String = " ".join(args)
 	var bbcode_args: Array = []
 	bbcode_args.append("[color=%s]" % colorname)
-	bbcode_args.append("[b]%-5s [/b]" % levelname)
+	bbcode_args.append("[b]%-5s\t [/b]" % levelname)
 	if bold: bbcode_args.append("[b]")
 	bbcode_args.append(message)
 	if bold: bbcode_args.append("[/b]")

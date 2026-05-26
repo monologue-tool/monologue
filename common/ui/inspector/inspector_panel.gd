@@ -33,6 +33,12 @@ func _on_history_undo_redo() -> void:
 
 
 func inspect(object: InspectableObject) -> void:
+	if not object or object is not InspectableObject:
+		hide()
+		Log.warn("Inspector hidden due to invalid object")
+		return
+	
+	show()
 	Log.info("Inspect object", object.get_property_value("id") if object else "<null>")
 	var old_root: InspectableObject = current_object
 	if old_root and old_root != object:
@@ -204,6 +210,7 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 	
 	var p_hbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
 	p_hbox.ratio = [2, 3]
+	p_hbox.force_ratio = true
 	p_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	p_container.add_child(p_hbox)
 	
