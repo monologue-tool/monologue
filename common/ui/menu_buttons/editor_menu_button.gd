@@ -101,6 +101,7 @@ func add_submenu_row(label: String, callback: Callable = Callable(), enabled: bo
 	submenu.name = label.replace(" ", "_") + "_" + str(_menu.item_count)
 	_menu.add_child(submenu)
 	_menu.add_submenu_node_item(label, submenu, id)
+	submenu.id_pressed.connect(_on_submenu_id_pressed.bind(id))
 	if callback.is_valid():
 		_callbacks[id] = callback
 	
@@ -118,3 +119,8 @@ func _on_id_pressed(id: int) -> void:
 			_callbacks[id].call(checked)
 	elif id in _callbacks:
 		_callbacks[id].call()
+
+
+func _on_submenu_id_pressed(id: int, submenu_id: int) -> void:
+	set_pressed_no_signal(false)
+	_callbacks[submenu_id].call(id)

@@ -44,10 +44,12 @@ func list_metadata() -> Array[Dictionary]:
 
 
 ## Returns a sorted list of unique category names across all descriptors.
-func get_categories() -> PackedStringArray:
+func get_categories(internal: bool = false) -> PackedStringArray:
 	_ensure_initialized()
 	var categories: PackedStringArray = []
 	for descriptor: BucketDescriptor in _descriptors.values():
+		if descriptor.category.begins_with("_") and internal == false:
+			continue
 		if descriptor.category in categories:
 			continue
 		categories.append(descriptor.category)

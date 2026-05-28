@@ -306,7 +306,10 @@ static func _setup_optionbutton(theme: Theme) -> void:
 	normal_stylebox.bg_color = bg_elevated_color
 	theme.set_stylebox("normal", "OptionButton", normal_stylebox)
 	theme.set_stylebox("pressed", "OptionButton", normal_stylebox)
-	theme.set_stylebox("focus", "OptionButton", normal_stylebox)
+	theme.set_stylebox("hover_pressed", "OptionButton", normal_stylebox)
+	
+	var focus_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
+	theme.set_stylebox("focus", "OptionButton", focus_stylebox)
 	
 	var hover_stylebox: StyleBoxFlat = stylebox.duplicate()
 	hover_stylebox.bg_color = bg_elevated_color
@@ -406,13 +409,13 @@ static func _setup_separator(theme: Theme) -> void:
 	var h_wide_stylebox: StyleBoxLine = h_stylebox.duplicate()
 	h_wide_stylebox.grow_begin = spacing_sm
 	h_wide_stylebox.grow_end = spacing_sm
-	theme.set_stylebox("separator", "WideHSeparator", h_wide_stylebox)
+	theme.set_stylebox("separator", "SmallHSeparator", h_wide_stylebox)
 	
 	theme.add_type("UltraWideHSeparator")
 	theme.set_type_variation("UltraWideHSeparator", "HSeparator")
 	var h_ultra_wide_stylebox: StyleBoxLine = h_stylebox.duplicate()
-	h_ultra_wide_stylebox.grow_begin = spacing_md
-	h_ultra_wide_stylebox.grow_end = spacing_md
+	h_ultra_wide_stylebox.grow_begin = spacing_lg
+	h_ultra_wide_stylebox.grow_end = spacing_lg
 	theme.set_stylebox("separator", "UltraWideHSeparator", h_ultra_wide_stylebox)
 	
 	theme.add_type("VSeparator")
@@ -690,18 +693,25 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	theme.set_font("font_separator", "PopupMenu", font_main)
 	theme.set_font_size("font_size", "PopupMenu", font_size_sm)
 	theme.set_font_size("font_separator_size", "PopupMenu", font_size_sm)
+	
 	var menu_checked_icon: DPITexture = preload("res://ui/assets/theme/menu_checked.svg")
 	menu_checked_icon.color_map[Color.WHITE] = text_primary_color
+	menu_checked_icon.color_map[Color.BLACK] = bg_primary_color
 	theme.set_icon("checked", "PopupMenu", menu_checked_icon)
+	
 	var menu_checked_disabled_icon: DPITexture = preload("res://ui/assets/theme/menu_checked.svg")
 	menu_checked_disabled_icon.color_map[Color.WHITE] = text_muted_color
+	menu_checked_disabled_icon.color_map[Color.BLACK] = bg_primary_color
 	theme.set_icon("checked_disabled", "PopupMenu", menu_checked_disabled_icon)
+	
 	var menu_unchecked_icon: DPITexture = preload("res://ui/assets/theme/menu_unchecked.svg")
 	menu_unchecked_icon.color_map[Color.WHITE] = text_muted_color
 	theme.set_icon("unchecked", "PopupMenu", menu_unchecked_icon)
+	
 	var menu_unchecked_disabled_icon: DPITexture = preload("res://ui/assets/theme/menu_unchecked.svg")
 	menu_unchecked_disabled_icon.color_map[Color.WHITE] = text_muted_color
 	theme.set_icon("unchecked_disabled", "PopupMenu", menu_unchecked_disabled_icon)
+	
 	theme.set_icon("submenu", "PopupMenu", preload("res://ui/assets/icons/folded_arrow.svg"))
 	theme.set_icon("submenu_mirrored", "PopupMenu", preload("res://ui/assets/icons/folded_arrow_mirrored.svg"))
 	

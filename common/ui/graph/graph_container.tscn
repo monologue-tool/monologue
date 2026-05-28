@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://bl4t6n5wyuelg" path="res://ui/assets/icons/magnet.svg" id="2_32s7k"]
 [ext_resource type="Script" uid="uid://mqidcjji32ft" path="res://common/ui/menu_buttons/graph_edit_button.gd" id="2_juqgi"]
 [ext_resource type="Texture2D" uid="uid://cvel6ifgyclof" path="res://ui/assets/icons/grid.svg" id="3_3el0f"]
+[ext_resource type="Script" uid="uid://crx7ke21ixwnx" path="res://common/ui/menu_buttons/graph_add_button.gd" id="4_c51jt"]
 [ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/ui/graph/graph_edit.tscn" id="8_qfao8"]
 
 [node name="GraphContainer" type="PanelContainer" unique_id=379673752]
@@ -49,6 +50,7 @@ text = "Select"
 [node name="AddButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1597228810]
 layout_mode = 2
 text = "Add"
+script = ExtResource("4_c51jt")
 
 [node name="HeaderCenter" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1840524053]
 layout_mode = 2
