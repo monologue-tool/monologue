@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://bqjfdabrxujp7"]
 
 [ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/editor/editor.gd" id="1_ovo1o"]
-[ext_resource type="Script" uid="uid://rb4fwghqhreo" path="res://common/ui/menu_buttons/view_menu_button.gd" id="2_hg2ka"]
+[ext_resource type="Script" uid="uid://rb4fwghqhreo" path="res://common/ui/menu_buttons/main_view_button.gd" id="2_hg2ka"]
+[ext_resource type="Script" uid="uid://0vqgemjkhdc2" path="res://common/ui/menu_buttons/main_file_button.gd" id="2_oljq2"]
 [ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/ui/language_switcher/language_switcher.tscn" id="2_p4u40"]
+[ext_resource type="Script" uid="uid://cate5mgxkgmlh" path="res://common/ui/menu_buttons/main_edit_button.gd" id="3_oljq2"]
 [ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="3_syr16"]
 [ext_resource type="Script" uid="uid://creja611rnsop" path="res://common/ui/project_panel/project_panel.gd" id="4_syr16"]
+[ext_resource type="Script" uid="uid://b8tpwk6h2qmhc" path="res://common/ui/menu_buttons/main_help_button.gd" id="5_j530m"]
 [ext_resource type="Script" uid="uid://bw5hfxuolu4p3" path="res://common/ui/search_bar.gd" id="6_hg2ka"]
 [ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/h_auto_split_container.gd" id="6_syr16"]
 [ext_resource type="PackedScene" uid="uid://dqdrf7wtegye6" path="res://common/ui/console/console.tscn" id="9_oljq2"]
@@ -62,12 +65,14 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "File"
+script = ExtResource("2_oljq2")
 
 [node name="EditButton" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1206611088]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "Edit"
+script = ExtResource("3_oljq2")
 
 [node name="ViewButton" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=608330261]
 layout_mode = 2
@@ -81,6 +86,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "Help"
+script = ExtResource("5_j530m")
 
 [node name="VSeparator" type="VSeparator" parent="VBox/Header/HBoxContainer" unique_id=372438984]
 layout_mode = 2

@@ -27,19 +27,34 @@ func _ready() -> void:
 func _on_confirm_button_pressed() -> void:
 	hide()
 	confirmed.emit()
-	if _callback: _callback.call(Prompt.CONFIRMED)
+	_callback_handler(Prompt.CONFIRMED)
 
 
 func _on_deny_button_pressed() -> void:
 	hide()
 	denied.emit()
-	if _callback: _callback.call(Prompt.DENIED)
+	_callback_handler(Prompt.DENIED)
 
 
 func _on_cancel_button_pressed() -> void:
+	if not visible:
+		return
+	
 	hide()
 	cancelled.emit()
-	if _callback: _callback.call(Prompt.CANCELLED)
+	_callback_handler(Prompt.CANCELLED)
+
+
+func _callback_handler(response: int) -> void:
+	if not _callback:
+		Log.error("Prompt window has no callback.")
+		return
+	
+	if _callback.get_argument_count() < 1:
+		Log.error("Invalid callback.")
+		return
+	
+	_callback.call(response)
 
 
 func _on_ask_request(callback: Callable, header: String, description: String, confirm_text: String = "Yes", deny_text: String = "No", cancel_text: String = "Cancel") -> void:

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://ffk7n7akpe7t" path="res://common/ui/graph/graph_container.gd" id="1_plmop"]
 [ext_resource type="Script" uid="uid://c38kvfr67qro8" path="res://common/ui/menu_buttons/graph_view_button.gd" id="2_3el0f"]
 [ext_resource type="Texture2D" uid="uid://bl4t6n5wyuelg" path="res://ui/assets/icons/magnet.svg" id="2_32s7k"]
+[ext_resource type="Script" uid="uid://mqidcjji32ft" path="res://common/ui/menu_buttons/graph_edit_button.gd" id="2_juqgi"]
 [ext_resource type="Texture2D" uid="uid://cvel6ifgyclof" path="res://ui/assets/icons/grid.svg" id="3_3el0f"]
 [ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/ui/graph/graph_edit.tscn" id="8_qfao8"]
 
@@ -34,6 +35,7 @@ size_flags_vertical = 4
 [node name="EditButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=312964398]
 layout_mode = 2
 text = "Edit"
+script = ExtResource("2_juqgi")
 
 [node name="ViewButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=548572994]
 layout_mode = 2

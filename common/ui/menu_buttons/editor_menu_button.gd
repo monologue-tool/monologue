@@ -12,8 +12,17 @@ func _ready() -> void:
 	_menu.visibility_changed.connect(_on_menu_visibility_changed)
 	toggle_mode = true
 
+
+func _input(event: InputEvent) -> void:
+	if event.is_pressed():
+		_rebuild_menu()
+		_menu.activate_item_by_event(event)
+		
+
+
 @abstract
 func _build_menu() -> void
+
 
 func _rebuild_menu() -> void:
 	for child in _menu.get_children():
@@ -40,29 +49,63 @@ func _show_menu() -> void:
 	rect.position.y += size.y
 	_menu.popup_on_parent(rect)
 
-func add_row(label: String, callback: Callable = Callable(), accel: Key = KEY_NONE) -> void:
+func add_row(label: String, callback: Callable = Callable(), enabled: bool = true, actions: Array[String] = []) -> void:
 	var id := _menu.item_count
-	_menu.add_item(label, id, accel)
+	_menu.add_item(label, id)
+	
+	var item_shortcut: Shortcut = Shortcut.new()
+	for action_name: String in actions:
+		if not InputMap.has_action(action_name):
+			Log.warn("Invalid action name '%s'." % action_name)
+			continue
+		
+		var input_action: InputEventAction = InputEventAction.new()
+		input_action.action = action_name
+		item_shortcut.events.append(input_action)
+	_menu.set_item_shortcut(id, item_shortcut)
+	
 	if callback.is_valid():
 		_callbacks[id] = callback
+	
+	_menu.set_item_disabled(id, not enabled)
 
 # Callback receives the new bool value.
-func add_check_row(label: String, checked := false, callback: Callable = Callable()) -> void:
+func add_check_row(label: String, checked := false, callback: Callable = Callable(), enabled: bool = true, actions: Array[String] = []) -> void:
 	var id := _menu.item_count
 	_menu.add_check_item(label, id)
 	_menu.set_item_checked(_menu.get_item_index(id), checked)
+	
+	var item_shortcut: Shortcut = Shortcut.new()
+	for action_name: String in actions:
+		if not InputMap.has_action(action_name):
+			Log.warn("Invalid action name '%s'." % action_name)
+			continue
+		
+		var input_action: InputEventAction = InputEventAction.new()
+		input_action.action = action_name
+		item_shortcut.events.append(input_action)
+	_menu.set_item_shortcut(id, item_shortcut)
+	
 	if callback.is_valid():
 		_callbacks[id] = callback
+		
+	_menu.set_item_disabled(id, not enabled)
 
 func add_separator(label: String = "") -> void:
 	_menu.add_separator(label)
 
 # Returns the submenu PopupMenu to populate.
-func add_submenu_row(label: String) -> PopupMenu:
+func add_submenu_row(label: String, callback: Callable = Callable(), enabled: bool = true) -> PopupMenu:
+	var id := _menu.item_count
 	var submenu := PopupMenu.new()
 	submenu.name = label.replace(" ", "_") + "_" + str(_menu.item_count)
 	_menu.add_child(submenu)
-	_menu.add_submenu_item(label, submenu.name)
+	_menu.add_submenu_node_item(label, submenu, id)
+	if callback.is_valid():
+		_callbacks[id] = callback
+	
+	_menu.set_item_disabled(id, not enabled)
+	
 	return submenu
 
 func _on_id_pressed(id: int) -> void:

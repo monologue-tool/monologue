@@ -10,7 +10,7 @@ func _ready() -> void:
 
 
 func _shortcut_input(event: InputEvent) -> void:
-	if event.is_action_pressed("Add node"):
+	if event.is_action_pressed("mnl_add_node"):
 		EventBus.enable_picker_mode.emit()
 
 

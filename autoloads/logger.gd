@@ -5,7 +5,7 @@ signal log_message(message: String, bbcode_message: String)
 
 enum Levels {DEBUG, INFO, WARN, ERROR, FATAL}
 
-var log_level: Levels = Levels.INFO
+var log_level: Levels = Levels.DEBUG
 var _label := RichTextLabel.new()
 
 

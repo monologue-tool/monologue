@@ -1,6 +1,7 @@
 class_name MonologueProject extends Resource
 
 const FILE_FORMAT: String = "mnlp"
+const FORMAT_FILTER: Array = ["*.mnlp;Monologue Project"]
 
 signal ready
 signal content_changed
@@ -127,6 +128,14 @@ func get_storyline(storyline_id: String) -> StorylineDocument:
 	return null
 
 
+func delete_storyline(storyline: StorylineDocument) -> void:
+	if storylines.size() <= 1:
+		Log.warn("The storyline couldn't be removed, it's the only one left.")
+		return
+	
+	storylines.erase(storyline)
+
+
 func add_new_storyline() -> void:
 	var base_name: String = "new_storyline"
 	var attempt: int = 1
@@ -180,7 +189,7 @@ func save() -> void:
 	if project_path.is_empty():
 		EventBus.save_file_request.emit(
 			_open_file_request_callback,
-			["*.%s;Monologue Project" % FILE_FORMAT],
+			FORMAT_FILTER,
 			"",
 			[{"name": "Compact", "values": [], "default_value_index": 1}]
 		)

@@ -30,18 +30,18 @@ func _select_new_node() -> void:
 	graph_node_picker.open_for_node("", -1, null, null, null, true)
 
 
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("Save"):
-		ProjectManager.current_project.save()
+#func _input(event: InputEvent) -> void:
+	#if event.is_action_pressed("Save"):
+		#ProjectManager.current_project.save()
 
-	if event.is_action_pressed("ui_undo"):
-		var focus_owner: Control = get_viewport().gui_get_focus_owner()
-		if focus_owner:
-			focus_owner.release_focus()
-		ProjectManager.current_project.command_manager.undo()
-
-	if event.is_action_pressed("ui_redo"):
-		ProjectManager.current_project.command_manager.redo()
+	#if event.is_action_pressed("ui_undo"):
+		#var focus_owner: Control = get_viewport().gui_get_focus_owner()
+		#if focus_owner:
+			#focus_owner.release_focus()
+		#ProjectManager.current_project.command_manager.undo()
+#
+	#if event.is_action_pressed("ui_redo"):
+		#ProjectManager.current_project.command_manager.redo()
 
 
 ## Function callback for when th e user wants to add a node from global context.
