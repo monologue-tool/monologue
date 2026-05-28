@@ -35,6 +35,7 @@ welcome_window = NodePath("../../WelcomeWindow")
 file_dialog = NodePath("../../FileDialog")
 
 [node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
+visible = false
 z_index = 1
 layout_mode = 1
 anchors_preset = 15

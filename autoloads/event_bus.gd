@@ -31,6 +31,7 @@ signal enable_picker_mode(
 signal show_inspector(visible: bool)
 signal show_project_explorer(visible: bool)
 signal show_console(visible: bool)
+signal show_status_bar(visible: bool)
 signal graph_snap(enabled: bool)
 signal graph_show_grid(visible: bool)
 

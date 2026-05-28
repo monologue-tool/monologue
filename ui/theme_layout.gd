@@ -678,7 +678,7 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	theme.set_color("font_hover_color", "PopupMenu", text_primary_color)
 	theme.set_color("font_separator_color", "PopupMenu", border_color)
 	theme.set_constant("indent", "PopupMenu", spacing_md)
-	theme.set_constant("h_separation", "PopupMenu", int(margin_md.x))
+	theme.set_constant("h_separation", "PopupMenu", int(margin_sm.x))
 	theme.set_constant("v_separation", "PopupMenu", int(margin_md.y))
 	theme.set_constant("outline_size", "PopupMenu", 0)
 	theme.set_constant("separator_outline_size", "PopupMenu", 0)

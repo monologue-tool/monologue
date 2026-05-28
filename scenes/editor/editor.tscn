@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://bi4poj4ni2xba" path="res://common/ui/label_memory_usage.gd" id="9_qnluh"]
 [ext_resource type="Script" uid="uid://db0p0vwsnoa06" path="res://common/ui/version_label.gd" id="10_i3ywb"]
 [ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/ui/inspector/inspector_panel.tscn" id="14_craj7"]
+[ext_resource type="Script" uid="uid://cd5ku56gijql7" path="res://common/ui/status_bar/status_bar.gd" id="14_ja8tm"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/ui/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
 
 [sub_resource type="GDScript" id="GDScript_qnluh"]
@@ -91,6 +92,7 @@ script = ExtResource("5_j530m")
 [node name="VSeparator" type="VSeparator" parent="VBox/Header/HBoxContainer" unique_id=372438984]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_type_variation = &"SmallVSeparator"
 
 [node name="LanguageSwitcher" parent="VBox/Header/HBoxContainer" unique_id=348986612 instance=ExtResource("2_p4u40")]
 custom_minimum_size = Vector2(0, 0)
@@ -177,6 +179,7 @@ theme_type_variation = &"IconButton"
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 theme_type_variation = &"EditorHeader"
+script = ExtResource("14_ja8tm")
 
 [node name="Left" type="HBoxContainer" parent="VBox/StatusBar" unique_id=246129797]
 layout_mode = 2
@@ -204,6 +207,7 @@ script = ExtResource("9_qnluh")
 
 [node name="VSeparator" type="VSeparator" parent="VBox/StatusBar/Right" unique_id=1516301607]
 layout_mode = 2
+theme_type_variation = &"SmallVSeparator"
 
 [node name="VersionLabel" type="Label" parent="VBox/StatusBar/Right" unique_id=2049826380]
 layout_mode = 2
