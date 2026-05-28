@@ -66,6 +66,8 @@ access = 2
 use_native_dialog = true
 script = ExtResource("10_r77hi")
 
+[node name="PopupMenu" type="PopupMenu" parent="FileDialog" unique_id=1991321337]
+
 [connection signal="dir_selected" from="FileDialog" to="FileDialog" method="_on_dir_selected"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
 [connection signal="files_selected" from="FileDialog" to="FileDialog" method="_on_files_selected"]

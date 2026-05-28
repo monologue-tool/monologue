@@ -89,6 +89,7 @@ static func generate_theme() -> Theme:
 	_setup_graphedit(theme)
 	_setup_splitcontainer(theme)
 	_setup_tree(theme)
+	_setup_popupmenu(theme)
 	
 	var end_time: float = Time.get_unix_time_from_system()
 	var elasped: float = end_time - start_time
@@ -667,3 +668,69 @@ static func _setup_tree(theme: Theme) -> void:
 	tree_stylebox.content_margin_left = margin_sm.x
 	tree_stylebox.content_margin_right = margin_sm.x
 	theme.set_stylebox("panel", "Tree", tree_stylebox)
+
+
+static func _setup_popupmenu(theme: Theme) -> void:
+	theme.add_type("PopupMenu")
+	theme.set_color("font_color", "PopupMenu", text_primary_color)
+	theme.set_color("font_accelerator_color", "PopupMenu", text_muted_color)
+	theme.set_color("font_disabled_color", "PopupMenu", text_muted_color)
+	theme.set_color("font_hover_color", "PopupMenu", text_primary_color)
+	theme.set_color("font_separator_color", "PopupMenu", border_color)
+	theme.set_constant("indent", "PopupMenu", spacing_md)
+	theme.set_constant("h_separation", "PopupMenu", int(margin_md.x))
+	theme.set_constant("v_separation", "PopupMenu", int(margin_md.y))
+	theme.set_constant("outline_size", "PopupMenu", 0)
+	theme.set_constant("separator_outline_size", "PopupMenu", 0)
+	theme.set_constant("item_start_padding", "PopupMenu", int(margin_md.x))
+	theme.set_constant("item_end_padding", "PopupMenu", int(margin_md.x))
+	theme.set_constant("icon_max_width", "PopupMenu", icon_xs)
+	theme.set_constant("gutter_compact", "PopupMenu", 0)
+	theme.set_font("font", "PopupMenu", font_main)
+	theme.set_font("font_separator", "PopupMenu", font_main)
+	theme.set_font_size("font_size", "PopupMenu", font_size_sm)
+	theme.set_font_size("font_separator_size", "PopupMenu", font_size_sm)
+	var menu_checked_icon: DPITexture = preload("res://ui/assets/theme/menu_checked.svg")
+	menu_checked_icon.color_map[Color.WHITE] = text_primary_color
+	theme.set_icon("checked", "PopupMenu", menu_checked_icon)
+	var menu_checked_disabled_icon: DPITexture = preload("res://ui/assets/theme/menu_checked.svg")
+	menu_checked_disabled_icon.color_map[Color.WHITE] = text_muted_color
+	theme.set_icon("checked_disabled", "PopupMenu", menu_checked_disabled_icon)
+	var menu_unchecked_icon: DPITexture = preload("res://ui/assets/theme/menu_unchecked.svg")
+	menu_unchecked_icon.color_map[Color.WHITE] = text_muted_color
+	theme.set_icon("unchecked", "PopupMenu", menu_unchecked_icon)
+	var menu_unchecked_disabled_icon: DPITexture = preload("res://ui/assets/theme/menu_unchecked.svg")
+	menu_unchecked_disabled_icon.color_map[Color.WHITE] = text_muted_color
+	theme.set_icon("unchecked_disabled", "PopupMenu", menu_unchecked_disabled_icon)
+	theme.set_icon("submenu", "PopupMenu", preload("res://ui/assets/icons/folded_arrow.svg"))
+	theme.set_icon("submenu_mirrored", "PopupMenu", preload("res://ui/assets/icons/folded_arrow_mirrored.svg"))
+	
+	var panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	panel_stylebox.bg_color = bg_primary_color
+	panel_stylebox.set_corner_radius_all(radius_md)
+	panel_stylebox.content_margin_top = margin_md.y
+	panel_stylebox.content_margin_bottom = margin_md.y
+	panel_stylebox.content_margin_left = margin_md.x
+	panel_stylebox.content_margin_right = margin_md.x
+	theme.set_stylebox("panel", "PopupMenu", panel_stylebox)
+	
+	var hover_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	hover_stylebox.bg_color = bg_surface_color
+	panel_stylebox.set_corner_radius_all(radius_sm)
+	panel_stylebox.content_margin_top = margin_sm.y
+	panel_stylebox.content_margin_bottom = margin_sm.y
+	panel_stylebox.content_margin_left = margin_sm.x
+	panel_stylebox.content_margin_right = margin_sm.x
+	theme.set_stylebox("hover", "PopupMenu", hover_stylebox)
+	
+	var separator_stylebox: StyleBoxLine = StyleBoxLine.new()
+	separator_stylebox.color = border_color
+	separator_stylebox.thickness = 1
+	panel_stylebox.content_margin_top = margin_sm.y
+	panel_stylebox.content_margin_bottom = margin_sm.y
+	panel_stylebox.content_margin_left = margin_sm.x
+	panel_stylebox.content_margin_right = margin_sm.x
+	theme.set_stylebox("separator", "PopupMenu", separator_stylebox)
+	theme.set_stylebox("labeled_separator_left", "PopupMenu", separator_stylebox)
+	theme.set_stylebox("labeled_separator_right", "PopupMenu", separator_stylebox)
+	
