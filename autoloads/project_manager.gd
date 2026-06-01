@@ -56,11 +56,16 @@ func save_project(project: MonologueProject) -> void:
 
 
 func load_project_from_path(path: String) -> void:
-	if not FileAccess.file_exists(path):
+	var new_project: MonologueProject
+	if FileAccess.file_exists(path) and path.ends_with(".%s" % MonologueProject.FILE_FORMAT):
+		new_project = await MonologueProject.from_file_path(path)
+	elif path.ends_with(".%s" % ManifestDocument.FILE_FORMAT):
+		new_project = await MonologueProject.from_dir_path(path.get_base_dir())
+	
+	if not new_project:
 		Log.error("Can't load project from an invalid path.")
 		return
 	
-	var new_project: MonologueProject = await MonologueProject.from_path(path)
 	load_project(new_project)
 
 

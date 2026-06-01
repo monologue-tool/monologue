@@ -22,8 +22,6 @@ unresizable = true
 borderless = true
 always_on_top = true
 transparent = true
-content_scale_mode = 2
-content_scale_aspect = 1
 script = ExtResource("1_hscvo")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=304586190]

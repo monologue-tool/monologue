@@ -36,6 +36,9 @@ static var icon_sm: int = 16
 static var icon_md: int = 18
 static var icon_lg: int = 20
 
+static var radio_checked_icon: DPITexture
+static var radio_unchecked_icon: DPITexture
+
 static var is_theme_dark: bool
 
 static func color_difference(color1: Color, color2: Color) -> float:
@@ -59,6 +62,27 @@ static func recalculate_colors() -> void:
 	fail_color = Color("e86666ff")
 	success_color = Color("72e879")
 	highlight_color = Color("966fc5")
+	
+	var colormap_dict: Dictionary = {
+		"bg_primary": "#" + bg_primary_color.to_html(false),
+		"bg_surface": "#" + bg_primary_color.to_html(false),
+		"text_primary": "#" + text_primary_color.to_html(false),
+		"text_muted": "#" + text_muted_color.to_html(false),
+		"accent": "#" + accent_color.to_html(false)
+	}
+	
+	radio_checked_icon = DPITexture.create_from_string(
+			"""<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<rect width="10" height="10" rx="5" fill="{accent}"/>
+				<rect x="2" y="2" width="6" height="6" rx="3" fill="{text_primary}"/>
+			</svg>""".format(colormap_dict)
+	)
+
+	radio_unchecked_icon = DPITexture.create_from_string(
+		"""<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect x="0.5" y="0.5" width="9" height="9" rx="4.5" fill="{text_muted}"/>
+		</svg>""".format(colormap_dict)
+	)
 
 static func rebuild_fonts() -> void:
 	font_main.base_font = FontFile.new()
@@ -157,12 +181,37 @@ static func _setup_panel(theme: Theme) -> void:
 	theme.set_type_variation("ConsolePanel", "PanelContainer")
 	var console_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	console_panel_stylebox.bg_color = bg_primary_color
-	editor_graph_panel_stylebox.set_corner_radius_all(radius_md)
+	console_panel_stylebox.set_corner_radius_all(radius_md)
 	console_panel_stylebox.content_margin_top = margin_md.y
 	console_panel_stylebox.content_margin_bottom = margin_md.y
 	console_panel_stylebox.content_margin_left = margin_md.x
 	console_panel_stylebox.content_margin_right = margin_md.x
 	theme.set_stylebox("panel", "ConsolePanel", console_panel_stylebox)
+	
+	theme.add_type("ListFieldPanel")
+	theme.set_type_variation("ListFieldPanel", "PanelContainer")
+	var list_field_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	list_field_panel_stylebox.bg_color = bg_surface_color
+	list_field_panel_stylebox.set_corner_radius_all(radius_md)
+	list_field_panel_stylebox.set_content_margin_all(0)
+	theme.set_stylebox("panel", "ListFieldPanel", list_field_panel_stylebox)
+	
+	theme.add_type("ListItemPanel")
+	theme.set_type_variation("ListItemPanel", "PanelContainer")
+	var list_item_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	list_item_panel_stylebox.bg_color = Color(bg_primary_color, 0.5)
+	list_item_panel_stylebox.set_corner_radius_all(0)
+	list_item_panel_stylebox.content_margin_top = margin_md.y
+	list_item_panel_stylebox.content_margin_bottom = margin_md.y
+	list_item_panel_stylebox.content_margin_left = margin_md.x
+	list_item_panel_stylebox.content_margin_right = margin_md.x
+	theme.set_stylebox("panel", "ListItemPanel", list_item_panel_stylebox)
+	
+	theme.add_type("ListItemOddPanel")
+	theme.set_type_variation("ListItemOddPanel", "PanelContainer")
+	var list_item_odd_panel_stylebox: StyleBoxFlat = list_item_panel_stylebox.duplicate()
+	list_item_odd_panel_stylebox.bg_color = bg_primary_color
+	theme.set_stylebox("panel", "ListItemOddPanel", list_item_odd_panel_stylebox)
 	
 static func _setup_button(theme: Theme) -> void:
 	theme.add_type("Button")
@@ -258,6 +307,35 @@ static func _setup_button(theme: Theme) -> void:
 	var hover_pressed_toggle_icon_button_stylebox: StyleBoxFlat = hover_pressed_icon_button_stylebox.duplicate()
 	hover_pressed_toggle_icon_button_stylebox.bg_color = accent_color
 	theme.set_stylebox("hover_pressed", "ToggleIconButton", hover_pressed_toggle_icon_button_stylebox)
+	
+	theme.add_type("ListItemIconButton")
+	theme.set_type_variation("ListItemIconButton", "IconButton")
+	theme.set_color("icon_normal_color", "ListItemIconButton", text_muted_color)
+	theme.set_color("icon_hover_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_pressed_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_hover_pressed_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_focus_color", "ListItemIconButton", text_muted_color)
+	theme.set_color("icon_disabled_color", "ListItemIconButton", Color(text_muted_color, 0.5))
+	
+	var normal_list_item_icon_button_stylebox: StyleBoxFlat = normal_icon_button_stylebox.duplicate()
+	normal_list_item_icon_button_stylebox.draw_center = false
+	theme.set_stylebox("normal", "ListItemIconButton", normal_list_item_icon_button_stylebox)
+	
+	var hover_list_item_icon_button_stylebox: StyleBoxFlat = hover_icon_button_stylebox.duplicate()
+	hover_list_item_icon_button_stylebox.draw_center = false
+	theme.set_stylebox("hover", "ListItemIconButton", hover_list_item_icon_button_stylebox)
+	
+	var pressed_list_item_icon_button_stylebox: StyleBoxFlat = pressed_icon_button_stylebox.duplicate()
+	pressed_list_item_icon_button_stylebox.draw_center = false
+	theme.set_stylebox("pressed", "ListItemIconButton", pressed_list_item_icon_button_stylebox)
+	
+	var hover_pressed_list_item_icon_button_stylebox: StyleBoxFlat = hover_pressed_icon_button_stylebox.duplicate()
+	hover_pressed_list_item_icon_button_stylebox.draw_center = false
+	theme.set_stylebox("hover_pressed", "ListItemIconButton", hover_pressed_list_item_icon_button_stylebox)
+	
+	var disabled_list_item_icon_button_stylebox: StyleBoxFlat = disabled_icon_button_stylebox.duplicate()
+	disabled_list_item_icon_button_stylebox.draw_center = false
+	theme.set_stylebox("disabled", "ListItemIconButton", disabled_list_item_icon_button_stylebox)
 
 static func _setup_checkbox(theme: Theme) -> void:
 	theme.add_type("CheckBox")
@@ -328,7 +406,7 @@ static func _setup_lineedit(theme: Theme) -> void:
 	theme.set_color("selection_color", "LineEdit", selection_color)
 	theme.set_color("disabled_selection_color", "LineEdit", selection_color)
 	theme.set_font_size("font_size", "LineEdit", font_size_sm)
-	theme.set_font("font", "LineEdit", font_typing)
+	theme.set_font("font", "LineEdit", font_main)
 	
 	var stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	stylebox.set_corner_radius_all(radius_sm)
@@ -351,6 +429,23 @@ static func _setup_lineedit(theme: Theme) -> void:
 	
 	var focus_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
 	theme.set_stylebox("focus", "LineEdit", focus_stylebox)
+	
+	theme.add_type("LineEditListItemPreview")
+	theme.set_type_variation("LineEditListItemPreview", "LineEdit")
+	
+	var disabled_preview_stylebox: StyleBoxFlat = disabled_stylebox.duplicate()
+	disabled_preview_stylebox.bg_color = bg_surface_color
+	theme.set_stylebox("read_only", "LineEditListItemPreview", disabled_preview_stylebox)
+	
+	var normal_preview_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
+	normal_preview_stylebox.bg_color = bg_elevated_color
+	theme.set_stylebox("normal", "LineEditListItemPreview", normal_preview_stylebox)
+	
+	var hover_preview_stylebox: StyleBoxFlat = hover_stylebox.duplicate()
+	theme.set_stylebox("hover", "LineEditListItemPreview", hover_preview_stylebox)
+	
+	var focus_preview_stylebox: StyleBoxEmpty = focus_stylebox.duplicate()
+	theme.set_stylebox("focus", "LineEditListItemPreview", focus_preview_stylebox)
 
 static func _setup_scrollbar(theme: Theme) -> void:
 	theme.add_type("HScrollBar")
@@ -489,7 +584,7 @@ static func _setup_textedit(theme: Theme) -> void:
 	theme.set_color("font_color", "TextEdit", text_primary_color)
 	theme.set_color("font_readonly_color", "TextEdit", text_muted_color)
 	theme.set_color("font_placeholder_color", "TextEdit", text_muted_color)
-	theme.set_font("font", "TextEdit", font_typing)
+	theme.set_font("font", "TextEdit", font_main)
 	theme.set_font_size("font_size", "TextEdit", font_size_sm)
 	
 	var normal_stylebox: StyleBoxFlat = StyleBoxFlat.new()
@@ -712,12 +807,27 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	menu_unchecked_disabled_icon.color_map[Color.WHITE] = text_muted_color
 	theme.set_icon("unchecked_disabled", "PopupMenu", menu_unchecked_disabled_icon)
 	
+	theme.set_icon("radio_checked", "PopupMenu", radio_checked_icon)
+	
+	var menu_radio_checked_disabled_icon: DPITexture = preload("res://ui/assets/theme/menu_radio_checked.svg")
+	menu_radio_checked_disabled_icon.color_map[Color.WHITE] = text_muted_color
+	menu_radio_checked_disabled_icon.color_map[Color.BLACK] = bg_primary_color
+	theme.set_icon("radio_checked_disabled", "PopupMenu", menu_radio_checked_disabled_icon)
+	
+	theme.set_icon("radio_unchecked", "PopupMenu", radio_unchecked_icon)
+	
+	var menu_radio_unchecked_disabled_icon: DPITexture = preload("res://ui/assets/theme/menu_radio_unchecked.svg")
+	menu_radio_unchecked_disabled_icon.color_map[Color.WHITE] = text_muted_color
+	theme.set_icon("radio_unchecked_disabled", "PopupMenu", menu_radio_unchecked_disabled_icon)
+	
 	theme.set_icon("submenu", "PopupMenu", preload("res://ui/assets/icons/folded_arrow.svg"))
 	theme.set_icon("submenu_mirrored", "PopupMenu", preload("res://ui/assets/icons/folded_arrow_mirrored.svg"))
 	
 	var panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	panel_stylebox.bg_color = bg_primary_color
 	panel_stylebox.set_corner_radius_all(radius_md)
+	panel_stylebox.set_border_width_all(1)
+	panel_stylebox.border_color = border_color
 	panel_stylebox.content_margin_top = margin_md.y
 	panel_stylebox.content_margin_bottom = margin_md.y
 	panel_stylebox.content_margin_left = margin_md.x
@@ -727,6 +837,8 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	var hover_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	hover_stylebox.bg_color = bg_surface_color
 	panel_stylebox.set_corner_radius_all(radius_sm)
+	panel_stylebox.set_border_width_all(1)
+	panel_stylebox.border_color = border_color
 	panel_stylebox.content_margin_top = margin_sm.y
 	panel_stylebox.content_margin_bottom = margin_sm.y
 	panel_stylebox.content_margin_left = margin_sm.x

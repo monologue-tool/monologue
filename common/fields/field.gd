@@ -54,6 +54,10 @@ func clear_error() -> void:
 	display_error("")
 
 
+func set_preview() -> void:
+	pass
+
+
 @abstract func set_value(value: Variant) -> void
 @abstract func get_value() -> Variant
 @abstract func set_editable(is_editable: bool) -> void

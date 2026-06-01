@@ -122,8 +122,9 @@ func _rebuild_ui() -> void:
 	
 	var items: Array = _get_children()
 	for item: ListItem in items:
-		var item_view: VBoxContainer = VBoxContainer.new()
+		var item_view: PanelContainer = PanelContainer.new()
 		var item_idx: int = items.find(item)
+		item_view.theme_type_variation = "ListItemPanel" if item_idx % 2 else "ListItemOddPanel"
 		
 		items_container.add_child(item_view)
 		ListItemHelper.populate_item_view(self, item_view, item, item_idx)

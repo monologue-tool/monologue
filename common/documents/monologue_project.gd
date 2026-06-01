@@ -1,7 +1,7 @@
 class_name MonologueProject extends Resource
 
 const FILE_FORMAT: String = "mnlp"
-const FORMAT_FILTER: Array = ["*.mnlp;Monologue Project"]
+const FORMAT_FILTER: Array = ["*.mnlp;Monologue Project", "*.%s;Monologue File" % InspectableDocument.FILE_FORMAT]
 
 signal ready
 signal content_changed
@@ -203,7 +203,7 @@ func save() -> void:
 		return
 	
 	pack_document(writer, manifest, "manifest.json")
-	pack_document(writer, settings, "settings.json")  # FIX: settings était omis
+	pack_document(writer, settings, "settings.json")
 	for collection: CollectionDocument in collections:
 		pack_document(writer, collection, "collections/%s.json" % collection.name)
 	for storyline: StorylineDocument in storylines:
@@ -228,13 +228,33 @@ func _open_file_request_callback(path: String) -> void:
 	_project_path_changed.emit()
 
 
-static func from_path(path: String) -> MonologueProject:
+static func from_file_path(path: String) -> MonologueProject:
 	if not path.ends_with(".%s" % FILE_FORMAT) or not FileAccess.file_exists(path):
 		Log.error("Can't load project from an invalid path.")
 		return null
 	
 	var reader: ZIPReader = ZIPReader.new()
 	reader.open(path)
+	
+	var project: MonologueProject = await _from_path_core(reader, path)
+	project.compact = true
+	return project
+
+
+static func from_dir_path(path: String) -> MonologueProject:
+	if not DirAccess.dir_exists_absolute(path):
+		Log.error("Can't load project from an invalid path.")
+		return null
+	
+	var reader: DirAccess = DirAccess.open(path)
+	
+	var project: MonologueProject = await _from_path_core(reader, path)
+	project.compact = false
+	return project
+
+
+## 'reader' can be either a 'ZIPReader' or a 'DirAccess'.
+static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
 	var files: PackedStringArray = reader.get_files()
 	
 	var project: MonologueProject = MonologueProject.new()

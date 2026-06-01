@@ -1,97 +1,56 @@
-class_name ListItemHelper extends RefCounted
-
+class_name ListItemHelper
 enum MenuActions { EDIT, DUPLICATE, DELETE }
 
-
-static func populate_item_view(owner: ListField, item_view: VBoxContainer, item: ListItem, item_index: int) -> void:
-	for prop: Property in item.get_properties():
-		if not prop.name in item.get_preview_property_names():
-			continue
-			
-		var field_container: VBoxContainer = VBoxContainer.new()
-		var field: Field = FieldBucket.create_field(prop.type)
-		var field_title: HBoxContainer = _create_field_title(prop)
-		
-		field_container.add_child(field_title)
-		field_container.add_child(field)
-		item_view.add_child(field_container)
-		
-		prop.bind_field(field, item)
-		
-	_make_item_header(owner, item_view, item_index, item)
+static func populate_item_view(owner: ListField, item_view: PanelContainer, item: ListItem, item_index: int) -> void:
+	_make_item_row(owner, item_view, item_index, item)
 
 
-static func _create_field_title(prop: Property) -> HBoxContainer:
-	var field_name: String = prop.name
-	var field_config: Dictionary = prop.get_settings()
-	
-	var title_container: HBoxContainer = HBoxContainer.new()
-	title_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var label: Label = Label.new()
-	label.text = Util.to_readable_name(field_name)
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	if field_config.has("tooltip"):
-		label.tooltip_text = field_config["tooltip"]
-
-	title_container.add_child(label)
-	return title_container
-
-
-static func _get_or_create_header_container(content: Control) -> HBoxContainer:
-	if content.get_child_count() == 0:
-		return HBoxContainer.new()
-
-	var first_child: Node = content.get_child(0)
-	if not first_child is BoxContainer or first_child.get_child_count() == 0:
-		return HBoxContainer.new()
-
-	var header_candidate: Node = first_child.get_child(0)
-	if header_candidate is HBoxContainer:
-		return header_candidate
-
-	return HBoxContainer.new()
-
-
-static func _make_item_header(
+static func _make_item_row(
 	owner: ListField,
-	content: Control,
+	content: PanelContainer,
 	index: int,
 	item: ListItem,
-) -> HBoxContainer:
-	var header: HBoxContainer = _get_or_create_header_container(content)
+) -> void:
 	var is_protected: bool = item.get_property_value("protected") == true
-	var icons: Dictionary = {
-		"delete": preload("res://ui/assets/icons/trash.svg"),
-		"edit": preload("res://ui/assets/icons/pen.svg"),
-		"duplicate": preload("res://ui/assets/icons/copy.png")
-	}
-	
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(row)
+
+	var drag_handle: Button = Button.new()
+	drag_handle.icon = preload("res://ui/assets/icons/drag_handle.svg")
+	drag_handle.theme_type_variation = "ListItemIconButton"
+	drag_handle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(drag_handle)
+
+	var preview_prop_name: String = item.get_preview_property_names()[0]
+	var preview_prop: Property = item.get_property(preview_prop_name)
+	var preview_field: Field = FieldBucket.create_field(preview_prop.type)
+	preview_field.set_preview()
+	preview_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview_prop.bind_field(preview_field, item, true)
+	row.add_child(preview_field)
+
 	var edit_button: Button = Button.new()
-	edit_button.icon = icons["edit"]
+	edit_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	edit_button.icon = preload("res://ui/assets/icons/pen.svg")
 	edit_button.tooltip_text = "Edit item"
+	edit_button.theme_type_variation = "ListItemIconButton"
 	edit_button.pressed.connect(owner.call.bind("_on_edit_item", index))
-	header.add_child(edit_button)
-	
+	row.add_child(edit_button)
+
 	if not is_protected:
-		var menu_button: MenuButton = MenuButton.new()
-		menu_button.icon = preload("res://ui/assets/icons/vertical_dots.svg")
-		var menu_popup: PopupMenu = menu_button.get_popup()
-		menu_popup.add_item("Duplicate", MenuActions.DUPLICATE)
-		menu_popup.add_separator()
-		menu_popup.add_item("Delete", MenuActions.DELETE)
-		menu_popup.id_pressed.connect(_on_menu_button_id_pressed.bind(owner, index))
-
-		header.add_child(menu_button)
-
-	return header
+		var delete_button: Button = Button.new()
+		delete_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		delete_button.icon = preload("res://ui/assets/icons/cross.svg")
+		delete_button.tooltip_text = "Delete item"
+		delete_button.theme_type_variation = "ListItemIconButton"
+		delete_button.pressed.connect(owner.call.bind("_on_delete_item", index))
+		row.add_child(delete_button)
 
 
 static func _on_menu_button_id_pressed(id: MenuActions, owner: ListField, index: int) -> void:
 	match id:
-		MenuActions.EDIT:
-			owner._on_edit_item(index)
 		MenuActions.DUPLICATE:
 			owner._on_duplicate_item(index)
 		MenuActions.DELETE:
@@ -101,19 +60,19 @@ static func _on_menu_button_id_pressed(id: MenuActions, owner: ListField, index:
 static func populate_external_item_view(item_view: PanelContainer, name: String) -> void:
 	item_view.theme_type_variation = "ListItemContainer"
 	item_view.modulate = Color(1, 1, 1, 0.6)
-	
+
 	var main_vbox: VBoxContainer = VBoxContainer.new()
 	item_view.add_child(main_vbox)
 
-	var header: HBoxContainer = HBoxContainer.new()
+	var row: HBoxContainer = HBoxContainer.new()
+	main_vbox.add_child(row)
+
 	var ext_label: Label = Label.new()
 	ext_label.text = name
 	ext_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(ext_label)
+	row.add_child(ext_label)
 
 	var badge: Label = Label.new()
 	badge.text = "(imported)"
 	badge.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-	header.add_child(badge)
-
-	main_vbox.add_child(header)
+	row.add_child(badge)

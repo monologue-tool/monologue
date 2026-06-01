@@ -19,6 +19,8 @@ func _build_menu() -> void:
 	
 	add_row("Save", _on_save, true, ["mnl_save"])
 	add_row("Save As...", _on_save_as, false, ["mnl_save_as"])
+	add_separator()
+	add_submenu_row("Export", _on_export, false)
 	#add_row("Save Copy...")
 	#add_row("Save Version")
 	add_separator()
@@ -47,6 +49,10 @@ func _on_save() -> void:
 
 
 func _on_save_as() -> void:
+	pass
+
+
+func _on_export() -> void:
 	pass
 
 

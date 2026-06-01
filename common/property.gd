@@ -61,7 +61,11 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 		_base_settings.erase("label")
 
 
-func bind_field(field: Field, target_owner: InspectableObject = null) -> FieldBinding:
+func bind_field(field: Field, target_owner: InspectableObject = null, deferred: bool = false) -> FieldBinding:
+	if deferred:
+		bind_field.call_deferred(field, target_owner, false)
+		return
+	
 	if not is_instance_valid(field) or not field.is_inside_tree():
 		Log.error("Failed to bind field.")
 		return null

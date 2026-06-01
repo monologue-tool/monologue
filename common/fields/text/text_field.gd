@@ -2,6 +2,7 @@ class_name TextField
 extends Field
 
 var _is_multiline: bool = false
+var _is_preview: bool = false
 
 @onready var line_edit: LineEdit = %LineEdit
 @onready var text_edit: TextEdit = %TextEdit
@@ -21,15 +22,14 @@ func _on_initialize() -> void:
 	var placeholder: String = settings.get(PropertySettings.KEY_PLACEHOLDER, 
 		settings.get("placeholder", ""))
 
-	if _is_multiline:
-		line_edit.hide()
-		text_edit.show()
-		text_edit.placeholder_text = placeholder
-		var rows: int = settings.get(PropertySettings.KEY_ROWS, settings.get("rows", 3))
-		_apply_textarea_height.call_deferred(text_edit, rows)
-	else:
-		line_edit.placeholder_text = placeholder
-		text_edit.hide()
+	text_edit.placeholder_text = placeholder
+	line_edit.placeholder_text = placeholder
+	var rows: int = settings.get(PropertySettings.KEY_ROWS, settings.get("rows", 3))
+	_apply_textarea_height.call_deferred(text_edit, rows)
+	
+	if not _is_preview:
+		line_edit.visible = not _is_multiline
+		text_edit.visible = _is_multiline
 
 
 func _apply_textarea_height(te: TextEdit, rows: int) -> void:
@@ -61,6 +61,16 @@ func get_value() -> Variant:
 func set_editable(is_editable: bool) -> void:
 	line_edit.editable = is_editable
 	text_edit.editable = is_editable
+
+
+func set_preview() -> void:
+	_is_preview = true
+	if not is_node_ready():
+		await ready
+	
+	line_edit.show()
+	text_edit.hide()
+	line_edit.theme_type_variation = "LineEditListItemPreview"
 
 
 func display_error(message: String) -> void:

@@ -5,7 +5,7 @@ const BASE_SCALE_DPI: float = 92.56
 
 
 func _ready() -> void:
-	_update_window(true)
+	_update_window(get_window(), true)
 	get_window().size_changed.connect(_on_window_size_changed)
 
 
@@ -15,21 +15,22 @@ func _shortcut_input(event: InputEvent) -> void:
 
 
 func _on_window_size_changed() -> void:
-	_update_window()
+	_update_window(get_window())
 
 
-func _update_window(update_size: bool = false) -> void:
-	var screen_size: Vector2i = DisplayServer.window_get_size()
-	var scale_factor: float = _get_auto_display_scale()
-	get_window().content_scale_factor = scale_factor
+func _update_window(window: Window, update_size: bool = false) -> void:
+	var window_id: int = max(0, window.get_window_id())
+	var scale_factor: float = _get_auto_display_scale(window_id)
+	window.content_scale_factor = scale_factor
 	if update_size:
+		var screen_size: Vector2i = DisplayServer.window_get_size(window_id)
 		DisplayServer.window_set_size(screen_size * scale_factor)
-		get_window().move_to_center()
+		window.move_to_center()
 
 
 ## Returns the optimal window scale factor for the current screen.
 ## Logic adapted from Godot editor/editor_settings.cpp#L1974.
-func _get_auto_display_scale() -> float:
+func _get_auto_display_scale(window_id: int = 0) -> float:
 	var os_name: String = OS.get_name()
 	if os_name in ["Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD"]:
 		if DisplayServer.get_name() == "Wayland":
@@ -41,7 +42,7 @@ func _get_auto_display_scale() -> float:
 	if os_name in ["macOS", "Android"]:
 		return DisplayServer.screen_get_max_scale()
 	
-	var screen: int = DisplayServer.window_get_current_screen()
+	var screen: int = DisplayServer.window_get_current_screen(window_id)
 	if DisplayServer.screen_get_size(screen) == Vector2i.ZERO:
 		return 1.0
 	

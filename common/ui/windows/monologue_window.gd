@@ -8,11 +8,13 @@ func _ready() -> void:
 	update_size.call_deferred()
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
+	
+	App._update_window(get_window(), false)
 
 
 func update_size() -> void:
-	move_to_center()
 	size.x = size.x
+	App._update_window(get_window(), false)
 
 
 func _on_resized() -> void:

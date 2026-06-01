@@ -1,4 +1,4 @@
-class_name GraphNodePicker extends Window
+class_name GraphNodePicker extends MonologueWindow
 
 @onready var node_tree := %Tree
 
@@ -15,6 +15,7 @@ var center: Variant = null
 
 
 func _ready() -> void:
+	super._ready()
 	hide()
 	force_native = true
 	EventBus.enable_picker_mode.connect(_on_enable_picker_mode)
@@ -29,19 +30,6 @@ func _on_enable_picker_mode(
 	center_window: bool = false
 ) -> void:
 	open_for_node(node, port, mouse_pos, graph_release_pos, center_pos, center_window)
-
-
-#
-#if from_node != "":
-#position = Vector2i(release) + get_tree().get_root().position
-#else:
-#var mouse_position = Vector2i(get_parent().get_global_mouse_position())
-#position = get_tree().get_root().position + mouse_position
-#current_screen = get_tree().get_root().current_screen
-#show()
-#
-#if center_window:
-#move_to_center()
 
 
 func close() -> void:
@@ -73,7 +61,6 @@ func open_for_node(
 
 	if node_tree:
 		node_tree.reload_tree()
-		node_tree.grab_focus()
 
 	popup()
 	move_to_center()
