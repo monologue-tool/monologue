@@ -311,9 +311,9 @@ static func _setup_button(theme: Theme) -> void:
 	theme.add_type("ListItemIconButton")
 	theme.set_type_variation("ListItemIconButton", "IconButton")
 	theme.set_color("icon_normal_color", "ListItemIconButton", text_muted_color)
-	theme.set_color("icon_hover_color", "ListItemIconButton", text_primary_color)
-	theme.set_color("icon_pressed_color", "ListItemIconButton", text_primary_color)
-	theme.set_color("icon_hover_pressed_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_hover_color", "ListItemIconButton", text_muted_color)
+	theme.set_color("icon_pressed_color", "ListItemIconButton", text_muted_color)
+	theme.set_color("icon_hover_pressed_color", "ListItemIconButton", text_muted_color)
 	theme.set_color("icon_focus_color", "ListItemIconButton", text_muted_color)
 	theme.set_color("icon_disabled_color", "ListItemIconButton", Color(text_muted_color, 0.5))
 	

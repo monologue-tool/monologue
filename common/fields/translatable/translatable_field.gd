@@ -55,12 +55,10 @@ func set_value(value: Variant) -> void:
 
 func _refresh_widget_text() -> void:
 	var text: String = _values.get(_current_language_code(), "")
-	if _is_multiline:
-		if text_edit.text != text:
-			text_edit.text = text
-	else:
-		if line_edit.text != text:
-			line_edit.text = text
+	if text_edit.text != text:
+		text_edit.text = text
+	if line_edit.text != text:
+		line_edit.text = text
 
 
 func get_value() -> Variant:

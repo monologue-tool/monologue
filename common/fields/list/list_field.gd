@@ -122,12 +122,11 @@ func _rebuild_ui() -> void:
 	
 	var items: Array = _get_children()
 	for item: ListItem in items:
-		var item_view: PanelContainer = PanelContainer.new()
 		var item_idx: int = items.find(item)
-		item_view.theme_type_variation = "ListItemPanel" if item_idx % 2 else "ListItemOddPanel"
+		var container: PanelContainer = _create_item_container(not item_idx % 2)
 		
-		items_container.add_child(item_view)
-		ListItemHelper.populate_item_view(self, item_view, item, item_idx)
+		items_container.add_child(container)
+		ListItemHelper.populate_item_view(self, container, item, item_idx)
 	
 	_populate_external_items()
 
@@ -143,6 +142,13 @@ func set_editable(is_editable: bool) -> void:
 	for child: Node in items_container.get_children():
 		if child.has_method("set_editable"):
 			child.call("set_editable", is_editable)
+
+
+func _create_item_container(is_odd: bool = false) -> PanelContainer:
+	var container: PanelContainer = PanelContainer.new()
+	container.theme_type_variation = "ListItemOddPanel" if is_odd else "ListItemPanel"
+	return container
+
 
 func _on_item_property_changed(_property_name: String, _item: ListItem) -> void:
 	# The undo/redo is handle by the ListItem it self.
@@ -231,6 +237,7 @@ func _populate_external_items() -> void:
 	var externals: Array[Dictionary] = _binding.owner.get_external_list_items(_binding.property.name)
 	
 	for ext_data: Dictionary in externals:
-		var item_view: PanelContainer = PanelContainer.new()
-		ListItemHelper.populate_external_item_view(item_view, ext_data.get("name", "<unknown>"))
-		items_container.add_child(item_view)
+		var item_idx: int = items_container.get_child_count()
+		var container: PanelContainer = _create_item_container(not item_idx % 2)
+		ListItemHelper.populate_external_item_view(container, ext_data.get("name", "<unknown>"))
+		items_container.add_child(container)

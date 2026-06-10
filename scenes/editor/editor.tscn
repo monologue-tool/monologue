@@ -171,7 +171,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"EditorPanel"
 
-[node name="RunButton" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector/VBox/Header/SearchBar" parent_id_path=PackedInt32Array(667809004, 711294994) index="1" unique_id=62143223]
+[node name="RunButton" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector/VBox/Header/SearchBar" parent_id_path=PackedInt32Array(667809004, 711294994) index="2" unique_id=62143223]
 tooltip_text = "Run project from this node"
 theme_type_variation = &"IconButton"
 

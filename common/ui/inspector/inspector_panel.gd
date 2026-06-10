@@ -3,6 +3,7 @@ class_name InspectorPanel extends PanelContainer
 var _fields: Array[Field] = []
 var _pending_expand_category: String = ""
 
+@onready var back_button: Button = %BackButton
 @onready var header_container: HBoxContainer = %FieldHeader
 #@onready var breadcrumb_container: HBoxContainer = %Breadcrumb
 @onready var field_container: VBoxContainer = %Fields
@@ -11,6 +12,7 @@ var _pending_expand_category: String = ""
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
 var current_object: InspectableObject
+var history: Array[InspectableObject] = []
 
 
 func _ready() -> void:
@@ -19,6 +21,7 @@ func _ready() -> void:
 	EventBus.show_inspector.connect(_on_event_show_inspector)
 	
 	ProjectManager.project_loaded.connect(_on_project_loaded)
+	back_button.pressed.connect(_on_back_button_pressed)
 	visible = ConfigManager.get_config("show_inspector")
 
 
@@ -38,13 +41,17 @@ func _on_history_undo_redo() -> void:
 	rebuild()
 
 
-func inspect(object: InspectableObject) -> void:
+func inspect(object: InspectableObject, from_history: bool = false) -> void:
 	var old_root: InspectableObject = current_object
 	if object and old_root and old_root != object:
+		if not from_history:
+			history.append(old_root)
+		
 		var old_node: InspectableNode = old_root as InspectableNode
 		if old_node and is_instance_valid(old_node.graph_view):
 			old_node.graph_view.selected = false
-			
+		
+	back_button.disabled = history.is_empty()
 	current_object = object
 	if not object or object is not InspectableObject:
 		hide()
@@ -96,19 +103,6 @@ func rebuild() -> void:
 				continue
 			
 			_create_category_section(category_name, props)
-		
-		# Restore focus after rebuild completes
-		#var focus_owner: Control = get_viewport().gui_get_focus_owner()
-		#if focus_owner and focus_owner.is_inside_tree():
-			#var node: Node = focus_owner
-			#while node:
-				#if node.has_meta("property_name"):
-					#var prop_name: String = str(node.get_meta("property_name"))
-					## Property had focus before rebuild
-					#await get_tree().process_frame
-					#_restore_focus_to_property(prop_name)
-					#break
-				#node = node.get_parent()
 	
 	_pending_expand_category = ""
 
@@ -213,6 +207,7 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 		return null
 
 	var p_container: PanelContainer = PanelContainer.new()
+	p_container.tooltip_text = "Property: %s" % property.name
 	p_container.set_meta("property_name", property.name)
 	p_container.theme_type_variation = "FieldContainer"
 	if property.get_settings_value("expand", true):
@@ -363,3 +358,10 @@ func _on_external_property_changed(
 		return
 
 	inspect(obj)
+
+
+func _on_back_button_pressed() -> void:
+	if history.is_empty():
+		return
+	
+	inspect(history.pop_back(), true)

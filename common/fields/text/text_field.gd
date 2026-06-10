@@ -48,10 +48,9 @@ func _apply_textarea_height(te: TextEdit, rows: int) -> void:
 func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
-	if _is_multiline:
-		text_edit.text = str(value)
-	else:
-		line_edit.text = str(value)
+		
+	text_edit.text = str(value)
+	line_edit.text = str(value)
 
 
 func get_value() -> Variant:
@@ -79,7 +78,7 @@ func display_error(message: String) -> void:
 		line_edit.remove_theme_color_override("font_color")
 		text_edit.remove_theme_color_override("font_color")
 	else:
-		var color := Color(0.8, 0.1, 0.1)
+		var color: Color = ThemeLayout.fail_color
 		line_edit.add_theme_color_override("font_color", color)
 		text_edit.add_theme_color_override("font_color", color)
 

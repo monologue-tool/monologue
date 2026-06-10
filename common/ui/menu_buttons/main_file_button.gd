@@ -12,6 +12,8 @@ func _build_menu() -> void:
 	var recent_files: PackedStringArray = ProjectManager.get_history()
 	var recent_menu: PopupMenu = add_submenu_row("Open Recent", _on_open_recent, recent_files.size() > 0)
 	for file: String in recent_files:
+		if file == ProjectManager.current_project.project_path:
+			continue
 		var id: int = recent_menu.item_count
 		recent_ids[id] = file
 		recent_menu.add_item(file.get_file(), id)
@@ -40,8 +42,8 @@ func _on_open_dialog_callback(path: String) -> void:
 	ProjectManager.load_project_from_path(path)
 
 
-func _on_open_recent(_file: String) -> void:
-	pass
+func _on_open_recent(item_id: int) -> void:
+	ProjectManager.load_project_from_path(recent_ids[item_id])
 
 
 func _on_save() -> void:

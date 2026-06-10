@@ -20,6 +20,7 @@ static func _make_item_row(
 	var drag_handle: Button = Button.new()
 	drag_handle.icon = preload("res://ui/assets/icons/drag_handle.svg")
 	drag_handle.theme_type_variation = "ListItemIconButton"
+	drag_handle.set_size(Vector2(ThemeLayout.icon_xs, ThemeLayout.icon_xs))
 	drag_handle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(drag_handle)
 
@@ -57,22 +58,20 @@ static func _on_menu_button_id_pressed(id: MenuActions, owner: ListField, index:
 			owner._on_delete_item(index)
 
 
-static func populate_external_item_view(item_view: PanelContainer, name: String) -> void:
-	item_view.theme_type_variation = "ListItemContainer"
-	item_view.modulate = Color(1, 1, 1, 0.6)
-
-	var main_vbox: VBoxContainer = VBoxContainer.new()
-	item_view.add_child(main_vbox)
-
+static func populate_external_item_view(content: PanelContainer, name: String) -> void:
 	var row: HBoxContainer = HBoxContainer.new()
-	main_vbox.add_child(row)
-
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(row)
+	
+	var drag_handle: Button = Button.new()
+	drag_handle.icon = preload("res://ui/assets/icons/drag_handle.svg")
+	drag_handle.theme_type_variation = "ListItemIconButton"
+	drag_handle.set_size(Vector2(ThemeLayout.icon_xs, ThemeLayout.icon_xs))
+	drag_handle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(drag_handle)
+	
 	var ext_label: Label = Label.new()
 	ext_label.text = name
+	ext_label.theme_type_variation = "NoteLabel"
 	ext_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(ext_label)
-
-	var badge: Label = Label.new()
-	badge.text = "(imported)"
-	badge.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-	row.add_child(badge)
