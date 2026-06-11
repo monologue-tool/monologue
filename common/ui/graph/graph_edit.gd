@@ -24,6 +24,8 @@ func _ready() -> void:
 	node_deselected.connect(_on_node_deselected)
 	node_selected.connect(_on_node_selected)
 	paste_nodes_request.connect(_on_paste_nodes_request)
+	
+	EventBus.refresh_graph.connect(refresh)
 
 
 func get_storyline() -> StorylineDocument:
@@ -66,7 +68,7 @@ func refresh_node(node: InspectableNode) -> void:
 	_reconnect_all_slots()
 
 
-func add_graph_node_view(node: InspectableNode) -> void:
+func add_graph_node_view(node: InspectableNode) -> GraphNode:
 	var graph_node: GraphNode = GraphNodeViewFactory.build(node)
 
 	# Store bidirectional mapping
@@ -86,6 +88,7 @@ func add_graph_node_view(node: InspectableNode) -> void:
 
 	# Apply initial position from property
 	_sync_position_from_property(node)
+	return graph_node
 
 
 ## Called when InspectableNode property changes (undo/redo, programmatic)

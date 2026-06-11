@@ -49,29 +49,30 @@ func _select_new_node() -> void:
 func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> void:
 	var storyline_id: String = graph_container.graph.storyline_id
 	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(storyline_id)
-
+	
 	if storyline == null:
-		push_warning("No active storyline available to add node.")
+		Log.error("No active storyline available to add node.")
 		return
 
-	var node := storyline.create_node(node_type)
+	var node: InspectableNode = storyline.create_node(node_type)
 	if node == null:
-		push_warning("Unable to create node of type '%s'." % node_type)
+		Log.error("Unable to create node of type '%s'." % node_type)
 		return
-
+	
 	var graph_edit: MonologueGraphEdit = graph_container.graph
-	var target_position := Vector2.ZERO
+	var target_position: Vector2 = Vector2.ZERO
 	if picker and picker.graph_release is Vector2:
 		target_position = picker.graph_release
 	else:
 		target_position = graph_edit.scroll_offset / graph_edit.zoom
 
-	var position_property := node.get_property("position")
+	var position_property: Property = node.get_property("position")
 	if position_property:
 		position_property.set_value(target_position)
 
 	var command: AddNodesCommand = AddNodesCommand.new(storyline.id, [node])
 	storyline.history.execute(command)
+	graph_edit.refresh()
 
 
 func load_project(path: String) -> void:

@@ -5,6 +5,7 @@ signal load_project(path: String)
 signal test_trigger
 
 signal refresh
+signal refresh_graph
 signal add_graph_node(descriptor_name: String, window: Window)
 signal request_node_selection(node: InspectableNode, storyline_id: String, skip_history: bool)
 signal request_object_inspection(object: InspectableObject)

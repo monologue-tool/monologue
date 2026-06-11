@@ -19,6 +19,7 @@ func execute() -> void:
 
 	for node: InspectableNode in nodes:
 		storyline.add_node(node)
+	EventBus.refresh_graph.emit()
 
 
 func undo() -> void:
@@ -28,6 +29,7 @@ func undo() -> void:
 
 	for node: InspectableNode in nodes:
 		storyline.remove_node(node)
+	EventBus.refresh_graph.emit()
 
 
 func get_description() -> String:

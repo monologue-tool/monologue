@@ -78,7 +78,7 @@ func _sort() -> void:
 	var x_offset: float = 0.0
 	for i in children.size():
 		children[i].position = Vector2(x_offset, 0.0)
-		children[i].size = Vector2(final_sizes[i], size.y)
+		children[i].set_size.call_deferred(Vector2(final_sizes[i], size.y))
 		x_offset += final_sizes[i] + sep
 
 func _get_minimum_size() -> Vector2:

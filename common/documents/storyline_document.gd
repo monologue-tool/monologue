@@ -100,12 +100,15 @@ func _create_default_nodes() -> void:
 func _register_node(node: InspectableNode) -> void:
 	if not node:
 		return
+	
 	if not node in nodes:
 		nodes.append(node)
+	
 	node.storyline_id = id
 	var node_id: String = node.get_property_value("id")
 	if not node_id.is_empty():
 		_node_index[node_id] = node
+	
 	node_added.emit()
 
 

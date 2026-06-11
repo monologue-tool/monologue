@@ -21,10 +21,10 @@ func _build_menu() -> void:
 	
 	add_row("Save", _on_save, true, ["mnl_save"])
 	add_row("Save As...", _on_save_as, false, ["mnl_save_as"])
+	add_row("Save Copy...", Callable(), false)
+	add_row("Save Version", Callable(), false)
 	add_separator()
 	add_submenu_row("Export", _on_export, false)
-	#add_row("Save Copy...")
-	#add_row("Save Version")
 	add_separator()
 	add_row("Quit", _on_quit, true, ["mnl_exit"])
 

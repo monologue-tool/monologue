@@ -5,7 +5,6 @@ var _pending_expand_category: String = ""
 
 @onready var back_button: Button = %BackButton
 @onready var header_container: HBoxContainer = %FieldHeader
-#@onready var breadcrumb_container: HBoxContainer = %Breadcrumb
 @onready var field_container: VBoxContainer = %Fields
 @onready var run_button: Button = %RunButton
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
