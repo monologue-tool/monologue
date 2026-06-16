@@ -58,6 +58,10 @@ func set_preview() -> void:
 	pass
 
 
+func prefers_vertical_layout(_settings: Dictionary) -> bool:
+	return false
+
+
 @abstract func set_value(value: Variant) -> void
 @abstract func get_value() -> Variant
 @abstract func set_editable(is_editable: bool) -> void

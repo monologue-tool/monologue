@@ -204,58 +204,8 @@ func _create_property_editor(property: Property, flat: bool = false, hide_left: 
 		property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
 		or property.get_settings_value(PropertySettings.KEY_EXPORT, false)
 	)
-	# Hidden when: not editable, not read_only, and no ports
 	if not is_editable and not is_read_only and not has_port:
 		return null
-
-	var p_container: PanelContainer = PanelContainer.new()
-	p_container.set_meta("property_name", property.name)
-	p_container.theme_type_variation = "FieldContainer"
-	if property.get_settings_value("expand", true):
-		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
-	if flat:
-		p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	
-	var p_hbox: Control
-	if not hide_left:
-		var p_ahbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
-		p_ahbox.ratio = [2, 3]
-		p_ahbox.force_ratio = true
-		p_ahbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		p_container.add_child(p_ahbox)
-	
-		var p_left_main_container: HBoxContainer = HBoxContainer.new()
-		p_left_main_container.clip_contents = true
-		p_ahbox.add_child(p_left_main_container)
-	
-		var p_left_container: HBoxContainer = HBoxContainer.new()
-		p_left_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		p_left_container.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		p_left_main_container.add_child(p_left_container)
-		
-		var p_expose_button: TextureButton = expose_button.instantiate()
-		p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
-		p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
-		p_expose_button.toggled.connect(
-			_on_property_expose_state_changed.bind(current_object, property.name)
-		)
-		p_left_container.add_child(p_expose_button)
-		
-		var p_label: Label = Label.new()
-		p_label.clip_text = true
-		p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		p_label.text = property.name
-		p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
-		p_left_container.add_child(p_label)
-		
-		if is_list:
-			p_left_main_container.hide()
-		
-		p_hbox = p_ahbox
-	else:
-		p_hbox = VBoxContainer.new()
-		p_container.add_child(p_hbox)
 
 	var p_field: Control
 	if property.is_input_connected() and not is_list:
@@ -267,7 +217,87 @@ func _create_property_editor(property: Property, flat: bool = false, hide_left: 
 		p_field = inspect_button
 	else:
 		p_field = FieldBucket.safe_create_field(property.type)
-	
+
+	var is_vertical: bool = false
+	if p_field is Field:
+		is_vertical = (p_field as Field).prefers_vertical_layout(property.get_settings())
+
+	var p_container: PanelContainer = PanelContainer.new()
+	p_container.set_meta("property_name", property.name)
+	p_container.theme_type_variation = "FieldContainer"
+	if property.get_settings_value("expand", true):
+		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	if flat:
+		p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+
+	var p_hbox: Control
+	if not hide_left:
+		if is_vertical:
+			var p_vbox: VBoxContainer = VBoxContainer.new()
+			p_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			p_container.add_child(p_vbox)
+
+			var p_label_row: HBoxContainer = HBoxContainer.new()
+			p_vbox.add_child(p_label_row)
+
+			var p_expose_button: TextureButton = expose_button.instantiate()
+			p_expose_button.disabled = not current_object is InspectableNode \
+				or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
+			p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+			p_expose_button.toggled.connect(
+				_on_property_expose_state_changed.bind(current_object, property.name)
+			)
+			p_label_row.add_child(p_expose_button)
+
+			var p_label: Label = Label.new()
+			p_label.clip_text = true
+			p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			p_label.text = property.name
+			p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
+			p_label_row.add_child(p_label)
+
+			p_hbox = p_vbox
+		else:
+			var p_ahbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
+			p_ahbox.ratio = [2, 3]
+			p_ahbox.force_ratio = true
+			p_ahbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			p_container.add_child(p_ahbox)
+
+			var p_left_main_container: HBoxContainer = HBoxContainer.new()
+			p_left_main_container.clip_contents = true
+			p_ahbox.add_child(p_left_main_container)
+
+			var p_left_container: HBoxContainer = HBoxContainer.new()
+			p_left_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			p_left_container.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+			p_left_main_container.add_child(p_left_container)
+
+			var p_expose_button: TextureButton = expose_button.instantiate()
+			p_expose_button.disabled = not current_object is InspectableNode \
+				or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
+			p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+			p_expose_button.toggled.connect(
+				_on_property_expose_state_changed.bind(current_object, property.name)
+			)
+			p_left_container.add_child(p_expose_button)
+
+			var p_label: Label = Label.new()
+			p_label.clip_text = true
+			p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			p_label.text = property.name
+			p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
+			p_left_container.add_child(p_label)
+
+			if is_list:
+				p_left_main_container.hide()
+
+			p_hbox = p_ahbox
+	else:
+		p_hbox = VBoxContainer.new()
+		p_container.add_child(p_hbox)
+
 	if p_field is not Field:
 		p_hbox.add_child(p_field)
 		return p_container
@@ -276,7 +306,7 @@ func _create_property_editor(property: Property, flat: bool = false, hide_left: 
 	if is_list:
 		var list_section: InspectorCategoryContainer = _create_category_section(property.get_display_name(), [])
 		list_section.add_control.call_deferred(p_container)
-	
+
 	property.bind_field.call_deferred(p_field, current_object)
 	p_hbox.add_child(p_field)
 	return p_container if not is_list else null

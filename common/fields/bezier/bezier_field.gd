@@ -27,14 +27,14 @@ func _ready() -> void:
 func set_value(value: Variant) -> void:
 	if not value is Array or value.size() < 4:
 		return
-	
+
 	_is_updating = true
 	spin_box_x1.value = value[0]
 	spin_box_y1.value = value[1]
 	spin_box_x2.value = value[2]
 	spin_box_y2.value = value[3]
-	_update_ui()
 	_is_updating = false
+	_update_ui.call_deferred()
 
 
 func get_value() -> Variant:
@@ -53,6 +53,10 @@ func set_editable(is_editable: bool) -> void:
 		spin_box.editable = is_editable
 
 
+func prefers_vertical_layout(_settings: Dictionary) -> bool:
+	return true
+
+
 func _on_spin_box_value_changed(_value: float) -> void:
 	if _is_updating:
 		return
@@ -67,9 +71,6 @@ func _update_values() -> void:
 	
 	var cp1_pos: Vector2 = cp1.position + cp1.size/2
 	var cp2_pos: Vector2 = cp2.position + cp2.size/2
-	# Both control points share the same screen→bezier mapping:
-	# bezier_x = cp_pos.x / canvas_size
-	# bezier_y = 1 - cp_pos.y / canvas_size  (screen y is inverted relative to bezier y)
 	var p1: Vector2 = (Vector2(cp1_pos.x, -cp1_pos.y) / canvas_size) + Vector2(0.0, 1.0)
 	var p2: Vector2 = (Vector2(cp2_pos.x, -cp2_pos.y) / canvas_size) + Vector2(0.0, 1.0)
 	
@@ -83,23 +84,18 @@ func _update_ui() -> void:
 	var canvas_size: float = background_panel.size.x
 	if canvas_size <= 0.0:
 		return
-
 	var bezier: Array = get_value()
 	var curve: Curve2D = path.curve
-
 	var p1: Vector2 = Vector2(bezier[0], -bezier[1]) * canvas_size
-	var p2: Vector2 = Vector2(bezier[2]-1.0, 1.0-bezier[3]) * canvas_size
+	var p2: Vector2 = Vector2(bezier[2] - 1.0, 1.0 - bezier[3]) * canvas_size
 	curve.set_point_out(0, p1)
 	curve.set_point_in(1, p2)
-
 	if not _is_moving_cp:
-		var cp1_pos: Vector2 = Vector2(bezier[0], 1.0-bezier[1]) * canvas_size
-		var cp2_pos: Vector2 = Vector2(bezier[2], -bezier[3]+1.0) * canvas_size
-		cp1.position = cp1_pos - cp1.size/2
-		cp2.position = cp2_pos - cp2.size/2
-
+		var cp1_pos: Vector2 = Vector2(bezier[0], 1.0 - bezier[1]) * canvas_size
+		var cp2_pos: Vector2 = Vector2(bezier[2], -bezier[3] + 1.0) * canvas_size
+		cp1.position = cp1_pos - cp1.size / 2
+		cp2.position = cp2_pos - cp2.size / 2
 	background_panel.queue_redraw()
-	_is_moving_cp = false
 
 
 func _on_item_rect_changed() -> void:

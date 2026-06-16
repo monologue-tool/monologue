@@ -83,6 +83,10 @@ func display_error(message: String) -> void:
 		text_edit.add_theme_color_override("font_color", color)
 
 
+func prefers_vertical_layout(p_settings: Dictionary) -> bool:
+	return p_settings.get(PropertySettings.KEY_MULTILINE, false)
+
+
 func _on_text_changed(new_text: String) -> void:
 	emit_value_changed(new_text)
 
