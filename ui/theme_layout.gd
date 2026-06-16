@@ -273,6 +273,13 @@ static func _setup_button(theme: Theme) -> void:
 	hover_pressed_toggle_button_stylebox.bg_color = accent_color
 	theme.set_stylebox("hover_pressed", "ToggleButton", hover_pressed_toggle_button_stylebox)
 	
+	theme.add_type("PlainButton")
+	theme.set_type_variation("PlainButton", "Button")
+	
+	var normal_plain_button_stylebox: StyleBoxFlat = pressed_button_stylebox.duplicate()
+	normal_plain_button_stylebox.bg_color = bg_elevated_color
+	theme.set_stylebox("normal", "PlainButton", normal_plain_button_stylebox)
+	
 	theme.add_type("IconButton")
 	theme.set_type_variation("IconButton", "Button")
 	

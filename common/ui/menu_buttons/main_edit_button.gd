@@ -6,6 +6,9 @@ func _build_menu() -> void:
 	var command_manager: CommandManager = ProjectManager.current_project.command_manager
 	add_row("Undo", _on_undo, command_manager.can_undo(), ["mnl_undo"])
 	add_row("Redo", _on_redo, command_manager.can_redo(), ["mnl_redo"])
+	add_submenu_row("Undo History", Callable(), false)
+	add_separator()
+	add_row("Open Localization Utility", Callable(), false)
 
 
 func _on_undo() -> void:

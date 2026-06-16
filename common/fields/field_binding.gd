@@ -127,7 +127,6 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 			field.display_error(validation_result.message)
 		return
 	
-	# Per-property settings: required + validation dict (min_length, max_length, …)
 	var settings_result: FieldValidationResult = _validate_property_settings(value)
 	if not settings_result.is_valid:
 		if is_commit:
@@ -161,7 +160,8 @@ func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> voi
 	if _sync_value == null and descriptor != null and descriptor.default_value != null:
 		var _dv: Variant = descriptor.default_value
 		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
-	field.set_value(_sync_value)
+	# Disabled to prevent useless ui rebuild.
+	# field.set_value(_sync_value)
 	field.clear_error()
 	_is_syncing = false
 

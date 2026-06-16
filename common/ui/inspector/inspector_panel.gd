@@ -158,7 +158,10 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 
 func _create_category_section(category_name: String, properties: Array) -> InspectorCategoryContainer:
 	# If the section only contains list properties.
-	var is_ghost_section: bool = properties.filter(func(p: Property) -> bool: return _is_list(p)).size() == properties.size() and properties.size() != 0
+	var is_ghost_section: bool = properties.filter(
+		func(p: Property) -> bool: 
+			return _is_list(p)
+	).size() == properties.size() and properties.size() != 0
 	
 	var separator: HSeparator = HSeparator.new()
 	separator.theme_type_variation = "UltraWideHSeparator"
@@ -185,7 +188,7 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 			container = header_container
 
 	for property: Property in properties:
-		var property_editor: Control = _create_property_editor(property, true)
+		var property_editor: Control = _create_property_editor(property, true, true)
 		if not property_editor:
 			continue
 
@@ -193,7 +196,7 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 		container.move_child(property_editor, 0)
 
 
-func _create_property_editor(property: Property, hide_left: bool = false) -> Control:
+func _create_property_editor(property: Property, flat: bool = false, hide_left: bool = false) -> Control:
 	var is_list: bool = _is_list(property)
 	var is_editable: bool = property.get_settings_value(PropertySettings.KEY_EDITABLE, true)
 	var is_read_only: bool = property.get_settings_value(PropertySettings.KEY_READ_ONLY, false)
@@ -206,45 +209,53 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 		return null
 
 	var p_container: PanelContainer = PanelContainer.new()
-	p_container.tooltip_text = "Property: %s" % property.name
 	p_container.set_meta("property_name", property.name)
 	p_container.theme_type_variation = "FieldContainer"
 	if property.get_settings_value("expand", true):
 		p_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
-	var p_hbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
-	p_hbox.ratio = [2, 3]
-	p_hbox.force_ratio = true
-	p_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p_container.add_child(p_hbox)
+	if flat:
+		p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	
-	var p_left_main_container: HBoxContainer = HBoxContainer.new()
-	p_left_main_container.visible = not hide_left
-	p_left_main_container.clip_contents = true
-	p_hbox.add_child(p_left_main_container)
+	var p_hbox: Control
+	if not hide_left:
+		var p_ahbox: AdvancedHBoxContainer = AdvancedHBoxContainer.new()
+		p_ahbox.ratio = [2, 3]
+		p_ahbox.force_ratio = true
+		p_ahbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		p_container.add_child(p_ahbox)
 	
-	var p_left_container: HBoxContainer = HBoxContainer.new()
-	p_left_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p_left_container.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	p_left_main_container.add_child(p_left_container)
+		var p_left_main_container: HBoxContainer = HBoxContainer.new()
+		p_left_main_container.clip_contents = true
+		p_ahbox.add_child(p_left_main_container)
 	
-	var p_expose_button: TextureButton = expose_button.instantiate()
-	p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
-	p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
-	p_expose_button.toggled.connect(
-		_on_property_expose_state_changed.bind(current_object, property.name)
-	)
-	p_left_container.add_child(p_expose_button)
-	
-	var p_label: Label = Label.new()
-	p_label.clip_text = true
-	p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	p_label.text = property.name
-	p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
-	p_left_container.add_child(p_label)
-
-	#if property.get_settings_value("flat"):
-		#p_container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+		var p_left_container: HBoxContainer = HBoxContainer.new()
+		p_left_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		p_left_container.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		p_left_main_container.add_child(p_left_container)
+		
+		var p_expose_button: TextureButton = expose_button.instantiate()
+		p_expose_button.disabled = not current_object is InspectableNode or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
+		p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+		p_expose_button.toggled.connect(
+			_on_property_expose_state_changed.bind(current_object, property.name)
+		)
+		p_left_container.add_child(p_expose_button)
+		
+		var p_label: Label = Label.new()
+		p_label.clip_text = true
+		p_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		p_label.text = property.name
+		p_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
+		p_left_container.add_child(p_label)
+		
+		if is_list:
+			p_left_main_container.hide()
+		
+		p_hbox = p_ahbox
+	else:
+		p_hbox = VBoxContainer.new()
+		p_container.add_child(p_hbox)
 
 	var p_field: Control
 	if property.is_input_connected() and not is_list:
@@ -264,14 +275,6 @@ func _create_property_editor(property: Property, hide_left: bool = false) -> Con
 
 	if is_list:
 		var list_section: InspectorCategoryContainer = _create_category_section(property.get_display_name(), [])
-		p_left_main_container.hide()
-		
-		var add_btn: Button = Button.new()
-		add_btn.theme_type_variation = "IconButton"
-		add_btn.icon = preload("res://ui/assets/icons/plus_min.svg")
-		add_btn.tooltip_text = "Add item"
-		add_btn.pressed.connect(p_field.add_item)
-		list_section.add_title_bar_control(add_btn)
 		list_section.add_control.call_deferred(p_container)
 	
 	property.bind_field.call_deferred(p_field, current_object)
@@ -347,7 +350,6 @@ func _on_external_property_changed(
 		return
 	
 	if current_object in obj.get_property_children(property_name):
-		print("yooo")
 		return
 
 	_pending_expand_category = property.get_category()

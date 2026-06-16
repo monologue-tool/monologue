@@ -76,3 +76,7 @@ func _on_resized() -> void:
 		return
 
 	_update_preview()
+
+
+func _on_color_popup_popup_hide() -> void:
+	color_picker_button.button_pressed = false

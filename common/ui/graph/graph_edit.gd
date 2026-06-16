@@ -19,7 +19,6 @@ func _ready() -> void:
 	cut_nodes_request.connect(_on_cut_nodes_request)
 	delete_nodes_request.connect(_on_delete_nodes_request)
 	disconnection_request.connect(_on_disconnection_request)
-	#duplicate_nodes_request.connect(_on_duplicate_node_request)
 	end_node_move.connect(_on_end_node_move)
 	node_deselected.connect(_on_node_deselected)
 	node_selected.connect(_on_node_selected)

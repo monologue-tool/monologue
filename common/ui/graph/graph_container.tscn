@@ -45,6 +45,7 @@ script = ExtResource("2_3el0f")
 
 [node name="SelectButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1093210356]
 layout_mode = 2
+disabled = true
 text = "Select"
 
 [node name="AddButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1597228810]

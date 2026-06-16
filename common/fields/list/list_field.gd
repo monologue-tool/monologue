@@ -5,11 +5,13 @@ var _collection_name: String = ""
 var _command_manager: CommandManager
 
 @onready var items_container: VBoxContainer = %ItemsContainer
+@onready var add_button: Button = %AddButton
 
 
 func _ready() -> void:
 	super._ready()
 	_command_manager = CommandManager.new()
+	add_button.pressed.connect(_on_add_button)
 
 func _on_initialize() -> void:
 	super._on_initialize()
@@ -44,6 +46,8 @@ func show_all_items() -> void:
 
 
 func set_value(value: Variant) -> void:
+	var need_rebuild: bool = true
+	
 	if value is not Array:
 		value = []
 	
@@ -91,7 +95,8 @@ func set_value(value: Variant) -> void:
 				_binding.owner.move_property_child(_binding.property.name, child, i)
 				break
 	
-	_rebuild_ui()
+	if need_rebuild:
+		_rebuild_ui()
 
 
 func get_value() -> Variant:
@@ -156,6 +161,10 @@ func _on_item_property_changed(_property_name: String, _item: ListItem) -> void:
 	_binding.property.value = get_value()
 
 
+func _on_add_button() -> void:
+	add_item()
+
+
 func _on_edit_item(index: int) -> void:
 	var item: ListItem = _get_children()[index]
 	EventBus.request_object_inspection.emit(item)
@@ -207,6 +216,7 @@ func _on_delete_item(index: int) -> void:
 	_binding.owner.remove_property_children(_binding.property.name, item)
 	
 	emit_value_committed(get_value())
+	_rebuild_ui()
 
 
 func _is_valid_index(index: int) -> bool:
@@ -219,6 +229,7 @@ func add_item() -> void:
 	_binding.owner.add_property_children(_binding.property.name, new_item)
 	
 	emit_value_committed(get_value())
+	_rebuild_ui()
 
 
 func _value_exists_in_list(pname: String, pvalue: Variant) -> bool:
