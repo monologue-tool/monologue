@@ -134,6 +134,7 @@ func delete_storyline(storyline: StorylineDocument) -> void:
 		return
 	
 	storylines.erase(storyline)
+	EventBus.storyline_deleted.emit()
 
 
 func add_new_storyline() -> void:

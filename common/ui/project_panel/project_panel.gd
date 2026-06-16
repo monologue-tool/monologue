@@ -16,6 +16,7 @@ func _ready() -> void:
 	EventBus.request_object_inspection.connect(_on_request_object_inspection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
 	EventBus.show_project_explorer.connect(_on_event_show_project_panel)
+	EventBus.storyline_deleted.connect(_rebuild_explorer)
 	
 	visible = ConfigManager.get_config("show_project_explorer")
 	

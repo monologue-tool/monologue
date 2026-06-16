@@ -12,6 +12,7 @@ signal request_object_inspection(object: InspectableObject)
 signal request_storyline_inspection(storyline: StorylineDocument)
 signal select_new_node
 signal inspector_property_changed(object: InspectableObject, property_name: String, is_undo: bool)
+signal storyline_deleted
 
 signal save_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String, options: Array[Dictionary])
 signal open_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String, options: Array[Dictionary])
