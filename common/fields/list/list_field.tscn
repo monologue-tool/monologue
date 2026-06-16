@@ -4,12 +4,12 @@
 
 [node name="ListField" type="VBoxContainer" unique_id=1282527206]
 offset_right = 300.0
-offset_bottom = 100.0
+offset_bottom = 35.0
 size_flags_horizontal = 3
+size_flags_vertical = 0
 script = ExtResource("1_list")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1918604036]
-clip_contents = true
 layout_mode = 2
 theme_type_variation = &"ListFieldPanel"
 

@@ -2,6 +2,7 @@ extends Node
 
 # Reference DPI for a 23.8" 1920x1080 display
 const BASE_SCALE_DPI: float = 92.56
+const BASE_SCREEN_SIZE: Vector2i = Vector2i(1920, 1080)
 
 
 func _ready() -> void:
@@ -23,8 +24,11 @@ func _update_window(window: Window, update_size: bool = false) -> void:
 	var scale_factor: float = _get_auto_display_scale(window_id)
 	window.content_scale_factor = scale_factor
 	if update_size:
-		var screen_size: Vector2i = DisplayServer.window_get_size(window_id)
-		DisplayServer.window_set_size(screen_size * scale_factor)
+		var window_size: Vector2i = DisplayServer.window_get_size(window_id)
+		var screen_id: int = DisplayServer.window_get_current_screen(window_id)
+		var screen_size: Vector2 = DisplayServer.screen_get_size(screen_id) as Vector2
+		var window_scale: Vector2 = screen_size / (BASE_SCREEN_SIZE as Vector2)
+		DisplayServer.window_set_size(Vector2i(window_size as Vector2 * window_scale))
 		window.move_to_center()
 
 

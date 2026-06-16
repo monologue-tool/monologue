@@ -9,7 +9,7 @@
 anchors_preset = -1
 anchor_right = 0.029000001
 anchor_bottom = 0.025
-offset_right = -0.6000023
+offset_right = 3.3999977
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_fkepi")
@@ -17,6 +17,8 @@ script = ExtResource("1_fkepi")
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1010819063]
 clip_contents = true
 layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"ColorPanel"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer" unique_id=1579367488]
 layout_mode = 2

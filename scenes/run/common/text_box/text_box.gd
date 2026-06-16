@@ -23,7 +23,7 @@ func _ready() -> void:
 
 
 func handle_scrollbar_changed() -> void:
-	scroll_container.scroll_vertical = scroll_bar.max_value
+	scroll_container.scroll_vertical = round(scroll_bar.max_value)
 
 
 func _process(delta: float) -> void:
@@ -41,7 +41,7 @@ func _process(delta: float) -> void:
 		complete = true
 		return
 
-	current_text_box.visible_characters += text_speed * delta * 60
+	current_text_box.visible_characters += round(text_speed * delta * 60)
 
 
 func reset() -> void:

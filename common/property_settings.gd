@@ -2,7 +2,7 @@
 ## Use these constants instead of magic strings to avoid typos and ease refactoring.
 class_name PropertySettings
 
-# ─── Display ──────────────────────────────────────────────────────────────────
+# Display
 
 ## Whether the property appears as a row inside the graph node view.
 const KEY_VISIBLE_IN_GRAPH: String = "visible_in_graph"
@@ -19,7 +19,7 @@ const KEY_EXPAND: String = "expand"
 ## Whether the property container renders without a visible background panel.
 const KEY_FLAT: String = "flat"
 
-# ─── Editing ──────────────────────────────────────────────────────────────────
+# Editing
 
 ## Whether the property is editable in the inspector.
 ## If false (and not read_only / not a port), the property is hidden entirely.
@@ -36,13 +36,13 @@ const KEY_REQUIRED: String = "required"
 ## Whether the list item that carries this property is protected from deletion.
 const KEY_PROTECT: String = "protect"
 
-# ─── Validation ───────────────────────────────────────────────────────────────
+# Validation
 
 ## Dictionary of field-type-specific validation rules applied during commit.
 ## Example: { "min_length": 1, "max_length": 64 }
 const KEY_VALIDATION: String = "validation"
 
-# ─── Ports ────────────────────────────────────────────────────────────────────
+# Ports
 
 ## Whether an input port (left side) is shown, allowing incoming connections.
 const KEY_EXPOSED: String = "exposed"
@@ -53,7 +53,7 @@ const KEY_EXPOSABLE: String = "exposable"
 ## Marks this as the primary connectable context property of the node.
 const KEY_IS_MAIN_PROPERTY: String = "is_main_property"
 
-# ─── Field-type-specific ──────────────────────────────────────────────────────
+# Field-type-specific
 
 ## (list) Name of the collection registry to query for list items.
 const KEY_COLLECTION: String = "collection"
@@ -77,7 +77,7 @@ const KEY_CASES: String = "cases"
 ## An empty array means no filter (all files are shown).
 const KEY_FILE_FILTERS: String = "file_filters"
 
-# ─── Defaults ─────────────────────────────────────────────────────────────────
+# Defaults
 
 ## Default values for all base settings. Field-type-specific keys are omitted
 ## because they only apply to specific field types and have no meaningful global default.

@@ -41,6 +41,9 @@ static var radio_unchecked_icon: DPITexture
 
 static var is_theme_dark: bool
 
+static var _colormap_dict: Dictionary
+
+
 static func color_difference(color1: Color, color2: Color) -> float:
 	return (absf(color1.r - color2.r) + absf(color1.g - color2.g) + absf(color1.b - color2.b)) / 3.0
 
@@ -63,25 +66,28 @@ static func recalculate_colors() -> void:
 	success_color = Color("72e879")
 	highlight_color = Color("966fc5")
 	
-	var colormap_dict: Dictionary = {
+	_colormap_dict = {
 		"bg_primary": "#" + bg_primary_color.to_html(false),
-		"bg_surface": "#" + bg_primary_color.to_html(false),
+		"bg_surface": "#" + bg_surface_color.to_html(false),
+		"bg_elevated": "#" + bg_elevated_color.to_html(false),
+		"bg_higher": "#" + bg_higher_color.to_html(false),
 		"text_primary": "#" + text_primary_color.to_html(false),
 		"text_muted": "#" + text_muted_color.to_html(false),
-		"accent": "#" + accent_color.to_html(false)
+		"accent": "#" + accent_color.to_html(false),
+		"radius_sm": "%s" % radius_sm
 	}
 	
 	radio_checked_icon = DPITexture.create_from_string(
-			"""<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<rect width="10" height="10" rx="5" fill="{accent}"/>
-				<rect x="2" y="2" width="6" height="6" rx="3" fill="{text_primary}"/>
-			</svg>""".format(colormap_dict)
+		"""<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect width="10" height="10" rx="5" fill="{accent}"/>
+			<rect x="2" y="2" width="6" height="6" rx="3" fill="{text_primary}"/>
+		</svg>""".format(_colormap_dict)
 	)
 
 	radio_unchecked_icon = DPITexture.create_from_string(
 		"""<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<rect x="0.5" y="0.5" width="9" height="9" rx="4.5" fill="{text_muted}"/>
-		</svg>""".format(colormap_dict)
+		</svg>""".format(_colormap_dict)
 	)
 
 static func rebuild_fonts() -> void:
@@ -212,6 +218,15 @@ static func _setup_panel(theme: Theme) -> void:
 	var list_item_odd_panel_stylebox: StyleBoxFlat = list_item_panel_stylebox.duplicate()
 	list_item_odd_panel_stylebox.bg_color = bg_primary_color
 	theme.set_stylebox("panel", "ListItemOddPanel", list_item_odd_panel_stylebox)
+	
+	theme.add_type("ColorPanel")
+	theme.set_type_variation("ColorPanel", "PanelContainer")
+	var color_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	color_panel_stylebox.bg_color = bg_surface_color
+	color_panel_stylebox.set_corner_radius_all(radius_md)
+	color_panel_stylebox.set_content_margin_all(0)
+	theme.set_stylebox("panel", "ColorPanel", color_panel_stylebox)
+	
 	
 static func _setup_button(theme: Theme) -> void:
 	theme.add_type("Button")
@@ -347,16 +362,41 @@ static func _setup_button(theme: Theme) -> void:
 static func _setup_checkbox(theme: Theme) -> void:
 	theme.add_type("CheckBox")
 	theme.set_constant("h_separation", "CheckBox", spacing_sm)
+	theme.set_constant("icon_max_width", "CheckBox", icon_lg)
 	theme.set_color("font_color", "CheckBox", text_primary_color)
 	theme.set_color("font_disabled_color", "CheckBox", text_muted_color)
 	theme.set_color("font_focus_color", "CheckBox", text_primary_color)
 	theme.set_color("font_hover_color", "CheckBox", text_primary_color)
 	theme.set_color("font_pressed_color", "CheckBox", text_primary_color)
 	theme.set_color("font_hover_pressed_color", "CheckBox", text_primary_color)
-	theme.set_icon("checked", "CheckBox", preload("res://ui/assets/theme/checked.svg"))
-	theme.set_icon("checked_disabled", "CheckBox", preload("res://ui/assets/theme/checked_disabled.svg"))
-	theme.set_icon("unchecked", "CheckBox", preload("res://ui/assets/theme/unchecked.svg"))
-	theme.set_icon("unchecked_disabled", "CheckBox", preload("res://ui/assets/theme/unchecked_disabled.svg"))
+	
+	var checked_texture: DPITexture = DPITexture.create_from_string(
+		"""<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect width="20" height="20" rx="{radius_sm}" fill="{bg_primary}"/>
+			<path d="M5 10L7.53471 12.5427C8.73965 13.7514 10.7747 13.4241 11.5399 11.8985L15 5" stroke="{text_primary}" stroke-width="2" stroke-linecap="round"/>
+		</svg>""".format(_colormap_dict)
+	)
+	var checked_disabled_texture: DPITexture = DPITexture.create_from_string(
+		"""<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect width="20" height="20" rx="{radius_sm}" fill="{bg_higher}"/>
+			<path d="M5 10L7.53471 12.5427C8.73965 13.7514 10.7747 13.4241 11.5399 11.8985L15 5" stroke="{text_muted}" stroke-width="2" stroke-linecap="round"/>
+		</svg>""".format(_colormap_dict)
+	)
+	var unchecked_texture: DPITexture = DPITexture.create_from_string(
+		"""<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect width="20" height="20" rx="{radius_sm}" fill="{bg_primary}"/>
+		</svg>""".format(_colormap_dict)
+	)
+	var unchecked_disabled_texture: DPITexture = DPITexture.create_from_string(
+		"""<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect width="20" height="20" rx="{radius_sm}" fill="{bg_higher}"/>
+		</svg>""".format(_colormap_dict)
+	)
+	
+	theme.set_icon("checked", "CheckBox", checked_texture)
+	theme.set_icon("checked_disabled", "CheckBox", checked_disabled_texture)
+	theme.set_icon("unchecked", "CheckBox", unchecked_texture)
+	theme.set_icon("unchecked_disabled", "CheckBox", unchecked_disabled_texture)
 
 	var checkbox_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
 	checkbox_stylebox.content_margin_top = margin_sm.y
@@ -417,10 +457,10 @@ static func _setup_lineedit(theme: Theme) -> void:
 	
 	var stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	stylebox.set_corner_radius_all(radius_sm)
-	stylebox.content_margin_top = margin_sm.y
-	stylebox.content_margin_bottom = margin_sm.y
-	stylebox.content_margin_left = margin_sm.x
-	stylebox.content_margin_right = margin_sm.x
+	stylebox.content_margin_top = margin_md.y
+	stylebox.content_margin_bottom = margin_md.y
+	stylebox.content_margin_left = margin_md.x
+	stylebox.content_margin_right = margin_md.x
 	
 	var disabled_stylebox: StyleBoxFlat = stylebox.duplicate()
 	disabled_stylebox.bg_color = bg_elevated_color
@@ -547,10 +587,16 @@ static func _setup_margincontainer(theme: Theme) -> void:
 	theme.set_constant("margin_bottom", "MarginContainer", spacing_md)
 
 static func _setup_label(theme: Theme) -> void:
+	var stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
+	stylebox.content_margin_top = margin_md.y
+	stylebox.content_margin_bottom = margin_md.y
+	
 	theme.add_type("Label")
 	theme.set_font("font", "Label", font_main)
 	theme.set_color("font_color", "Label", text_primary_color)
 	theme.set_font_size("font_size", "Label", font_size_md)
+	# TODO: Differenciate more labels.
+	#theme.set_stylebox("normal", "Label", stylebox)
 	
 	theme.add_type("TitleLabel")
 	theme.set_type_variation("TitleLabel", "Label")
@@ -564,7 +610,7 @@ static func _setup_label(theme: Theme) -> void:
 	theme.add_type("WarnLabel")
 	theme.set_type_variation("WarnLabel", "Label")
 	theme.set_color("font_color", "WarnLabel", fail_color)
-	theme.set_font_size("font_size", "WarnLabel", 1)
+	theme.set_font_size("font_size", "WarnLabel", font_size_md)
 
 	theme.add_type("GraphNodeViewTitleLabel")
 	theme.set_type_variation("GraphNodeViewTitleLabel", "Label")
@@ -783,7 +829,7 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	theme.set_color("font_hover_color", "PopupMenu", text_primary_color)
 	theme.set_color("font_separator_color", "PopupMenu", border_color)
 	theme.set_constant("indent", "PopupMenu", spacing_md)
-	theme.set_constant("h_separation", "PopupMenu", int(margin_sm.x))
+	theme.set_constant("h_separation", "PopupMenu", int(margin_md.x))
 	theme.set_constant("v_separation", "PopupMenu", int(margin_md.y))
 	theme.set_constant("outline_size", "PopupMenu", 0)
 	theme.set_constant("separator_outline_size", "PopupMenu", 0)
@@ -846,19 +892,15 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	panel_stylebox.set_corner_radius_all(radius_sm)
 	panel_stylebox.set_border_width_all(1)
 	panel_stylebox.border_color = border_color
-	panel_stylebox.content_margin_top = margin_sm.y
-	panel_stylebox.content_margin_bottom = margin_sm.y
-	panel_stylebox.content_margin_left = margin_sm.x
-	panel_stylebox.content_margin_right = margin_sm.x
+	panel_stylebox.content_margin_top = margin_md.y
+	panel_stylebox.content_margin_bottom = margin_md.y
+	panel_stylebox.content_margin_left = margin_md.x
+	panel_stylebox.content_margin_right = margin_md.x
 	theme.set_stylebox("hover", "PopupMenu", hover_stylebox)
 	
 	var separator_stylebox: StyleBoxLine = StyleBoxLine.new()
 	separator_stylebox.color = border_color
 	separator_stylebox.thickness = 1
-	panel_stylebox.content_margin_top = margin_sm.y
-	panel_stylebox.content_margin_bottom = margin_sm.y
-	panel_stylebox.content_margin_left = margin_sm.x
-	panel_stylebox.content_margin_right = margin_sm.x
 	theme.set_stylebox("separator", "PopupMenu", separator_stylebox)
 	theme.set_stylebox("labeled_separator_left", "PopupMenu", separator_stylebox)
 	theme.set_stylebox("labeled_separator_right", "PopupMenu", separator_stylebox)

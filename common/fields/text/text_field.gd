@@ -24,7 +24,7 @@ func _on_initialize() -> void:
 
 	text_edit.placeholder_text = placeholder
 	line_edit.placeholder_text = placeholder
-	var rows: int = settings.get(PropertySettings.KEY_ROWS, settings.get("rows", 3))
+	var rows: int = settings.get(PropertySettings.KEY_ROWS, settings.get("rows", 4))
 	_apply_textarea_height.call_deferred(text_edit, rows)
 	
 	if not _is_preview:
