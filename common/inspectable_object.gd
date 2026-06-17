@@ -28,7 +28,7 @@ func _set_parent_info(parent: InspectableObject, pname: String) -> void:
 
 func _init(command_manager: CommandManager = null) -> void:
 	if not command_manager:
-		push_warning("InspectableObject does not have a command manager.")
+		Log.warn("InspectableObject does not have a command manager.")
 	history = command_manager
 	
 	define_property(

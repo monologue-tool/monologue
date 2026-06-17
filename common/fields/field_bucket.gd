@@ -37,7 +37,6 @@ func create_field(field_name: String) -> Field:
 		return null
 	var field: Field = descriptor.instantiate_field()
 	if field == null:
-		Log.error("Failed to create a field of type '%s', use 'safe_create_field' instead." % field_name)
 		return null
 	field.settings = descriptor.default_settings
 	return field

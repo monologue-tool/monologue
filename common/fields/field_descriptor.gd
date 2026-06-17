@@ -33,12 +33,12 @@ func _init(p_name: String = "", p_scene: PackedScene = null, metadata: Dictionar
 
 
 func instantiate_field() -> Field:
-	if not scene:
+	if not scene or not scene.can_instantiate():
 		return null
 	var instance: Node = scene.instantiate()
 	if instance is Field:
 		return instance
-	push_error("FieldDescriptor '%s' scene does not inherit Field." % name)
+	Log.error("FieldDescriptor '%s' scene does not inherit Field." % name)
 	return null
 
 
