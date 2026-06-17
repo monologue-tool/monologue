@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites id="2026-03-03" name="report_1" tests="6" failures="0" skipped="0" flaky="0" time="0.000">
-	<testsuite id="0" name="test_dropdown_field" package="unit" timestamp="2026-03-03T13:39:55" hostname="localhost" tests="3" failures="0" errors="0" skipped="0" flaky="0" time="0.080">
-		<testcase name="test_dropdown_field_exists" classname="test_dropdown_field" time="0.057">
+<testsuites id="2026-06-17" name="report_1" tests="4" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="test_dropdown_field" package="unit" timestamp="2026-06-17T00:09:22" hostname="localhost" tests="3" failures="0" errors="0" skipped="0" flaky="0" time="0.032">
+		<testcase name="test_dropdown_field_exists" classname="test_dropdown_field" time="0.006">
 		</testcase>
-		<testcase name="test_sentence_node_speaker_is_dropdown" classname="test_dropdown_field" time="0.006">
+		<testcase name="test_sentence_node_speaker_is_dropdown" classname="test_dropdown_field" time="0.007">
 		</testcase>
-		<testcase name="test_dropdown_has_source_setting" classname="test_dropdown_field" time="0.014">
-		</testcase>
-	</testsuite>
-	<testsuite id="1" name="test_fields" package="unit" timestamp="2026-03-03T13:39:55" hostname="localhost" tests="1" failures="0" errors="0" skipped="0" flaky="0" time="0.004">
-		<testcase name="test_create_all_fields" classname="test_fields" time="0.003">
+		<testcase name="test_dropdown_has_source_setting" classname="test_dropdown_field" time="0.013">
 		</testcase>
 	</testsuite>
-	<testsuite id="2" name="test_storyline_properties" package="unit" timestamp="2026-03-03T13:39:56" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.179">
-		<testcase name="test_can_add_character_to_storyline" classname="test_storyline_properties" time="0.162">
-		</testcase>
-		<testcase name="test_can_add_variable_to_storyline" classname="test_storyline_properties" time="0.015">
+	<testsuite id="1" name="test_fields" package="unit" timestamp="2026-06-17T00:09:22" hostname="localhost" tests="1" failures="0" errors="0" skipped="0" flaky="0" time="0.017">
+		<testcase name="test_create_all_fields" classname="test_fields" time="0.010">
 		</testcase>
 	</testsuite>
 </testsuites>

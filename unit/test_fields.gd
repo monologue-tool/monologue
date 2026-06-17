@@ -6,5 +6,5 @@ func test_create_all_fields() -> void:
 		if field_name == "context":
 			continue
 		
-		var field: Field = auto_free(FieldBucket.create_field(field_name))
+		var field: Control = auto_free(FieldBucket.safe_create_field(field_name))
 		assert_object(field).is_not_null()
