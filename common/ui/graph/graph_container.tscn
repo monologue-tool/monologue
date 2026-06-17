@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://mqidcjji32ft" path="res://common/ui/menu_buttons/graph_edit_button.gd" id="2_juqgi"]
 [ext_resource type="Texture2D" uid="uid://cvel6ifgyclof" path="res://ui/assets/icons/grid.svg" id="3_3el0f"]
 [ext_resource type="Script" uid="uid://crx7ke21ixwnx" path="res://common/ui/menu_buttons/graph_add_button.gd" id="4_c51jt"]
+[ext_resource type="Script" uid="uid://gwjipgxmwslb" path="res://common/ui/graph/search_bar.gd" id="5_plmop"]
 [ext_resource type="PackedScene" uid="uid://qdgl8co6qy6" path="res://common/ui/graph/graph_edit.tscn" id="8_qfao8"]
 
 [node name="GraphContainer" type="PanelContainer" unique_id=379673752]
@@ -25,45 +26,56 @@ theme_type_variation = &"VBoxContainerCompact"
 [node name="Header" type="PanelContainer" parent="VBoxContainer" unique_id=93875237]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/Header" unique_id=2029044656]
-layout_mode = 2
-
-[node name="HeaderLeft" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1180880832]
+[node name="HeaderLeft" type="HBoxContainer" parent="VBoxContainer/Header" unique_id=1180880832]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 
-[node name="EditButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=312964398]
+[node name="EditButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=312964398]
 layout_mode = 2
 text = "Edit"
 script = ExtResource("2_juqgi")
 
-[node name="ViewButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=548572994]
+[node name="ViewButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=548572994]
 layout_mode = 2
 text = "View"
 script = ExtResource("2_3el0f")
 
-[node name="SelectButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1093210356]
+[node name="SelectButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=1093210356]
 layout_mode = 2
 disabled = true
 text = "Select"
 
-[node name="AddButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderLeft" unique_id=1597228810]
+[node name="AddButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=1597228810]
 layout_mode = 2
 text = "Add"
 script = ExtResource("4_c51jt")
 
-[node name="HeaderCenter" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1840524053]
+[node name="HeaderCenter" type="HBoxContainer" parent="VBoxContainer/Header" unique_id=1840524053]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 
-[node name="HeaderRight" type="HBoxContainer" parent="VBoxContainer/Header/HBoxContainer" unique_id=1190022585]
+[node name="SearchBar" type="HBoxContainer" parent="VBoxContainer/Header/HeaderCenter" unique_id=770372650 node_paths=PackedStringArray("graph_edit")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("5_plmop")
+graph_edit = NodePath("../../../GraphEdit")
+
+[node name="SearchBarInput" type="LineEdit" parent="VBoxContainer/Header/HeaderCenter/SearchBar" unique_id=134137898]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search"
+
+[node name="HeaderRight" type="HBoxContainer" parent="VBoxContainer/Header" unique_id=1190022585]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 4
 
-[node name="SnapButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderRight" unique_id=235394610]
+[node name="SnapButton" type="Button" parent="VBoxContainer/Header/HeaderRight" unique_id=235394610]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Toggle snapping"
@@ -71,7 +83,7 @@ theme_type_variation = &"ToggleIconButton"
 toggle_mode = true
 icon = ExtResource("2_32s7k")
 
-[node name="GridButton" type="Button" parent="VBoxContainer/Header/HBoxContainer/HeaderRight" unique_id=1985773366]
+[node name="GridButton" type="Button" parent="VBoxContainer/Header/HeaderRight" unique_id=1985773366]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Toggle grid"
@@ -83,6 +95,4 @@ icon = ExtResource("3_3el0f")
 [node name="GraphEdit" parent="VBoxContainer" unique_id=2027188591 instance=ExtResource("8_qfao8")]
 unique_name_in_owner = true
 layout_mode = 2
-scroll_offset = Vector2(0, -35)
-
-[node name="PopupMenu" type="PopupMenu" parent="." unique_id=288428263]
+scroll_offset = Vector2(0, -169)

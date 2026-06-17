@@ -9,6 +9,15 @@ var mouse_hovering: bool = false
 
 func _ready() -> void:
 	_hide_default_scrollbars()
+	
+func scroll_to_node(graph_node: GraphNode) -> void:
+	for child: Node in get_children():
+		if child is GraphNode:
+			(child as GraphNode).selected = false
+	graph_node.selected = true
+ 
+	var node_center: Vector2 = graph_node.position_offset + graph_node.size / 2.0
+	scroll_offset = node_center * zoom - get_rect().size / 2.0
 
 
 func _hide_default_scrollbars() -> void:
