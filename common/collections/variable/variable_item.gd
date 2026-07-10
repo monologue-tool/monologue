@@ -27,8 +27,8 @@ func initialize_properties() -> void:
 		"",
 		"dynamic",
 		{
-			"case_property": "type",
-			"cases": {
+			PropertySettings.KEY_CASE_PROPERTY: "type",
+			PropertySettings.KEY_CASES: {
 				"bool": {"type": "bool", "default": false},
 				"string": {"type": "text", "default": "", "coerce": "string"},
 				"int": {"type": "int", "default": 0, "coerce": "int"},

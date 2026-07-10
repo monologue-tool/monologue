@@ -1,14 +1,10 @@
-extends Field
+class_name DynamicField extends Field
 
 var _case_property: String = ""
 var _cases: Dictionary = {}
 
 @onready var field_container: HBoxContainer = %FieldContainer
 var _field: Field
-
-
-func _ready() -> void:
-	super._ready()
 
 
 func set_value(value: Variant) -> void:

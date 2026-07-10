@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c4n8pap0q1r2t" path="res://common/fields/dropdown/dropdown_field.gd" id="1_dropdown"]
 
-[node name="VBoxContainer" type="VBoxContainer" unique_id=330433791]
+[node name="Dropdown" type="VBoxContainer" unique_id=330433791]
 offset_right = 76.0
 offset_bottom = 29.0
 size_flags_horizontal = 3
@@ -14,3 +14,5 @@ layout_mode = 2
 size_flags_horizontal = 3
 text_overrun_behavior = 5
 clip_text = true
+search_bar_enabled = true
+search_bar_min_item_count = 5
