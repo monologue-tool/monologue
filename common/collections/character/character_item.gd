@@ -29,7 +29,7 @@ func initialize_properties() -> void:
 	define_property(
 		"portraits",
 		[default_portrait._to_dict()],
-		"list",
+		"collection",
 		{ "collection": "portraits" },
 		"Portraits"
 	)

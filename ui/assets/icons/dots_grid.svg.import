@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/dots_grid.svg-5b2af8497b8455d866dc46f705a3a43
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

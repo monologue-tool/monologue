@@ -95,4 +95,4 @@ icon = ExtResource("3_3el0f")
 [node name="GraphEdit" parent="VBoxContainer" unique_id=2027188591 instance=ExtResource("8_qfao8")]
 unique_name_in_owner = true
 layout_mode = 2
-scroll_offset = Vector2(0, -169)
+scroll_offset = Vector2(0, -35)

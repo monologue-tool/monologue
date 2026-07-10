@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/cell_middle.svg-979cd41102c064a6a9901bde47ea0
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

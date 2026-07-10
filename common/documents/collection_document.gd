@@ -10,7 +10,7 @@ func _init(collection_name: String, default_value: Array = [], command_manager: 
 
 
 func initialize_properties() -> void:
-	define_property(name, _default_value, "list", { "collection": name })
+	define_property(name, _default_value, "collection", { "collection": name })
 
 
 func get_value() -> Array:

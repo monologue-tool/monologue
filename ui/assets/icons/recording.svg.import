@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/recording.svg-fd6b02caaf2c0c82bbcc7b1672a860a
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

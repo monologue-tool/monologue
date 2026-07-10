@@ -136,7 +136,7 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 			continue
 		rows.append(row)
 
-		if prop.type == "list":
+		if prop.type == "collection":
 			rows.append_array(_build_list_sub_rows(node, prop))
 
 	return rows
@@ -150,7 +150,7 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	)
 	# For list properties, resolve port type from the collection's field type
 	var row_type: String = prop.type
-	if prop.type == "list":
+	if prop.type == "collection":
 		var collection_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
 		if not collection_name.is_empty():
 			var field_descriptor: FieldDescriptor = FieldBucket.get_field_descriptor(collection_name)

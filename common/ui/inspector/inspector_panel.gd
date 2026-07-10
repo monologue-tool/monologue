@@ -363,7 +363,7 @@ func _on_inspect_connected_node(property: Property) -> void:
 
 
 func _is_list(property: Property) -> bool:
-	return property.type == "list"
+	return property.type in ["list", "collection"]
 
 
 func _on_external_property_changed(

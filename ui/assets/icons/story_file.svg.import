@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/story_file.svg-358a15444b72001dd607e5f16b1309
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

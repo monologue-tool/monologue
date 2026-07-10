@@ -163,6 +163,11 @@ func move_property_child(property_name: String, object: InspectableObject, to_in
 	if current_index == -1:
 		return
 	
+	if to_index < 0:
+		to_index = 0
+	if to_index >= children_array.size():
+		to_index = children_array.size() - 1
+	
 	children_array.remove_at(current_index)
 	children_array.insert(to_index, object)
 

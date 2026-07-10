@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/closed_hand.svg-2e3453a9ca7ef3b953b6711566c92
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

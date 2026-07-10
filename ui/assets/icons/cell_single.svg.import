@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/cell_single.svg-0c58d2764fe2b5f4012fcc9b54fc4
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

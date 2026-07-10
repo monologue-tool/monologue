@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/filter_funnel.svg-7a9398c7c058c3d3c6c389b09e9
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

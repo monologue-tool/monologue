@@ -18,7 +18,7 @@ func enter(ctx: MonologueContext, node: Dictionary, _data: Dictionary = {}) -> M
 	elif not speaker_slot_name and ctx.settings.highlight_speaker:
 		ctx.timeline.character_displayer.focus_slot("")
 	
-	for language in languages:
+	for language: String in languages:
 		if language == ctx.settings.language:
 			sentence = languages[language]
 	
@@ -28,7 +28,7 @@ func enter(ctx: MonologueContext, node: Dictionary, _data: Dictionary = {}) -> M
 	return MonologueProcessResult.interrupt_process(node.get("NextID"))
 
 
-func update(ctx: MonologueContext, node: Dictionary, _delta: float) -> MonologueProcessResult:
+func update(ctx: MonologueContext, _node: Dictionary, _delta: float) -> MonologueProcessResult:
 	if Input.is_action_just_pressed("ui_continue") or \
 	(Input.is_action_just_pressed("ui_mouse_continue") and ctx.timeline.text_box_container_mouse_hovering):
 		if ctx.timeline.text_box.visible_ratio < 1:

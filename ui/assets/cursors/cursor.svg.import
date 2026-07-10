@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/cursor.svg-cb17606446184733929991836c986519.d
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

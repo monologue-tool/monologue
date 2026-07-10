@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/star_full.svg-600206e11e3287e6d34f7f695b4fae8
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/media_skip_backward.svg-99b74c1f4f45bf5e508ef
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

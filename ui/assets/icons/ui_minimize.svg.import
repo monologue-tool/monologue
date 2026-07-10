@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/ui_minimize.svg-69f299b5766bece959ce093aa08cb
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

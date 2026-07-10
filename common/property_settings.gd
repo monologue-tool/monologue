@@ -57,6 +57,8 @@ const KEY_IS_MAIN_PROPERTY: String = "is_main_property"
 
 ## (list) Name of the collection registry to query for list items.
 const KEY_COLLECTION: String = "collection"
+## (list) Field type used by each standard list item.
+const KEY_ITEM_TYPE: String = "item_type"
 ## (port) Visual size of the port slot ("normal" or "large").
 const KEY_PORT_SIZE: String = "port_size"
 ## (dropdown) Static array of option strings offered to the user.

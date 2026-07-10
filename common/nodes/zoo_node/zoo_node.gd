@@ -71,8 +71,8 @@ func initialize_properties() -> void:
 	define_property(
 		"list",
 		[],
-		"list",
-		{"collection": "characters"},
+		"collection",
+		{"item_type": "text"},
 		"List"
 	)
 	define_property(

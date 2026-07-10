@@ -15,7 +15,6 @@ script = ExtResource("1_haagr")
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_type_variation = &"HBoxContainerCompact"
 
 [node name="Header" type="VBoxContainer" parent="VBox" unique_id=713426282]
 layout_mode = 2

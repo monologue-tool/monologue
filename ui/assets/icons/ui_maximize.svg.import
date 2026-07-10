@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/ui_maximize.svg-6fdac7ebdd4643a4a2e6a7e1da7b5
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

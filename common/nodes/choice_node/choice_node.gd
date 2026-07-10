@@ -10,7 +10,7 @@ func initialize_properties() -> void:
 	define_property(
 		"choices",
 		[],
-		"list",
+		"collection",
 		{
 			"collection": "option",
 			"exposed": false,
