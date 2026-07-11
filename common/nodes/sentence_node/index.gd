@@ -1,7 +1,6 @@
 extends MonologueIndexer
 
 const NODE_SCRIPT := preload("uid://bm2we18ivulms")
-const ICON_PATH: String = "res://ui/assets/icons/text.svg"
 
 
 func get_scene() -> PackedScene:
@@ -15,7 +14,6 @@ func get_metadata() -> Dictionary:
 		"display_name": "Sentence",
 		"category": "Narration",
 		"script": NODE_SCRIPT,
-		"icon": ICON_PATH,
 		"color": Color("af85fdff")
 	}
 

@@ -1,7 +1,6 @@
 extends MonologueIndexer
 
 const NODE_SCRIPT := preload("choice_node.gd")
-const ICON_PATH: String = "res://ui/assets/icons/action.svg"
 
 
 func get_scene() -> PackedScene:
@@ -15,7 +14,6 @@ func get_metadata() -> Dictionary:
 		"display_name": "Choice",
 		"category": "Flow",
 		"script": NODE_SCRIPT,
-		"icon": ICON_PATH,
 		"color": Color("e89145")
 	}
 

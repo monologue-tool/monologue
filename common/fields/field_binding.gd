@@ -94,7 +94,7 @@ func _update_editable_state() -> void:
 func _on_field_value_changed(value: Variant) -> void:
 	if _is_syncing or _is_released or value == property.get_value():
 		return
-	if not is_instance_valid(field) or not field.is_inside_tree():
+	if not is_instance_valid(field) or not field.is_inside_tree(): # FIXME: changing the type of a variable and next his value, crashes
 		return
 	_process_field_value(value, false)
 

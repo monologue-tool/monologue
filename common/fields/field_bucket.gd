@@ -107,7 +107,7 @@ func is_compatible(type_id_a: int, type_id_b: int) -> bool:
 			continue
 		var other_id: int = type_id_b if descriptor.type_id == type_id_a else type_id_a
 		for compat_name: String in descriptor.compatible_types:
-			if get_type_id(compat_name) == other_id:
+			if compat_name == "*" or get_type_id(compat_name) == other_id:
 				return true
 	return false
 

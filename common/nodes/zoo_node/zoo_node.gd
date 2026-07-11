@@ -82,6 +82,15 @@ func initialize_properties() -> void:
 		{"source": "self:list"},
 		"List"
 	)
+	
+	# Condition
+	define_property(
+		"condition",
+		{},
+		"condition",
+		{},
+		"Condition"
+	)
 
 
 func get_type() -> String:
