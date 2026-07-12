@@ -1,8 +1,8 @@
-class_name CharacterCollectionItem extends ListItem
+class_name CharacterCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:
-	var default_portrait: ListItem = CollectionBucket.create_item("portraits", history)
+	var default_portrait: CollectionItem = CollectionBucket.create_item("portraits", history)
 	default_portrait.set_property_value("name", "default")
 	default_portrait.set_property_value("protected", true)
 	

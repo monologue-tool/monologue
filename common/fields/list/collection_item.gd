@@ -1,5 +1,5 @@
 @abstract
-class_name ListItem extends InspectableObject
+class_name CollectionItem extends InspectableObject
 
 
 var storyline_id: String = ""

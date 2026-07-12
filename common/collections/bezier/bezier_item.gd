@@ -1,4 +1,4 @@
-class_name BezierCollectionItem extends ListItem
+class_name BezierCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:

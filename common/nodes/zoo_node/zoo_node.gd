@@ -69,17 +69,31 @@ func initialize_properties() -> void:
 
 	# List
 	define_property(
-		"list",
+		"collection",
 		[],
 		"collection",
-		{"item_type": "text"},
+		{PropertySettings.KEY_COLLECTION: "characters"},
+		"List"
+	)
+	define_property(
+		"collection_dropdown",
+		"",
+		"dropdown",
+		{PropertySettings.KEY_SOURCE: "self:collection"},
+		"List"
+	)
+	define_property(
+		"list",
+		[],
+		"list",
+		{PropertySettings.KEY_ITEM_TYPE: "text"},
 		"List"
 	)
 	define_property(
 		"list_dropdown",
 		"",
 		"dropdown",
-		{"source": "self:list"},
+		{PropertySettings.KEY_SOURCE: "self:list"},
 		"List"
 	)
 	

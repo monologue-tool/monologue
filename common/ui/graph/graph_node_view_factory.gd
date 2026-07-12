@@ -168,7 +168,7 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 	if coll_name.is_empty():
 		return sub_rows
 
-	var probe: ListItem = CollectionBucket.create_item(coll_name, CommandManager.new())
+	var probe: CollectionItem = CollectionBucket.create_item(coll_name, CommandManager.new())
 	if not probe or not probe.has_main_property():
 		return sub_rows
 

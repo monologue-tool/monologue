@@ -1,4 +1,4 @@
-class_name VariableCollectionItem extends ListItem
+class_name VariableCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:

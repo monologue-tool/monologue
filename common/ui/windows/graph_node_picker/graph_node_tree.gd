@@ -17,7 +17,7 @@ func reload_tree() -> void:
 	var root := create_item()
 	create_btn.disabled = true
 
-	var categories: PackedStringArray = NodeBucket.get_categories()
+	var categories: PackedStringArray = NodeBucket.get_categories(true)
 	if categories.is_empty():
 		_add_placeholder(root, "No nodes available")
 		return

@@ -1,4 +1,4 @@
-class_name ItemCollectionItem extends ListItem
+class_name ItemCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:

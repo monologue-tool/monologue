@@ -2,7 +2,7 @@ class_name ListItemHelper
 enum MenuActions { EDIT, DUPLICATE, DELETE }
 
 
-static func populate_item_view(owner: BaseListField, item_view: PanelContainer, item: ListItem, item_index: int) -> void:
+static func populate_item_view(owner: BaseListField, item_view: PanelContainer, item: CollectionItem, item_index: int) -> void:
 	_make_item_row(owner, item_view, item_index, item)
 
 
@@ -22,7 +22,7 @@ static func _make_item_row(
 	owner: BaseListField,
 	content: PanelContainer,
 	index: int,
-	item: ListItem,
+	item: CollectionItem,
 ) -> void:
 	var is_protected: bool = item.get_property_value("protected") == true
 

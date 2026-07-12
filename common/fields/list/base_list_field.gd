@@ -15,6 +15,12 @@ func _ready() -> void:
 		add_button.pressed.connect(_on_add_button)
 
 
+func get_items() -> Array:
+	if not _binding:
+		return []
+	return _binding.owner.get_property_children(_binding.property.name)
+
+
 func hide_item(idx: int) -> void:
 	if not idx in _hide_items:
 		_hide_items.append(idx)
@@ -24,14 +30,6 @@ func hide_item(idx: int) -> void:
 func show_all_items() -> void:
 	_hide_items.clear()
 	_rebuild_ui()
-
-
-func get_items() -> Array:
-	return _get_items()
-
-
-func _get_items() -> Array:
-	return []
 
 
 func _clear_container() -> void:
@@ -46,8 +44,8 @@ func _rebuild_ui() -> void:
 
 	_clear_container()
 
-	var items: Array = _get_items()
-	for item: ListItem in items:
+	var items: Array = get_items()
+	for item: CollectionItem in items:
 		var item_idx: int = items.find(item)
 		if item_idx in _hide_items:
 			continue
@@ -67,8 +65,8 @@ func set_editable(is_editable: bool) -> void:
 			child.call("set_editable", is_editable)
 
 
-func get_item_index(item: ListItem) -> int:
-	return _get_items().find(item)
+func get_item_index(item: CollectionItem) -> int:
+	return get_items().find(item)
 
 
 func get_list_item_controls(exclude_externals: bool = false) -> Array[Node]:

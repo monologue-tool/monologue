@@ -1,4 +1,4 @@
-class_name PortraitCollectionItem extends ListItem
+class_name PortraitCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:

@@ -35,7 +35,7 @@ func _on_event_show_inspector(_visible: bool) -> void:
 
 
 ## Called after every undo or redo. Re-resolves the inspection stack from the
-## root so stale ListItem references are replaced with fresh objects, then rebuilds.
+## root so stale CollectionItem references are replaced with fresh objects, then rebuilds.
 func _on_history_undo_redo() -> void:
 	rebuild()
 

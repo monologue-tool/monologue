@@ -13,7 +13,7 @@ func register_descriptor(descriptor: BucketDescriptor) -> void:
 	super.register_descriptor(descriptor)
 
 
-func create_item(descriptor_name: String, history: CommandManager) -> ListItem:
+func create_item(descriptor_name: String, history: CommandManager) -> CollectionItem:
 	var descriptor: CollectionDescriptor = get_descriptor(descriptor_name) as CollectionDescriptor
 	if descriptor:
 		return descriptor.instantiate_item(history)
