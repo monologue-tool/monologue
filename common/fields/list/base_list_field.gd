@@ -51,7 +51,7 @@ func _rebuild_ui() -> void:
 			continue
 		var container: PanelContainer = _create_item_container(not item_idx % 2)
 		items_container.add_child(container)
-		ListItemHelper.populate_item_view(self, container, item, item_idx)
+		CollectionItemHelper.populate_item_view(self, container, item, item_idx)
 
 	_populate_external_items()
 

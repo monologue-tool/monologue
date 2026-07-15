@@ -193,5 +193,5 @@ func _populate_external_items() -> void:
 	for ext_data: Dictionary in externals:
 		var item_idx: int = items_container.get_child_count()
 		var container: PanelContainer = _create_item_container(not item_idx % 2)
-		ListItemHelper.populate_external_item_view(container, ext_data.get("name", "<unknown>"))
+		CollectionItemHelper.populate_external_item_view(container, ext_data.get("name", "<unknown>"))
 		items_container.add_child(container)

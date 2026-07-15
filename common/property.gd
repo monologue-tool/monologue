@@ -70,13 +70,6 @@ func bind_field(field: Field, target_owner: InspectableObject = null, deferred: 
 		Log.error("Failed to bind field.")
 		return null
 	
-	#if not field.is_inside_tree():
-		#field.tree_entered.connect(
-			#_on_field_tree_entered.bind(field, target_owner), CONNECT_ONE_SHOT
-		#)
-		#Log.warn("Field is not inside tree and cannot be binded yet. Waiting for it to enter inside a scene.")
-		#return null
-	
 	var binding: FieldBinding = FieldBucket.bind(self, field, target_owner)
 	if binding:
 		_bindings.append(binding)

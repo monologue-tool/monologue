@@ -1,4 +1,4 @@
-class_name ListItemHelper
+class_name CollectionItemHelper
 enum MenuActions { EDIT, DUPLICATE, DELETE }
 
 

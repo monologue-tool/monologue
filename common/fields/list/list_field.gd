@@ -89,40 +89,42 @@ func _rebuild_ui() -> void:
 
 	_clear_container()
 
-	for i in range(_item_properties.size()):
-		if i in _hide_items:
+	for index in range(_item_properties.size()):
+		if index in _hide_items:
 			continue
-		var item_property: Property = _item_properties[i]
-		var container: PanelContainer = _create_item_container(not i % 2)
+		var item_property: Property = _item_properties[index]
+		var container: PanelContainer = _create_item_container(not index % 2)
 		items_container.add_child(container)
 
 		var row: ListItemReorderRow = ListItemReorderRow.new()
 		row.owner_field = self
-		row.item_index = i
+		row.item_index = index
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		container.add_child(row)
-
+		
 		var drag_handle: ListItemDragHandle = ListItemDragHandle.new()
-		drag_handle.owner_field = self
-		drag_handle.item_index = i
-		drag_handle.texture = preload("res://ui/assets/icons/drag_handle.svg")
-		drag_handle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		drag_handle.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 		drag_handle.custom_minimum_size = Vector2(24, 24)
+		drag_handle.theme_type_variation = "ListItemIconButton"
+		drag_handle.icon = preload("res://ui/assets/icons/drag_handle.svg")
+		drag_handle.mouse_default_cursor_shape = Control.CURSOR_DRAG
+		row.drag_handle = drag_handle
 		row.add_child(drag_handle)
+		row.init_drag()
 
 		var item_field: Field = FieldBucket.create_field(_item_type)
 		if not item_field:
 			continue
+		item_field.set_preview()
 		item_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		item_field.bind_field(item_property, null, true)
+		item_property.bind_field(item_field, null, true)
 		row.add_child(item_field)
 
 		var delete_button: Button = Button.new()
+		delete_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		delete_button.icon = preload("res://ui/assets/icons/cross.svg")
 		delete_button.tooltip_text = "Delete item"
 		delete_button.theme_type_variation = "ListItemIconButton"
-		delete_button.pressed.connect(_on_delete_item.bind(i))
+		delete_button.pressed.connect(_on_delete_item.bind(index))
 		row.add_child(delete_button)
 
 
