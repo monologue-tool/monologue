@@ -3,14 +3,17 @@ extends EditorMenuButton
 
 var recent_ids: Dictionary = {}
 
+
 func _build_menu() -> void:
 	recent_ids = {}
-	
+
 	add_row("New", _on_new, true, ["mnl_new"])
 	add_row("Open...", _on_open, true, ["mnl_open"])
-	
+
 	var recent_files: PackedStringArray = ProjectManager.get_history()
-	var recent_menu: PopupMenu = add_submenu_row("Open Recent", _on_open_recent, recent_files.size() > 0)
+	var recent_menu: PopupMenu = add_submenu_row(
+		"Open Recent", _on_open_recent, recent_files.size() > 0
+	)
 	for file: String in recent_files:
 		if file == ProjectManager.current_project.project_path:
 			continue
@@ -18,7 +21,7 @@ func _build_menu() -> void:
 		recent_ids[id] = file
 		recent_menu.add_item(file.get_file(), id)
 	add_separator()
-	
+
 	add_row("Save", _on_save, true, ["mnl_save"])
 	add_row("Save As...", _on_save_as, false, ["mnl_save_as"])
 	add_row("Save Copy...", Callable(), false)

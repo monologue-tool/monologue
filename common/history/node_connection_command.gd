@@ -26,7 +26,9 @@ func _init(
 
 func execute() -> void:
 	# Recalculate port indices in case they changed
-	var from_port: int = graph_view.get_port_index_for_property(from_node_id, from_property_name, true)
+	var from_port: int = graph_view.get_port_index_for_property(
+		from_node_id, from_property_name, true
+	)
 	var to_port: int = graph_view.get_port_index_for_property(to_node_id, to_property_name, false)
 
 	if disconnect_node:
@@ -51,7 +53,9 @@ func execute() -> void:
 
 func undo() -> void:
 	# Recalculate port indices in case they changed
-	var from_port: int = graph_view.get_port_index_for_property(from_node_id, from_property_name, true)
+	var from_port: int = graph_view.get_port_index_for_property(
+		from_node_id, from_property_name, true
+	)
 	var to_port: int = graph_view.get_port_index_for_property(to_node_id, to_property_name, false)
 
 	if not disconnect_node:
@@ -75,7 +79,9 @@ func undo() -> void:
 
 
 func _notify_node_changes() -> void:
-	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(graph_view.storyline_id)
+	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(
+		graph_view.storyline_id
+	)
 	var from_nodes: Array = storyline.nodes.filter(
 		func(n: InspectableNode) -> bool: return n.get_property_value("id") == from_node_id
 	)

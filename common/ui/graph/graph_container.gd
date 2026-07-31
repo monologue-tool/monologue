@@ -22,7 +22,7 @@ func _ready() -> void:
 	grid_button.button_pressed = ConfigManager.get_config("show_grid")
 	_on_snap_button_pressed()
 	_on_grid_button_pressed()
-	
+
 	EventBus.request_node_selection.connect(_on_request_node_selection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
 	EventBus.graph_snap.connect(_on_event_graph_snap)
@@ -33,7 +33,7 @@ func _ready() -> void:
 
 func _on_project_loaded() -> void:
 	await get_tree().process_frame
-	
+
 	var storyline: StorylineDocument = ProjectManager.current_project.storylines[0]
 	load_storyline(storyline)
 
@@ -44,7 +44,10 @@ func load_storyline(storyline: StorylineDocument) -> void:
 	graph.refresh()
 
 	# Disconnect from the previous storyline's languages property
-	if is_instance_valid(_current_lang_prop) and _current_lang_prop.value_changed.is_connected(_on_languages_changed):
+	if (
+		is_instance_valid(_current_lang_prop)
+		and _current_lang_prop.value_changed.is_connected(_on_languages_changed)
+	):
 		_current_lang_prop.value_changed.disconnect(_on_languages_changed)
 
 	_current_lang_prop = storyline.get_property("languages")
@@ -74,10 +77,11 @@ func _on_request_node_selection(
 		return
 	request_node_selection(object, skip_history)
 
+
 func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
 	if graph.storyline_id == storyline.id:
 		return
-	
+
 	load_storyline(storyline)
 
 
@@ -137,6 +141,7 @@ func _on_snap_button_pressed() -> void:
 func _on_grid_button_pressed() -> void:
 	graph.show_grid = grid_button.button_pressed
 	ConfigManager.set_config("show_grid", grid_button.button_pressed)
+
 
 func _on_event_graph_snap(enabled: bool) -> void:
 	graph.snapping_enabled = enabled

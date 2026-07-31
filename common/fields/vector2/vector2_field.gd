@@ -29,4 +29,3 @@ func get_value() -> Variant:
 
 func _on_spinbox_value_changed(_value: float) -> void:
 	emit_value_committed(get_value())
-	

@@ -63,8 +63,8 @@ func _update_case_field() -> void:
 		return
 	var case_data: Dictionary = _cases[actual_case]
 	var case_type: String = case_data.get("type")
-	var _case_default: Variant = case_data.get("default")  # TODO: Support default value
-	var _case_coerce: Variant = case_data.get("coerce")  # TODO: Coerce value
+	# TODO: honour case_data["default"] when the case has no stored value yet.
+	# TODO: honour case_data["coerce"] to convert the value when the case changes.
 
 	var new_field: Control = FieldBucket.safe_create_field(case_type)
 	field_container.add_child(new_field)

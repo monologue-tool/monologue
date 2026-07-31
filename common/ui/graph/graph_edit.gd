@@ -15,7 +15,7 @@ func _ready() -> void:
 	super._ready()
 	connection_request.connect(_on_connection_request)
 	connection_to_empty.connect(_on_connection_to_empty)
-	copy_nodes_request.connect(_on_copy_nodes_request) 
+	copy_nodes_request.connect(_on_copy_nodes_request)
 	cut_nodes_request.connect(_on_cut_nodes_request)
 	delete_nodes_request.connect(_on_delete_nodes_request)
 	disconnection_request.connect(_on_disconnection_request)
@@ -23,7 +23,7 @@ func _ready() -> void:
 	node_deselected.connect(_on_node_deselected)
 	node_selected.connect(_on_node_selected)
 	paste_nodes_request.connect(_on_paste_nodes_request)
-	
+
 	EventBus.refresh_graph.connect(refresh)
 
 
@@ -163,7 +163,9 @@ func _on_connection_request(
 		return
 
 	# Get property names at the port indices
-	var from_property_name: String = get_property_name_at_port(String(from_view_name), from_port, true)
+	var from_property_name: String = get_property_name_at_port(
+		String(from_view_name), from_port, true
+	)
 	var to_property_name: String = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():
@@ -215,10 +217,10 @@ func _reconnect_all_slots() -> void:
 
 		var from_node: InspectableNode = storyline.get_node(from_node_id)
 		var to_node: InspectableNode = storyline.get_node(to_node_id)
-		
+
 		if not from_node or not to_node:
 			continue
-		
+
 		var from_view_name: String = from_node.graph_view.name
 		var to_view_name: String = to_node.graph_view.name
 
@@ -239,7 +241,9 @@ func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 ## Get the port index for a specific property by name.
 ## is_output=true counts only export ports (output), false counts only exposed ports (input).
 ## Supports composite names like "choices:item_id" for sub-ports.
-func get_port_index_for_property(node_name: String, property_name: String, is_output: bool = false) -> int:
+func get_port_index_for_property(
+	node_name: String, property_name: String, is_output: bool = false
+) -> int:
 	var node: InspectableNode = get_node_from_view_name(node_name)
 	if not node:
 		return -1
@@ -306,7 +310,9 @@ func _on_end_node_move() -> void:
 		if not node:
 			continue
 
-		var target_position: Array = [_pending_positions[graph_node].x, _pending_positions[graph_node].y]
+		var target_position: Array = [
+			_pending_positions[graph_node].x, _pending_positions[graph_node].y
+		]
 		var position_property: Property = node.get_property("position")
 		if not position_property:
 			continue
@@ -343,7 +349,9 @@ func _on_disconnection_request(
 		return
 
 	# Get property names at the port indices
-	var from_property_name: String = get_property_name_at_port(String(from_view_name), from_port, true)
+	var from_property_name: String = get_property_name_at_port(
+		String(from_view_name), from_port, true
+	)
 	var to_property_name: String = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():

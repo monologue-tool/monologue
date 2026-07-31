@@ -8,22 +8,22 @@ var command_manager: CommandManager = CommandManager.new()
 
 func _ready() -> void:
 	load_configuration()
-	
+
 	sync_theme()
 	sync_fonts()
 
 
 func load_configuration() -> ConfigurationDocument:
 	_ensure_configuration()
-	
+
 	var file: FileAccess = FileAccess.open(Constants.PREFERENCES_PATH, FileAccess.READ)
 	var content: String = file.get_as_text()
 	file.close()
-	
+
 	var data: Dictionary = JSON.parse_string(content)
 	current_configuration = ConfigurationDocument.new(command_manager)
 	current_configuration._from_dict(data)
-	
+
 	return current_configuration
 
 
@@ -45,7 +45,7 @@ func get_config(property_name: String, default: Variant = null) -> Variant:
 	if not current_configuration:
 		Log.error("Attempting to retrieve a configuration value without a configuration document.")
 		return
-	
+
 	var property: Property = current_configuration.get_property(property_name)
 	return property.get_value() if property != null else default
 
@@ -54,13 +54,14 @@ func set_config(property_name: String, value: Variant) -> void:
 	if not current_configuration:
 		Log.error("Attempting to update a configuration property without a configuration document.")
 		return
-	
+
 	current_configuration.set_property_value(property_name, value)
 
 
 func sync_theme() -> void:
 	ThemeLayout.generate_and_apply_theme()
 	theme_changed.emit()
+
 
 func sync_fonts() -> void:
 	#ThemeLayout.rebuild_fonts()

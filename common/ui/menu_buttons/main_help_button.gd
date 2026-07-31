@@ -16,9 +16,9 @@ func _on_report_a_bug() -> void:
 
 func _on_save_system_info() -> void:
 	var lines: Array[String] = []
-	
+
 	var version: String = ProjectSettings.get_setting("application/config/version")
-	
+
 	lines.append("Monologue %s - System Info" % version)
 	lines.append("")
 	lines.append("version: %s " % version)
@@ -28,6 +28,6 @@ func _on_save_system_info() -> void:
 	lines.append("memory:")
 	for key: String in OS.get_memory_info().keys():
 		var value: int = OS.get_memory_info()[key]
-		lines.append("   - %s: %.2f Gb (%s bytes)" % [key, value/1e+9, value])
-	
+		lines.append("   - %s: %.2f Gb (%s bytes)" % [key, value / 1e+9, value])
+
 	DisplayServer.clipboard_set("\n".join(lines))

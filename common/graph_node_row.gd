@@ -11,6 +11,7 @@ var sub_property_id: String = ""
 ## Port size: "normal" or "large"
 var port_size: String = "normal"
 
+
 func _init(
 	key: String, type: String = "", enable_left_port: bool = false, enable_right_port: bool = true
 ) -> void:

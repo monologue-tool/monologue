@@ -33,7 +33,9 @@ func set_value(value: Variant) -> void:
 		var child_found: bool = false
 		for child: CollectionItem in outdated_childrens:
 			var dict_match := false
-			var item_id: Variant = item_data.get("id", {}).get("value") if item_data.has("id") else null
+			var item_id: Variant = (
+				item_data.get("id", {}).get("value") if item_data.has("id") else null
+			)
 			var child_id: Variant = child.get_property_value("id")
 
 			if item_id != null and child_id != null:
@@ -50,7 +52,6 @@ func set_value(value: Variant) -> void:
 		if not child_found:
 			var item: CollectionItem = _create_new_list_item(item_data)
 			_binding.owner.add_property_children(_binding.property.name, item)
-
 
 	for child: CollectionItem in outdated_childrens:
 		_binding.owner.remove_property_children(_binding.property.name, child)
@@ -80,7 +81,9 @@ func get_value() -> Variant:
 
 
 func _create_new_list_item(from_data: Dictionary = {}) -> CollectionItem:
-	var item: CollectionItem = CollectionBucket.create_item(_collection_name, _binding.owner.history)
+	var item: CollectionItem = CollectionBucket.create_item(
+		_collection_name, _binding.owner.history
+	)
 	item._from_dict(from_data)
 
 	return item
@@ -107,7 +110,9 @@ func _on_duplicate_item(index: int) -> void:
 		return
 
 	var item_data: Dictionary = children[index]._to_dict()
-	var new_item: CollectionItem = CollectionBucket.create_item(_collection_name, _binding.owner.history)
+	var new_item: CollectionItem = CollectionBucket.create_item(
+		_collection_name, _binding.owner.history
+	)
 	new_item._from_dict(item_data)
 	_make_item_unique(new_item)
 
@@ -188,10 +193,14 @@ func _on_connection_changed() -> void:
 
 
 func _populate_external_items() -> void:
-	var externals: Array[Dictionary] = _binding.owner.get_external_list_items(_binding.property.name)
+	var externals: Array[Dictionary] = _binding.owner.get_external_list_items(
+		_binding.property.name
+	)
 
 	for ext_data: Dictionary in externals:
 		var item_idx: int = items_container.get_child_count()
 		var container: PanelContainer = _create_item_container(not item_idx % 2)
-		CollectionItemHelper.populate_external_item_view(container, ext_data.get("name", "<unknown>"))
+		CollectionItemHelper.populate_external_item_view(
+			container, ext_data.get("name", "<unknown>")
+		)
 		items_container.add_child(container)

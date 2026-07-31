@@ -19,9 +19,6 @@ static func parse_composite_name(property_name: String) -> Array:
 	return [property_name, ""]
 
 
-## Updates property connection tracking when a connection is made (using property names)
-## All parameters are node_ids, not scene node names.
-## Supports composite property names like "choices:item_id" for sub-ports.
 func register_connection_by_property(
 	from_node_id: String, from_property_name: String, to_node_id: String, to_property_name: String
 ) -> void:
@@ -64,8 +61,6 @@ func register_connection_by_property(
 		to_prop.connection_changed.emit()
 
 
-## Updates property connection tracking when a connection is made (using port indices - legacy)
-## Parameters are node_ids for compatibility with GraphEdit using ids for names.
 func register_connection(
 	from_node_id: String, from_port: int, to_node_id: String, to_port: int
 ) -> void:
@@ -87,9 +82,6 @@ func register_connection(
 	register_connection_by_property(from_node_id, from_prop.name, to_node_id, to_prop.name)
 
 
-## Updates property connection tracking when a connection is removed (using property names)
-## All parameters are node_ids, not scene node names.
-## Supports composite property names like "choices:item_id" for sub-ports.
 func unregister_connection_by_property(
 	from_node_id: String, from_property_name: String, to_node_id: String, to_property_name: String
 ) -> void:
@@ -111,23 +103,27 @@ func unregister_connection_by_property(
 
 	# Remove the connection from both properties, matching full property_name (with sub-port)
 	var old_to_size: int = from_prop.connected_to.size()
-	from_prop.connected_to.assign(from_prop.connected_to.filter(
-		func(c: Dictionary) -> bool: return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name)
-	))
+	from_prop.connected_to.assign(
+		from_prop.connected_to.filter(
+			func(c: Dictionary) -> bool:
+				return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name)
+				)
+	)
 	if from_prop.connected_to.size() != old_to_size:
 		from_prop.connection_changed.emit()
 
 	var old_from_size: int = to_prop.connected_from.size()
-	to_prop.connected_from.assign(to_prop.connected_from.filter(
-		func(c: Dictionary) -> bool:
-			return not (c["node_id"] == from_node_id and c["property_name"] == from_property_name)
-	))
+	to_prop.connected_from.assign(
+		to_prop.connected_from.filter(
+			func(c: Dictionary) -> bool:
+				return not (
+					c["node_id"] == from_node_id and c["property_name"] == from_property_name
+				))
+	)
 	if to_prop.connected_from.size() != old_from_size:
 		to_prop.connection_changed.emit()
 
 
-## Updates property connection tracking when a connection is removed (using port indices - legacy)
-## Parameters are node_ids for compatibility.
 func unregister_connection(
 	from_node_id: String, from_port: int, to_node_id: String, to_port: int
 ) -> void:
@@ -164,7 +160,8 @@ func get_all_connections() -> Array[Dictionary]:
 				if not item_id.is_empty():
 					from_property = "%s:%s" % [prop.name, item_id]
 				var key: String = (
-					"%s.%s->%s.%s" % [node_id, from_property, conn["node_id"], conn["property_name"]]
+					"%s.%s->%s.%s"
+					% [node_id, from_property, conn["node_id"], conn["property_name"]]
 				)
 				if key not in processed_connections:
 					connections.append(
@@ -273,9 +270,7 @@ func rename_node_id(old_id: String, new_id: String) -> void:
 
 
 ## Replaces old_id with new_id in an array of connection dictionaries.
-static func _update_connection_node_id(
-	connections: Array, old_id: String, new_id: String
-) -> void:
+static func _update_connection_node_id(connections: Array, old_id: String, new_id: String) -> void:
 	for i: int in range(connections.size()):
 		var conn: Dictionary = connections[i]
 		if conn.get("node_id", "") == old_id:

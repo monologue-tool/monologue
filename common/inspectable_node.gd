@@ -20,9 +20,9 @@ func _init(command_manager: CommandManager = null) -> void:
 		"Special:Header"
 	)
 	# Keep all connection references in sync when the id changes
-	var _id_prop: Property = get_property("id")
-	if _id_prop and not _id_prop.value_changed.is_connected(_on_id_value_changed):
-		_id_prop.value_changed.connect(_on_id_value_changed)
+	var id_prop: Property = get_property("id")
+	if id_prop and not id_prop.value_changed.is_connected(_on_id_value_changed):
+		id_prop.value_changed.connect(_on_id_value_changed)
 	super._init(command_manager)
 	define_property(
 		"notes",
@@ -93,15 +93,16 @@ func define_property(
 func get_id() -> String:
 	return get_property_value("id")
 
+
 func get_main_property() -> Property:
 	if not _main_property_defined:
 		return null
-	
+
 	for prop: Property in get_properties():
 		if not prop.get_settings_value("is_main_property", false):
 			continue
 		return prop
-	
+
 	return null
 
 

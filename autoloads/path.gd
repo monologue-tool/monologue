@@ -55,7 +55,9 @@ static func relative_to_absolute(path: String, root_file_path: String) -> String
 	# Prepend "/" for Linux root if not a Windows drive letter
 	var drive_matcher: RegEx = RegEx.new()
 	drive_matcher.compile("[a-zA-Z]:")
-	var drive_result: RegExMatch = drive_matcher.search(root_array[0]) if root_array.size() > 0 else null
+	var drive_result: RegExMatch = (
+		drive_matcher.search(root_array[0]) if root_array.size() > 0 else null
+	)
 	if not drive_result:
 		absolute_path = "/" + absolute_path
 	return absolute_path

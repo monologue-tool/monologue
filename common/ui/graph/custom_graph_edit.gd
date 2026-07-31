@@ -9,13 +9,14 @@ var mouse_hovering: bool = false
 
 func _ready() -> void:
 	_hide_default_scrollbars()
-	
+
+
 func scroll_to_node(graph_node: GraphNode) -> void:
 	for child: Node in get_children():
 		if child is GraphNode:
 			(child as GraphNode).selected = false
 	graph_node.selected = true
- 
+
 	var node_center: Vector2 = graph_node.position_offset + graph_node.size / 2.0
 	scroll_offset = node_center * zoom - get_rect().size / 2.0
 
@@ -40,7 +41,9 @@ func _on_connection_to_empty(node: String, port: int, release: Vector2) -> void:
 func _on_gui_input(event: InputEvent) -> void:
 	if mouse_hovering:
 		var cursor_drag: bool = Input.is_action_pressed("Spacebar")
-		var cursor_hand_closed: bool = cursor_drag and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		var cursor_hand_closed: bool = (
+			cursor_drag and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		)
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
 			cursor_hand_closed = true
 		if cursor_hand_closed:

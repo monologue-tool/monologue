@@ -2,7 +2,9 @@ class_name CollectionItemHelper
 enum MenuActions { EDIT, DUPLICATE, DELETE }
 
 
-static func populate_item_view(owner: BaseListField, item_view: PanelContainer, item: CollectionItem, item_index: int) -> void:
+static func populate_item_view(
+	owner: BaseListField, item_view: PanelContainer, item: CollectionItem, item_index: int
+) -> void:
 	_make_item_row(owner, item_view, item_index, item)
 
 
@@ -10,11 +12,11 @@ static func _create_drag_handle(external: bool = false) -> ListItemDragHandle:
 	var drag_handle: ListItemDragHandle = ListItemDragHandle.new()
 	drag_handle.custom_minimum_size = Vector2(24, 24)
 	drag_handle.theme_type_variation = "ListItemIconButton"
-	
+
 	if not external:
 		drag_handle.icon = preload("res://ui/assets/icons/drag_handle.svg")
 		drag_handle.mouse_default_cursor_shape = Control.CURSOR_DRAG
-	
+
 	return drag_handle
 
 
@@ -77,11 +79,11 @@ static func populate_external_item_view(content: PanelContainer, name: String) -
 	row.external = true
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(row)
-	
+
 	var drag_handle: ListItemDragHandle = _create_drag_handle(true)
 	row.drag_handle = drag_handle
 	row.add_child(drag_handle)
-	
+
 	var ext_label: Label = Label.new()
 	ext_label.text = name
 	ext_label.theme_type_variation = "NoteLabel"

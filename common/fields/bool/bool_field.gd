@@ -5,7 +5,7 @@ class_name BoolField extends Field
 
 func _ready() -> void:
 	check_box.pressed.connect(_on_check_box_pressed)
-	
+
 	var check_box_label: Variant = settings.get("label", " ")
 	check_box.text = check_box_label
 

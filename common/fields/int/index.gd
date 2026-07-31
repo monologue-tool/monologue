@@ -12,7 +12,8 @@ func get_metadata() -> Dictionary:
 		"color": Color("45cee9ff"),
 		"compatible_types": ["slider", "float"],
 		"default_value": 0,
-		"default_settings": {
+		"default_settings":
+		{
 			"rounded": true,
 			"step": 1.0,
 			"allow_greater": true,

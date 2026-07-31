@@ -24,7 +24,9 @@ func create_item(descriptor_name: String, history: CommandManager) -> Collection
 func _search_types() -> void:
 	var directories: Array = DirAccess.get_directories_at(DEFAULT_COLLECTIONS_LOCATION)
 	for dir_path: String in directories:
-		var index_path: String = DEFAULT_COLLECTIONS_LOCATION.path_join(dir_path).path_join("index.gd")
+		var index_path: String = DEFAULT_COLLECTIONS_LOCATION.path_join(dir_path).path_join(
+			"index.gd"
+		)
 		if not FileAccess.file_exists(index_path):
 			continue
 		var index_script: GDScript = load(index_path)

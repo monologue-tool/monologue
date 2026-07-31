@@ -15,7 +15,7 @@ func _on_undo() -> void:
 	var focus_owner: Control = get_viewport().gui_get_focus_owner()
 	if focus_owner:
 		focus_owner.release_focus()
-	
+
 	var command_manager: CommandManager = ProjectManager.current_project.command_manager
 	command_manager.undo()
 
@@ -23,4 +23,3 @@ func _on_undo() -> void:
 func _on_redo() -> void:
 	var command_manager: CommandManager = ProjectManager.current_project.command_manager
 	command_manager.redo()
-	

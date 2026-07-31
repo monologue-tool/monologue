@@ -66,11 +66,11 @@ func create_popup_menu() -> PopupMenu:
 
 
 func create_shortcut(action_name: StringName) -> Shortcut:
-	var _shortcut := Shortcut.new()
+	var shortcut := Shortcut.new()
 	var inputevent := InputEventAction.new()
 	inputevent.action = action_name
-	_shortcut.events.append(inputevent)
-	return _shortcut
+	shortcut.events.append(inputevent)
+	return shortcut
 
 
 func _on_about_to_popup() -> void:

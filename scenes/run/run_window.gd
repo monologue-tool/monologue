@@ -25,7 +25,7 @@ func _ready() -> void:
 
 func _on_close_requested() -> void:
 	queue_free()
-	
+
 
 func add_scene(child: Node) -> void:
 	$SubViewportContainer/SubViewport.add_child(child)

@@ -11,13 +11,19 @@ func _ready() -> void:
 
 
 func save_file(
-	callback: Callable, filter_list: PackedStringArray = [], root_subdir: String = "", options: Array = []
+	callback: Callable,
+	filter_list: PackedStringArray = [],
+	root_subdir: String = "",
+	options: Array = []
 ) -> void:
 	_on_save_file_request(callback, filter_list, root_subdir, options)
 
 
 func _on_save_file_request(
-	callable: Callable, filter_list: PackedStringArray = [], root_subdir: String = "", options: Array = []
+	callable: Callable,
+	filter_list: PackedStringArray = [],
+	root_subdir: String = "",
+	options: Array = []
 ) -> void:
 	title = "Save"
 	ok_button_text = "Save"
@@ -26,7 +32,10 @@ func _on_save_file_request(
 
 
 func _on_open_file_request(
-	callable: Callable, filter_list: PackedStringArray = [], root_subdir: String = "", options: Array = []
+	callable: Callable,
+	filter_list: PackedStringArray = [],
+	root_subdir: String = "",
+	options: Array = []
 ) -> void:
 	title = "Open"
 	ok_button_text = "Open"
@@ -35,7 +44,10 @@ func _on_open_file_request(
 
 
 func _on_open_files_request(
-	callable: Callable, filter_list: PackedStringArray = [], root_subdir: String = "", options: Array = []
+	callable: Callable,
+	filter_list: PackedStringArray = [],
+	root_subdir: String = "",
+	options: Array = []
 ) -> void:
 	title = "Open"
 	ok_button_text = "Open"
@@ -48,34 +60,37 @@ func _on_open_files_request(
 
 
 func _on_open_dir_request(
-		callable: Callable, root_subdir: String = "", options: Array = []
+	callable: Callable, root_subdir: String = "", options: Array = []
 ) -> void:
 	title = "Open"
 	ok_button_text = "Open"
 	file_mode = FileDialog.FILE_MODE_OPEN_DIR
-	
+
 	_core_request(callable, [], root_subdir, options)
 
 
 func _core_request(
-	callable: Callable, filter_list: PackedStringArray = [], root_subdir: String = "", options: Array = []
+	callable: Callable,
+	filter_list: PackedStringArray = [],
+	root_subdir: String = "",
+	options: Array = []
 ) -> void:
 	if not root_subdir.ends_with(PathUtil.get_separator()):
 		root_subdir += PathUtil.get_separator()
-	
+
 	clear_filters()
 
 	_callback = callable
 	filters = filter_list
 	current_path = root_subdir
 	option_count = 0
-	
+
 	for option: Dictionary in options:
 		var opt_name: String = option.get("name", "") as String
 		var opt_values: PackedStringArray = option.get("values", []) as PackedStringArray
 		var opt_default_value_index: int = option.get("default_value_index", 0) as int
 		add_option(opt_name, opt_values, opt_default_value_index)
-	
+
 	popup_centered()
 
 

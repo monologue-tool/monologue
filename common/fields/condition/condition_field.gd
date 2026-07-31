@@ -37,7 +37,7 @@ func set_value(value: Variant) -> void:
 
 	var data: Dictionary = value if value is Dictionary else {}
 	var variable: String = str(data.get("variable", ""))
-	
+
 	_load_variables()
 	_select_variable(variable)
 	_refresh_operator_options(variable)
@@ -47,7 +47,12 @@ func set_value(value: Variant) -> void:
 
 func get_value() -> Variant:
 	return {
-		"variable": variable_dropdown.get_item_metadata(variable_dropdown.selected) if variable_dropdown.selected >= 0 else "",
+		"variable":
+		(
+			variable_dropdown.get_item_metadata(variable_dropdown.selected)
+			if variable_dropdown.selected >= 0
+			else ""
+		),
 		"operator": operator_dropdown.get_item_text(operator_dropdown.selected),
 		"value": _value_field.get_value() if _value_field else null,
 	}
@@ -78,11 +83,11 @@ func _load_variables() -> void:
 		var entry_type: String = str(entry_dict.get("type", {}).get("value", "string"))
 		if not entry_name.is_empty():
 			_variables[entry_id] = {"name": entry_name, "type": entry_type}
-	
+
 	for id: String in _variables.keys():
 		var variable_name: String = _variables[id].get("name", "<undefined>")
 		variable_dropdown.add_item(variable_name)
-		variable_dropdown.set_item_metadata(variable_dropdown.item_count-1, id)
+		variable_dropdown.set_item_metadata(variable_dropdown.item_count - 1, id)
 
 
 func _select_variable(variable_id: String) -> void:
@@ -110,8 +115,12 @@ func _on_value_field_committed(_new_value: Variant) -> void:
 func _refresh_operator_options(variable_id: String) -> void:
 	var variable_type: String = _variables.get(variable_id, {}).get("type", "string")
 	var operators: Array = OPERATORS_BY_TYPE.get(variable_type, OPERATORS_BY_TYPE["string"])
-	var current_operator: String = operator_dropdown.get_item_text(operator_dropdown.selected) if operator_dropdown.selected >= 0 else ""
-	
+	var current_operator: String = (
+		operator_dropdown.get_item_text(operator_dropdown.selected)
+		if operator_dropdown.selected >= 0
+		else ""
+	)
+
 	operator_dropdown.clear()
 	for operator: String in operators:
 		operator_dropdown.add_item(operator)
@@ -151,7 +160,9 @@ func _rebuild_value_field(variable_id: String, value: Variant) -> void:
 		_value_field._binding = _binding
 		_value_field.initialize()
 		_value_field.value_committed.connect(_on_value_field_committed)
-		var initial_value: Variant = value if value != null else _default_value_for_type(variable_type)
+		var initial_value: Variant = (
+			value if value != null else _default_value_for_type(variable_type)
+		)
 		_value_field.set_value(initial_value)
 
 

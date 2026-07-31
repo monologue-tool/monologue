@@ -7,13 +7,7 @@ func initialize_properties() -> void:
 	# Text
 	define_property("text", "", "text", {}, "Text")
 	define_property("textarea", "", "textarea", {}, "Text")
-	define_property(
-		"translatable",
-		{"en": ""},
-		"translatable",
-		{},
-		"Text"
-	)
+	define_property("translatable", {"en": ""}, "translatable", {}, "Text")
 	define_property(
 		"translatable_multiline",
 		{"en": ""},
@@ -29,19 +23,17 @@ func initialize_properties() -> void:
 		"dynamic_dropdown",
 		"string",
 		"dropdown",
-		{
-			"required": true,
-			"options": ["bool", "string", "int", "float"]
-		},
+		{"required": true, "options": ["bool", "string", "int", "float"]},
 		"Values"
 	)
 	define_property(
-		"dynamic", 
-		"abc", 
+		"dynamic",
+		"abc",
 		"dynamic",
 		{
 			"case_property": "dynamic_dropdown",
-			"cases": {
+			"cases":
+			{
 				"bool": {"type": "bool", "default": false},
 				"string": {"type": "text", "default": "", "coerce": "string"},
 				"int": {"type": "int", "default": 0, "coerce": "int"},
@@ -55,25 +47,14 @@ func initialize_properties() -> void:
 	define_property("slider", 10.0, "slider", {}, "Values")
 	define_property("vector2", [0.0, 0.0], "vector2", {}, "Values")
 	define_property("bezier", [0.25, 0.10, 0.25, 1.0], "bezier", {}, "Values")
-	
 
 	# References
 	define_property("file", "", "file", {}, "References")
-	define_property(
-		"dropdown",
-		"",
-		"dropdown",
-		{"source": "characters"},
-		"References"
-	)
+	define_property("dropdown", "", "dropdown", {"source": "characters"}, "References")
 
 	# List
 	define_property(
-		"collection",
-		[],
-		"collection",
-		{PropertySettings.KEY_COLLECTION: "characters"},
-		"List"
+		"collection", [], "collection", {PropertySettings.KEY_COLLECTION: "characters"}, "List"
 	)
 	define_property(
 		"collection_dropdown",
@@ -82,29 +63,13 @@ func initialize_properties() -> void:
 		{PropertySettings.KEY_SOURCE: "self:collection"},
 		"List"
 	)
+	define_property("list", [], "list", {PropertySettings.KEY_ITEM_TYPE: "text"}, "List")
 	define_property(
-		"list",
-		[],
-		"list",
-		{PropertySettings.KEY_ITEM_TYPE: "text"},
-		"List"
+		"list_dropdown", "", "dropdown", {PropertySettings.KEY_SOURCE: "self:list"}, "List"
 	)
-	define_property(
-		"list_dropdown",
-		"",
-		"dropdown",
-		{PropertySettings.KEY_SOURCE: "self:list"},
-		"List"
-	)
-	
+
 	# Condition
-	define_property(
-		"condition",
-		{},
-		"condition",
-		{},
-		"Condition"
-	)
+	define_property("condition", {}, "condition", {}, "Condition")
 
 
 func get_type() -> String:

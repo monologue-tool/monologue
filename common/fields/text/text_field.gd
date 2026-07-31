@@ -19,14 +19,15 @@ func _ready() -> void:
 
 func _on_initialize() -> void:
 	_is_multiline = settings.get(PropertySettings.KEY_MULTILINE, false)
-	var placeholder: String = settings.get(PropertySettings.KEY_PLACEHOLDER, 
-		settings.get("placeholder", ""))
+	var placeholder: String = settings.get(
+		PropertySettings.KEY_PLACEHOLDER, settings.get("placeholder", "")
+	)
 
 	text_edit.placeholder_text = placeholder
 	line_edit.placeholder_text = placeholder
 	var rows: int = settings.get(PropertySettings.KEY_ROWS, settings.get("rows", 4))
 	_apply_textarea_height.call_deferred(text_edit, rows)
-	
+
 	if not _is_preview:
 		line_edit.visible = not _is_multiline
 		text_edit.visible = _is_multiline
@@ -36,11 +37,11 @@ func _apply_textarea_height(te: TextEdit, rows: int) -> void:
 	var reset_te: bool = not te.text
 	if reset_te:
 		te.text = " "
-		
+
 	var sb: StyleBox = te.get_theme_stylebox("normal")
 	var padding: float = (sb.content_margin_bottom + sb.content_margin_top) if sb else 8.0
 	te.custom_minimum_size.y = te.get_line_height() * rows + padding
-	
+
 	if reset_te:
 		te.text = ""
 
@@ -48,7 +49,7 @@ func _apply_textarea_height(te: TextEdit, rows: int) -> void:
 func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
-		
+
 	text_edit.text = str(value)
 	line_edit.text = str(value)
 
@@ -66,7 +67,7 @@ func set_preview() -> void:
 	_is_preview = true
 	if not is_node_ready():
 		await ready
-	
+
 	line_edit.show()
 	text_edit.hide()
 	line_edit.theme_type_variation = "LineEditListItemPreview"

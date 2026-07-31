@@ -80,6 +80,7 @@ func _on_storyline_command_executed() -> void:
 	await _populate_options()
 	await _set_value_to_existing()
 
+
 func _populate_options() -> void:
 	option_button.clear()
 
@@ -147,15 +148,15 @@ func _get_options_from_source(source: String) -> Array:
 	if not source.begins_with("self:"):
 		var values: Array = ProjectManager.current_project.get_collection_value(source)
 		return extract_list_values(values)
-	
+
 	# TODO: Better source path
 	var source_owner: InspectableObject
 	if not _binding or not _binding.owner:
 		return []
-		
+
 	source_owner = _binding.owner
 	source = source.trim_prefix("self:")
-	
+
 	if not source_owner:
 		return []
 
@@ -174,7 +175,7 @@ func _get_options_from_source(source: String) -> Array:
 
 func extract_list_values(values: Array) -> Array:
 	var result: Array = []
-	
+
 	for item: Variant in values:
 		if item is Dictionary:
 			var item_dict: Dictionary = item
@@ -185,7 +186,7 @@ func extract_list_values(values: Array) -> Array:
 			result.append(entry_name)
 		else:
 			result.append(str(item))
-	
+
 	return result
 
 
@@ -221,7 +222,7 @@ func _exit_tree() -> void:
 	if storyline:
 		if storyline.property_changed.is_connected(_on_source_changed):
 			storyline.property_changed.disconnect(_on_source_changed)
-		
+
 		if _is_listening and storyline.history:
 			if storyline.history.command_executed.is_connected(_on_storyline_command_executed):
 				storyline.history.command_executed.disconnect(_on_storyline_command_executed)

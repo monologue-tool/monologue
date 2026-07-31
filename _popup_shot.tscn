@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://coxj84awfwerq"]
+
+[sub_resource type="GDScript" id="GDScript_45ep1"]
+script/source = "extends Node
+
+const OUT := \"user://popup_menu_icons.png\"
+const ZOOM := \"user://popup_menu_icons_zoom.png\"
+
+var _frames: int = 0
+var _menu: PopupMenu
+
+
+func _ready() -> void:
+	var theme: Theme = ThemeLayout.generate_theme()
+
+	var root: Window = get_tree().root
+	root.gui_embed_subwindows = true
+	root.size = Vector2i(620, 340)
+
+	var bg: ColorRect = ColorRect.new()
+	bg.color = ThemeLayout.bg_primary_color.darkened(0.4)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(bg)
+
+	var menu: PopupMenu = PopupMenu.new()
+	menu.theme = theme
+	add_child(menu)
+
+	menu.add_check_item(\"checked + enabled\")
+	menu.set_item_checked(0, true)
+
+	menu.add_check_item(\"checked + DISABLED\")
+	menu.set_item_checked(1, true)
+	menu.set_item_disabled(1, true)
+
+	menu.add_check_item(\"unchecked + enabled\")
+	menu.add_check_item(\"unchecked + DISABLED\")
+	menu.set_item_disabled(3, true)
+
+	menu.add_separator()
+
+	menu.add_radio_check_item(\"radio checked + enabled\")
+	menu.set_item_checked(5, true)
+	menu.add_radio_check_item(\"radio checked + DISABLED\")
+	menu.set_item_checked(6, true)
+	menu.set_item_disabled(6, true)
+	menu.add_radio_check_item(\"radio unchecked + enabled\")
+	menu.add_radio_check_item(\"radio unchecked + DISABLED\")
+	menu.set_item_disabled(8, true)
+
+	menu.add_separator()
+	var submenu: PopupMenu = PopupMenu.new()
+	submenu.name = \"Sub\"
+	submenu.add_item(\"nested\")
+	menu.add_child(submenu)
+	menu.add_submenu_item(\"submenu arrow\", \"Sub\")
+
+	_menu = menu
+	DisplayServer.window_move_to_foreground()
+
+
+func _process(_delta: float) -> void:
+	_frames += 1
+	# The embedded popup hides itself whenever the host window loses focus, so keep
+	# re-opening it and grab the frame immediately after.
+	if not _menu.visible:
+		_menu.popup(Rect2i(Vector2i(20, 20), Vector2i.ZERO))
+	if _frames < 10:
+		return
+	print(\"menu visible=\", _menu.visible, \" size=\", _menu.size)
+	var img: Image = get_viewport().get_texture().get_image()
+	img.save_png(OUT)
+
+	# 8x zoom on the icon gutter so the individual glyphs are legible.
+	var strip: Image = img.get_region(Rect2i(36, 24, 20, 168))
+	strip.resize(strip.get_width() * 8, strip.get_height() * 8, Image.INTERPOLATE_NEAREST)
+	strip.save_png(ZOOM)
+
+	print(\"SAVED: \", ProjectSettings.globalize_path(OUT))
+	print(\"SAVED: \", ProjectSettings.globalize_path(ZOOM))
+	get_tree().quit()
+"
+
+[node name="PopupShot" type="Node" unique_id=1448783043]
+script = SubResource("GDScript_45ep1")

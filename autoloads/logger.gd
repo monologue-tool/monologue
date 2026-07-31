@@ -3,7 +3,7 @@ extends Node
 
 signal log_message(message: String, bbcode_message: String)
 
-enum Levels {DEBUG, INFO, WARN, ERROR, FATAL}
+enum Levels { DEBUG, INFO, WARN, ERROR, FATAL }
 
 var log_level: Levels = Levels.DEBUG
 var _label := RichTextLabel.new()
@@ -13,23 +13,27 @@ func _ready() -> void:
 	_label.bbcode_enabled = true
 
 
-func _log(level: Levels, levelname: String, colorname: String, args: Array, bold: bool = false) -> void:
+func _log(
+	level: Levels, levelname: String, colorname: String, args: Array, bold: bool = false
+) -> void:
 	if level < log_level:
 		return
-	
+
 	var message: String = " ".join(args)
 	var bbcode_args: Array = []
 	bbcode_args.append("[color=%s]" % colorname)
 	bbcode_args.append("[b]%-5s\t [/b]" % levelname)
-	if bold: bbcode_args.append("[b]")
+	if bold:
+		bbcode_args.append("[b]")
 	bbcode_args.append(message)
-	if bold: bbcode_args.append("[/b]")
+	if bold:
+		bbcode_args.append("[/b]")
 	bbcode_args.append("[/color]")
-	
+
 	print_rich.callv(bbcode_args)
 	var bbcode: String = "".join(bbcode_args)
 	var raw_log: String = _bbcode_to_plain(bbcode)
-	
+
 	log_message.emit(raw_log, bbcode)
 
 
@@ -56,13 +60,13 @@ func error(...args: Array) -> void:
 func exception(...args: Array) -> void:
 	var stack: Array = get_stack()
 	stack.pop_front()
-	
+
 	var call_idx: int = 0
 	for _call: Dictionary in stack:
 		var source: String = "%s:%s" % [_call.get("source", "<unknown>"), _call.get("line", -1)]
 		args.append("[indent]%s - %s[/indent]" % [call_idx, source])
 		call_idx += 1
-	
+
 	error.callv(args)
 
 

@@ -13,7 +13,7 @@ func initialize_properties() -> void:
 			"validation": {"min_length": 1},
 		},
 	)
-	define_property("protected", false, "bool", { "visible_in_inspector": false }, "Extra")
+	define_property("protected", false, "bool", {"visible_in_inspector": false}, "Extra")
 
 
 func get_type() -> String:

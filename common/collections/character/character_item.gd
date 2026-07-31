@@ -5,7 +5,7 @@ func initialize_properties() -> void:
 	var default_portrait: CollectionItem = CollectionBucket.create_item("portraits", history)
 	default_portrait.set_property_value("name", "default")
 	default_portrait.set_property_value("protected", true)
-	
+
 	define_property(
 		"name",
 		NameGenerator.generate,
@@ -19,22 +19,16 @@ func initialize_properties() -> void:
 	)
 	define_property("display_name", "", "text")
 	define_property("nicknames", "", "text")
-	define_property(
-		"default_portrait",
-		"",
-		"dropdown",
-		{ "source": "self:portraits" },
-		"Portraits"
-	)
+	define_property("default_portrait", "", "dropdown", {"source": "self:portraits"}, "Portraits")
 	define_property(
 		"portraits",
 		[default_portrait._to_dict()],
 		"collection",
-		{ "collection": "portraits" },
+		{"collection": "portraits"},
 		"Portraits"
 	)
 	define_property("description", "", "textarea", {}, "Extra")
-	define_property("protected", false, "bool", { "visible_in_inspector": false }, "Extra")
+	define_property("protected", false, "bool", {"visible_in_inspector": false}, "Extra")
 
 
 func get_type() -> String:

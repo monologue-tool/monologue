@@ -1,0 +1,33 @@
+# gdtoolkit 4.x linter configuration.
+# Regenerate the full key list with `gdlint --dump-default-config` after a gdtoolkit
+# upgrade, then re-apply the overrides below. Keys not listed keep their default value.
+#
+# Run locally:  pip install "gdtoolkit==4.*"  &&  gdlint <files>
+# CI runs the same command over every tracked .gd file outside addons/.
+#
+# Per-file escape hatches, when a rule is a genuine false positive:
+#   # gdlint: disable=rule-a,rule-b     at the top of the file
+#   # gdlint:ignore = rule-a            on the line before the reported line
+
+# Keep in sync with max_line_length in .editorconfig and with gdformat's default.
+max-line-length: 100
+
+max-file-lines: 1000
+
+# Default is 6. Raised for guard-clause ladders such as App._get_auto_display_scale(),
+# which is a direct port of Godot's own EditorSettings::get_auto_display_scale() and
+# reads far better as a flat sequence of early returns than as nested branches.
+max-returns: 10
+
+# TEMPORARILY DISABLED -- re-enable once the core rework has settled.
+# 68 files declare members in an order this rule rejects. Reordering them now would
+# collide with the registry / model / validation rework that rewrites most of them
+# anyway, so this is switched back on in the final cleanup stage instead.
+disable:
+  - class-definitions-order
+
+excluded_directories: !!set
+  .git: null
+  .godot: null
+  addons: null
+  reports: null

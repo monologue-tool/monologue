@@ -101,7 +101,7 @@ func _rebuild_ui() -> void:
 		row.item_index = index
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		container.add_child(row)
-		
+
 		var drag_handle: ListItemDragHandle = ListItemDragHandle.new()
 		drag_handle.custom_minimum_size = Vector2(24, 24)
 		drag_handle.theme_type_variation = "ListItemIconButton"
@@ -135,16 +135,26 @@ func _create_item_property(value: Variant = null) -> Property:
 		default_value = descriptor.default_value
 	if default_value is Dictionary or default_value is Array:
 		default_value = default_value.duplicate(true)
-	var prop: Property = Property.new("item", default_value, _item_type, {
-		"visible_in_inspector": false,
-		"visible_in_graph": false,
-		"expand": true,
-	})
+	var prop: Property = (
+		Property
+		. new(
+			"item",
+			default_value,
+			_item_type,
+			{
+				"visible_in_inspector": false,
+				"visible_in_graph": false,
+				"expand": true,
+			}
+		)
+	)
 	prop.value_changed.connect(_on_item_property_changed.bind(prop))
 	return prop
 
 
-func _on_item_property_changed(_old_value: Variant, _new_value: Variant, _item_property: Property) -> void:
+func _on_item_property_changed(
+	_old_value: Variant, _new_value: Variant, _item_property: Property
+) -> void:
 	if _is_updating:
 		return
 	emit_value_committed(get_value())
@@ -152,6 +162,7 @@ func _on_item_property_changed(_old_value: Variant, _new_value: Variant, _item_p
 
 func _is_valid_index(index: int) -> bool:
 	return index >= 0 and index < _item_properties.size()
+
 
 func _populate_external_items() -> void:
 	# TODO

@@ -10,11 +10,13 @@ class_name AdvancedHBoxContainer extends Container
 		force_ratio = v
 		queue_sort()
 
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SORT_CHILDREN:
 		_sort()
 	elif what == NOTIFICATION_THEME_CHANGED:
 		queue_sort()
+
 
 func _sort() -> void:
 	var children: Array[Control] = []
@@ -73,13 +75,16 @@ func _sort() -> void:
 
 		for i in children.size():
 			if not locked[i]:
-				final_sizes[i] = ratios[i] / remaining_ratio * remaining_space if remaining_ratio > 0.0 else 0.0
+				final_sizes[i] = (
+					ratios[i] / remaining_ratio * remaining_space if remaining_ratio > 0.0 else 0.0
+				)
 
 	var x_offset: float = 0.0
 	for i in children.size():
 		children[i].position = Vector2(x_offset, 0.0)
 		children[i].set_size.call_deferred(Vector2(final_sizes[i], size.y))
 		x_offset += final_sizes[i] + sep
+
 
 func _get_minimum_size() -> Vector2:
 	var children: Array[Control] = []

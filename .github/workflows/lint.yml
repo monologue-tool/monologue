@@ -1,0 +1,67 @@
+name: lint
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+
+env:
+  GODOT_VERSION: '4.7'
+
+jobs:
+  parse-check:
+    name: "Godot parse check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/godotengine/godot-builds/releases/download"
+          ZIP="Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -fsSL -o godot.zip "${BASE}/${GODOT_VERSION}-stable/${ZIP}"
+          unzip -q godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          chmod +x godot
+
+      - name: Import project and fail on script errors
+        run: |
+          set -o pipefail
+          # --import parses every script; a first run can exit non-zero while still
+          # producing a usable log, so the grep below is what decides pass/fail.
+          ./godot --headless --import 2>&1 | tee import.log || true
+          if grep -qE "SCRIPT ERROR|Parse Error|Compile Error" import.log; then
+            echo "::error::Script errors detected during import"
+            grep -nE "SCRIPT ERROR|Parse Error|Compile Error" import.log
+            exit 1
+          fi
+
+  gdtoolkit:
+    name: "gdformat + gdlint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - run: pip install "gdtoolkit==4.*"
+
+      - name: Collect project scripts
+        id: files
+        run: |
+          # addons/ is vendored; name_generator.gd is generated data, not code.
+          echo "list=$(git ls-files '*.gd' \
+            | grep -v '^addons/' \
+            | grep -v 'name_generator' \
+            | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Check formatting
+        run: gdformat --check ${{ steps.files.outputs.list }}
+
+      - name: Lint
+        run: gdlint ${{ steps.files.outputs.list }}

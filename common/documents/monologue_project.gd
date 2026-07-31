@@ -1,12 +1,14 @@
 class_name MonologueProject extends Resource
 
 const FILE_FORMAT: String = "mnlp"
-const FORMAT_FILTER: Array = ["*.mnlp;Monologue Project", "*.%s;Monologue File" % InspectableDocument.FILE_FORMAT]
+const FORMAT_FILTER: Array = [
+	"*.mnlp;Monologue Project", "*.%s;Monologue File" % InspectableDocument.FILE_FORMAT
+]
 
 signal ready
 signal content_changed
 signal undo_redo_changed
-signal _project_path_changed
+signal project_path_changed
 
 var manifest: ManifestDocument
 var settings: ProjectSettingsDocument
@@ -23,7 +25,7 @@ var active_language_code: String = "en"
 
 func _init() -> void:
 	_init_documents.call_deferred()
-	
+
 	command_manager.command_executed.connect(_on_command_executed)
 	command_manager.undone.connect(_on_undo)
 	command_manager.redone.connect(_on_redo)
@@ -34,7 +36,7 @@ func _init_documents() -> void:
 	settings = ProjectSettingsDocument.new(command_manager)
 	storylines.append(StorylineDocument.new("main", command_manager))
 	_init_collections()
-	
+
 	ready.emit()
 
 
@@ -59,30 +61,34 @@ func get_project_structure() -> Dictionary[String, Variant]:
 	var structure: Dictionary[String, Variant] = {}
 	structure["manifest.json"] = manifest
 	structure["settings.json"] = settings
-	
+
 	var collections_map: Dictionary = {}
 	for collection: CollectionDocument in collections:
 		collections_map["%s.json" % collection.name] = collection
 	structure["collections"] = collections_map
-	
+
 	var storylines_map: Dictionary = {}
 	for storyline: StorylineDocument in storylines:
 		storylines_map["%s.json" % storyline.name] = storyline
 	structure["storylines"] = storylines_map
-	
+
 	return structure
 
 
 func _init_collections() -> void:
-	var default_narrator: CollectionItem = CollectionBucket.create_item("characters", command_manager)
+	var default_narrator: CollectionItem = CollectionBucket.create_item(
+		"characters", command_manager
+	)
 	default_narrator.set_property_value("name", "Narrator")
 	default_narrator.set_property_value("protected", true)
-	
-	var default_language: CollectionItem = CollectionBucket.create_item("languages", command_manager)
+
+	var default_language: CollectionItem = CollectionBucket.create_item(
+		"languages", command_manager
+	)
 	default_language.set_property_value("name", "English")
 	default_language.set_property_value("code", "en")
 	default_language.set_property_value("protected", true)
-	
+
 	var default_beziers: Dictionary = {
 		"Ease": [0.25, 0.10, 0.25, 1.0],
 		"Linear": [0.0, 0.0, 1.0, 1.0],
@@ -96,12 +102,16 @@ func _init_collections() -> void:
 		bezier_item.set_property_value("name", bezier_name)
 		bezier_item.set_property_value("bezier", default_beziers.get(bezier_name))
 		beziers_data.append(bezier_item._to_dict())
-	
-	collections.append(CollectionDocument.new("characters", [default_narrator._to_dict()], command_manager))
+
+	collections.append(
+		CollectionDocument.new("characters", [default_narrator._to_dict()], command_manager)
+	)
 	collections.append(CollectionDocument.new("variables", [], command_manager))
 	collections.append(CollectionDocument.new("items", [], command_manager))
 	collections.append(CollectionDocument.new("locations", [], command_manager))
-	collections.append(CollectionDocument.new("languages", [default_language._to_dict()], command_manager))
+	collections.append(
+		CollectionDocument.new("languages", [default_language._to_dict()], command_manager)
+	)
 	collections.append(CollectionDocument.new("beziers", beziers_data, command_manager))
 
 
@@ -116,7 +126,7 @@ func get_collection_value(collection_name: String) -> Array:
 	var collection: CollectionDocument = get_collection(collection_name)
 	if collection:
 		return collection.get_value()
-	
+
 	Log.error("Can't find collection '%s'" % collection_name)
 	return []
 
@@ -132,7 +142,7 @@ func delete_storyline(storyline: StorylineDocument) -> void:
 	if storylines.size() <= 1:
 		Log.warn("The storyline couldn't be removed, it's the only one left.")
 		return
-	
+
 	storylines.erase(storyline)
 	EventBus.storyline_deleted.emit()
 
@@ -142,11 +152,11 @@ func add_new_storyline() -> void:
 	var attempt: int = 1
 	var storyline_name: String = base_name
 	var existing_names: Array[String] = _get_all_document_names(storylines)
-	
+
 	while storyline_name in existing_names:
 		storyline_name = "%s_%d" % [base_name, attempt]
 		attempt += 1
-	
+
 	storylines.append(StorylineDocument.new(storyline_name, command_manager))
 
 
@@ -154,7 +164,7 @@ func is_valid_storyline_name(storyline_name: String) -> bool:
 	for doc_name: String in _get_all_document_names(storylines):
 		if doc_name == storyline_name:
 			return true
-	
+
 	return false
 
 
@@ -194,15 +204,15 @@ func save() -> void:
 			"",
 			[{"name": "Compact", "values": [], "default_value_index": 1}]
 		)
-		await _project_path_changed
-	
+		await project_path_changed
+
 	var writer: ZIPPacker = ZIPPacker.new()
 	writer.compression_level = 0
 	var err: Error = writer.open(project_path, ZIPPacker.APPEND_CREATE)
 	if err != OK:
 		Log.error(err)
 		return
-	
+
 	pack_document(writer, manifest, "manifest.json")
 	pack_document(writer, settings, "settings.json")
 	for collection: CollectionDocument in collections:
@@ -226,17 +236,17 @@ func pack_document(writer: ZIPPacker, document: InspectableDocument, path: Strin
 
 func _open_file_request_callback(path: String) -> void:
 	project_path = path
-	_project_path_changed.emit()
+	project_path_changed.emit()
 
 
 static func from_file_path(path: String) -> MonologueProject:
 	if not path.ends_with(".%s" % FILE_FORMAT) or not FileAccess.file_exists(path):
 		Log.error("Can't load project from an invalid path.")
 		return null
-	
+
 	var reader: ZIPReader = ZIPReader.new()
 	reader.open(path)
-	
+
 	var project: MonologueProject = await _from_path_core(reader, path)
 	project.compact = true
 	return project
@@ -246,9 +256,9 @@ static func from_dir_path(path: String) -> MonologueProject:
 	if not DirAccess.dir_exists_absolute(path):
 		Log.error("Can't load project from an invalid path.")
 		return null
-	
+
 	var reader: DirAccess = DirAccess.open(path)
-	
+
 	var project: MonologueProject = await _from_path_core(reader, path)
 	project.compact = false
 	return project
@@ -257,60 +267,66 @@ static func from_dir_path(path: String) -> MonologueProject:
 ## 'reader' can be either a 'ZIPReader' or a 'DirAccess'.
 static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
 	var files: PackedStringArray = reader.get_files()
-	
+
 	var project: MonologueProject = MonologueProject.new()
 	await project.ready
-	
+
 	project.project_path = path
 	project.name = path.get_file()
 	project.is_dirty = false
-	
+
 	if reader.file_exists("manifest.json"):
 		var manifest_data: Dictionary = JSON.parse_string(
 			reader.read_file("manifest.json").get_string_from_utf8()
 		)
 		project.manifest._from_dict(manifest_data)
-	
+
 	if reader.file_exists("settings.json"):  # FIX: settings n'était pas chargé
 		var settings_data: Dictionary = JSON.parse_string(
 			reader.read_file("settings.json").get_string_from_utf8()
 		)
 		project.settings._from_dict(settings_data)
-	
+
 	project.storylines.clear()
-	
+
 	for file: String in files:
 		var paths: Array = file.split("/") as Array
 		if paths.size() <= 1:
 			continue
-		
+
 		var file_name: String = paths.back().get_basename()
 		var extension: String = paths.back().get_extension()
 		if extension != "json":
 			Log.error("Attempt to load a non-JSON file: '%s'" % file)
 			continue
-		
+
 		var file_content: String = reader.read_file(file).get_string_from_utf8()
-		
+
 		match paths[0]:
 			"collections":
 				_load_collection_from_file(project, file_name, file_content)
 			"storylines":
 				_load_storyline_from_file(project, file_name, file_content)
-	
+
 	return project
 
 
-static func _load_collection_from_file(project: MonologueProject, collection_name: String, file_content: String) -> void:
+static func _load_collection_from_file(
+	project: MonologueProject, collection_name: String, file_content: String
+) -> void:
 	var collection: CollectionDocument = project.get_collection(collection_name)
 	if not collection:
 		Log.error("Can't find the collection '%s' inside the project." % collection_name)
 		return
-	
+
 	collection._from_dict(JSON.parse_string(file_content))
 
 
-static func _load_storyline_from_file(project: MonologueProject, storyline_name: String, file_content: String) -> void:
-	var storyline: StorylineDocument = StorylineDocument.new(storyline_name, project.command_manager)
+static func _load_storyline_from_file(
+	project: MonologueProject, storyline_name: String, file_content: String
+) -> void:
+	var storyline: StorylineDocument = StorylineDocument.new(
+		storyline_name, project.command_manager
+	)
 	storyline._from_dict(JSON.parse_string(file_content))
 	project.storylines.append(storyline)

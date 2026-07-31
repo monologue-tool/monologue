@@ -5,6 +5,7 @@ signal released
 
 var grabbed_position: Vector2 = Vector2.ZERO
 
+
 func _ready() -> void:
 	button_down.connect(_on_button_down)
 	button_up.connect(_on_button_up)

@@ -1,7 +1,7 @@
 class_name Property extends RefCounted
 
 signal value_changed(old_value: Variant, new_value: Variant)
-signal connection_changed()
+signal connection_changed
 
 var name: String = ""
 var value: Variant = 0
@@ -47,7 +47,7 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 	value = pvalue
 	if pvalue is Callable:
 		value = pvalue.call()
-	
+
 	type = ptype
 	descriptor = FieldBucket.get_descriptor(ptype)
 	_base_settings = DEFAULT_SETTINGS.duplicate(true)
@@ -61,15 +61,17 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 		_base_settings.erase("label")
 
 
-func bind_field(field: Field, target_owner: InspectableObject = null, deferred: bool = false) -> FieldBinding:
+func bind_field(
+	field: Field, target_owner: InspectableObject = null, deferred: bool = false
+) -> FieldBinding:
 	if deferred:
 		bind_field.call_deferred(field, target_owner, false)
 		return
-	
+
 	if not is_instance_valid(field) or not field.is_inside_tree():
 		Log.error("Failed to bind field.")
 		return null
-	
+
 	var binding: FieldBinding = FieldBucket.bind(self, field, target_owner)
 	if binding:
 		_bindings.append(binding)
@@ -155,18 +157,24 @@ func add_connection_to(node_id: String, property_name: String) -> void:
 
 func remove_connection_from(node_id: String, property_name: String) -> void:
 	var old_size: int = connected_from.size()
-	connected_from.assign(connected_from.filter(
-		func(c: Dictionary) -> bool: return not (c["node_id"] == node_id and c["property_name"] == property_name)
-	))
+	connected_from.assign(
+		connected_from.filter(
+			func(c: Dictionary) -> bool:
+				return not (c["node_id"] == node_id and c["property_name"] == property_name)
+				)
+	)
 	if connected_from.size() != old_size:
 		connection_changed.emit()
 
 
 func remove_connection_to(node_id: String, property_name: String) -> void:
 	var old_size: int = connected_to.size()
-	connected_to.assign(connected_to.filter(
-		func(c: Dictionary) -> bool: return not (c["node_id"] == node_id and c["property_name"] == property_name)
-	))
+	connected_to.assign(
+		connected_to.filter(
+			func(c: Dictionary) -> bool:
+				return not (c["node_id"] == node_id and c["property_name"] == property_name)
+				)
+	)
 	if connected_to.size() != old_size:
 		connection_changed.emit()
 
@@ -180,7 +188,9 @@ func clear_connections() -> void:
 
 
 func refresh_bindings() -> void:
-	_bindings = _bindings.filter(func(binding: FieldBinding) -> bool: return binding and binding.is_active())
+	_bindings = _bindings.filter(
+		func(binding: FieldBinding) -> bool: return binding and binding.is_active()
+	)
 	for binding: FieldBinding in _bindings:
 		binding.refresh()
 
@@ -210,7 +220,7 @@ func _to_dict() -> Variant:
 func _from_dict(raw: Dictionary) -> void:
 	if raw is not Dictionary:
 		return
-		
+
 	value = raw.get("value", value)
 	_overrides = raw.get("_editor_settings", _overrides)
 	if raw.get("from_node"):

@@ -71,11 +71,13 @@ func _sync_from_property() -> void:
 	if not field.is_inside_tree():
 		return
 	_is_syncing = true
-	var _sync_value: Variant = property.get_value()
-	if _sync_value == null and descriptor != null and descriptor.default_value != null:
-		var _dv: Variant = descriptor.default_value
-		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
-	field.set_value(_sync_value)
+	var sync_value: Variant = property.get_value()
+	if sync_value == null and descriptor != null and descriptor.default_value != null:
+		var fallback: Variant = descriptor.default_value
+		sync_value = (
+			fallback.duplicate(true) if fallback is Dictionary or fallback is Array else fallback
+		)
+	field.set_value(sync_value)
 	field.clear_error()
 	_is_syncing = false
 
@@ -94,7 +96,9 @@ func _update_editable_state() -> void:
 func _on_field_value_changed(value: Variant) -> void:
 	if _is_syncing or _is_released or value == property.get_value():
 		return
-	if not is_instance_valid(field) or not field.is_inside_tree(): # FIXME: changing the type of a variable and next his value, crashes
+	# FIXME: changing a variable's type and then its value crashes here. The binding
+	# survives the DynamicField swapping its inner field, so `field` is stale.
+	if not is_instance_valid(field) or not field.is_inside_tree():
 		return
 	_process_field_value(value, false)
 
@@ -126,7 +130,7 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 		else:
 			field.display_error(validation_result.message)
 		return
-	
+
 	var settings_result: FieldValidationResult = _validate_property_settings(value)
 	if not settings_result.is_valid:
 		if is_commit:
@@ -136,11 +140,11 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 		return
 	field.clear_error()
 	var formatted_value: Variant = descriptor.format(value)
-	
+
 	if not is_commit:
 		return
-	
-	# If we update through owner, it triggers an Undo/Redo command and emits property value_changed, 
+
+	# If we update through owner, it triggers an Undo/Redo command and emits property value_changed,
 	# which in turn will automatically trigger _sync_from_property().
 	# However, we'll manually call it below if we just set the property directly.
 	if owner:
@@ -156,12 +160,9 @@ func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> voi
 	if not is_instance_valid(field) or not field.is_node_ready():
 		return
 	_is_syncing = true
-	var _sync_value: Variant = property.get_value()
-	if _sync_value == null and descriptor != null and descriptor.default_value != null:
-		var _dv: Variant = descriptor.default_value
-		_sync_value = _dv.duplicate(true) if _dv is Dictionary or _dv is Array else _dv
-	# Disabled to prevent useless ui rebuild.
-	# field.set_value(_sync_value)
+	# Disabled to prevent useless ui rebuild. Re-enabled in the validation rework,
+	# once commits no longer round-trip through _sync_from_property().
+	# field.set_value(property.get_value())
 	field.clear_error()
 	_is_syncing = false
 
@@ -179,11 +180,13 @@ func _validate_property_settings(value: Variant) -> FieldValidationResult:
 
 	# Unique check
 	if property.get_settings_value(PropertySettings.KEY_UNIQUE, false) and is_instance_valid(owner):
-		var parent_obj: InspectableObject = owner.get_parent_object() if owner.has_method("get_parent_object") else null
+		var parent_obj: InspectableObject = (
+			owner.get_parent_object() if owner.has_method("get_parent_object") else null
+		)
 		if parent_obj:
 			var parent_prop: String = owner.get_parent_property_name()
 			var siblings: Array = parent_obj.get_property_children(parent_prop)
-			
+
 			for sibling: InspectableObject in siblings:
 				if sibling == owner:
 					continue
@@ -201,16 +204,12 @@ func _validate_property_settings(value: Variant) -> FieldValidationResult:
 	if rules.has("min_length"):
 		var min_len: int = int(rules["min_length"])
 		if str_value.length() < min_len:
-			return FieldValidationResult.failure(
-				"Must be at least %d character(s)." % min_len
-			)
+			return FieldValidationResult.failure("Must be at least %d character(s)." % min_len)
 
 	if rules.has("max_length"):
 		var max_len: int = int(rules["max_length"])
 		if str_value.length() > max_len:
-			return FieldValidationResult.failure(
-				"Must be at most %d character(s)." % max_len
-			)
+			return FieldValidationResult.failure("Must be at most %d character(s)." % max_len)
 
 	if rules.has("min") and value != null:
 		if str(value).is_valid_float() or value is int or value is float:

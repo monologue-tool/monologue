@@ -153,7 +153,9 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	if prop.type == "collection":
 		var collection_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
 		if not collection_name.is_empty():
-			var field_descriptor: FieldDescriptor = FieldBucket.get_field_descriptor(collection_name)
+			var field_descriptor: FieldDescriptor = FieldBucket.get_field_descriptor(
+				collection_name
+			)
 			if field_descriptor:
 				row_type = collection_name
 	var row: GraphNodeRow = GraphNodeRow.new(label, row_type, enable_left, enable_right)

@@ -6,7 +6,7 @@ class_name Console extends PanelContainer
 func _ready() -> void:
 	EventBus.show_console.connect(_on_event_show_console)
 	Log.log_message.connect(_on_log_message)
-	
+
 	visible = ConfigManager.get_config("show_console")
 
 

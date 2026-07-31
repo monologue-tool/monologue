@@ -12,7 +12,8 @@ func get_metadata() -> Dictionary:
 		"color": Color("af85fdff"),
 		"default_value": "",
 		"compatible_types": ["text"],
-		"default_settings": {
+		"default_settings":
+		{
 			PropertySettings.KEY_MULTILINE: true,
 			PropertySettings.KEY_ROWS: 3,
 		}

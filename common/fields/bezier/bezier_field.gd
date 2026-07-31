@@ -38,12 +38,7 @@ func set_value(value: Variant) -> void:
 
 
 func get_value() -> Variant:
-	return [
-		spin_box_x1.value,
-		spin_box_y1.value,
-		spin_box_x2.value,
-		spin_box_y2.value
-	]
+	return [spin_box_x1.value, spin_box_y1.value, spin_box_x2.value, spin_box_y2.value]
 
 
 func set_editable(is_editable: bool) -> void:
@@ -60,20 +55,21 @@ func prefers_vertical_layout(_settings: Dictionary) -> bool:
 func _on_spin_box_value_changed(_value: float) -> void:
 	if _is_updating:
 		return
-	
+
 	_update_ui()
 	emit_value_committed(get_value())
 
+
 func _update_values() -> void:
 	var canvas_size: float = background_panel.size.x
-	cp1.position.x = clamp(cp1.position.x, -cp1.size.x/2, canvas_size - cp1.size.x/2)
-	cp2.position.x = clamp(cp2.position.x, -cp2.size.x/2, canvas_size - cp2.size.x/2)
-	
-	var cp1_pos: Vector2 = cp1.position + cp1.size/2
-	var cp2_pos: Vector2 = cp2.position + cp2.size/2
+	cp1.position.x = clamp(cp1.position.x, -cp1.size.x / 2, canvas_size - cp1.size.x / 2)
+	cp2.position.x = clamp(cp2.position.x, -cp2.size.x / 2, canvas_size - cp2.size.x / 2)
+
+	var cp1_pos: Vector2 = cp1.position + cp1.size / 2
+	var cp2_pos: Vector2 = cp2.position + cp2.size / 2
 	var p1: Vector2 = (Vector2(cp1_pos.x, -cp1_pos.y) / canvas_size) + Vector2(0.0, 1.0)
 	var p2: Vector2 = (Vector2(cp2_pos.x, -cp2_pos.y) / canvas_size) + Vector2(0.0, 1.0)
-	
+
 	spin_box_x1.value = p1.x
 	spin_box_y1.value = p1.y
 	spin_box_x2.value = p2.x
@@ -101,12 +97,14 @@ func _update_ui() -> void:
 func _on_item_rect_changed() -> void:
 	_update_ui()
 
+
 func _on_cp_moved() -> void:
 	_is_moving_cp = true
 	_is_updating = true
 	_update_values()
 	_update_ui()
 	_is_updating = false
+
 
 func _on_cp_up() -> void:
 	emit_value_committed(get_value())

@@ -3,12 +3,12 @@ class_name MonologueWindow extends Window
 
 func _ready() -> void:
 	EventBus.window_out.connect(_on_window_out)
-	
+
 	get_parent().connect("resized", _on_resized)
 	update_size.call_deferred()
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
-	
+
 	App._update_window(get_window(), false)
 
 

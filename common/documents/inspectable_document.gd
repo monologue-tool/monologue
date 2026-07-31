@@ -14,7 +14,7 @@ func _init(command_manager: CommandManager) -> void:
 	command_manager.command_executed.connect(_on_command_executed)
 	command_manager.undone.connect(_on_undo)
 	command_manager.redone.connect(_on_redo)
-	
+
 	super._init(command_manager)
 
 

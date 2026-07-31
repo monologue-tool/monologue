@@ -18,7 +18,7 @@ func _ready() -> void:
 	EventBus.request_object_inspection.connect(inspect)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
 	EventBus.show_inspector.connect(_on_event_show_inspector)
-	
+
 	ProjectManager.project_loaded.connect(_on_project_loaded)
 	back_button.pressed.connect(_on_back_button_pressed)
 	visible = ConfigManager.get_config("show_inspector")
@@ -45,25 +45,25 @@ func inspect(object: InspectableObject, from_history: bool = false) -> void:
 	if object and old_root and old_root != object:
 		if not from_history:
 			history.append(old_root)
-		
+
 		var old_node: InspectableNode = old_root as InspectableNode
 		if old_node and is_instance_valid(old_node.graph_view):
 			old_node.graph_view.selected = false
-		
+
 	back_button.disabled = history.is_empty()
 	current_object = object
 	if not object or object is not InspectableObject:
 		hide()
 		Log.warn("Inspector hidden due to invalid object")
 		return
-	
+
 	if not ConfigManager.get_config("show_inspector"):
 		hide()
 		return
-	
+
 	show()
 	Log.info("Inspect object", object.get_property_value("id") if object else "<null>")
-	
+
 	rebuild()
 
 
@@ -71,14 +71,14 @@ func rebuild() -> void:
 	var inspected: InspectableObject = current_object
 	run_button.visible = current_object is InspectableNode
 	_fields.clear()
-	await get_tree().process_frame # TODO: Bad practice
+	await get_tree().process_frame  # TODO: Bad practice
 
 	for field: Control in field_container.get_children():
 		field.queue_free()
 
 	for child: Control in header_container.get_children():
 		child.queue_free()
-	
+
 	var separator: HSeparator = HSeparator.new()
 	separator.theme_type_variation = "UltraWideHSeparator"
 	field_container.add_child(separator)
@@ -92,7 +92,7 @@ func rebuild() -> void:
 	else:
 		var properties: Array[Property] = inspected.get_properties()
 		var categories: Dictionary = _group_by_category(properties)
-		
+
 		for category_name: String in categories.keys():
 			var props: Array = categories[category_name]
 
@@ -100,9 +100,9 @@ func rebuild() -> void:
 				var special_category: String = category_name.trim_prefix("Special:")
 				_handle_special_category_section(special_category, props)
 				continue
-			
+
 			_create_category_section(category_name, props)
-	
+
 	_pending_expand_category = ""
 
 
@@ -130,9 +130,15 @@ func _restore_focus_to_property(property_name: String) -> void:
 
 
 func _find_focusable_fields(node: Node, fields: Array) -> void:
-	if node is LineEdit or node is TextEdit or node is OptionButton \
-			or node is CheckBox or node is SpinBox or node is ColorPickerButton \
-			or (node is Button and not node is TextureButton):
+	if (
+		node is LineEdit
+		or node is TextEdit
+		or node is OptionButton
+		or node is CheckBox
+		or node is SpinBox
+		or node is ColorPickerButton
+		or (node is Button and not node is TextureButton)
+	):
 		fields.append(node)
 	for child: Node in node.get_children():
 		_find_focusable_fields(child, fields)
@@ -156,18 +162,20 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 	return groups
 
 
-func _create_category_section(category_name: String, properties: Array) -> InspectorCategoryContainer:
+func _create_category_section(
+	category_name: String, properties: Array
+) -> InspectorCategoryContainer:
 	# If the section only contains list properties.
-	var is_ghost_section: bool = properties.filter(
-		func(p: Property) -> bool: 
-			return _is_list(p)
-	).size() == properties.size() and properties.size() != 0
-	
+	var is_ghost_section: bool = (
+		properties.filter(func(p: Property) -> bool: return _is_list(p)).size() == properties.size()
+		and properties.size() != 0
+	)
+
 	var separator: HSeparator = HSeparator.new()
 	separator.theme_type_variation = "UltraWideHSeparator"
 	var container: InspectorCategoryContainer = inspector_category_container.instantiate()
 	container.title = category_name
-	
+
 	if not is_ghost_section:
 		field_container.add_child(container)
 		field_container.add_child(separator)
@@ -176,7 +184,7 @@ func _create_category_section(category_name: String, properties: Array) -> Inspe
 		var property_editor: Control = _create_property_editor(property)
 		if property_editor:
 			container.add_control(property_editor)
-	
+
 	return container
 
 
@@ -196,7 +204,9 @@ func _handle_special_category_section(category_name: String, properties: Array) 
 		container.move_child(property_editor, 0)
 
 
-func _create_property_editor(property: Property, flat: bool = false, hide_left: bool = false) -> Control:
+func _create_property_editor(
+	property: Property, flat: bool = false, hide_left: bool = false
+) -> Control:
 	var is_list: bool = _is_list(property)
 	var is_editable: bool = property.get_settings_value(PropertySettings.KEY_EDITABLE, true)
 	var is_read_only: bool = property.get_settings_value(PropertySettings.KEY_READ_ONLY, false)
@@ -242,9 +252,13 @@ func _create_property_editor(property: Property, flat: bool = false, hide_left: 
 			p_vbox.add_child(p_label_row)
 
 			var p_expose_button: TextureButton = expose_button.instantiate()
-			p_expose_button.disabled = not current_object is InspectableNode \
+			p_expose_button.disabled = (
+				not current_object is InspectableNode
 				or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
-			p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+			)
+			p_expose_button.button_pressed = property.get_settings_value(
+				PropertySettings.KEY_EXPOSED, false
+			)
 			p_expose_button.toggled.connect(
 				_on_property_expose_state_changed.bind(current_object, property.name)
 			)
@@ -275,9 +289,13 @@ func _create_property_editor(property: Property, flat: bool = false, hide_left: 
 			p_left_main_container.add_child(p_left_container)
 
 			var p_expose_button: TextureButton = expose_button.instantiate()
-			p_expose_button.disabled = not current_object is InspectableNode \
+			p_expose_button.disabled = (
+				not current_object is InspectableNode
 				or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
-			p_expose_button.button_pressed = property.get_settings_value(PropertySettings.KEY_EXPOSED, false)
+			)
+			p_expose_button.button_pressed = property.get_settings_value(
+				PropertySettings.KEY_EXPOSED, false
+			)
 			p_expose_button.toggled.connect(
 				_on_property_expose_state_changed.bind(current_object, property.name)
 			)
@@ -304,7 +322,9 @@ func _create_property_editor(property: Property, flat: bool = false, hide_left: 
 	_fields.append(p_field)
 
 	if is_list:
-		var list_section: InspectorCategoryContainer = _create_category_section(property.get_display_name(), [])
+		var list_section: InspectorCategoryContainer = _create_category_section(
+			property.get_display_name(), []
+		)
 		list_section.add_control.call_deferred(p_container)
 
 	property.bind_field.call_deferred(p_field, current_object)
@@ -319,7 +339,9 @@ func _cache_category_states(category_states: Dictionary) -> void:
 			category_states[fc.title] = fc.folded
 
 
-func _apply_category_state(container: FoldableContainer, category_name: String, category_states: Dictionary) -> void:
+func _apply_category_state(
+	container: FoldableContainer, category_name: String, category_states: Dictionary
+) -> void:
 	var stored_state: Variant = category_states.get(category_name)
 	if stored_state is bool:
 		container.folded = stored_state
@@ -356,7 +378,9 @@ func _on_inspect_connected_node(property: Property) -> void:
 		return
 
 	# Get the connected node from the connection manager
-	var connected_node: InspectableNode = graph_edit.connection_manager.get_connected_node(node, property.name)
+	var connected_node: InspectableNode = graph_edit.connection_manager.get_connected_node(
+		node, property.name
+	)
 
 	if connected_node and connected_node.graph_view:
 		EventBus.request_node_selection.emit(connected_node, connected_node.storyline_id)
@@ -378,7 +402,7 @@ func _on_external_property_changed(
 
 	if not property.get_settings_value("visible_in_inspector", true):
 		return
-	
+
 	if current_object in obj.get_property_children(property_name):
 		return
 
@@ -394,5 +418,5 @@ func _on_external_property_changed(
 func _on_back_button_pressed() -> void:
 	if history.is_empty():
 		return
-	
+
 	inspect(history.pop_back(), true)

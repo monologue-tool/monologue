@@ -14,9 +14,24 @@ signal select_new_node
 signal inspector_property_changed(object: InspectableObject, property_name: String, is_undo: bool)
 signal storyline_deleted
 
-signal save_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String, options: Array[Dictionary])
-signal open_file_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String, options: Array[Dictionary])
-signal open_files_request(callable: Callable, filter_list: PackedStringArray, root_subdir: String, options: Array[Dictionary])
+signal save_file_request(
+	callable: Callable,
+	filter_list: PackedStringArray,
+	root_subdir: String,
+	options: Array[Dictionary]
+)
+signal open_file_request(
+	callable: Callable,
+	filter_list: PackedStringArray,
+	root_subdir: String,
+	options: Array[Dictionary]
+)
+signal open_files_request(
+	callable: Callable,
+	filter_list: PackedStringArray,
+	root_subdir: String,
+	options: Array[Dictionary]
+)
 signal open_dir_request(callable: Callable, root_subdir: String, options: Array[Dictionary])
 
 signal load_languages(languages: Array, graph: MonologueGraphEdit)
@@ -42,4 +57,11 @@ signal show_dimmer
 signal hide_dimmer
 
 signal window_out
-signal ask_dialog(callback: Callable, header: String, description: String, confirm_text: String, deny_text: String, cancel_text: String)
+signal ask_dialog(
+	callback: Callable,
+	header: String,
+	description: String,
+	confirm_text: String,
+	deny_text: String,
+	cancel_text: String
+)

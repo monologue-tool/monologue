@@ -3,7 +3,8 @@ class_name StorylineDocument extends InspectableDocument
 signal node_added
 signal node_removed
 
-var id: String : get = _get_id
+var id: String:
+	get = _get_id
 var name: String = ""
 var nodes: Array[InspectableNode] = []
 var _node_index: Dictionary = {}
@@ -40,6 +41,7 @@ func create_node(node_type: String) -> InspectableNode:
 func get_node(node_id: String) -> InspectableNode:
 	return _node_index.get(node_id)
 
+
 func initialize_properties() -> void:
 	pass
 
@@ -63,30 +65,30 @@ func _get_id() -> String:
 func _create_default_nodes() -> void:
 	var root_node: InspectableNode = NodeBucket.create_node("root", history)
 	var root_mp: Property = root_node.get_main_property()
-	
+
 	var sent_node: InspectableNode = NodeBucket.create_node("sentence", history)
 	var sent_mp: Property = sent_node.get_main_property()
-	
+
 	var option_node: InspectableNode = NodeBucket.create_node("option", history)
 	var option_mp: Property = option_node.get_main_property()
-	
+
 	var choice_node: InspectableNode = NodeBucket.create_node("choice", history)
 	var choice_mp: Property = choice_node.get_main_property()
 	var choice_opt: Array[Dictionary] = []
 	for _i: int in range(2):
 		choice_opt.append(CollectionBucket.create_item("option", history)._to_dict())
-	
+
 	sent_node.get_property("position").set_value([240.0, 0])
 	option_node.get_property("position").set_value([240.0, 120.0])
 	choice_node.get_property("position").set_value([480.0, 0])
 	choice_node.get_property("choices").set_value(choice_opt)
 	choice_node.get_property("choices").set_settings_value("exposed", true)
-	
+
 	_register_node(root_node)
 	_register_node(sent_node)
 	_register_node(option_node)
 	_register_node(choice_node)
-	
+
 	root_mp.add_connection_to(sent_node.get_id(), sent_mp.name)
 	sent_mp.add_connection_from(root_node.get_id(), root_mp.name)
 
@@ -100,15 +102,15 @@ func _create_default_nodes() -> void:
 func _register_node(node: InspectableNode) -> void:
 	if not node:
 		return
-	
+
 	if not node in nodes:
 		nodes.append(node)
-	
+
 	node.storyline_id = id
 	var node_id: String = node.get_property_value("id")
 	if not node_id.is_empty():
 		_node_index[node_id] = node
-	
+
 	node_added.emit()
 
 
@@ -133,7 +135,7 @@ func _from_dict(dict: Dictionary) -> void:
 
 	nodes.clear()
 	_node_index.clear()
-	
+
 	super._from_dict(dict)
 
 	# Reconstruct graph nodes

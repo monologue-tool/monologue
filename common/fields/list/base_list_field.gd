@@ -75,7 +75,7 @@ func get_list_item_controls(exclude_externals: bool = false) -> Array[Node]:
 		var row: ListItemReorderRow = item.get_child(0)
 		if row.external and exclude_externals:
 			items.erase(item)
-	
+
 	return items
 
 

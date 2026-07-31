@@ -10,7 +10,7 @@ func _ready() -> void:
 	slider.value_changed.connect(_on_slider_value_changed)
 	slider.drag_ended.connect(_on_slider_drag_ended)
 	spin_box.value_changed.connect(_on_spin_box_value_changed)
-	
+
 	for control: Range in [slider, spin_box]:
 		control.min_value = settings.get("min_value", 0.0)
 		control.max_value = settings.get("max_value", 100.0)
@@ -47,18 +47,17 @@ func _on_slider_value_changed(value: float) -> void:
 func _on_slider_drag_ended(value: float) -> void:
 	if _is_updating:
 		return
-	
+
 	_is_updating = true
 	spin_box.value = value
 	_is_updating = false
 	emit_value_committed(get_value())
-	
 
 
 func _on_spin_box_value_changed(value: float) -> void:
 	if _is_updating:
 		return
-	
+
 	_is_updating = true
 	slider.value = value
 	_is_updating = false

@@ -12,7 +12,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var status: ResourceLoader.ThreadLoadStatus = ResourceLoader.load_threaded_get_status(load_scene)
+	var status: ResourceLoader.ThreadLoadStatus = ResourceLoader.load_threaded_get_status(
+		load_scene
+	)
 
 	if status == ResourceLoader.ThreadLoadStatus.THREAD_LOAD_LOADED:
 		var scene: PackedScene = ResourceLoader.load_threaded_get(load_scene)
@@ -20,10 +22,10 @@ func _process(_delta: float) -> void:
 
 
 func _switch_to_scene(scene: PackedScene) -> void:
-		sprite.play("blink")
-		await sprite.animation_finished
+	sprite.play("blink")
+	await sprite.animation_finished
 
-		get_tree().change_scene_to_packed(scene)
+	get_tree().change_scene_to_packed(scene)
 
 
 func _on_item_rect_changed() -> void:

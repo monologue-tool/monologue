@@ -6,7 +6,7 @@ const ID_LENGTH: int = 4
 signal property_changed(property_name: String)
 
 var _properties: Dictionary[String, Property] = {}
-var _children: Dictionary[String, Array] = {} # Children object of properties
+var _children: Dictionary[String, Array] = {}  # Children object of properties
 var history: CommandManager
 var settings: Dictionary = {}
 var _parent_object: InspectableObject
@@ -30,7 +30,7 @@ func _init(command_manager: CommandManager = null) -> void:
 	if not command_manager:
 		Log.warn("InspectableObject does not have a command manager.")
 	history = command_manager
-	
+
 	define_property(
 		"id",
 		"%s-%s" % [get_type(), IDGen.generate(ID_LENGTH)],
@@ -68,8 +68,7 @@ func define_property(
 	_properties.set(pname, property)
 
 	property.value_changed.connect(
-		func(_old: Variant, _new: Variant) -> void: 
-			property_changed.emit(pname)
+		func(_old: Variant, _new: Variant) -> void: property_changed.emit(pname)
 	)
 
 
@@ -129,9 +128,11 @@ func get_property_children(property_name: String) -> Array:
 func set_property_children(property_name: String, objects: Array) -> void:
 	for object: InspectableObject in objects:
 		if not object.property_changed.is_connected(_on_property_children_property_change):
-			object.property_changed.connect(_on_property_children_property_change.bind(property_name))
+			object.property_changed.connect(
+				_on_property_children_property_change.bind(property_name)
+			)
 		object._set_parent_info(self, property_name)
-	
+
 	_children[property_name] = objects
 
 
@@ -139,7 +140,7 @@ func add_property_children(property_name: String, object: InspectableObject) -> 
 	if not object.property_changed.is_connected(_on_property_children_property_change):
 		object.property_changed.connect(_on_property_children_property_change.bind(property_name))
 	object._set_parent_info(self, property_name)
-	
+
 	_children.get_or_add(property_name, [])
 	_children.get(property_name).append(object)
 
@@ -156,28 +157,30 @@ func remove_property_children(property_name: String, object: InspectableObject) 
 func move_property_child(property_name: String, object: InspectableObject, to_index: int) -> void:
 	if not property_name in _children:
 		return
-	
+
 	var children_array: Array = _children.get(property_name)
 	var current_index: int = children_array.find(object)
-	
+
 	if current_index == -1:
 		return
-	
+
 	if to_index < 0:
 		to_index = 0
 	if to_index >= children_array.size():
 		to_index = children_array.size() - 1
-	
+
 	children_array.remove_at(current_index)
 	children_array.insert(to_index, object)
 
 
-func _on_property_children_property_change(_children_property_name: String, property_name: String) -> void:
+func _on_property_children_property_change(
+	_children_property_name: String, property_name: String
+) -> void:
 	var childrens: Array = get_property_children(property_name)
 	var value: Array = []
 	for object: InspectableObject in childrens:
 		value.append(object._to_dict())
-	
+
 	set_property_value(property_name, value)
 
 

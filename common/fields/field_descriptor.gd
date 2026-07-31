@@ -75,5 +75,5 @@ func to_metadata() -> Dictionary:
 	base["type_id"] = type_id
 	base["default_settings"] = default_settings.duplicate(true)
 	base["compatible_types"] = compatible_types.duplicate()
-	
+
 	return base

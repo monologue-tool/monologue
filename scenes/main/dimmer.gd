@@ -12,11 +12,11 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	var parent: Control = get_parent()
 	var index: int = get_index()
-	
-	for child: Node in parent.get_children().slice(index+1):
+
+	for child: Node in parent.get_children().slice(index + 1):
 		if not child.visible:
 			continue
-		
+
 		show()
 		return
 	hide()

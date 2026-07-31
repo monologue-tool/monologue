@@ -6,4 +6,9 @@ func get_scene() -> PackedScene:
 
 
 func get_metadata() -> Dictionary:
-	return {"name": "translatable", "type": ObjectType.FIELD, "color": Color("628cffff"), "default_value": {"en": ""}}
+	return {
+		"name": "translatable",
+		"type": ObjectType.FIELD,
+		"color": Color("628cffff"),
+		"default_value": {"en": ""}
+	}

@@ -5,7 +5,7 @@ extends Field
 
 func _ready() -> void:
 	spin_box.value_changed.connect(_on_value_changed)
-	
+
 	spin_box.prefix = settings.get("prefix", "")
 	spin_box.suffix = settings.get("suffix", "")
 	spin_box.min_value = settings.get("min_value", 0.0)
@@ -21,10 +21,10 @@ func _ready() -> void:
 func set_value(value: Variant) -> void:
 	if value is String or value is bool:
 		value = float(value)
-	
+
 	if not value is int:
 		return
-	
+
 	spin_box.value = value
 
 

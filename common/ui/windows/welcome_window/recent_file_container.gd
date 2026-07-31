@@ -37,10 +37,9 @@ func load_history() -> void:
 func refresh() -> void:
 	for child: Node in button_container.get_children():
 		child.queue_free()
-	
+
 	load_history()
 
 
 func _on_project_btn_pressed(path: String) -> void:
 	ProjectManager.load_project_from_path(path)
-	

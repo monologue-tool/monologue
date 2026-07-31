@@ -26,5 +26,5 @@ func _on_leave_button_pressed() -> void:
 
 
 func _on_run_button_pressed() -> void:
-	var scene: PackedScene = preload("res://scenes/run/main/main.tscn")
-	load_scene(scene)
+	var MainScene: PackedScene = preload("res://scenes/run/main/main.tscn")
+	load_scene(MainScene)
