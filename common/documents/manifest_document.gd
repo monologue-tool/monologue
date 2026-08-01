@@ -1,11 +1,17 @@
 class_name ManifestDocument extends InspectableDocument
 
+const FORMAT_VERSION: int = 1
+
 
 func initialize_properties() -> void:
+	define_property(Property.new("format_version")
+		.set_type("int")
+		.default(FORMAT_VERSION)
+		.read_only()
+		.hidden_in_inspector())
+
 	var editor_version: Array = ProjectSettings.get_setting("application/config/version").split(".")
 
-	# Was declared with a "show_in_inspector" key, which is not a real setting, so this
-	# has been visible all along. The intent was clearly to hide it.
 	define_property(Property.new("editor_version")
 		.set_type("list")
 		.default(editor_version)

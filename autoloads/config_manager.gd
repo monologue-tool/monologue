@@ -20,9 +20,19 @@ func load_configuration() -> ConfigurationDocument:
 	var content: String = file.get_as_text()
 	file.close()
 
-	var data: Dictionary = JSON.parse_string(content)
 	current_configuration = ConfigurationDocument.new(command_manager)
-	current_configuration._from_dict(data)
+
+	# A corrupt preferences file used to crash the editor on startup: the parse result
+	# was assigned straight into a Dictionary. Now it falls back to the defaults and
+	# says so, which is recoverable -- the next save rewrites the file.
+	var result: ValidationResult = ValidationResult.ok()
+	var data: Dictionary = ProjectReader.parse_object(
+		content, Constants.PREFERENCES_PATH.get_file(), result
+	)
+	if not result.is_valid():
+		Log.warn("Preferences could not be read; falling back to the defaults.")
+	else:
+		current_configuration._from_dict(data)
 
 	return current_configuration
 

@@ -21,6 +21,8 @@ var name: String = "unsaved"
 var project_path: String = ""
 var is_dirty: bool = false
 var active_language_code: String = "en"
+## Whatever went wrong while reading this project from disk. Empty for a new project.
+var load_issues: ValidationResult = ValidationResult.ok()
 
 
 func _init() -> void:
@@ -208,32 +210,26 @@ func save() -> void:
 		)
 		await project_path_changed
 
-	var writer: ZIPPacker = ZIPPacker.new()
-	writer.compression_level = 0
-	var err: Error = writer.open(project_path, ZIPPacker.APPEND_CREATE)
-	if err != OK:
-		Log.error(err)
+	# Saving a project that only partly loaded writes the surviving parts over the
+	# original, losing whatever could not be read. Say so loudly.
+	# TODO: ask for confirmation instead, once there is a place to ask from.
+	if not load_issues.is_valid():
+		Log.warn(
+			(
+				"Saving over '%s', which had %d error(s) when it was opened. "
+				+ "Anything that failed to load will be lost."
+			) % [project_path, load_issues.errors().size()]
+		)
+
+	var result: ValidationResult = ProjectWriter.write_project(self, project_path)
+	if not result.is_valid():
+		for issue: ValidationIssue in result.errors():
+			Log.error(str(issue))
 		return
 
-	pack_document(writer, manifest, "manifest.json")
-	pack_document(writer, settings, "settings.json")
-	for collection: CollectionDocument in collections:
-		pack_document(writer, collection, "collections/%s.json" % collection.name)
-	for storyline: StorylineDocument in storylines:
-		pack_document(writer, storyline, "storylines/%s.json" % storyline.name)
-
-	writer.close()
 	is_dirty = false
 	Log.info("Project saved at path '%s'" % project_path)
 	ProjectManager._update_window_title()
-
-
-func pack_document(writer: ZIPPacker, document: InspectableDocument, path: String) -> void:
-	var data: Dictionary = document._to_dict()
-	var s_data: String = JSON.stringify(data, "\t")
-	writer.start_file(path)
-	writer.write_file(s_data.to_utf8_buffer())
-	writer.close_file()
 
 
 func _open_file_request_callback(path: String) -> void:
@@ -247,10 +243,14 @@ static func from_file_path(path: String) -> MonologueProject:
 		return null
 
 	var reader: ZIPReader = ZIPReader.new()
-	reader.open(path)
+	if reader.open(path) != OK:
+		Log.error("Can't open '%s' as a Monologue project." % path)
+		return null
 
 	var project: MonologueProject = await _from_path_core(reader, path)
-	project.compact = true
+	reader.close()
+	if project:
+		project.compact = true
 	return project
 
 
@@ -262,14 +262,13 @@ static func from_dir_path(path: String) -> MonologueProject:
 	var reader: DirAccess = DirAccess.open(path)
 
 	var project: MonologueProject = await _from_path_core(reader, path)
-	project.compact = false
+	if project:
+		project.compact = false
 	return project
 
 
 ## 'reader' can be either a 'ZIPReader' or a 'DirAccess'.
 static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
-	var files: PackedStringArray = reader.get_files()
-
 	var project: MonologueProject = MonologueProject.new()
 	await project.ready
 
@@ -277,58 +276,16 @@ static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
 	project.name = path.get_file()
 	project.is_dirty = false
 
-	if reader.file_exists("manifest.json"):
-		var manifest_data: Dictionary = JSON.parse_string(
-			reader.read_file("manifest.json").get_string_from_utf8()
-		)
-		project.manifest._from_dict(manifest_data)
+	var result: ValidationResult = ValidationResult.ok()
+	var is_usable: bool = ProjectReader.read_into(project, reader, result)
+	project.load_issues = result
 
-	if reader.file_exists("settings.json"):  # FIX: settings n'était pas chargé
-		var settings_data: Dictionary = JSON.parse_string(
-			reader.read_file("settings.json").get_string_from_utf8()
-		)
-		project.settings._from_dict(settings_data)
+	for issue: ValidationIssue in result.issues:
+		if issue.is_error():
+			Log.error(str(issue))
+		else:
+			Log.warn(str(issue))
 
-	project.storylines.clear()
-
-	for file: String in files:
-		var paths: Array = file.split("/") as Array
-		if paths.size() <= 1:
-			continue
-
-		var file_name: String = paths.back().get_basename()
-		var extension: String = paths.back().get_extension()
-		if extension != "json":
-			Log.error("Attempt to load a non-JSON file: '%s'" % file)
-			continue
-
-		var file_content: String = reader.read_file(file).get_string_from_utf8()
-
-		match paths[0]:
-			"collections":
-				_load_collection_from_file(project, file_name, file_content)
-			"storylines":
-				_load_storyline_from_file(project, file_name, file_content)
-
-	return project
-
-
-static func _load_collection_from_file(
-	project: MonologueProject, collection_name: String, file_content: String
-) -> void:
-	var collection: CollectionDocument = project.get_collection(collection_name)
-	if not collection:
-		Log.error("Can't find the collection '%s' inside the project." % collection_name)
-		return
-
-	collection._from_dict(JSON.parse_string(file_content))
-
-
-static func _load_storyline_from_file(
-	project: MonologueProject, storyline_name: String, file_content: String
-) -> void:
-	var storyline: StorylineDocument = StorylineDocument.new(
-		storyline_name, project.command_manager
-	)
-	storyline._from_dict(JSON.parse_string(file_content))
-	project.storylines.append(storyline)
+	# Only an unreadable manifest is fatal. Anything else loads partially, with the
+	# damage listed, rather than throwing away the parts that were fine.
+	return project if is_usable else null

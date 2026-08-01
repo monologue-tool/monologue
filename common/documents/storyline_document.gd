@@ -7,6 +7,9 @@ var id: String:
 	get = _get_id
 var name: String = ""
 var nodes: Array[InspectableNode] = []
+## Anything [method _from_dict] could not make sense of, collected for the reader to
+## report. Cleared on every load; never serialized.
+var load_issues: Array[ValidationIssue] = []
 var _node_index: Dictionary = {}
 
 
@@ -144,6 +147,7 @@ func _from_dict(dict: Dictionary) -> void:
 
 	nodes.clear()
 	_node_index.clear()
+	load_issues.clear()
 
 	super._from_dict(dict)
 
@@ -152,10 +156,20 @@ func _from_dict(dict: Dictionary) -> void:
 	for node_data: Dictionary in node_list:
 		var node_type: String = node_data.get("$type", "")
 		if node_type.is_empty():
+			load_issues.append(
+				ValidationIssue.error("A node in this storyline has no type.", &"node_without_type")
+			)
 			continue
 		var node: InspectableNode = MonologueRegistry.get_instance().create_node(node_type, history)
 		if not node:
-			push_warning("Could not create node of type '%s' from dict." % node_type)
+			# Most likely a node type from a plugin that is not installed. Say so
+			# instead of dropping it silently, which is what used to happen.
+			load_issues.append(
+				ValidationIssue.error(
+					"Unknown node type '%s'; the node was left out." % node_type,
+					&"unknown_node_type"
+				)
+			)
 			continue
 		node._from_dict(node_data)
 		_register_node(node)

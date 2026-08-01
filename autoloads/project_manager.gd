@@ -89,14 +89,13 @@ func get_history() -> PackedStringArray:
 	var content: String = file.get_as_text()
 	file.close()
 
+	# _parse_history() already drops paths that no longer exist. The loop that used to
+	# repeat that check here erased from the array it was iterating, which skipped the
+	# entry after every removal.
 	var paths: Array = []
 	for path: String in _parse_history(content):
 		if path not in paths:
 			paths.append(path)
-
-	for path: String in paths:
-		if not FileAccess.file_exists(path):
-			paths.erase(path)
 
 	return paths as PackedStringArray
 
