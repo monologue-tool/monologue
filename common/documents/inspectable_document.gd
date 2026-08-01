@@ -18,6 +18,12 @@ func _init(command_manager: CommandManager) -> void:
 	super._init(command_manager)
 
 
+## How this document is named in problem reports. Documents that carry a user-chosen
+## name (storylines, collections) override it.
+func get_document_name() -> String:
+	return get_type()
+
+
 func _on_property_changed(_pname: String) -> void:
 	is_dirty = true
 	content_changed.emit()

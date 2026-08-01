@@ -1,3 +1,6 @@
+# gdlint: disable=max-public-methods
+# (22 and counting. The five *_property_children methods are the obvious thing to pull
+#  out into a child-collection object once something else needs them.)
 @abstract
 class_name InspectableObject extends Resource
 
@@ -11,6 +14,9 @@ var history: CommandManager
 var settings: Dictionary = {}
 var _parent_object: InspectableObject
 var _parent_property_name: String
+## True once _init() has finished declaring. Anything declared after that is frozen on
+## the spot, so a subclass adding properties after super._init() is still safe.
+var _is_sealed: bool = false
 
 
 func get_parent_object() -> InspectableObject:
@@ -27,8 +33,6 @@ func _set_parent_info(parent: InspectableObject, pname: String) -> void:
 
 
 func _init(command_manager: CommandManager = null) -> void:
-	# push_warning rather than the Log autoload: the model layer must stay usable
-	# without the editor booted, which is what makes it testable headlessly.
 	if not command_manager:
 		push_warning("InspectableObject created without a command manager.")
 	history = command_manager
@@ -43,6 +47,7 @@ func _init(command_manager: CommandManager = null) -> void:
 	# Past this point the schema is fixed; only values and user overrides may change.
 	for property: Property in _properties.values():
 		property.freeze()
+	_is_sealed = true
 	_load_settings()
 
 
@@ -73,6 +78,11 @@ func define_property(property: Property) -> Property:
 	property.value_changed.connect(
 		func(_old: Variant, _new: Variant) -> void: property_changed.emit(property.name)
 	)
+
+	# A subclass may declare after calling super._init(), which is past the freeze pass.
+	# Freezing here keeps the invariant regardless of declaration order.
+	if _is_sealed:
+		property.freeze()
 
 	return property
 
@@ -128,6 +138,22 @@ func set_property_settings_value(pname: String, skey: String, svalue: Variant) -
 
 func get_property_children(property_name: String) -> Array:
 	return _children.get(property_name, [])
+
+
+## Every child list this object holds, whatever property they hang off.
+func get_all_property_children() -> Array:
+	return _children.values()
+
+
+## Cross-property checks that no single property can express. Default is no-op;
+## override where one property's value constrains another:
+## [codeblock]
+## func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
+##     if get_property_value("enable_condition") and get_property_value("condition").is_empty():
+##         result.add(ValidationIssue.warning("Condition is on but empty.", &"empty_condition"))
+## [/codeblock]
+func validate_object(_result: ValidationResult, _context: ValidationContext) -> void:
+	pass
 
 
 func set_property_children(property_name: String, objects: Array) -> void:

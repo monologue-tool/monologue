@@ -7,13 +7,13 @@ var _main_property_defined: bool = false
 
 
 func _init(command_manager: CommandManager = null) -> void:
-	# Declared before super._init(), which is what runs initialize_properties() and
-	# then freezes every property. Anything defined after it would escape the freeze.
 	define_property(Property.new("color")
 		.set_type("color")
 		.default("#000000")
 		.header()
 		.no_expand())
+
+	super._init(command_manager)
 
 	define_property(Property.new("extra/notes")
 		.set_type("textarea")
@@ -25,8 +25,6 @@ func _init(command_manager: CommandManager = null) -> void:
 		.hidden_in_graph()
 		.hidden_in_inspector()
 		.not_exposable())
-
-	super._init(command_manager)
 
 	if not _main_property_defined:
 		push_error("%s does not declare a main property." % get_type())
@@ -80,12 +78,6 @@ func rebuild_preview() -> void:
 
 
 @abstract func get_type() -> String
-
-# _on_id_value_changed used to live here, meant to rewrite every connection when a
-# node id changed. It was never actually connected: the old _init read
-# get_property("id") before super._init() had declared it, so the listener was always
-# null. Removed rather than repaired -- ids become immutable in the reference rework,
-# which is where ConnectionManager.rename_node_id() goes too.
 
 @warning_ignore("native_method_override")
 func duplicate(deep: bool = false) -> Resource:

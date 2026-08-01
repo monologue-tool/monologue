@@ -10,3 +10,6 @@ func _init() -> void:
 	item_script = preload("uid://dhodjihl1pyka")
 	is_project_scoped = false
 	label_property = "name"
+	# Matches OptionCollectionItem's main property, so an option node can be wired
+	# into a choice node's option list. Guarded by test_collection_port_types.
+	port_type = "option"

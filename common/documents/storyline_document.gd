@@ -53,6 +53,10 @@ func get_type() -> String:
 	return "storyline"
 
 
+func get_document_name() -> String:
+	return name
+
+
 func get_settings() -> Dictionary:
 	return {}
 

@@ -73,15 +73,16 @@ func set_preview() -> void:
 	line_edit.theme_type_variation = "LineEditListItemPreview"
 
 
-func display_error(message: String) -> void:
-	super.display_error(message)
-	if message.is_empty():
+func display_issues(issues: Array[ValidationIssue]) -> void:
+	super.display_issues(issues)
+	if issues.is_empty():
 		line_edit.remove_theme_color_override("font_color")
 		text_edit.remove_theme_color_override("font_color")
-	else:
-		var color: Color = ThemeLayout.fail_color
-		line_edit.add_theme_color_override("font_color", color)
-		text_edit.add_theme_color_override("font_color", color)
+		return
+
+	var color: Color = ThemeLayout.fail_color
+	line_edit.add_theme_color_override("font_color", color)
+	text_edit.add_theme_color_override("font_color", color)
 
 
 func prefers_vertical_layout(p_settings: Dictionary) -> bool:

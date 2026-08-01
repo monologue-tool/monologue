@@ -29,5 +29,6 @@ disable:
 excluded_directories: !!set
   .git: null
   .godot: null
+  .claude: null
   addons: null
   reports: null

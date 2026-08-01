@@ -23,7 +23,8 @@ func initialize_properties() -> void:
 	define_property(Property.new("portraits/portraits")
 		.set_type("collection")
 		.default([default_portrait._to_dict()])
-		.collection("portraits"))
+		.collection("portraits")
+		.warn_if(_has_no_portrait, &"no_portraits"))
 
 	define_property(Property.new("extra/description")
 		.set_type("textarea"))
@@ -39,3 +40,11 @@ func get_type() -> String:
 
 func get_preview_property_names() -> Array[String]:
 	return ["name", "description"]
+
+
+## Not an error: a character with no portrait is perfectly playable, it just cannot be
+## shown on screen. Worth mentioning, not worth blocking.
+func _has_no_portrait(context: ValidationContext) -> Variant:
+	if context.value is Array and (context.value as Array).is_empty():
+		return "%s has no portrait." % get_property_value("name")
+	return null

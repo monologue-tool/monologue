@@ -11,6 +11,16 @@ var is_project_scoped: bool = true
 ## Property of an item used as its human-readable label when this collection is the
 ## target of a `reference` property.
 var label_property: String = "name"
+## Field type a graph port accepts when a property holds this collection.
+##
+## It is the field type of the item's own main property: a choice node's option list
+## accepts whatever an option item exports. Empty when items have no main property,
+## which means a property holding this collection cannot be connected to.
+##
+## This used to be inferred by looking for a field type sharing the collection's name,
+## which only ever worked because "option" happened to name both a collection and a
+## field type. Renaming the collection to "options" broke every option-to-choice link.
+var port_type: String = ""
 
 
 func get_object_type() -> StringName:

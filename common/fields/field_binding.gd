@@ -37,7 +37,7 @@ func initialize() -> void:
 	field.tree_exiting.connect(_on_field_tree_exiting)
 	_sync_from_property()
 	_update_editable_state()
-	field.clear_error()
+	field.clear_issues()
 
 
 func release() -> void:
@@ -76,7 +76,7 @@ func _sync_from_property() -> void:
 	# No null fallback needed: define_property already resolved the field type's
 	# default into the property when it was declared.
 	field.set_value(property.get_value())
-	field.clear_error()
+	field.clear_issues()
 	_is_syncing = false
 
 
@@ -91,23 +91,54 @@ func _update_editable_state() -> void:
 	field.set_editable(is_editable)
 
 
+## The user is still typing: judge the candidate value without writing it, and never
+## take the keystroke back.
 func _on_field_value_changed(value: Variant) -> void:
 	if _is_syncing or _is_released or value == property.get_value():
 		return
-	# FIXME: changing a variable's type and then its value crashes here. The binding
-	# survives the DynamicField swapping its inner field, so `field` is stale.
-	if not is_instance_valid(field) or not field.is_inside_tree():
+	if not _is_field_live():
 		return
-	_process_field_value(value, false)
+
+	var result: ValidationResult = ValidationService.validate_value(
+		ValidationContext.for_property(property, owner, value, ValidationContext.Phase.LIVE)
+	)
+	field.display_issues(result.issues)
 
 
+## The user confirmed. The value is always written; validation only annotates it.
+##
+## This used to revert to the stored value when a rule failed, silently and with no
+## message, so typing an empty name simply made the text reappear.
 func _on_field_value_committed(value: Variant) -> void:
 	if _is_syncing or _is_released or value == property.get_value():
 		return
-	if not is_instance_valid(field) or not field.is_inside_tree():
+	if not _is_field_live():
 		return
-	_process_field_value(value, true)
+
+	var formatted: Variant = _format(value)
+	if owner:
+		owner.set_property_value(property.name, formatted)
+	else:
+		property.set_value(formatted)
+		_sync_from_property()
+
+	field.display_issues(ValidationService.validate_property(property, owner).issues)
 	_refresh_owner_preview_from_change()
+
+
+## A DynamicField swapping its inner widget leaves bindings pointing at freed nodes.
+## Releasing here is what stops the crash that the old FIXME described.
+func _is_field_live() -> bool:
+	if not is_instance_valid(field) or not field.is_inside_tree():
+		release()
+		return false
+	return true
+
+
+func _format(value: Variant) -> Variant:
+	if indexer and indexer.formatter and indexer.formatter.is_valid():
+		return indexer.formatter.call(value)
+	return value
 
 
 func _refresh_owner_preview_from_change() -> void:
@@ -118,105 +149,19 @@ func _refresh_owner_preview_from_change() -> void:
 	owner.rebuild_preview()
 
 
-func _process_field_value(value: Variant, is_commit: bool) -> void:
-	if not property or indexer == null:
-		return
-	var validation_result: FieldValidationResult = indexer.validate(value)
-	if not validation_result.is_valid:
-		if is_commit:
-			_sync_from_property()
-		else:
-			field.display_error(validation_result.message)
-		return
-
-	var settings_result: FieldValidationResult = _validate_property_settings(value)
-	if not settings_result.is_valid:
-		if is_commit:
-			_sync_from_property()
-		else:
-			field.display_error(settings_result.message)
-		return
-	field.clear_error()
-	var formatted_value: Variant = indexer.format(value)
-
-	if not is_commit:
-		return
-
-	# If we update through owner, it triggers an Undo/Redo command and emits property value_changed,
-	# which in turn will automatically trigger _sync_from_property().
-	# However, we'll manually call it below if we just set the property directly.
-	if owner:
-		owner.set_property_value(property.name, formatted_value)
-	else:
-		property.set_value(formatted_value)
-		_sync_from_property()
-
-
+## The model changed under us, typically an undo or a redo. Push it into the widget:
+## commits no longer round-trip through _sync_from_property(), so this can no longer
+## start the rebuild loop it was once disabled for.
 func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> void:
 	if _is_released or _is_syncing:
 		return
 	if not is_instance_valid(field) or not field.is_node_ready():
 		return
 	_is_syncing = true
-	# Disabled to prevent useless ui rebuild. Re-enabled in the validation rework,
-	# once commits no longer round-trip through _sync_from_property().
-	# field.set_value(property.get_value())
-	field.clear_error()
+	field.set_value(property.get_value())
+	field.display_issues(property.issues)
 	_is_syncing = false
 
 
 func _on_field_tree_exiting() -> void:
 	release()
-
-
-func _validate_property_settings(value: Variant) -> FieldValidationResult:
-	# Required check
-	if property.get_settings_value(PropertySettings.KEY_REQUIRED, false):
-		var str_val: String = str(value).strip_edges() if value != null else ""
-		if str_val.is_empty():
-			return FieldValidationResult.failure("This field is required.")
-
-	# Unique check
-	if property.get_settings_value(PropertySettings.KEY_UNIQUE, false) and is_instance_valid(owner):
-		var parent_obj: InspectableObject = (
-			owner.get_parent_object() if owner.has_method("get_parent_object") else null
-		)
-		if parent_obj:
-			var parent_prop: String = owner.get_parent_property_name()
-			var siblings: Array = parent_obj.get_property_children(parent_prop)
-
-			for sibling: InspectableObject in siblings:
-				if sibling == owner:
-					continue
-				var sib_prop: Property = sibling.get_property(property.name)
-				if sib_prop and sib_prop.value == value:
-					return FieldValidationResult.failure("This value must be unique.")
-
-	# Validation dict: min_length, max_length, min, max
-	var rules: Variant = property.get_settings_value(PropertySettings.KEY_VALIDATION, {})
-	if typeof(rules) != TYPE_DICTIONARY or rules.is_empty():
-		return FieldValidationResult.success()
-
-	var str_value: String = str(value) if value != null else ""
-
-	if rules.has("min_length"):
-		var min_len: int = int(rules["min_length"])
-		if str_value.length() < min_len:
-			return FieldValidationResult.failure("Must be at least %d character(s)." % min_len)
-
-	if rules.has("max_length"):
-		var max_len: int = int(rules["max_length"])
-		if str_value.length() > max_len:
-			return FieldValidationResult.failure("Must be at most %d character(s)." % max_len)
-
-	if rules.has("min") and value != null:
-		if str(value).is_valid_float() or value is int or value is float:
-			if float(value) < float(rules["min"]):
-				return FieldValidationResult.failure("Must be at least %s." % str(rules["min"]))
-
-	if rules.has("max") and value != null:
-		if str(value).is_valid_float() or value is int or value is float:
-			if float(value) > float(rules["max"]):
-				return FieldValidationResult.failure("Must be at most %s." % str(rules["max"]))
-
-	return FieldValidationResult.success()

@@ -113,7 +113,10 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		graph_node.set_slot_custom_icon_left(idx, SLOT_IN_TEXTURE)
 		graph_node.set_slot_custom_icon_right(idx, SLOT_OUT_TEXTURE)
 
-	graph_node.set_size(Vector2.ZERO)
+	# reset_size() shrinks to the minimum size directly. set_size(Vector2.ZERO) got
+	# there too, but left the node at zero until the next layout pass, and any port
+	# position read during that window was meaningless.
+	graph_node.reset_size()
 
 
 static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void:
@@ -148,13 +151,17 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	var label: String = (
 		prop.get_display_name() if prop.get_settings_value("is_main_property") else prop.name
 	)
-	# For list properties, resolve port type from the collection's field type
+	# A collection port accepts whatever its items' main property exports, so that an
+	# option node can be plugged into a choice node's option list.
+	# TODO: do the same for `list` properties, whose port type is still just "list".
 	var row_type: String = prop.type
 	if prop.type == "collection":
 		var collection_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
-		if not collection_name.is_empty():
-			if MonologueRegistry.get_instance().get_field(collection_name):
-				row_type = collection_name
+		var indexer: CollectionIndexer = MonologueRegistry.get_instance().get_collection(
+			collection_name
+		)
+		if indexer and not indexer.port_type.is_empty():
+			row_type = indexer.port_type
 	var row: GraphNodeRow = GraphNodeRow.new(label, row_type, enable_left, enable_right)
 	row._property_name = prop.name
 	row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")

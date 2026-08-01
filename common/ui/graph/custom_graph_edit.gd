@@ -3,12 +3,18 @@ class_name CustomGraphEdit extends GraphEdit
 
 const SCROLLBAR_OVERRIDE_KEYS: Array[String] = ["grabber", "scroll"]
 
+## True while the user is dragging a wire. Rebuilding a node during that window moves
+## the ports out from under GraphEdit mid-drag, which is what used to leave a box
+## selection behind instead of a connection.
 var connecting_mode: bool
 var mouse_hovering: bool = false
 
 
 func _ready() -> void:
 	_hide_default_scrollbars()
+
+	connection_drag_started.connect(_on_connection_drag_started)
+	connection_drag_ended.connect(_on_connection_drag_ended)
 
 
 func scroll_to_node(graph_node: GraphNode) -> void:
@@ -59,6 +65,14 @@ func _on_gui_input(event: InputEvent) -> void:
 		and event.button_index == MOUSE_BUTTON_LEFT
 	):
 		EventBus.show_languages.emit(false)
+
+
+func _on_connection_drag_started(_from_node: StringName, _from_port: int, _is_output: bool) -> void:
+	connecting_mode = true
+
+
+func _on_connection_drag_ended() -> void:
+	connecting_mode = false
 
 
 func _on_mouse_entered() -> void:

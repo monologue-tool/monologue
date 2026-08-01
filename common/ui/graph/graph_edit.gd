@@ -9,6 +9,9 @@ var _selected_nodes: Dictionary = {}
 var _copied_nodes: Array = []
 var _pending_positions: Dictionary = {}  # GraphNode -> Vector2 captured during drag
 var _is_applying_position: bool = false
+## Rebuilds asked for while a wire was being dragged, replayed once it lands.
+var _refresh_deferred: bool = false
+var _nodes_to_refresh: Array[InspectableNode] = []
 
 
 func _ready() -> void:
@@ -29,6 +32,7 @@ func _ready() -> void:
 	MonologueRegistry.get_instance().apply_connection_types(self)
 
 	EventBus.refresh_graph.connect(refresh)
+	connection_drag_ended.connect(_flush_deferred_refresh)
 
 
 func get_storyline() -> StorylineDocument:
@@ -36,6 +40,10 @@ func get_storyline() -> StorylineDocument:
 
 
 func refresh() -> void:
+	if connecting_mode:
+		_refresh_deferred = true
+		return
+	
 	var storyline: StorylineDocument = get_storyline()
 	if not storyline:
 		return
@@ -63,6 +71,11 @@ func refresh_node(node: InspectableNode) -> void:
 	if not node or not is_instance_valid(node.graph_view):
 		return
 
+	if connecting_mode:
+		if node not in _nodes_to_refresh:
+			_nodes_to_refresh.append(node)
+		return
+	
 	clear_connections()
 	GraphNodeViewFactory.modulate_stylebox(node.graph_view, node)
 	GraphNodeViewFactory.apply_metadata(node.graph_view, node)
@@ -199,6 +212,29 @@ func _has_connection_at_slot(node_name: StringName, port_index: int, is_output: 
 			return true
 
 	return false
+
+
+## Replays whatever was asked for while a wire was in flight. Deferred by a frame so
+## GraphEdit has finished with the drop -- connection_request fires around the same
+## time, and rebuilding underneath it would put us back where we started.
+func _flush_deferred_refresh() -> void:
+	if not _refresh_deferred and _nodes_to_refresh.is_empty():
+		return
+	_do_flush_deferred_refresh.call_deferred()
+
+
+func _do_flush_deferred_refresh() -> void:
+	var nodes: Array[InspectableNode] = _nodes_to_refresh.duplicate()
+	var needs_full_refresh: bool = _refresh_deferred
+	_nodes_to_refresh.clear()
+	_refresh_deferred = false
+
+	if needs_full_refresh:
+		refresh()
+		return
+
+	for node: InspectableNode in nodes:
+		refresh_node(node)
 
 
 func get_all_graph_nodes() -> Array:
@@ -341,34 +377,34 @@ func _on_disconnection_request(
 	if not connection_manager:
 		return
 
-	connection_manager.unregister_connection(from_view_name, from_port, to_view_name, to_port)
 	var from_node: InspectableNode = get_node_from_view_name(from_view_name)
 	var to_node: InspectableNode = get_node_from_view_name(to_view_name)
-	var from_graph_node: GraphNode = get_node(from_view_name as String)
-	var to_graph_node: GraphNode = get_node(to_view_name as String)
-	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
-	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
 
-	if from_port_type != to_port_type:
-		return
-
-	# Get property names at the port indices
+	# No port-type check here on purpose. It used to require the two types to be
+	# strictly equal, while connecting only requires them to be *compatible*, so any
+	# link between differing-but-compatible types could be made and never undone.
 	var from_property_name: String = get_property_name_at_port(
 		String(from_view_name), from_port, true
 	)
 	var to_property_name: String = get_property_name_at_port(String(to_view_name), to_port, false)
 
 	if from_property_name.is_empty() or to_property_name.is_empty():
-		push_warning("Cannot create connection: property not found at port")
+		push_warning("Cannot remove connection: property not found at port")
 		return
 
+	# The last argument is what makes this a disconnection. Leaving it out built a
+	# *connect* command instead, so pulling a wire off an input port detached it and
+	# then immediately reattached it -- the old line snapped back and the user was
+	# left dragging a second one. The command unregisters from the model itself, so
+	# there is deliberately no unregister_connection() call here.
 	var storyline: StorylineDocument = get_storyline()
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
 		self,
 		str(from_node.get_property_value("id")),
 		str(to_node.get_property_value("id")),
 		from_property_name,
-		to_property_name
+		to_property_name,
+		true
 	)
 	storyline.history.execute(command)
 

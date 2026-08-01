@@ -89,9 +89,11 @@ func _notify_node_changes() -> void:
 		func(n: InspectableNode) -> bool: return n.get_property_value("id") == to_node_id
 	)
 
+	# property_changed carries a property name. The from-side used to be given the node
+	# id instead, so anything listening for a particular property never heard about it.
 	if not from_nodes.is_empty():
 		var from_node: InspectableNode = from_nodes[0]
-		from_node.property_changed.emit(from_node_id)
+		from_node.property_changed.emit(from_property_name)
 
 	if not to_nodes.is_empty():
 		var to_node: InspectableNode = to_nodes[0]

@@ -867,6 +867,7 @@ static func _setup_graphedit(theme: Theme) -> void:
 	theme.set_color("grid_major", "GraphEdit", Color("ffffff", 0.1))
 	theme.set_color("grid_minor", "GraphEdit", Color("ffffff", 0.1))
 
+
 	var stylebox := StyleBoxFlat.new()
 	stylebox.bg_color = bg_primary_color
 	stylebox.set_corner_radius_all(0)

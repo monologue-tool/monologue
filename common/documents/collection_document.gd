@@ -27,3 +27,7 @@ func get_value() -> Array:
 
 func get_type() -> String:
 	return "collection"
+
+
+func get_document_name() -> String:
+	return name

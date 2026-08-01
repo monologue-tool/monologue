@@ -74,32 +74,13 @@ func instantiate(_history: CommandManager = null) -> Object:
 	return null
 
 
-## Runs the type-level validators against [param value].
-##
-## Accepts three return shapes from a validator: a [FieldValidationResult], a bool, or
-## a non-empty String treated as an error message.
-## Superseded by ValidationService once the validation rework lands.
-func validate(value: Variant) -> FieldValidationResult:
+## Rules every property of this field type is checked against, on top of whatever the
+## property itself declares. Running them is [ValidationService]'s job.
+func get_validation_rules() -> Array[ValidationRule]:
+	var rules: Array[ValidationRule] = []
 	for validator: Callable in validators:
-		var result: Variant = validator.call(value)
-		if result is FieldValidationResult:
-			if not (result as FieldValidationResult).is_valid:
-				return result
-		elif result is bool:
-			if not result:
-				return FieldValidationResult.failure("Validation failed.")
-		elif result is String:
-			var message: String = (result as String).strip_edges()
-			if not message.is_empty():
-				return FieldValidationResult.failure(message)
-	return FieldValidationResult.success()
-
-
-## Normalises [param value] through [member formatter], if one is set.
-func format(value: Variant) -> Variant:
-	if formatter and formatter.is_valid():
-		return formatter.call(value)
-	return value
+		rules.append(CallableRule.new(validator, StringName("type:%s" % name)))
+	return rules
 
 
 ## Returns the ids of every object a value of this type points at.

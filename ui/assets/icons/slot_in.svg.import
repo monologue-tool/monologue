@@ -15,4 +15,6 @@ dest_files=["res://.godot/imported/slot_in.svg-9728f97a87edc6ee8d977b05f41d534e.
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

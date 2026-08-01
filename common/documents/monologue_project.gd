@@ -119,6 +119,14 @@ func _init_collections() -> void:
 	collections.append(CollectionDocument.new("beziers", beziers_data, command_manager))
 
 
+## Sweeps the whole project for problems: broken values, suspicious combinations, and
+## whatever went wrong the last time it was read from disk.
+##
+## Nothing here stops the user working; it is what the problems panel lists.
+func validate() -> ValidationResult:
+	return ValidationService.validate_project(self)
+
+
 func get_collection(collection_name: String) -> CollectionDocument:
 	for collection: CollectionDocument in collections:
 		if collection.name == collection_name:

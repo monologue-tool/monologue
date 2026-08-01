@@ -4,7 +4,7 @@ const VALUE_TYPES: Array[String] = ["bool", "string", "int", "float"]
 
 
 func initialize_properties() -> void:
-	define_name_property("new variable")
+	define_name_property("new variable").validate(_must_be_an_identifier, &"variable_name")
 
 	define_property(Property.new("type")
 		.set_type("dropdown")
@@ -28,6 +28,14 @@ func get_type() -> String:
 
 func get_preview_property_names() -> Array[String]:
 	return ["name", "type", "value"]
+
+
+## Variable names are written verbatim into conditions and setters, so a name with a
+## space or a leading digit would produce something unparseable downstream.
+func _must_be_an_identifier(context: ValidationContext) -> Variant:
+	if str(context.value).is_valid_identifier():
+		return null
+	return "Use letters, digits and underscores only, and don't start with a digit."
 
 
 func _value_cases() -> Dictionary:

@@ -1,6 +1,4 @@
 # gdlint: disable=max-public-methods
-# (one public method per declarable option, by design -- the god-object heuristic
-#  does not apply, and the directive has to stay on the first line)
 ## One property of an [InspectableObject]: what it is called, what type of value it
 ## holds, how it is presented, and what it currently contains.
 ##
@@ -16,10 +14,6 @@
 ## The path given to [method _init] is "category/name". A path with no slash lands in
 ## the General category, so "notes" and "general/notes" mean the same thing. The
 ## category segment is title-cased for display: "extra/notes" shows under "Extra".
-##
-## [b]Do not run gdformat over declaration files.[/b] It collapses these chains onto a
-## single line whenever they fit, and has no option to leave them alone. gdlint is the
-## project's gate instead.
 ##
 ## Once the owning object has finished declaring, the property is frozen: the methods
 ## below stop having any effect, and only the value and the user's own overrides can
@@ -54,8 +48,14 @@ var connected_from: Array[Dictionary] = []
 ## Output connections. Each entry: {"node_id": String, "property_name": String}.
 var connected_to: Array[Dictionary] = []
 
+## What is currently wrong with this property's value. Transient: filled in by
+## [ValidationService], rendered by the bound field, never serialized.
+var issues: Array[ValidationIssue] = []
+
 ## Declared in code. Frozen once the owning object is built.
 var _settings: Dictionary = {}
+## Checks declared with [method validate] / [method warn_if].
+var _validation_rules: Array[ValidationRule] = []
 ## Changed by the user at runtime. The only part saved as "_editor_settings".
 var _overrides: Dictionary = {}
 ## Keys this declaration set explicitly, so a later [method set_type] cannot undo them.
@@ -75,9 +75,6 @@ func _init(path: String) -> void:
 		name = path.substr(separator_index + 1)
 		var raw_category: String = path.substr(0, separator_index)
 		_settings[PropertySettings.KEY_CATEGORY] = Util.to_readable_name(raw_category)
-
-
-# --- declaration: type and value --------------------------------------------------
 
 
 ## Sets the field type used to edit this property, and folds in that type's own
@@ -116,9 +113,6 @@ func default(new_default: Variant) -> Property:
 	default_value = new_default
 	value = resolve_default()
 	return self
-
-
-# --- declaration: display ---------------------------------------------------------
 
 
 ## Overrides the inspector label. Defaults to a readable form of the name.
@@ -160,9 +154,6 @@ func no_expand() -> Property:
 	return set_setting(PropertySettings.KEY_EXPAND, false)
 
 
-# --- declaration: editing ---------------------------------------------------------
-
-
 ## Shown in the inspector and editable. Use after [method main_property], which hides
 ## the property by default.
 func editable() -> Property:
@@ -183,9 +174,6 @@ func not_editable() -> Property:
 ## Marks the owning list item as undeletable.
 func protected() -> Property:
 	return set_setting(PropertySettings.KEY_PROTECT, true)
-
-
-# --- declaration: ports -----------------------------------------------------------
 
 
 ## The object's primary connectable property: drawn first in the graph, so it owns
@@ -218,9 +206,6 @@ func not_exposable() -> Property:
 ## "normal" or "large".
 func port_size(size: String) -> Property:
 	return set_setting(PropertySettings.KEY_PORT_SIZE, size)
-
-
-# --- declaration: per field type --------------------------------------------------
 
 
 ## (collection) Name of the collection type each item is built from.
@@ -264,9 +249,6 @@ func cases(case_property: String, case_map: Dictionary) -> Property:
 	return set_setting(PropertySettings.KEY_CASES, case_map)
 
 
-# --- declaration: validation ------------------------------------------------------
-
-
 func required() -> Property:
 	return set_setting(PropertySettings.KEY_REQUIRED, true)
 
@@ -274,6 +256,39 @@ func required() -> Property:
 ## Value must differ from every sibling item's value for the same property.
 func unique_among_siblings() -> Property:
 	return set_setting(PropertySettings.KEY_UNIQUE, true)
+
+
+## Attaches a check written next to the property it guards. [param function] takes a
+## [ValidationContext] (or nothing) and returns null/true when the value is fine, or a
+## String / [ValidationIssue] describing what is wrong:
+## [codeblock]
+## define_property(Property.new("name")
+##     .set_type("text")
+##     .validate(_must_be_an_identifier))
+## [/codeblock]
+func validate(function: Callable, code: StringName = &"custom") -> Property:
+	if _frozen:
+		_warn_frozen()
+		return self
+	_validation_rules.append(CallableRule.new(function, code))
+	return self
+
+
+## Same as [method validate], but reports a warning instead of an error, so it shows up
+## in the problems panel without marking the value broken.
+func warn_if(function: Callable, code: StringName = &"custom") -> Property:
+	if _frozen:
+		_warn_frozen()
+		return self
+	_validation_rules.append(
+		CallableRule.new(function, code, ValidationIssue.Severity.WARNING)
+	)
+	return self
+
+
+## Rules declared with [method validate] / [method warn_if]. Read by ValidationService.
+func get_validation_rules() -> Array[ValidationRule]:
+	return _validation_rules
 
 
 func min_length(length: int) -> Property:
@@ -288,9 +303,6 @@ func max_length(length: int) -> Property:
 func value_range(minimum: float, maximum: float) -> Property:
 	_add_rule("min", minimum)
 	return _add_rule("max", maximum)
-
-
-# --- declaration: escape hatches --------------------------------------------------
 
 
 ## Sets one declared setting. Prefer a named method when one exists; this is for keys
@@ -317,9 +329,6 @@ func freeze() -> void:
 
 func is_frozen() -> bool:
 	return _frozen
-
-
-# --- runtime ----------------------------------------------------------------------
 
 
 ## The value a fresh instance starts with: evaluates a [Callable] default, and
