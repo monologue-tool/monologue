@@ -1,14 +1,10 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("res://common/fields/collection/collection_field.tscn")
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "collection",
-		"type": ObjectType.FIELD,
-		"color": Color("b48eadff"),
-		"default_value": []
-	}
+func _init() -> void:
+	name = "collection"
+	display_name = "Collection"
+	description = "An ordered list of full collection items, unlike `list` which holds primitives."
+	color = Color("b48ead")
+	scene_uid = "res://common/fields/collection/collection_field.tscn"
+	default_value = []

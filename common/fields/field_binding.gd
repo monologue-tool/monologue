@@ -2,7 +2,7 @@ class_name FieldBinding extends RefCounted
 
 var property: Property
 var field: Field
-var descriptor: FieldDescriptor
+var descriptor: FieldIndexer
 var owner: InspectableObject
 
 var _is_syncing: bool = false
@@ -12,7 +12,7 @@ var _is_released: bool = false
 func _init(
 	p_property: Property,
 	p_field: Field,
-	p_descriptor: FieldDescriptor,
+	p_descriptor: FieldIndexer,
 	p_owner: InspectableObject = null
 ) -> void:
 	property = p_property

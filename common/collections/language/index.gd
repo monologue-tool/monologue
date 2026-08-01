@@ -1,13 +1,9 @@
-extends MonologueIndexer
+extends CollectionIndexer
 
 
-func get_scene() -> PackedScene:
-	return null
-
-
-func get_metadata() -> Dictionary:
-	return {"name": "languages", "type": ObjectType.COLLECTION}
-
-
-func get_collection_item_script() -> Script:
-	return preload("res://common/collections/language/language_item.gd")
+func _init() -> void:
+	name = "languages"
+	display_name = "Languages"
+	description = "Languages a translatable field can be written in."
+	item_script = preload("res://common/collections/language/language_item.gd")
+	label_property = "name"

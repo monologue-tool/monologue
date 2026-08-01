@@ -1,14 +1,10 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("uid://cqhk5p4a8jx0b")
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "dropdown",
-		"type": ObjectType.FIELD,
-		"color": Color("88c0d0ff"),
-		"default_value": ""
-	}
+func _init() -> void:
+	name = "dropdown"
+	display_name = "Dropdown"
+	description = "Pick one value from a static list or from a collection."
+	color = Color("88c0d0")
+	scene_uid = "uid://cqhk5p4a8jx0b"
+	default_value = ""

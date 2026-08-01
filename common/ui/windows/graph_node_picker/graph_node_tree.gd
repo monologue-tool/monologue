@@ -17,7 +17,8 @@ func reload_tree() -> void:
 	var root := create_item()
 	create_btn.disabled = true
 
-	var categories: PackedStringArray = NodeBucket.get_categories(true)
+	var registry: MonologueRegistry = MonologueRegistry.get_instance()
+	var categories: PackedStringArray = registry.list_categories(MonologueObjectType.NODE, true)
 	if categories.is_empty():
 		_add_placeholder(root, "No nodes available")
 		return
@@ -27,9 +28,10 @@ func reload_tree() -> void:
 		category_item.set_text(0, category)
 		category_item.collapsed = true
 		category_item.set_selectable(0, false)
-		var descriptors: Array = NodeBucket.get_descriptors_by_category(category)
-		for descriptor: BucketDescriptor in descriptors:
-			_create_descriptor_item(category_item, descriptor)
+		for indexer: MonologueIndexer in registry.list_by_category(
+			MonologueObjectType.NODE, category
+		):
+			_create_indexer_item(category_item, indexer)
 
 	deselect_all()
 
@@ -40,12 +42,14 @@ func _add_placeholder(parent: TreeItem, text: String) -> void:
 	placeholder.set_selectable(0, false)
 
 
-func _create_descriptor_item(parent: TreeItem, descriptor: BucketDescriptor) -> void:
+func _create_indexer_item(parent: TreeItem, indexer: MonologueIndexer) -> void:
 	var item := create_item(parent)
-	item.set_text(0, descriptor.display_name)
-	if descriptor.icon:
-		item.set_icon(0, descriptor.icon)
-	item.set_metadata(0, descriptor.name)
+	item.set_text(0, indexer.get_display_name())
+	item.set_tooltip_text(0, indexer.description)
+	var icon: Texture2D = indexer.get_icon()
+	if icon:
+		item.set_icon(0, icon)
+	item.set_metadata(0, indexer.name)
 
 
 func _create() -> bool:

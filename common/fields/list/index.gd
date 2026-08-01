@@ -1,11 +1,10 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("uid://d2s4kv1234abc")
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "list", "type": ObjectType.FIELD, "color": Color("b48eadff"), "default_value": []
-	}
+func _init() -> void:
+	name = "list"
+	display_name = "List"
+	description = "An ordered list of primitive values, all of the same field type."
+	color = Color("b48ead")
+	scene_uid = "uid://d2s4kv1234abc"
+	default_value = []

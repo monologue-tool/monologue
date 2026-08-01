@@ -1,22 +1,10 @@
-extends MonologueIndexer
-
-const NODE_SCRIPT := preload("uid://8hoiik6d0qim")
+extends NodeIndexer
 
 
-func get_scene() -> PackedScene:
-	return null
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "text",
-		"type": ObjectType.NODE,
-		"display_name": "Text",
-		"category": "Narration",
-		"script": NODE_SCRIPT,
-		"color": Color("af85fdff")
-	}
-
-
-func get_node_script() -> Script:
-	return NODE_SCRIPT
+func _init() -> void:
+	name = "text"
+	display_name = "Text"
+	description = "Narration text with no speaker."
+	category = "Narration"
+	color = Color("af85fd")
+	node_script = preload("uid://8hoiik6d0qim")

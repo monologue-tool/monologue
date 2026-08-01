@@ -30,7 +30,7 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 	if not _property:
 		return
 
-	_list_field = FieldBucket.safe_create_field(_property.type)
+	_list_field = FieldWidgetFactory.create_or_placeholder(_property.type)
 	if _list_field is BaseListField:
 		_property.bind_field(_list_field, _property_owner)
 	vbox.add_child(_list_field)

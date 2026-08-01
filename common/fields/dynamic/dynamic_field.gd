@@ -66,7 +66,7 @@ func _update_case_field() -> void:
 	# TODO: honour case_data["default"] when the case has no stored value yet.
 	# TODO: honour case_data["coerce"] to convert the value when the case changes.
 
-	var new_field: Control = FieldBucket.safe_create_field(case_type)
+	var new_field: Control = FieldWidgetFactory.create_or_placeholder(case_type)
 	field_container.add_child(new_field)
 	_field = null
 	if new_field is Field:

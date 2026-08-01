@@ -24,6 +24,10 @@ func _ready() -> void:
 	node_selected.connect(_on_node_selected)
 	paste_nodes_request.connect(_on_paste_nodes_request)
 
+	# GraphEdit refuses a drag between differing slot types before it ever emits
+	# connection_request, so every compatible pair has to be declared up front.
+	MonologueRegistry.get_instance().apply_connection_types(self)
+
 	EventBus.refresh_graph.connect(refresh)
 
 
@@ -159,7 +163,7 @@ func _on_connection_request(
 	var from_port_type: int = from_graph_node.get_output_port_type(from_port)
 	var to_port_type: int = to_graph_node.get_input_port_type(to_port)
 
-	if not FieldBucket.is_compatible(from_port_type, to_port_type):
+	if not MonologueRegistry.get_instance().is_compatible(from_port_type, to_port_type):
 		return
 
 	# Get property names at the port indices

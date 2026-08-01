@@ -1,9 +1,9 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("uid://bmpb6yh0x0sup")
-
-
-func get_metadata() -> Dictionary:
-	return {"name": "dynamic", "type": ObjectType.FIELD, "color": Color("af88d1ff")}
+func _init() -> void:
+	name = "dynamic"
+	display_name = "Dynamic"
+	description = "Swaps its widget based on the value of a sibling property."
+	color = Color("af88d1")
+	scene_uid = "uid://bmpb6yh0x0sup"

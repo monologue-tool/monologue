@@ -76,13 +76,13 @@ func get_project_structure() -> Dictionary[String, Variant]:
 
 
 func _init_collections() -> void:
-	var default_narrator: CollectionItem = CollectionBucket.create_item(
+	var default_narrator: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		"characters", command_manager
 	)
 	default_narrator.set_property_value("name", "Narrator")
 	default_narrator.set_property_value("protected", true)
 
-	var default_language: CollectionItem = CollectionBucket.create_item(
+	var default_language: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		"languages", command_manager
 	)
 	default_language.set_property_value("name", "English")
@@ -98,7 +98,9 @@ func _init_collections() -> void:
 	}
 	var beziers_data: Array = []
 	for bezier_name: String in default_beziers:
-		var bezier_item: CollectionItem = CollectionBucket.create_item("beziers", command_manager)
+		var bezier_item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+			"beziers", command_manager
+		)
 		bezier_item.set_property_value("name", bezier_name)
 		bezier_item.set_property_value("bezier", default_beziers.get(bezier_name))
 		beziers_data.append(bezier_item._to_dict())

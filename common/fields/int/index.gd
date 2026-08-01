@@ -1,22 +1,16 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("uid://c7513qgkxx0m8")
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "int",
-		"type": ObjectType.FIELD,
-		"color": Color("45cee9ff"),
-		"compatible_types": ["slider", "float"],
-		"default_value": 0,
-		"default_settings":
-		{
-			"rounded": true,
-			"step": 1.0,
-			"allow_greater": true,
-			"allow_lesser": true,
-		}
+func _init() -> void:
+	name = "int"
+	display_name = "Integer"
+	color = Color("45cee9")
+	scene_uid = "uid://c7513qgkxx0m8"
+	default_value = 0
+	compatible_types = ["float", "slider"]
+	default_settings = {
+		"rounded": true,
+		"step": 1.0,
+		"allow_greater": true,
+		"allow_lesser": true,
 	}

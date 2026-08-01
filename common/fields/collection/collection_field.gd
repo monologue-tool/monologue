@@ -10,7 +10,7 @@ func _on_initialize() -> void:
 		Log.warning("CollectionField is not binded.")
 
 	var collection: Variant = property.get_settings_value("collection")
-	if not collection or not CollectionBucket.get_descriptor(str(collection)):
+	if not collection or not MonologueRegistry.get_instance().get_collection(str(collection)):
 		Log.error("Can't find collection %s." % str(collection))
 		return
 	_collection_name = collection
@@ -81,7 +81,7 @@ func get_value() -> Variant:
 
 
 func _create_new_list_item(from_data: Dictionary = {}) -> CollectionItem:
-	var item: CollectionItem = CollectionBucket.create_item(
+	var item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		_collection_name, _binding.owner.history
 	)
 	item._from_dict(from_data)
@@ -110,7 +110,7 @@ func _on_duplicate_item(index: int) -> void:
 		return
 
 	var item_data: Dictionary = children[index]._to_dict()
-	var new_item: CollectionItem = CollectionBucket.create_item(
+	var new_item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		_collection_name, _binding.owner.history
 	)
 	new_item._from_dict(item_data)

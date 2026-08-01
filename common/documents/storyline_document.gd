@@ -33,7 +33,7 @@ func remove_node(node: InspectableNode) -> void:
 
 
 func create_node(node_type: String) -> InspectableNode:
-	var node: InspectableNode = NodeBucket.create_node(node_type, history)
+	var node: InspectableNode = MonologueRegistry.get_instance().create_node(node_type, history)
 	_register_node(node)
 	return node
 
@@ -63,20 +63,29 @@ func _get_id() -> String:
 
 
 func _create_default_nodes() -> void:
-	var root_node: InspectableNode = NodeBucket.create_node("root", history)
+	var root_node: InspectableNode = MonologueRegistry.get_instance().create_node("root", history)
 	var root_mp: Property = root_node.get_main_property()
 
-	var sent_node: InspectableNode = NodeBucket.create_node("sentence", history)
+	var sent_node: InspectableNode = MonologueRegistry.get_instance().create_node(
+		"sentence", history
+	)
 	var sent_mp: Property = sent_node.get_main_property()
 
-	var option_node: InspectableNode = NodeBucket.create_node("option", history)
+	var option_node: InspectableNode = MonologueRegistry.get_instance().create_node(
+		"option", history
+	)
 	var option_mp: Property = option_node.get_main_property()
 
-	var choice_node: InspectableNode = NodeBucket.create_node("choice", history)
+	var choice_node: InspectableNode = MonologueRegistry.get_instance().create_node(
+		"choice", history
+	)
 	var choice_mp: Property = choice_node.get_main_property()
 	var choice_opt: Array[Dictionary] = []
 	for _i: int in range(2):
-		choice_opt.append(CollectionBucket.create_item("option", history)._to_dict())
+		var choice_item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+			"options", history
+		)
+		choice_opt.append(choice_item._to_dict())
 
 	sent_node.get_property("position").set_value([240.0, 0])
 	option_node.get_property("position").set_value([240.0, 120.0])
@@ -144,7 +153,7 @@ func _from_dict(dict: Dictionary) -> void:
 		var node_type: String = node_data.get("$type", "")
 		if node_type.is_empty():
 			continue
-		var node: InspectableNode = NodeBucket.create_node(node_type, history)
+		var node: InspectableNode = MonologueRegistry.get_instance().create_node(node_type, history)
 		if not node:
 			push_warning("Could not create node of type '%s' from dict." % node_type)
 			continue

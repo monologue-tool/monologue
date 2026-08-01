@@ -12,7 +12,7 @@ func initialize_properties() -> void:
 		[],
 		"collection",
 		{
-			"collection": "option",
+			"collection": "options",
 			"exposed": false,
 			"visible_in_graph": true,
 		},

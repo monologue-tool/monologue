@@ -10,7 +10,7 @@ var type: String = ""
 var _base_settings: Dictionary = {}
 ## Runtime overrides set by the user (serialized as "_editor_settings" in JSON).
 var _overrides: Dictionary = {}
-var descriptor: FieldDescriptor
+var descriptor: FieldIndexer
 var _bindings: Array[FieldBinding] = []
 
 const DEFAULT_SETTINGS: Dictionary = {
@@ -49,7 +49,7 @@ func _init(pname: String, pvalue: Variant, ptype: String, psettings: Dictionary 
 		value = pvalue.call()
 
 	type = ptype
-	descriptor = FieldBucket.get_descriptor(ptype)
+	descriptor = MonologueRegistry.get_instance().get_field(ptype)
 	_base_settings = DEFAULT_SETTINGS.duplicate(true)
 	if descriptor and descriptor.default_settings:
 		_base_settings.merge(descriptor.default_settings, true)
@@ -72,7 +72,7 @@ func bind_field(
 		Log.error("Failed to bind field.")
 		return null
 
-	var binding: FieldBinding = FieldBucket.bind(self, field, target_owner)
+	var binding: FieldBinding = FieldWidgetFactory.bind(self, field, target_owner)
 	if binding:
 		_bindings.append(binding)
 	return binding
@@ -195,9 +195,9 @@ func refresh_bindings() -> void:
 		binding.refresh()
 
 
-func get_descriptor() -> FieldDescriptor:
+func get_descriptor() -> FieldIndexer:
 	if descriptor == null:
-		descriptor = FieldBucket.get_descriptor(type)
+		descriptor = MonologueRegistry.get_instance().get_field(type)
 	return descriptor
 
 

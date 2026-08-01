@@ -41,7 +41,7 @@ static func _make_item_row(
 
 	var preview_prop_name: String = item.get_preview_property_names()[0]
 	var preview_prop: Property = item.get_property(preview_prop_name)
-	var preview_field: Field = FieldBucket.create_field(preview_prop.type)
+	var preview_field: Field = FieldWidgetFactory.create(preview_prop.type)
 	preview_field.set_preview()
 	preview_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	preview_field.mouse_filter = Control.MOUSE_FILTER_IGNORE

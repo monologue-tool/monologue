@@ -148,7 +148,7 @@ func _rebuild_value_field(variable_id: String, value: Variant) -> void:
 		_value_field.queue_free()
 		_value_field = null
 
-	var new_field: Control = FieldBucket.safe_create_field(field_type)
+	var new_field: Control = FieldWidgetFactory.create_or_placeholder(field_type)
 	if new_field == null:
 		return
 

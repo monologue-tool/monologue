@@ -13,7 +13,7 @@ func _on_initialize() -> void:
 		return
 
 	_item_type = str(property.get_settings_value(PropertySettings.KEY_ITEM_TYPE, "text"))
-	if not FieldBucket.get_field_descriptor(_item_type):
+	if not MonologueRegistry.get_instance().get_field(_item_type):
 		Log.error("Can't find list item field type %s." % _item_type)
 
 
@@ -111,7 +111,7 @@ func _rebuild_ui() -> void:
 		row.add_child(drag_handle)
 		row.init_drag()
 
-		var item_field: Field = FieldBucket.create_field(_item_type)
+		var item_field: Field = FieldWidgetFactory.create(_item_type)
 		if not item_field:
 			continue
 		item_field.set_preview()
@@ -129,7 +129,7 @@ func _rebuild_ui() -> void:
 
 
 func _create_item_property(value: Variant = null) -> Property:
-	var descriptor: FieldDescriptor = FieldBucket.get_field_descriptor(_item_type)
+	var descriptor: FieldIndexer = MonologueRegistry.get_instance().get_field(_item_type)
 	var default_value: Variant = value
 	if default_value == null and descriptor:
 		default_value = descriptor.default_value

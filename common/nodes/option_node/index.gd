@@ -1,24 +1,11 @@
-extends MonologueIndexer
-
-const NODE_SCRIPT := preload("option_node.gd")
-const ICON_PATH: String = "res://ui/assets/icons/action.svg"
+extends NodeIndexer
 
 
-func get_scene() -> PackedScene:
-	return null
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "option",
-		"type": ObjectType.NODE,
-		"display_name": "Option",
-		"category": "Flow",
-		"script": NODE_SCRIPT,
-		"icon": ICON_PATH,
-		"color": Color("e89145")
-	}
-
-
-func get_node_script() -> Script:
-	return NODE_SCRIPT
+func _init() -> void:
+	name = "option"
+	display_name = "Option"
+	description = "A single reusable option that can be plugged into a choice node."
+	category = "Flow"
+	color = Color("e89145")
+	icon_path = "res://ui/assets/icons/action.svg"
+	node_script = preload("option_node.gd")

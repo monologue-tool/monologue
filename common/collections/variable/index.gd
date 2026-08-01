@@ -1,13 +1,9 @@
-extends MonologueIndexer
+extends CollectionIndexer
 
 
-func get_scene() -> PackedScene:
-	return null
-
-
-func get_metadata() -> Dictionary:
-	return {"name": "variables", "type": ObjectType.COLLECTION}
-
-
-func get_collection_item_script() -> Script:
-	return preload("uid://b8gmqtdncql4s")
+func _init() -> void:
+	name = "variables"
+	display_name = "Variables"
+	description = "Named values the story can read in conditions and write with setters."
+	item_script = preload("uid://b8gmqtdncql4s")
+	label_property = "name"

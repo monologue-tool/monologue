@@ -226,7 +226,7 @@ func _create_property_editor(
 		inspect_button.pressed.connect(_on_inspect_connected_node.bind(property))
 		p_field = inspect_button
 	else:
-		p_field = FieldBucket.safe_create_field(property.type)
+		p_field = FieldWidgetFactory.create_or_placeholder(property.type)
 
 	var is_vertical: bool = false
 	if p_field is Field:

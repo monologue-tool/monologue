@@ -4,15 +4,14 @@ var graph_dict: Dictionary = {}
 
 
 func _build_menu() -> void:
+	var registry: MonologueRegistry = MonologueRegistry.get_instance()
 	var id: int = 0
-	for category in NodeBucket.get_categories(false):
+	for category: String in registry.list_categories(MonologueObjectType.NODE):
 		var submenu: PopupMenu = add_submenu_row(category, _on_add_node)
 
-		for node: GraphNodeDescriptor in NodeBucket.get_descriptors_by_category(category):
-			var node_name: String = node.name
-			var node_display_name: String = node.display_name
-			submenu.add_item(node_display_name, id)
-			graph_dict[id] = node_name
+		for node: MonologueIndexer in registry.list_by_category(MonologueObjectType.NODE, category):
+			submenu.add_item(node.get_display_name(), id)
+			graph_dict[id] = node.name
 			id += 1
 
 

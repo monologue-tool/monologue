@@ -1,14 +1,10 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("uid://bg1c7vlg63ty1")
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "translatable",
-		"type": ObjectType.FIELD,
-		"color": Color("628cffff"),
-		"default_value": {"en": ""}
-	}
+func _init() -> void:
+	name = "translatable"
+	display_name = "Translatable"
+	description = "Text stored per language code, keyed by the project's languages."
+	color = Color("628cff")
+	scene_uid = "uid://bg1c7vlg63ty1"
+	default_value = {"en": ""}

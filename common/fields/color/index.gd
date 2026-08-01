@@ -1,14 +1,9 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return preload("uid://dywxnyncdf55t")
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "color",
-		"type": ObjectType.FIELD,
-		"color": Color("d1b37bff"),
-		"default_value": "#000000"
-	}
+func _init() -> void:
+	name = "color"
+	display_name = "Color"
+	color = Color("d1b37b")
+	scene_uid = "uid://dywxnyncdf55t"
+	default_value = "#000000"

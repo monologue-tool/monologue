@@ -1,13 +1,10 @@
-extends MonologueIndexer
+extends CollectionIndexer
 
 
-func get_scene() -> PackedScene:
-	return null
-
-
-func get_metadata() -> Dictionary:
-	return {"name": "portraits", "type": ObjectType.COLLECTION}
-
-
-func get_collection_item_script() -> Script:
-	return preload("uid://brhhri86u8h56")
+func _init() -> void:
+	name = "portraits"
+	display_name = "Portraits"
+	description = "Character artwork. Lives inside a character rather than project-wide."
+	item_script = preload("uid://brhhri86u8h56")
+	is_project_scoped = false
+	label_property = "name"

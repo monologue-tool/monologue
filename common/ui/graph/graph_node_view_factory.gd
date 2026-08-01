@@ -79,8 +79,8 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		if row.get_type():
 			value_label.text = "[%s]" % row.get_type()
 
-		var field_metadata: Dictionary = FieldBucket.get_metadata(row.get_type())
-		var slot_color: Color = field_metadata.get("color", Color.WHITE)
+		var row_indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(row.get_type())
+		var slot_color: Color = row_indexer.color if row_indexer else Color.WHITE
 
 		value_label.label_settings = LabelSettings.new()
 		value_label.label_settings.font_color = slot_color
@@ -96,7 +96,7 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		if row.port_size == "large":
 			container.custom_minimum_size.y = 32
 
-		var type_id: int = FieldBucket.get_type_id(row.get_type())
+		var type_id: int = MonologueRegistry.get_instance().get_field_type_id(row.get_type())
 		graph_node.set_slot(
 			idx,
 			row._enable_left_port,
@@ -153,10 +153,7 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	if prop.type == "collection":
 		var collection_name: String = prop.get_settings_value(PropertySettings.KEY_COLLECTION, "")
 		if not collection_name.is_empty():
-			var field_descriptor: FieldDescriptor = FieldBucket.get_field_descriptor(
-				collection_name
-			)
-			if field_descriptor:
+			if MonologueRegistry.get_instance().get_field(collection_name):
 				row_type = collection_name
 	var row: GraphNodeRow = GraphNodeRow.new(label, row_type, enable_left, enable_right)
 	row._property_name = prop.name
@@ -170,7 +167,9 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 	if coll_name.is_empty():
 		return sub_rows
 
-	var probe: CollectionItem = CollectionBucket.create_item(coll_name, CommandManager.new())
+	var probe: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		coll_name, CommandManager.new()
+	)
 	if not probe or not probe.has_main_property():
 		return sub_rows
 

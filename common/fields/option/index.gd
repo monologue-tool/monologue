@@ -1,14 +1,9 @@
-extends MonologueIndexer
+extends FieldIndexer
 
 
-func get_scene() -> PackedScene:
-	return PackedScene.new()
-
-
-func get_metadata() -> Dictionary:
-	return {
-		"name": "option",
-		"type": ObjectType.FIELD,
-		"color": Color("e89145"),
-		"compatible_types": ["option"],
-	}
+func _init() -> void:
+	name = "option"
+	display_name = "Option"
+	description = "Port-only type linking an option node to a choice node's option list."
+	color = Color("e89145")
+	is_port_only = true
