@@ -2,13 +2,27 @@ class_name ConfigurationDocument extends InspectableDocument
 
 
 func initialize_properties() -> void:
-	define_property("show_project_explorer", true, "bool", {}, "Interface")
-	define_property("show_inspector", true, "bool", {}, "Interface")
-	define_property("show_console", false, "bool", {}, "Interface")
-	define_property("show_status_bar", true, "bool", {}, "Interface")
+	define_property(Property.new("interface/show_project_explorer")
+		.set_type("bool")
+		.default(true))
 
-	define_property("snap", false, "bool", {}, "Graph")
-	define_property("show_grid", true, "bool", {}, "Graph")
+	define_property(Property.new("interface/show_inspector")
+		.set_type("bool")
+		.default(true))
+
+	define_property(Property.new("interface/show_console")
+		.set_type("bool"))
+
+	define_property(Property.new("interface/show_status_bar")
+		.set_type("bool")
+		.default(true))
+
+	define_property(Property.new("graph/snap")
+		.set_type("bool"))
+
+	define_property(Property.new("graph/show_grid")
+		.set_type("bool")
+		.default(true))
 
 
 func set_property_value(pname: String, pvalue: Variant) -> void:

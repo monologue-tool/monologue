@@ -7,10 +7,15 @@ var _is_updating: bool = false
 
 
 func _ready() -> void:
+	super._ready()
 	slider.value_changed.connect(_on_slider_value_changed)
 	slider.drag_ended.connect(_on_slider_drag_ended)
 	spin_box.value_changed.connect(_on_spin_box_value_changed)
 
+
+# Settings are read here, not in _ready(): binding is deferred, so per-property
+# min/max/step only exist by the time _on_initialize() runs.
+func _on_initialize() -> void:
 	for control: Range in [slider, spin_box]:
 		control.min_value = settings.get("min_value", 0.0)
 		control.max_value = settings.get("max_value", 100.0)

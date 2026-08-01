@@ -13,7 +13,12 @@ func _init(
 
 
 func initialize_properties() -> void:
-	define_property(name, _default_value, "collection", {"collection": name})
+	# A collection document is a single property named after the collection itself,
+	# holding every item in it.
+	define_property(Property.new(name)
+		.set_type("collection")
+		.default(_default_value)
+		.collection(name))
 
 
 func get_value() -> Array:

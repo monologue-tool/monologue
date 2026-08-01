@@ -7,87 +7,38 @@ var _main_property_defined: bool = false
 
 
 func _init(command_manager: CommandManager = null) -> void:
-	define_property(
-		"color",
-		"#000000",
-		"color",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"flat": true,
-			"expand": false,
-		},
-		"Special:Header"
-	)
-	# Keep all connection references in sync when the id changes
-	var id_prop: Property = get_property("id")
-	if id_prop and not id_prop.value_changed.is_connected(_on_id_value_changed):
-		id_prop.value_changed.connect(_on_id_value_changed)
+	# Declared before super._init(), which is what runs initialize_properties() and
+	# then freezes every property. Anything defined after it would escape the freeze.
+	define_property(Property.new("color")
+		.set_type("color")
+		.default("#000000")
+		.header()
+		.no_expand())
+
+	define_property(Property.new("extra/notes")
+		.set_type("textarea")
+		.hidden_in_graph()
+		.not_exposable())
+
+	define_property(Property.new("extra/position")
+		.set_type("vector2")
+		.hidden_in_graph()
+		.hidden_in_inspector()
+		.not_exposable())
+
 	super._init(command_manager)
-	define_property(
-		"notes",
-		"",
-		"textarea",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"exposable": false,
-		},
-		"Extra"
-	)
-	define_property(
-		"position",
-		[0.0, 0.0],
-		"vector2",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": false,
-			"read_only": false,
-			"exposable": false,
-		},
-		"Extra"
-	)
 
 	if not _main_property_defined:
-		push_error("Main property not defined")
+		push_error("%s does not declare a main property." % get_type())
 
 
-func define_main_property(
-	pname: String,
-	type: String,
-	editable: bool = false,
-	default_value: Variant = null,
-	psettings: Dictionary = {},
-	category: String = "General"
-) -> void:
-	if _main_property_defined:
-		push_error("Main property already defined")
-		return
-
-	var default_settings: Dictionary = {}
-	default_settings["visible_in_graph"] = true
-	default_settings["visible_in_inspector"] = editable
-	default_settings["editable"] = editable
-	default_settings["exposable"] = true
-	default_settings["exposed"] = true
-	default_settings["export"] = true
-	default_settings["is_main_property"] = true
-
-	var merged_settings: Dictionary = default_settings.duplicate()
-	merged_settings.merge(psettings, true)
-
-	define_property(pname, default_value, type, merged_settings, category)
-	_main_property_defined = true
-
-
-func define_property(
-	pname: String,
-	default_value: Variant,
-	ptype: String,
-	psettings: Dictionary = {},
-	category: String = "General"
-) -> void:
-	super.define_property(pname, default_value, ptype, psettings, category)
+## Tracks the main property as it is declared, so a node cannot end up with two.
+func define_property(property: Property) -> Property:
+	if property.is_main_property():
+		if _main_property_defined:
+			push_error("%s declares more than one main property." % get_type())
+		_main_property_defined = true
+	return super.define_property(property)
 
 
 func get_id() -> String:
@@ -130,27 +81,11 @@ func rebuild_preview() -> void:
 
 @abstract func get_type() -> String
 
-
-func _on_id_value_changed(old_value: Variant, new_value: Variant) -> void:
-	var old_id: String = str(old_value)
-	var new_id: String = str(new_value)
-	if old_id == new_id:
-		return
-
-	# Update all connection references via connection manager
-	if is_instance_valid(graph_view):
-		var graph_edit: MonologueGraphEdit = graph_view.get_parent()
-		if graph_edit and graph_edit is MonologueGraphEdit and graph_edit.connection_manager:
-			graph_edit.connection_manager.rename_node_id(old_id, new_id)
-
-	# Ensure the GraphNode uses the new id as its name and reconnect
-	if is_instance_valid(graph_view):
-		graph_view.name = new_id
-		var gv_parent: MonologueGraphEdit = graph_view.get_parent()
-		if gv_parent and gv_parent is MonologueGraphEdit:
-			gv_parent.clear_connections()
-			gv_parent._reconnect_all_slots()
-
+# _on_id_value_changed used to live here, meant to rewrite every connection when a
+# node id changed. It was never actually connected: the old _init read
+# get_property("id") before super._init() had declared it, so the listener was always
+# null. Removed rather than repaired -- ids become immutable in the reference rework,
+# which is where ConnectionManager.rename_node_id() goes too.
 
 @warning_ignore("native_method_override")
 func duplicate(deep: bool = false) -> Resource:

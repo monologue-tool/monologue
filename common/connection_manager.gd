@@ -105,9 +105,9 @@ func unregister_connection_by_property(
 	var old_to_size: int = from_prop.connected_to.size()
 	from_prop.connected_to.assign(
 		from_prop.connected_to.filter(
-			func(c: Dictionary) -> bool:
-				return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name)
-				)
+			(func(c: Dictionary) -> bool:
+				return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name))
+		)
 	)
 	if from_prop.connected_to.size() != old_to_size:
 		from_prop.connection_changed.emit()
@@ -115,10 +115,11 @@ func unregister_connection_by_property(
 	var old_from_size: int = to_prop.connected_from.size()
 	to_prop.connected_from.assign(
 		to_prop.connected_from.filter(
-			func(c: Dictionary) -> bool:
+			(func(c: Dictionary) -> bool:
 				return not (
 					c["node_id"] == from_node_id and c["property_name"] == from_property_name
 				))
+		)
 	)
 	if to_prop.connected_from.size() != old_from_size:
 		to_prop.connection_changed.emit()

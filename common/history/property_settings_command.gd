@@ -23,21 +23,20 @@ func _init(
 
 func execute() -> void:
 	var property: Property = target.get_property(property_name)
-	property._overrides[settings_name] = new_value
+	# set_settings_value emits settings_changed, which is how bound fields refresh.
+	property.set_settings_value(settings_name, new_value)
 	_handle_connection_visibility(new_value)
 	target.property_changed.emit(property_name)
-	property.refresh_bindings()
 
 
 func undo() -> void:
 	var property: Property = target.get_property(property_name)
 	if old_value:
-		property._overrides[settings_name] = old_value
+		property.set_settings_value(settings_name, old_value)
 	else:
-		property._overrides.erase(settings_name)
+		property.erase_settings_value(settings_name)
 	_handle_connection_visibility(old_value)
 	target.property_changed.emit(property_name)
-	property.refresh_bindings()
 
 
 func get_description() -> String:

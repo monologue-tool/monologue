@@ -7,7 +7,7 @@ func _on_initialize() -> void:
 	super._on_initialize()
 	var property: Property = _binding.property if _binding else null
 	if not property:
-		Log.warning("CollectionField is not binded.")
+		Log.warn("CollectionField is not binded.")
 
 	var collection: Variant = property.get_settings_value("collection")
 	if not collection or not MonologueRegistry.get_instance().get_collection(str(collection)):

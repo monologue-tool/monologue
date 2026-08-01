@@ -1,76 +1,113 @@
+## Development node exercising every field type at once, so a change to the field
+## system can be eyeballed in one place. Hidden from the add-node menu.
 class_name ZooNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	define_main_property("zoo", "context", false, null, {"exposed": false, "export": true})
+	define_property(Property.new("zoo")
+		.set_type("context")
+		.main_property()
+		.exposed(false)
+		.exported())
 
-	# Text
-	define_property("text", "", "text", {}, "Text")
-	define_property("textarea", "", "textarea", {}, "Text")
-	define_property("translatable", {"en": ""}, "translatable", {}, "Text")
-	define_property(
-		"translatable_multiline",
-		{"en": ""},
-		"translatable",
-		{PropertySettings.KEY_MULTILINE: true},
-		"Text"
-	)
+	_define_text_properties()
+	_define_value_properties()
+	_define_reference_properties()
+	_define_list_properties()
 
-	# Values
-	define_property("bool", false, "bool", {}, "Values")
-	define_property("color2", "#3b5dc9", "color", {}, "Values")
-	define_property(
-		"dynamic_dropdown",
-		"string",
-		"dropdown",
-		{"required": true, "options": ["bool", "string", "int", "float"]},
-		"Values"
-	)
-	define_property(
-		"dynamic",
-		"abc",
-		"dynamic",
-		{
-			"case_property": "dynamic_dropdown",
-			"cases":
-			{
-				"bool": {"type": "bool", "default": false},
-				"string": {"type": "text", "default": "", "coerce": "string"},
-				"int": {"type": "int", "default": 0, "coerce": "int"},
-				"float": {"type": "float", "default": 0.0, "coerce": "float"}
-			}
-		},
-		"Values"
-	)
-	define_property("float", 10.0, "float", {}, "Values")
-	define_property("int", 10, "int", {}, "Values")
-	define_property("slider", 10.0, "slider", {}, "Values")
-	define_property("vector2", [0.0, 0.0], "vector2", {}, "Values")
-	define_property("bezier", [0.25, 0.10, 0.25, 1.0], "bezier", {}, "Values")
-
-	# References
-	define_property("file", "", "file", {}, "References")
-	define_property("dropdown", "", "dropdown", {"source": "characters"}, "References")
-
-	# List
-	define_property(
-		"collection", [], "collection", {PropertySettings.KEY_COLLECTION: "characters"}, "List"
-	)
-	define_property(
-		"collection_dropdown",
-		"",
-		"dropdown",
-		{PropertySettings.KEY_SOURCE: "self:collection"},
-		"List"
-	)
-	define_property("list", [], "list", {PropertySettings.KEY_ITEM_TYPE: "text"}, "List")
-	define_property(
-		"list_dropdown", "", "dropdown", {PropertySettings.KEY_SOURCE: "self:list"}, "List"
-	)
-
-	# Condition
-	define_property("condition", {}, "condition", {}, "Condition")
+	define_property(Property.new("condition/condition")
+		.set_type("condition")
+		.default({}))
 
 
 func get_type() -> String:
 	return "zoo"
+
+
+func _define_text_properties() -> void:
+	define_property(Property.new("text/text")
+		.set_type("text"))
+
+	define_property(Property.new("text/textarea")
+		.set_type("textarea"))
+
+	define_property(Property.new("text/translatable")
+		.set_type("translatable"))
+
+	define_property(Property.new("text/translatable_multiline")
+		.set_type("translatable")
+		.multiline())
+
+
+func _define_value_properties() -> void:
+	define_property(Property.new("values/bool")
+		.set_type("bool"))
+
+	define_property(Property.new("values/color2")
+		.set_type("color")
+		.default("#3b5dc9"))
+
+	define_property(Property.new("values/dynamic_dropdown")
+		.set_type("dropdown")
+		.default("string")
+		.required()
+		.options(VariableCollectionItem.VALUE_TYPES))
+
+	define_property(Property.new("values/dynamic")
+		.set_type("dynamic")
+		.default("abc")
+		.cases("dynamic_dropdown", _dynamic_cases()))
+
+	define_property(Property.new("values/float")
+		.set_type("float")
+		.default(10.0))
+
+	define_property(Property.new("values/int")
+		.set_type("int")
+		.default(10))
+
+	define_property(Property.new("values/slider")
+		.set_type("slider")
+		.default(10.0))
+
+	define_property(Property.new("values/vector2")
+		.set_type("vector2"))
+
+	define_property(Property.new("values/bezier")
+		.set_type("bezier"))
+
+
+func _define_reference_properties() -> void:
+	define_property(Property.new("references/file")
+		.set_type("file"))
+
+	define_property(Property.new("references/dropdown")
+		.set_type("dropdown")
+		.source("characters"))
+
+
+func _define_list_properties() -> void:
+	define_property(Property.new("list/collection")
+		.set_type("collection")
+		.collection("characters"))
+
+	define_property(Property.new("list/collection_dropdown")
+		.set_type("dropdown")
+		.source("self:collection"))
+
+	define_property(Property.new("list/list")
+		.set_type("list")
+		.item_type("text"))
+
+	define_property(Property.new("list/list_dropdown")
+		.set_type("dropdown")
+		.source("self:list"))
+
+
+func _dynamic_cases() -> Dictionary:
+	return {
+		"bool": {"type": "bool", "default": false},
+		"string": {"type": "text", "default": "", "coerce": "string"},
+		"int": {"type": "int", "default": 0, "coerce": "int"},
+		"float": {"type": "float", "default": 0.0, "coerce": "float"},
+	}

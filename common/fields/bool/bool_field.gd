@@ -4,10 +4,14 @@ class_name BoolField extends Field
 
 
 func _ready() -> void:
+	super._ready()
 	check_box.pressed.connect(_on_check_box_pressed)
 
-	var check_box_label: Variant = settings.get("label", " ")
-	check_box.text = check_box_label
+
+# Read here rather than in _ready(): binding is deferred, so the per-property label
+# is not available yet when _ready() runs.
+func _on_initialize() -> void:
+	check_box.text = settings.get(PropertySettings.KEY_LABEL, " ")
 
 
 func set_value(value: Variant) -> void:

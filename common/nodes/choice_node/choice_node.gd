@@ -6,21 +6,18 @@ var _external_options: Array[Dictionary] = []
 
 
 func initialize_properties() -> void:
-	define_main_property("choice", "context", false, null, {"export": false, "exposed": true})
-	define_property(
-		"choices",
-		[],
-		"collection",
-		{
-			"collection": "options",
-			"exposed": false,
-			"visible_in_graph": true,
-		},
-	)
-	# Listen for connection changes on the choices property
-	var choices_prop: Property = get_property("choices")
-	if choices_prop:
-		choices_prop.connection_changed.connect(_on_choices_connection_changed)
+	define_property(Property.new("choice")
+		.set_type("context")
+		.main_property()
+		.exposed()
+		.exported(false))
+
+	var choices: Property = define_property(Property.new("choices")
+		.set_type("collection")
+		.collection("options")
+		.exposed(false))
+
+	choices.connection_changed.connect(_on_choices_connection_changed)
 
 
 func get_type() -> String:
@@ -31,21 +28,38 @@ func get_color() -> Color:
 	return Color("e89145")
 
 
-func _on_property_changed(pname: String, _old_value: Variant, _new_value: Variant) -> void:
-	if pname == "choices":
-		rebuild_preview()
-
-
-func _on_choices_connection_changed() -> void:
-	_sync_external_options()
-	rebuild_preview()
-
-
 func get_external_list_items(property_name: String) -> Array[Dictionary]:
 	if property_name == "choices":
 		_sync_external_options()
 		return _external_options
 	return []
+
+
+## Returns the total number of choices (internal + external).
+func get_total_choice_count() -> int:
+	var internal_count: int = 0
+	var choices_val: Variant = get_property_value("choices")
+	if choices_val is Array:
+		var choices_arr: Array = choices_val
+		internal_count = choices_arr.size()
+	return internal_count + _external_options.size()
+
+
+## Returns the combined list of internal choice data + external option data.
+func get_all_choices() -> Array:
+	var result: Array = []
+	var choices_val: Variant = get_property_value("choices")
+	if choices_val is Array:
+		var choices_arr: Array = choices_val
+		result.append_array(choices_arr)
+	for ext: Dictionary in _external_options:
+		result.append(ext)
+	return result
+
+
+func _on_choices_connection_changed() -> void:
+	_sync_external_options()
+	rebuild_preview()
 
 
 ## Synchronize external (read-only) option items from connected OptionNodes.
@@ -93,25 +107,3 @@ func _get_option_node_name(node: InspectableNode) -> String:
 			if not str(t).is_empty():
 				return str(t)
 	return str(node.get_property_value("id"))
-
-
-## Returns the total number of choices (internal + external).
-func get_total_choice_count() -> int:
-	var internal_count: int = 0
-	var choices_val: Variant = get_property_value("choices")
-	if choices_val is Array:
-		var choices_arr: Array = choices_val
-		internal_count = choices_arr.size()
-	return internal_count + _external_options.size()
-
-
-## Returns the combined list of internal choice data + external option data.
-func get_all_choices() -> Array:
-	var result: Array = []
-	var choices_val: Variant = get_property_value("choices")
-	if choices_val is Array:
-		var choices_arr: Array = choices_val
-		result.append_array(choices_arr)
-	for ext: Dictionary in _external_options:
-		result.append(ext)
-	return result

@@ -71,7 +71,7 @@ func _update_case_field() -> void:
 	_field = null
 	if new_field is Field:
 		_field = new_field
-		_binding.property.bind_field.call_deferred(new_field, _binding.owner)
+		FieldWidgetFactory.bind_deferred(_binding.property, new_field, _binding.owner)
 
 
 func _on_property_case_changed(_old_value: Variant, _new_value: Variant) -> void:

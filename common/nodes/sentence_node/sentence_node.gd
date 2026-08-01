@@ -2,11 +2,29 @@ class_name SentenceNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	define_main_property("sentence", "context", false, null, {"export": true})
-	define_property("line", {}, "translatable", {PropertySettings.KEY_MULTILINE: true})
-	define_property("speaker", "", "dropdown", {"source": "characters"}, "Speaker")
-	define_property("display_name", {}, "translatable", {"visible_in_graph": false}, "Speaker")
-	define_property("voiceline", "", "file", {"visible_in_graph": false}, "Speaker")
+	define_property(Property.new("sentence")
+		.set_type("context")
+		.main_property()
+		.exposed()
+		.exported())
+
+	define_property(Property.new("line")
+		.set_type("translatable")
+		.default({})
+		.multiline())
+
+	define_property(Property.new("speaker/speaker")
+		.set_type("dropdown")
+		.source("characters"))
+
+	define_property(Property.new("speaker/display_name")
+		.set_type("translatable")
+		.default({})
+		.hidden_in_graph())
+
+	define_property(Property.new("speaker/voiceline")
+		.set_type("file")
+		.hidden_in_graph())
 
 
 func get_type() -> String:

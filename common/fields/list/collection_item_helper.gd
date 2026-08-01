@@ -45,7 +45,7 @@ static func _make_item_row(
 	preview_field.set_preview()
 	preview_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	preview_field.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	preview_prop.bind_field(preview_field, item, true)
+	FieldWidgetFactory.bind_deferred(preview_prop, preview_field, item)
 	row.add_child(preview_field)
 
 	var edit_button: Button = Button.new()

@@ -2,22 +2,40 @@ class_name OptionCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:
-	define_main_property("option", "option")
-	define_property("text", {}, "translatable", {"multiline": true})
-	define_property("correspondent", "", "dropdown", {"source": "characters"})
-	define_property("enabled", true, "bool", {}, "Advanced")
-	define_property("one_shot", false, "bool", {}, "Advanced")
-	define_property("enable_condition", false, "bool", {}, "Advanced")
-	define_property("condition", {}, "condition", {}, "Advanced")
-	define_property("description", "", "textarea", {}, "Extra")
+	# Exported as a sub-port on the choice node that owns this option list.
+	define_property(Property.new("option")
+		.set_type("option")
+		.main_property())
+
+	define_property(Property.new("text")
+		.set_type("translatable")
+		.default({})
+		.multiline())
+
+	define_property(Property.new("correspondent")
+		.set_type("dropdown")
+		.source("characters"))
+
+	define_property(Property.new("advanced/enabled")
+		.set_type("bool")
+		.default(true))
+
+	define_property(Property.new("advanced/one_shot")
+		.set_type("bool"))
+
+	define_property(Property.new("advanced/enable_condition")
+		.set_type("bool"))
+
+	define_property(Property.new("advanced/condition")
+		.set_type("condition")
+		.default({}))
+
+	define_property(Property.new("extra/description")
+		.set_type("textarea"))
 
 
 func get_type() -> String:
 	return "option"
-
-
-func _on_property_changed(_pname: String) -> void:
-	pass
 
 
 func get_preview_property_names() -> Array[String]:

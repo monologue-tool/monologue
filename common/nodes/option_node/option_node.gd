@@ -2,15 +2,39 @@ class_name OptionNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	define_main_property("option", "option", false, null, {"export": true, "exposed": false})
-	define_property("text", {}, "translatable", {"multiline": true})
-	define_property(
-		"correspondent", "", "dropdown", {"source": "characters", "visible_in_graph": false}
-	)
-	define_property("enabled", true, "bool", {"visible_in_graph": false}, "Advanced")
-	define_property("one_shot", false, "bool", {"visible_in_graph": false}, "Advanced")
-	define_property("enable_condition", false, "bool", {"visible_in_graph": false}, "Advanced")
-	define_property("condition", {}, "condition", {"visible_in_graph": false}, "Advanced")
+	define_property(Property.new("option")
+		.set_type("option")
+		.main_property()
+		.exposed(false)
+		.exported())
+
+	define_property(Property.new("text")
+		.set_type("translatable")
+		.default({})
+		.multiline())
+
+	define_property(Property.new("correspondent")
+		.set_type("dropdown")
+		.source("characters")
+		.hidden_in_graph())
+
+	define_property(Property.new("advanced/enabled")
+		.set_type("bool")
+		.default(true)
+		.hidden_in_graph())
+
+	define_property(Property.new("advanced/one_shot")
+		.set_type("bool")
+		.hidden_in_graph())
+
+	define_property(Property.new("advanced/enable_condition")
+		.set_type("bool")
+		.hidden_in_graph())
+
+	define_property(Property.new("advanced/condition")
+		.set_type("condition")
+		.default({})
+		.hidden_in_graph())
 
 
 func get_type() -> String:

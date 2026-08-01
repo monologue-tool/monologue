@@ -34,9 +34,15 @@ static func create_or_placeholder(field_name: String) -> Control:
 
 
 ## Connects [param property] to [param field]. Pass [param owner] to make edits
-## undoable; leave it null for detached widgets whose parent commits on their behalf.
+## undoable; see [method bind_detached] for the other case.
+##
+## The field must already be in the tree, since binding immediately pushes the current
+## value into it. Use [method bind_deferred] when binding right after add_child().
 static func bind(property: Property, field: Field, owner: InspectableObject = null) -> FieldBinding:
 	if not property or not is_instance_valid(field):
+		return null
+	if not field.is_inside_tree():
+		push_warning("Cannot bind '%s': the field is not in the tree yet." % property.name)
 		return null
 	var indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(property.type)
 	if indexer == null:
@@ -45,3 +51,19 @@ static func bind(property: Property, field: Field, owner: InspectableObject = nu
 	var binding: FieldBinding = FieldBinding.new(property, field, indexer, owner)
 	binding.initialize()
 	return binding
+
+
+## Binds on the next idle frame, once [param field] has entered the tree.
+static func bind_deferred(
+	property: Property, field: Field, owner: InspectableObject = null
+) -> void:
+	FieldWidgetFactory.bind.call_deferred(property, field, owner)
+
+
+## Binds without a model owner: the widget will never write to an [InspectableObject]
+## and never records an undo entry on its own.
+##
+## Used by [ListField], whose items are throwaway view-model properties -- the parent
+## list commits the whole array as one change instead.
+static func bind_detached(property: Property, field: Field) -> void:
+	FieldWidgetFactory.bind.call_deferred(property, field, null)

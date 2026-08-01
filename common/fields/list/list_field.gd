@@ -9,7 +9,7 @@ func _on_initialize() -> void:
 	super._on_initialize()
 	var property: Property = _binding.property if _binding else null
 	if not property:
-		Log.warning("ListField is not binded.")
+		Log.warn("ListField is not binded.")
 		return
 
 	_item_type = str(property.get_settings_value(PropertySettings.KEY_ITEM_TYPE, "text"))
@@ -116,7 +116,9 @@ func _rebuild_ui() -> void:
 			continue
 		item_field.set_preview()
 		item_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		item_property.bind_field(item_field, null, true)
+		# Detached on purpose: list items are throwaway view-model properties, and the
+		# parent list commits the whole array as a single undoable change.
+		FieldWidgetFactory.bind_detached(item_property, item_field)
 		row.add_child(item_field)
 
 		var delete_button: Button = Button.new()
@@ -128,28 +130,17 @@ func _rebuild_ui() -> void:
 		row.add_child(delete_button)
 
 
+## Builds a throwaway view-model property for one list row. These are not part of any
+## InspectableObject: the list's own property owns the real value, as a plain Array.
 func _create_item_property(value: Variant = null) -> Property:
-	var descriptor: FieldIndexer = MonologueRegistry.get_instance().get_field(_item_type)
-	var default_value: Variant = value
-	if default_value == null and descriptor:
-		default_value = descriptor.default_value
-	if default_value is Dictionary or default_value is Array:
-		default_value = default_value.duplicate(true)
-	var prop: Property = (
-		Property
-		. new(
-			"item",
-			default_value,
-			_item_type,
-			{
-				"visible_in_inspector": false,
-				"visible_in_graph": false,
-				"expand": true,
-			}
-		)
-	)
-	prop.value_changed.connect(_on_item_property_changed.bind(prop))
-	return prop
+	var item_property := Property.new("item")
+	item_property.set_type(_item_type)
+	if value != null:
+		item_property.default(value)
+	item_property.hidden_in_inspector().hidden_in_graph()
+	item_property.freeze()
+	item_property.value_changed.connect(_on_item_property_changed.bind(item_property))
+	return item_property
 
 
 func _on_item_property_changed(

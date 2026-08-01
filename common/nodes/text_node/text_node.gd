@@ -2,7 +2,12 @@ class_name TextNode extends InspectableNode
 
 
 func initialize_properties() -> void:
-	define_main_property("text", "text", true, "", {"exposed": false})
+	define_property(Property.new("text")
+		.set_type("text")
+		.main_property()
+		.editable()
+		.exposed(false)
+		.exported())
 
 
 func get_type() -> String:

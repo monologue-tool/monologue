@@ -31,9 +31,9 @@ func load_items(property: Property, property_owner: InspectableObject = null) ->
 		return
 
 	_list_field = FieldWidgetFactory.create_or_placeholder(_property.type)
-	if _list_field is BaseListField:
-		_property.bind_field(_list_field, _property_owner)
 	vbox.add_child(_list_field)
+	if _list_field is BaseListField:
+		FieldWidgetFactory.bind_deferred(_property, _list_field, _property_owner)
 
 
 func _on_add_button_pressed() -> void:

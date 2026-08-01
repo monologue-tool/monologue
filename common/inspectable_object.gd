@@ -27,24 +27,22 @@ func _set_parent_info(parent: InspectableObject, pname: String) -> void:
 
 
 func _init(command_manager: CommandManager = null) -> void:
+	# push_warning rather than the Log autoload: the model layer must stay usable
+	# without the editor booted, which is what makes it testable headlessly.
 	if not command_manager:
-		Log.warn("InspectableObject does not have a command manager.")
+		push_warning("InspectableObject created without a command manager.")
 	history = command_manager
 
-	define_property(
-		"id",
-		"%s-%s" % [get_type(), IDGen.generate(ID_LENGTH)],
-		"text",
-		{
-			"visible_in_graph": false,
-			"visible_in_inspector": true,
-			"flat": true,
-			"unique": true,
-		},
-		"Special:Header"
-	)
+	define_property(Property.new("id")
+		.set_type("text")
+		.default("%s-%s" % [get_type(), IDGen.generate(ID_LENGTH)])
+		.header()
+		.unique_among_siblings())
 
 	initialize_properties()
+	# Past this point the schema is fixed; only values and user overrides may change.
+	for property: Property in _properties.values():
+		property.freeze()
 	_load_settings()
 
 
@@ -54,22 +52,29 @@ func _load_settings() -> void:
 	settings = new_settings
 
 
-func define_property(
-	pname: String,
-	default_value: Variant,
-	type: String,
-	psettings: Dictionary = {},
-	category: String = "General"
-) -> void:
-	var merged_settings: Dictionary = psettings.duplicate(true)
-	merged_settings["category"] = category
-
-	var property: Property = Property.new(pname, default_value, type, merged_settings)
-	_properties.set(pname, property)
+## Registers a property on this object. Build and configure it inline, one option per
+## line, and hand it over:
+## [codeblock]
+## define_property(Property.new("speaker/name")
+##     .set_type("reference")
+##     .required()
+##     .tooltip("Who says this line."))
+## [/codeblock]
+##
+## The path is "category/name"; see [Property] for the details. Returns the same
+## property, for the rare case a declaration needs to keep a reference to it.
+func define_property(property: Property) -> Property:
+	if property.type.is_empty():
+		push_error("Property '%s' on %s has no type; call set_type()." % [property.name, get_type()])
+	if _properties.has(property.name):
+		push_error("Property '%s' is declared twice on %s." % [property.name, get_type()])
+	_properties.set(property.name, property)
 
 	property.value_changed.connect(
-		func(_old: Variant, _new: Variant) -> void: property_changed.emit(pname)
+		func(_old: Variant, _new: Variant) -> void: property_changed.emit(property.name)
 	)
+
+	return property
 
 
 func get_properties() -> Array[Property]:

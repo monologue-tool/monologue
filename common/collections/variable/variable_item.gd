@@ -1,49 +1,39 @@
 class_name VariableCollectionItem extends CollectionItem
 
+const VALUE_TYPES: Array[String] = ["bool", "string", "int", "float"]
+
 
 func initialize_properties() -> void:
-	define_property(
-		"name",
-		"new variable",
-		"text",
-		{
-			"required": true,
-			"unique": true,
-			"protect": true,
-			"validation": {"min_length": 1},
-		},
-	)
-	define_property(
-		"type",
-		"string",
-		"dropdown",
-		{"required": true, "options": ["bool", "string", "int", "float"]}
-	)
-	define_property(
-		"value",
-		"",
-		"dynamic",
-		{
-			PropertySettings.KEY_CASE_PROPERTY: "type",
-			PropertySettings.KEY_CASES:
-			{
-				"bool": {"type": "bool", "default": false},
-				"string": {"type": "text", "default": "", "coerce": "string"},
-				"int": {"type": "int", "default": 0, "coerce": "int"},
-				"float": {"type": "float", "default": 0.0, "coerce": "float"}
-			}
-		}
-	)
-	define_property("description", "", "textarea", {}, "Extra")
+	define_name_property("new variable")
+
+	define_property(Property.new("type")
+		.set_type("dropdown")
+		.default("string")
+		.required()
+		.options(VALUE_TYPES))
+
+	# The widget used for "value" follows whatever "type" is set to.
+	define_property(Property.new("value")
+		.set_type("dynamic")
+		.default("")
+		.cases("type", _value_cases()))
+
+	define_property(Property.new("extra/description")
+		.set_type("textarea"))
 
 
 func get_type() -> String:
 	return "variable"
 
 
-func _on_property_changed(_pname: String) -> void:
-	pass
-
-
 func get_preview_property_names() -> Array[String]:
 	return ["name", "type", "value"]
+
+
+func _value_cases() -> Dictionary:
+	return {
+		"bool": {"type": "bool", "default": false},
+		"string": {"type": "text", "default": "", "coerce": "string"},
+		"int": {"type": "int", "default": 0, "coerce": "int"},
+		"float": {"type": "float", "default": 0.0, "coerce": "float"},
+	}

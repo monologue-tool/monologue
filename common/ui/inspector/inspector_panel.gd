@@ -327,7 +327,7 @@ func _create_property_editor(
 		)
 		list_section.add_control.call_deferred(p_container)
 
-	property.bind_field.call_deferred(p_field, current_object)
+	FieldWidgetFactory.bind_deferred(property, p_field, current_object)
 	p_hbox.add_child(p_field)
 	return p_container if not is_list else null
 

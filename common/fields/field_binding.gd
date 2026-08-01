@@ -2,7 +2,7 @@ class_name FieldBinding extends RefCounted
 
 var property: Property
 var field: Field
-var descriptor: FieldIndexer
+var indexer: FieldIndexer
 var owner: InspectableObject
 
 var _is_syncing: bool = false
@@ -10,14 +10,11 @@ var _is_released: bool = false
 
 
 func _init(
-	p_property: Property,
-	p_field: Field,
-	p_descriptor: FieldIndexer,
-	p_owner: InspectableObject = null
+	p_property: Property, p_field: Field, p_indexer: FieldIndexer, p_owner: InspectableObject = null
 ) -> void:
 	property = p_property
 	field = p_field
-	descriptor = p_descriptor
+	indexer = p_indexer
 	owner = p_owner
 
 
@@ -27,14 +24,16 @@ func initialize() -> void:
 	if not is_instance_valid(field):
 		push_warning("Attempted to initialize a binding with an invalid field instance.")
 		return
-	if descriptor == null:
-		push_warning("Field binding missing descriptor instance.")
+	if indexer == null:
+		push_warning("Field binding missing indexer instance.")
 		return
 	field.initialize(self)
 	field.value_changed.connect(_on_field_value_changed)
 	field.value_committed.connect(_on_field_value_committed)
 	if property:
 		property.value_changed.connect(_on_property_value_changed)
+		# The model no longer holds widget references; a binding subscribes instead.
+		property.settings_changed.connect(refresh)
 	field.tree_exiting.connect(_on_field_tree_exiting)
 	_sync_from_property()
 	_update_editable_state()
@@ -52,8 +51,11 @@ func release() -> void:
 			field.value_committed.disconnect(_on_field_value_committed)
 		if field.tree_exiting.is_connected(_on_field_tree_exiting):
 			field.tree_exiting.disconnect(_on_field_tree_exiting)
-	if property and property.value_changed.is_connected(_on_property_value_changed):
-		property.value_changed.disconnect(_on_property_value_changed)
+	if property:
+		if property.value_changed.is_connected(_on_property_value_changed):
+			property.value_changed.disconnect(_on_property_value_changed)
+		if property.settings_changed.is_connected(refresh):
+			property.settings_changed.disconnect(refresh)
 
 
 func refresh() -> void:
@@ -71,13 +73,9 @@ func _sync_from_property() -> void:
 	if not field.is_inside_tree():
 		return
 	_is_syncing = true
-	var sync_value: Variant = property.get_value()
-	if sync_value == null and descriptor != null and descriptor.default_value != null:
-		var fallback: Variant = descriptor.default_value
-		sync_value = (
-			fallback.duplicate(true) if fallback is Dictionary or fallback is Array else fallback
-		)
-	field.set_value(sync_value)
+	# No null fallback needed: define_property already resolved the field type's
+	# default into the property when it was declared.
+	field.set_value(property.get_value())
 	field.clear_error()
 	_is_syncing = false
 
@@ -121,9 +119,9 @@ func _refresh_owner_preview_from_change() -> void:
 
 
 func _process_field_value(value: Variant, is_commit: bool) -> void:
-	if not property or descriptor == null:
+	if not property or indexer == null:
 		return
-	var validation_result: FieldValidationResult = descriptor.validate(value)
+	var validation_result: FieldValidationResult = indexer.validate(value)
 	if not validation_result.is_valid:
 		if is_commit:
 			_sync_from_property()
@@ -139,7 +137,7 @@ func _process_field_value(value: Variant, is_commit: bool) -> void:
 			field.display_error(settings_result.message)
 		return
 	field.clear_error()
-	var formatted_value: Variant = descriptor.format(value)
+	var formatted_value: Variant = indexer.format(value)
 
 	if not is_commit:
 		return

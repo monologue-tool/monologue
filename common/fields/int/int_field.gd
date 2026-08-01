@@ -4,8 +4,13 @@ extends Field
 
 
 func _ready() -> void:
+	super._ready()
 	spin_box.value_changed.connect(_on_value_changed)
 
+
+# Settings are read here, not in _ready(): binding is deferred, so per-property
+# min/max/step only exist by the time _on_initialize() runs.
+func _on_initialize() -> void:
 	spin_box.prefix = settings.get("prefix", "")
 	spin_box.suffix = settings.get("suffix", "")
 	spin_box.min_value = settings.get("min_value", 0.0)

@@ -14,7 +14,11 @@ signal value_committed(new_value: Variant)
 var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
 
-var settings: Dictionary = {}
+## Merged settings for the bound property. Always stored as a copy: aliasing the field
+## type's shared defaults would let one widget's edit leak into every other instance.
+var settings: Dictionary = {}:
+	set(value):
+		settings = value.duplicate(true)
 
 
 func _ready() -> void:

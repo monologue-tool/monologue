@@ -39,7 +39,7 @@ jobs:
           fi
 
   gdtoolkit:
-    name: "gdformat + gdlint"
+    name: "gdlint"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -60,8 +60,9 @@ jobs:
             | grep -v 'name_generator' \
             | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
-      - name: Check formatting
-        run: gdformat --check ${{ steps.files.outputs.list }}
-
+      # No gdformat --check here on purpose. Property declarations are written one
+      # option per line for readability, and gdformat collapses any chain that fits
+      # on a single line, with no option to leave it alone. gdlint still enforces
+      # line length, naming and dead code, which is what actually matters.
       - name: Lint
         run: gdlint ${{ steps.files.outputs.list }}
