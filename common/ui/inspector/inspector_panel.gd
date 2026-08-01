@@ -10,12 +10,14 @@ var _pending_expand_category: String = ""
 @onready var inspector_category_container: PackedScene = preload("uid://bvf68w7xrfrom")
 @onready var expose_button: PackedScene = preload("uid://2ehh7rdn6yg6")
 
-var current_object: InspectableObject
-var history: Array[InspectableObject] = []
+var current_objects: Array[InspectableObject] = []
+## Selections the back button steps through, most recent last. Each entry is a whole
+## selection, not a single object.
+var history: Array[Array] = []
 
 
 func _ready() -> void:
-	EventBus.request_object_inspection.connect(inspect)
+	EventBus.request_objects_inspection.connect(inspect)
 	EventBus.inspector_property_changed.connect(_on_external_property_changed)
 	EventBus.show_inspector.connect(_on_event_show_inspector)
 
@@ -31,7 +33,7 @@ func _on_project_loaded() -> void:
 
 
 func _on_event_show_inspector(_visible: bool) -> void:
-	inspect(current_object)
+	inspect(current_objects)
 
 
 ## Called after every undo or redo. Re-resolves the inspection stack from the
@@ -40,38 +42,63 @@ func _on_history_undo_redo() -> void:
 	rebuild()
 
 
-func inspect(object: InspectableObject, from_history: bool = false) -> void:
-	var old_root: InspectableObject = current_object
-	if object and old_root and old_root != object:
+## Shows a selection. One object is not a special case here, just a selection of one.
+func inspect(objects: Array[InspectableObject], from_history: bool = false) -> void:
+	var previous: Array[InspectableObject] = current_objects
+	if not objects.is_empty() and not previous.is_empty() and previous != objects:
 		if not from_history:
-			history.append(old_root)
+			history.append(previous)
 
-		var old_node: InspectableNode = old_root as InspectableNode
-		if old_node and is_instance_valid(old_node.graph_view):
-			old_node.graph_view.selected = false
+		for object: InspectableObject in previous:
+			var node: InspectableNode = object as InspectableNode
+			if node and is_instance_valid(node.graph_view):
+				node.graph_view.selected = false
 
 	back_button.disabled = history.is_empty()
-	current_object = object
-	if not object or object is not InspectableObject:
-		hide()
-		Log.warn("Inspector hidden due to invalid object")
-		return
+	current_objects = objects
 
-	if not ConfigManager.get_config("show_inspector"):
+	# Nothing selected means nothing to inspect. This used to hide the panel whenever
+	# both the old and the new selection were non-empty, which is the normal case.
+	if objects.is_empty() or not ConfigManager.get_config("show_inspector"):
 		hide()
 		return
 
 	show()
-	Log.info("Inspect object", object.get_property_value("id") if object else "<null>")
+	Log.info("Inspect %d object(s): %s" % [objects.size(), ", ".join(_selection_ids(objects))])
 
 	rebuild()
 
 
+## Convenience for the single-object case. A null object clears the inspector.
+func inspect_one(object: InspectableObject, from_history: bool = false) -> void:
+	var selection: Array[InspectableObject] = []
+	if object:
+		selection.append(object)
+	inspect(selection, from_history)
+
+
+func _selection_ids(objects: Array[InspectableObject]) -> PackedStringArray:
+	var ids: PackedStringArray = []
+	for object: InspectableObject in objects:
+		ids.append(str(object.get_property_value("id")))
+	return ids
+
+
 func rebuild() -> void:
-	var inspected: InspectableObject = current_object
-	run_button.visible = current_object is InspectableNode
 	_fields.clear()
-	await get_tree().process_frame  # TODO: Bad practice
+	await get_tree().process_frame
+
+	# Read the selection after the wait, not before: inspect() can run during that
+	# frame, and building fields from one selection while binding them to another is
+	# how a field ends up with no owner at all.
+	var inspected: Array[InspectableObject] = current_objects
+
+	var inspecting_nodes: bool = not inspected.is_empty()
+	for obj: InspectableObject in inspected:
+		if obj is not InspectableNode:
+			inspecting_nodes = false
+			break
+	run_button.visible = inspecting_nodes  # TODO: Bad practice
 
 	for field: Control in field_container.get_children():
 		field.queue_free()
@@ -83,14 +110,18 @@ func rebuild() -> void:
 	separator.theme_type_variation = "UltraWideHSeparator"
 	field_container.add_child(separator)
 
-	if not inspected:
-		var label: Label = Label.new()
-		label.text = "Nothing to show here."
-		label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		field_container.add_child(label)
+	var properties: Array[Property] = _get_common_properties(inspected)
+
+	if inspected.is_empty():
+		_add_notice("Nothing to show here.", true)
+	elif properties.is_empty():
+		_add_notice(
+			"These %d objects have no editable property in common." % inspected.size(), true
+		)
 	else:
-		var properties: Array[Property] = inspected.get_properties()
+		if inspected.size() > 1:
+			_add_notice("Editing %d objects at once." % inspected.size())
+
 		var categories: Dictionary = _group_by_category(properties)
 
 		for category_name: String in categories.keys():
@@ -104,6 +135,64 @@ func rebuild() -> void:
 			_create_category_section(category_name, props)
 
 	_pending_expand_category = ""
+
+
+## The object the inspector reads its context from: ports, exposure toggles, the run
+## button. Those are per-object, so with several selected they follow the first.
+func _primary() -> InspectableObject:
+	return current_objects[0] if not current_objects.is_empty() else null
+
+
+## What the inspector shows for a selection. One object gives all its properties;
+## several give only what they genuinely share, so editing is never ambiguous.
+##
+## The returned properties belong to the first object -- that is what the fields read
+## and display. Writing fans out to the rest, see [FieldBinding].
+func _get_common_properties(objects: Array[InspectableObject]) -> Array[Property]:
+	var common: Array[Property] = []
+	if objects.is_empty():
+		return common
+
+	var single: bool = objects.size() == 1
+	for candidate: Property in objects[0].get_properties():
+		if not single and not _is_shareable(candidate):
+			continue
+		if not single and not _every_object_declares(candidate, objects):
+			continue
+		common.append(candidate)
+
+	return common
+
+
+## Unique properties -- ids, names -- exist to tell objects apart, so editing them
+## across a selection could only ever produce duplicates. Properties that own child
+## objects are per-object by nature and have nothing to merge.
+func _is_shareable(candidate: Property) -> bool:
+	if candidate.get_settings_value(PropertySettings.KEY_UNIQUE, false):
+		return false
+	return candidate.type not in ["collection", "list"]
+
+
+## Shared means same name and same type everywhere. Two "text" properties can be
+## edited together; a text and a dropdown cannot.
+func _every_object_declares(candidate: Property, objects: Array[InspectableObject]) -> bool:
+	for object: InspectableObject in objects:
+		var match_property: Property = object.get_property(candidate.name)
+		if match_property == null or match_property.type != candidate.type:
+			return false
+	return true
+
+
+## A centred line of text. [param fill] makes it take the whole panel, which is what
+## the empty state wants; a heading above a property list does not.
+func _add_notice(text: String, fill: bool = false) -> void:
+	var label: Label = Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if fill:
+		label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	field_container.add_child(label)
 
 
 func _find_labels(node: Node, labels: Array) -> void:
@@ -253,14 +342,14 @@ func _create_property_editor(
 
 			var p_expose_button: TextureButton = expose_button.instantiate()
 			p_expose_button.disabled = (
-				not current_object is InspectableNode
+				not _primary() is InspectableNode
 				or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
 			)
 			p_expose_button.button_pressed = property.get_settings_value(
 				PropertySettings.KEY_EXPOSED, false
 			)
 			p_expose_button.toggled.connect(
-				_on_property_expose_state_changed.bind(current_object, property.name)
+				_on_property_expose_state_changed.bind(_primary(), property.name)
 			)
 			p_label_row.add_child(p_expose_button)
 
@@ -290,14 +379,14 @@ func _create_property_editor(
 
 			var p_expose_button: TextureButton = expose_button.instantiate()
 			p_expose_button.disabled = (
-				not current_object is InspectableNode
+				not _primary() is InspectableNode
 				or not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false)
 			)
 			p_expose_button.button_pressed = property.get_settings_value(
 				PropertySettings.KEY_EXPOSED, false
 			)
 			p_expose_button.toggled.connect(
-				_on_property_expose_state_changed.bind(current_object, property.name)
+				_on_property_expose_state_changed.bind(_primary(), property.name)
 			)
 			p_left_container.add_child(p_expose_button)
 
@@ -327,7 +416,9 @@ func _create_property_editor(
 		)
 		list_section.add_control.call_deferred(p_container)
 
-	FieldWidgetFactory.bind_deferred(property, p_field, current_object)
+	# The whole selection, so one edit reaches every object. A selection of one is the
+	# ordinary case and needs no special handling.
+	FieldWidgetFactory.bind_deferred(property, p_field, current_objects)
 	p_hbox.add_child(p_field)
 	return p_container if not is_list else null
 
@@ -361,10 +452,10 @@ func _on_property_expose_state_changed(
 
 
 func _on_inspect_connected_node(property: Property) -> void:
-	if not current_object or not current_object is InspectableNode:
+	if not _primary() or not _primary() is InspectableNode:
 		return
 
-	var node: InspectableNode = current_object as InspectableNode
+	var node: InspectableNode = _primary() as InspectableNode
 
 	# Get the graph edit from the node's graph view
 	if not node.graph_view or not node.graph_view.get_parent():
@@ -383,7 +474,8 @@ func _on_inspect_connected_node(property: Property) -> void:
 	)
 
 	if connected_node and connected_node.graph_view:
-		EventBus.request_node_selection.emit(connected_node, connected_node.storyline_id)
+		var selection: Array[InspectableObject] = [connected_node]
+		EventBus.request_nodes_selection.emit(selection, connected_node.storyline_id, false)
 
 
 func _is_list(property: Property) -> bool:
@@ -403,20 +495,23 @@ func _on_external_property_changed(
 	if not property.get_settings_value("visible_in_inspector", true):
 		return
 
-	if current_object in obj.get_property_children(property_name):
+	if _primary() in obj.get_property_children(property_name):
 		return
 
 	_pending_expand_category = property.get_category()
 
-	if obj == current_object:
+	if obj == _primary():
 		rebuild()
 		return
 
-	inspect(obj)
+	inspect_one(obj)
 
 
 func _on_back_button_pressed() -> void:
 	if history.is_empty():
 		return
 
-	inspect(history.pop_back(), true)
+	# history holds whole selections, so the entry has to be retyped on the way out.
+	var previous: Array[InspectableObject] = []
+	previous.assign(history.pop_back())
+	inspect(previous, true)

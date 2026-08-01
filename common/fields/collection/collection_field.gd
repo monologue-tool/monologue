@@ -7,7 +7,10 @@ func _on_initialize() -> void:
 	super._on_initialize()
 	var property: Property = _binding.property if _binding else null
 	if not property:
-		Log.warn("CollectionField is not binded.")
+		# Used to warn and then carry on into property.get_settings_value(), which
+		# dereferenced the null it had just complained about.
+		Log.warn("CollectionField has no binding; nothing to show.")
+		return
 
 	var collection: Variant = property.get_settings_value("collection")
 	if not collection or not MonologueRegistry.get_instance().get_collection(str(collection)):
@@ -20,6 +23,11 @@ func _on_initialize() -> void:
 
 
 func set_value(value: Variant) -> void:
+	# Everything below reaches through the owner to add, remove and reorder its child
+	# objects. Without one there is nothing to synchronise against.
+	if not _binding or not _binding.owner:
+		return
+
 	var need_rebuild: bool = true
 
 	if value is not Array:
@@ -101,7 +109,8 @@ func _on_add_button() -> void:
 
 func _on_edit_item(index: int) -> void:
 	var item: CollectionItem = get_items()[index]
-	EventBus.request_object_inspection.emit(item)
+	var selection: Array[InspectableObject] = [item]
+	EventBus.request_objects_inspection.emit(selection)
 
 
 func _on_duplicate_item(index: int) -> void:

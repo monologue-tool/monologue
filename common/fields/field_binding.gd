@@ -3,19 +3,34 @@ class_name FieldBinding extends RefCounted
 var property: Property
 var field: Field
 var indexer: FieldIndexer
-var owner: InspectableObject
+
+## Every object this field writes to. One entry is the ordinary case; several means the
+## user selected several objects and is editing them together.
+##
+## There is no separate multi-selection object: a selection of one is just an array of
+## one, so nothing special-cases it.
+var owners: Array[InspectableObject] = []
+
+## The object the field reads its context from -- children, history, list sources.
+## Those only ever make sense for a single object, so they use the first.
+var owner: InspectableObject:
+	get:
+		return owners[0] if not owners.is_empty() else null
 
 var _is_syncing: bool = false
 var _is_released: bool = false
 
 
 func _init(
-	p_property: Property, p_field: Field, p_indexer: FieldIndexer, p_owner: InspectableObject = null
+	p_property: Property,
+	p_field: Field,
+	p_indexer: FieldIndexer,
+	p_owners: Array[InspectableObject] = []
 ) -> void:
 	property = p_property
 	field = p_field
 	indexer = p_indexer
-	owner = p_owner
+	owners = p_owners.duplicate()
 
 
 func initialize() -> void:
@@ -116,14 +131,36 @@ func _on_field_value_committed(value: Variant) -> void:
 		return
 
 	var formatted: Variant = _format(value)
-	if owner:
-		owner.set_property_value(property.name, formatted)
-	else:
+	if owners.is_empty():
+		# Detached: no model behind the widget, its parent commits on its behalf.
 		property.set_value(formatted)
 		_sync_from_property()
+	else:
+		_write_to_owners(formatted)
 
 	field.display_issues(ValidationService.validate_property(property, owner).issues)
 	_refresh_owner_preview_from_change()
+
+
+## Writes to every selected object. More than one becomes a single undo step, so
+## editing a selection of twenty is one Ctrl+Z rather than twenty.
+func _write_to_owners(value: Variant) -> void:
+	if owners.size() == 1:
+		owners[0].set_property_value(property.name, value)
+		return
+
+	var history: CommandManager = owner.history
+	var transaction: CommandTransaction = null
+	if history:
+		transaction = history.begin(
+			"Set %s on %d objects" % [property.get_display_name(), owners.size()]
+		)
+
+	for target: InspectableObject in owners:
+		target.set_property_value(property.name, value)
+
+	if transaction:
+		transaction.commit()
 
 
 ## A DynamicField swapping its inner widget leaves bindings pointing at freed nodes.
@@ -144,9 +181,9 @@ func _format(value: Variant) -> Variant:
 func _refresh_owner_preview_from_change() -> void:
 	if _is_syncing or _is_released:
 		return
-	if not owner or not is_instance_valid(owner):
-		return
-	owner.rebuild_preview()
+	for target: InspectableObject in owners:
+		if is_instance_valid(target):
+			target.rebuild_preview()
 
 
 ## The model changed under us, typically an undo or a redo. Push it into the widget:

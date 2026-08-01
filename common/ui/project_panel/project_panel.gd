@@ -13,7 +13,7 @@ var storylines_container: VBoxContainer
 
 func _ready() -> void:
 	ProjectManager.project_loaded.connect(_rebuild_explorer)
-	EventBus.request_object_inspection.connect(_on_request_object_inspection)
+	EventBus.request_objects_inspection.connect(_on_request_objects_inspection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
 	EventBus.show_project_explorer.connect(_on_event_show_project_panel)
 	EventBus.storyline_deleted.connect(_rebuild_explorer)
@@ -94,7 +94,8 @@ func _create_foldable_container(title: String) -> FoldableContainer:
 
 
 func _on_collection_button_pressed(collection: CollectionDocument) -> void:
-	EventBus.request_object_inspection.emit(collection)
+	var selection: Array[InspectableObject] = [collection]
+	EventBus.request_objects_inspection.emit(selection)
 
 
 func _on_storyline_button_pressed(storyline: StorylineDocument) -> void:
@@ -106,13 +107,13 @@ func _on_add_storyline_button_pressed() -> void:
 	_rebuild_explorer()
 
 
-func _on_request_object_inspection(object: InspectableObject) -> void:
-	if not collections_container:
+func _on_request_objects_inspection(objects: Array[InspectableObject]) -> void:
+	if not collections_container or objects.size() != 1:
 		return
 
 	for button: Button in collections_container.get_children():
 		var collection: CollectionDocument = button.get_meta("document")
-		button.set_pressed_no_signal(collection == object)
+		button.set_pressed_no_signal(collection == objects[0])
 
 
 func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:

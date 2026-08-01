@@ -7,6 +7,10 @@ signal undone
 signal redone
 signal history_changed
 
+## Godot's UndoRedo cannot nest create_action(), so nested begin() calls share the
+## outermost action and only the last commit() closes it.
+var _transaction_depth: int = 0
+
 
 func _init(max_history: int = 200) -> void:
 	undo_redo = UndoRedo.new()
@@ -14,16 +18,48 @@ func _init(max_history: int = 200) -> void:
 	undo_redo.version_changed.connect(_on_version_changed)
 
 
+## Opens a transaction: every command executed until it is committed becomes one
+## undo step. See [CommandTransaction].
+func begin(description: String) -> CommandTransaction:
+	if _transaction_depth == 0:
+		undo_redo.create_action(description)
+	_transaction_depth += 1
+	return CommandTransaction.new(self, description)
+
+
+func is_in_transaction() -> bool:
+	return _transaction_depth > 0
+
+
 func execute(command: Command, merge_mode: UndoRedo.MergeMode = UndoRedo.MERGE_DISABLE) -> void:
-	var description: String = command.get_description()
-	undo_redo.create_action(description, merge_mode)
+	if _transaction_depth > 0:
+		# Joins the open transaction instead of becoming its own undo step. The
+		# command runs when the transaction commits.
+		_record(command)
+		return
+
+	undo_redo.create_action(command.get_description(), merge_mode)
+	_record(command)
+	undo_redo.commit_action()
+
+	command_executed.emit()
+	history_changed.emit()
+
+
+func _record(command: Command) -> void:
 	undo_redo.add_do_method(command.execute.bind())
 	undo_redo.add_undo_method(command.undo.bind())
 	undo_redo.add_do_reference(command)
 	undo_redo.add_undo_reference(command)
 
-	undo_redo.commit_action()
 
+## Called by [CommandTransaction.commit]. Only the outermost one commits.
+func _close_transaction() -> void:
+	_transaction_depth = maxi(0, _transaction_depth - 1)
+	if _transaction_depth > 0:
+		return
+
+	undo_redo.commit_action()
 	command_executed.emit()
 	history_changed.emit()
 
@@ -85,18 +121,15 @@ func _on_version_changed() -> void:
 	history_changed.emit()
 
 
+## Superseded by begin() / CommandTransaction, which is reentrant and cannot be left
+## half-open. Kept only so nothing outside breaks; prefer begin().
 func begin_group(description: String = "Group") -> void:
-	undo_redo.create_action(description)
+	begin(description)
 
 
 func add_to_group(command: Command) -> void:
-	undo_redo.add_do_method(command.execute.bind())
-	undo_redo.add_undo_method(command.undo.bind())
-	undo_redo.add_do_reference(command)
-	undo_redo.add_undo_reference(command)
+	execute(command)
 
 
 func end_group() -> void:
-	undo_redo.commit_action()
-	command_executed.emit()
-	history_changed.emit()
+	_close_transaction()

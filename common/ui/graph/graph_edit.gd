@@ -1,5 +1,12 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 signal node_view_selected(node: InspectableNode)
+## Emitted once per selection change, after the frame settles, so rubber-banding over
+## ten nodes reports one selection of ten rather than ten selections of one.
+##
+## Typed on InspectableObject rather than InspectableNode even though it only ever
+## carries nodes: GDScript typed arrays are invariant, so the narrower type would need
+## converting at every boundary it crosses.
+signal selection_changed(nodes: Array[InspectableObject])
 
 var storyline_id: String
 var connection_manager: ConnectionManager
@@ -11,7 +18,10 @@ var _pending_positions: Dictionary = {}  # GraphNode -> Vector2 captured during 
 var _is_applying_position: bool = false
 ## Rebuilds asked for while a wire was being dragged, replayed once it lands.
 var _refresh_deferred: bool = false
-var _nodes_to_refresh: Array[InspectableNode] = []
+var _nodes_to_refresh: Array[InspectableObject] = []
+## Selection as it was when the settle check was armed, and as last announced.
+var _selection_snapshot: Array[StringName] = []
+var _announced_selection: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -43,7 +53,7 @@ func refresh() -> void:
 	if connecting_mode:
 		_refresh_deferred = true
 		return
-	
+
 	var storyline: StorylineDocument = get_storyline()
 	if not storyline:
 		return
@@ -75,7 +85,7 @@ func refresh_node(node: InspectableNode) -> void:
 		if node not in _nodes_to_refresh:
 			_nodes_to_refresh.append(node)
 		return
-	
+
 	clear_connections()
 	GraphNodeViewFactory.modulate_stylebox(node.graph_view, node)
 	GraphNodeViewFactory.apply_metadata(node.graph_view, node)
@@ -160,10 +170,61 @@ func _on_node_selected(graph_node: Node) -> void:
 	var node: InspectableNode = _node_map.get(graph_node)
 	if node:
 		node_view_selected.emit(node)
+	_announce_selection()
 
 
 func _on_node_deselected(graph_node: Node) -> void:
 	_selected_nodes[graph_node] = false
+	_announce_selection()
+
+
+## Every node currently selected, in the order they appear in the graph.
+##
+## Read from GraphNode.selected rather than from a dictionary kept in step with the
+## signals: box-selecting updates the nodes directly, so the bookkeeping was always a
+## frame or two behind and the inspector saw only part of the rectangle.
+func get_selected_nodes() -> Array[InspectableObject]:
+	var nodes: Array[InspectableObject] = []
+	for graph_node: Node in get_all_graph_nodes():
+		if not (graph_node as GraphNode).selected:
+			continue
+		var node: InspectableNode = _node_map.get(graph_node)
+		if node:
+			nodes.append(node)
+	return nodes
+
+
+## Waits for the selection to stop changing before announcing it.
+##
+## Godot selects nodes one at a time as the rubber band sweeps over them, across
+## several frames. Announcing on the first one reported a rectangle of ten as a
+## selection of one; announcing on every one would rebuild the inspector ten times.
+func _announce_selection() -> void:
+	_selection_snapshot = _selected_view_names()
+	_settle_selection.call_deferred()
+
+
+func _settle_selection() -> void:
+	var current: Array[StringName] = _selected_view_names()
+
+	# Still growing: come back once it holds still.
+	if current != _selection_snapshot:
+		_announce_selection()
+		return
+
+	if current == _announced_selection:
+		return
+
+	_announced_selection = current
+	selection_changed.emit(get_selected_nodes())
+
+
+func _selected_view_names() -> Array[StringName]:
+	var names: Array[StringName] = []
+	for graph_node: Node in get_all_graph_nodes():
+		if (graph_node as GraphNode).selected:
+			names.append(graph_node.name)
+	return names
 
 
 func _on_connection_request(
@@ -224,7 +285,7 @@ func _flush_deferred_refresh() -> void:
 
 
 func _do_flush_deferred_refresh() -> void:
-	var nodes: Array[InspectableNode] = _nodes_to_refresh.duplicate()
+	var nodes: Array[InspectableObject] = _nodes_to_refresh.duplicate()
 	var needs_full_refresh: bool = _refresh_deferred
 	_nodes_to_refresh.clear()
 	_refresh_deferred = false
@@ -233,8 +294,8 @@ func _do_flush_deferred_refresh() -> void:
 		refresh()
 		return
 
-	for node: InspectableNode in nodes:
-		refresh_node(node)
+	for node: InspectableObject in nodes:
+		refresh_node(node as InspectableNode)
 
 
 func get_all_graph_nodes() -> Array:

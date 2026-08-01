@@ -1,44 +1,52 @@
+## Makes changing the graph selection undoable.
+##
+## Selections are Array[InspectableObject] throughout, even here where they only ever
+## hold nodes. GDScript's typed arrays are invariant: an Array[InspectableNode] cannot
+## be passed where an Array[InspectableObject] is expected, and `as` does not convert
+## between them. One element type for the whole selection path removes every one of
+## those conversions; the few places that need node-specific access cast the element,
+## which does work.
 class_name NodeSelectionCommand extends Command
 
 var storyline_id: String
-var previous_node: InspectableNode
-var next_node: InspectableNode
+var previous_nodes: Array[InspectableObject]
+var next_nodes: Array[InspectableObject]
 var apply_callable: Callable
 
 
 func _init(
 	p_storyline_id: String,
-	p_previous_node: InspectableNode,
-	p_next_node: InspectableNode,
+	p_previous_nodes: Array[InspectableObject],
+	p_next_nodes: Array[InspectableObject],
 	p_apply_callable: Callable
 ) -> void:
 	storyline_id = p_storyline_id
-	previous_node = p_previous_node
-	next_node = p_next_node
+	previous_nodes = p_previous_nodes.duplicate()
+	next_nodes = p_next_nodes.duplicate()
 	apply_callable = p_apply_callable
 
 
 func execute() -> void:
-	_apply_selection(next_node)
+	_apply_selection(next_nodes)
 
 
 func undo() -> void:
-	_apply_selection(previous_node)
+	_apply_selection(previous_nodes)
 
 
 func get_description() -> String:
-	var target_id := ""
-	if next_node:
-		var id_property := next_node.get_property("id")
-		if id_property:
-			target_id = String(id_property.get_value())
-	if target_id.is_empty():
-		return "Change selection"
-	return "Select node %s" % target_id
+	var target_ids: PackedStringArray = []
+	for node: InspectableObject in next_nodes:
+		if node:
+			target_ids.append(str(node.get_property_value("id")))
+
+	if target_ids.is_empty():
+		return "Clear selection"
+	return "Select %s" % ", ".join(target_ids)
 
 
-func _apply_selection(target: InspectableNode) -> void:
+func _apply_selection(targets: Array[InspectableObject]) -> void:
 	if not apply_callable.is_valid():
 		return
 
-	apply_callable.call(target, storyline_id)
+	apply_callable.call(targets, storyline_id)

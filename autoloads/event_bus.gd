@@ -7,11 +7,18 @@ signal test_trigger
 signal refresh
 signal refresh_graph
 signal add_graph_node(descriptor_name: String, window: Window)
-signal request_node_selection(node: InspectableNode, storyline_id: String, skip_history: bool)
-signal request_object_inspection(object: InspectableObject)
+## Selections travel as Array[InspectableObject] everywhere, even when they only hold
+## nodes: GDScript typed arrays are invariant, so mixing the two element types means a
+## conversion at every boundary.
+signal request_nodes_selection(
+	nodes: Array[InspectableObject], storyline_id: String, skip_history: bool
+)
+signal request_objects_inspection(objects: Array[InspectableObject])
 signal request_storyline_inspection(storyline: StorylineDocument)
 signal select_new_node
-signal inspector_property_changed(object: InspectableObject, property_name: String, is_undo: bool)
+signal inspector_property_changed(
+	objects: Array[InspectableObject], property_name: String, is_undo: bool
+)
 signal storyline_deleted
 
 signal save_file_request(

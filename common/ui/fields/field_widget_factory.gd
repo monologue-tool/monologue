@@ -33,12 +33,15 @@ static func create_or_placeholder(field_name: String) -> Control:
 	return warn_label
 
 
-## Connects [param property] to [param field]. Pass [param owner] to make edits
-## undoable; see [method bind_detached] for the other case.
+## Connects [param property] to every object in [param owners]. One owner is the
+## ordinary case; several means the field edits them together, as one undo step.
+## An empty list makes the widget detached -- see [method bind_detached].
 ##
 ## The field must already be in the tree, since binding immediately pushes the current
 ## value into it. Use [method bind_deferred] when binding right after add_child().
-static func bind(property: Property, field: Field, owner: InspectableObject = null) -> FieldBinding:
+static func bind(
+	property: Property, field: Field, owners: Array[InspectableObject] = []
+) -> FieldBinding:
 	if not property or not is_instance_valid(field):
 		return null
 	if not field.is_inside_tree():
@@ -48,22 +51,38 @@ static func bind(property: Property, field: Field, owner: InspectableObject = nu
 	if indexer == null:
 		push_warning("No field type registered as '%s'." % property.type)
 		return null
-	var binding: FieldBinding = FieldBinding.new(property, field, indexer, owner)
+	var binding: FieldBinding = FieldBinding.new(property, field, indexer, owners)
 	binding.initialize()
 	return binding
 
 
 ## Binds on the next idle frame, once [param field] has entered the tree.
 static func bind_deferred(
-	property: Property, field: Field, owner: InspectableObject = null
+	property: Property, field: Field, owners: Array[InspectableObject] = []
 ) -> void:
-	FieldWidgetFactory.bind.call_deferred(property, field, owner)
+	FieldWidgetFactory.bind.call_deferred(property, field, owners)
 
 
-## Binds without a model owner: the widget will never write to an [InspectableObject]
-## and never records an undo entry on its own.
+## Convenience for the common single-object case.
+##
+## A null owner produces a detached binding, which for a list or collection field means
+## it has no children to read and silently shows nothing -- so say something.
+static func bind_one(property: Property, field: Field, owner: InspectableObject) -> void:
+	var owners: Array[InspectableObject] = []
+	if owner:
+		owners.append(owner)
+	elif property and property.type in ["list", "collection"]:
+		push_warning(
+			"Binding '%s' with no owner: a %s field needs one to read its items from."
+			% [property.name, property.type]
+		)
+	FieldWidgetFactory.bind_deferred(property, field, owners)
+
+
+## Binds without any model owner: the widget will never write to an
+## [InspectableObject] and never records an undo entry on its own.
 ##
 ## Used by [ListField], whose items are throwaway view-model properties -- the parent
 ## list commits the whole array as one change instead.
 static func bind_detached(property: Property, field: Field) -> void:
-	FieldWidgetFactory.bind.call_deferred(property, field, null)
+	FieldWidgetFactory.bind_deferred(property, field, [] as Array[InspectableObject])

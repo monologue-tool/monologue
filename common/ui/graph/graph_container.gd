@@ -9,13 +9,13 @@ var prompt_scene: PackedScene = preload("uid://bkreq3xdr7gxw")
 @onready var snap_button: Button = %SnapButton
 @onready var grid_button: Button = %GridButton
 
-var _selected_nodes: Dictionary = {}  # storyline_id -> InspectableNode
+var _selected_nodes: Dictionary = {}  # storyline_id -> Array[InspectableObject]
 var _is_applying_selection: bool = false
 var _current_lang_prop: Property = null  # tracked to disconnect on storyline switch
 
 
 func _ready() -> void:
-	graph.node_view_selected.connect(_on_graph_edit_node_view_selected)
+	graph.selection_changed.connect(_on_graph_selection_changed)
 	snap_button.pressed.connect(_on_snap_button_pressed)
 	grid_button.pressed.connect(_on_grid_button_pressed)
 	snap_button.button_pressed = ConfigManager.get_config("snap")
@@ -23,7 +23,7 @@ func _ready() -> void:
 	_on_snap_button_pressed()
 	_on_grid_button_pressed()
 
-	EventBus.request_node_selection.connect(_on_request_node_selection)
+	EventBus.request_nodes_selection.connect(_on_request_nodes_selection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
 	EventBus.graph_snap.connect(_on_event_graph_snap)
 	EventBus.graph_show_grid.connect(_on_event_show_grid)
@@ -55,27 +55,45 @@ func load_storyline(storyline: StorylineDocument) -> void:
 		_current_lang_prop.value_changed.connect(_on_languages_changed)
 		EventBus.load_languages.emit(storyline.get_property_value("languages"), graph)
 
-	# Restore the previously selected node (and inspector) for this storyline
-	var last_node: InspectableNode = _selected_nodes.get(storyline.id)
-	if last_node and is_instance_valid(last_node) and is_instance_valid(last_node.graph_view):
-		graph.set_selected(last_node.graph_view)
-	EventBus.request_object_inspection.emit(last_node)
+	# Restore the previously selected nodes (and inspector) for this storyline
+	var selection: Array[InspectableObject] = []
+	selection.assign(_selected_nodes.get(storyline.id, []))
+
+	var restored: Array[InspectableObject] = []
+	for object: InspectableObject in selection:
+		var node: InspectableNode = object as InspectableNode
+		if node and is_instance_valid(node) and is_instance_valid(node.graph_view):
+			graph.set_selected(node.graph_view)
+			restored.append(node)
+
+	EventBus.request_objects_inspection.emit(restored)
 
 
 func _on_languages_changed(_old: Variant, new_value: Variant) -> void:
 	EventBus.load_languages.emit(new_value, graph)
 
 
-func _on_graph_edit_node_view_selected(node: InspectableNode) -> void:
-	request_node_selection(node)
-
-
-func _on_request_node_selection(
-	object: InspectableObject, storyline_id: String, skip_history: bool = false
-) -> void:
-	if object is not InspectableNode or storyline_id != graph.storyline_id:
+## Hands the whole selection to the inspector. One node is not a special case, just a
+## selection of one, so there is nothing here to branch on.
+func _on_graph_selection_changed(nodes: Array[InspectableObject]) -> void:
+	if _is_applying_selection:
 		return
-	request_node_selection(object, skip_history)
+
+	# Several nodes go straight to the inspector; a single one also records an undo
+	# step, so stepping back through the graph works.
+	if nodes.size() > 1:
+		EventBus.request_objects_inspection.emit(nodes)
+		return
+
+	request_node_selection(nodes)
+
+
+func _on_request_nodes_selection(
+	nodes: Array[InspectableObject], storyline_id: String, skip_history: bool = false
+) -> void:
+	if storyline_id != graph.storyline_id:
+		return
+	request_node_selection(nodes, skip_history)
 
 
 func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
@@ -85,47 +103,57 @@ func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
 	load_storyline(storyline)
 
 
-func request_node_selection(node: InspectableNode, skip_history: bool = false) -> void:
+func request_node_selection(nodes: Array[InspectableObject], skip_history: bool = false) -> void:
 	if _is_applying_selection:
 		return
 
-	var current_node: InspectableNode = _selected_nodes.get(graph.storyline_id)
-	var needs_selection_update := current_node != node
+	var current_nodes: Array[InspectableObject] = []
+	current_nodes.assign(_selected_nodes.get(graph.storyline_id, []))
+
+	var needs_selection_update: bool = current_nodes != nodes
 	if not needs_selection_update:
-		if graph and node and is_instance_valid(node.graph_view):
-			needs_selection_update = not node.graph_view.selected
+		# Same set, but the graph may have lost the highlight -- put it back.
+		for object: InspectableObject in nodes:
+			var node: InspectableNode = object as InspectableNode
+			if node and is_instance_valid(node.graph_view) and not node.graph_view.selected:
+				needs_selection_update = true
+				break
 
-	if not needs_selection_update and inspector_panel.current_object == node:
-		return
-
-	if skip_history:
-		_apply_selection(node, graph.storyline_id)
+	if not needs_selection_update and inspector_panel.current_objects == nodes:
 		return
 
 	var history: CommandManager = ProjectManager.current_project.command_manager
-	if not history:
-		_apply_selection(node, graph.storyline_id)
+	if skip_history or not history:
+		_apply_selection(nodes, graph.storyline_id)
 		return
 
-	var command := NodeSelectionCommand.new(
-		graph.storyline_id, current_node, node, Callable(self, "_apply_selection")
+	history.execute(
+		NodeSelectionCommand.new(graph.storyline_id, current_nodes, nodes, _apply_selection)
 	)
 
-	history.execute(command)
 
-
-func _apply_selection(node: InspectableNode, storyline_id: String) -> void:
+func _apply_selection(nodes: Array[InspectableObject], storyline_id: String) -> void:
 	_is_applying_selection = true
 
-	if node:
-		_selected_nodes[storyline_id] = node
-	else:
+	if nodes.is_empty():
 		_selected_nodes.erase(storyline_id)
+	else:
+		_selected_nodes[storyline_id] = nodes
 
-	if node and is_instance_valid(node.graph_view):
-		graph.set_selected(node.graph_view)
+	# set_selected() deselects everything else, so only the first call may use it; the
+	# rest add to the selection.
+	var is_first: bool = true
+	for object: InspectableObject in nodes:
+		var node: InspectableNode = object as InspectableNode
+		if not node or not is_instance_valid(node.graph_view):
+			continue
+		if is_first:
+			graph.set_selected(node.graph_view)
+			is_first = false
+		else:
+			node.graph_view.selected = true
 
-	EventBus.request_object_inspection.emit(node)
+	EventBus.request_objects_inspection.emit(nodes)
 	_is_applying_selection = false
 
 
