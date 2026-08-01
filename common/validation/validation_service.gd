@@ -25,11 +25,13 @@ static func validate_value(context: ValidationContext) -> ValidationResult:
 static func validate_property(
 	property: Property,
 	object: InspectableObject,
-	phase: ValidationContext.Phase = ValidationContext.Phase.COMMIT
+	phase: ValidationContext.Phase = ValidationContext.Phase.COMMIT,
+	project: MonologueProject = null
 ) -> ValidationResult:
 	var context: ValidationContext = ValidationContext.for_property(
 		property, object, property.get_value(), phase
 	)
+	context.project = project
 	var result: ValidationResult = validate_value(context)
 	property.issues = result.issues
 	return result
@@ -117,6 +119,9 @@ static func rules_for(property: Property) -> Array[ValidationRule]:
 
 	if property.get_settings_value(PropertySettings.KEY_UNIQUE, false):
 		rules.append(UniqueRule.new())
+
+	if property.type == "reference":
+		rules.append(ReferenceRule.new())
 
 	var bounds: Variant = property.get_settings_value(PropertySettings.KEY_VALIDATION, {})
 	if bounds is Dictionary and not (bounds as Dictionary).is_empty():

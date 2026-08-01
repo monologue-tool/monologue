@@ -31,6 +31,9 @@ var _field_by_type_id: Dictionary[int, FieldIndexer] = {}
 ## 1-based. GraphNode treats slot type 0 as its own default, so 0 is kept free to mean
 ## "not a registered field type".
 var _next_field_type_id: int = 1
+## Port type ids for reference targets, keyed by scope. Drawn from the same counter as
+## field types, which is what keeps a "characters" port from matching any other port.
+var _reference_type_ids: Dictionary[String, int] = {}
 var _installing_plugin: String = ""
 
 
@@ -225,6 +228,23 @@ func create_collection_item(collection_name: String, history: CommandManager) ->
 func get_field_type_id(field_name: String) -> int:
 	var indexer: FieldIndexer = get_field(field_name)
 	return indexer.type_id if indexer else 0
+
+
+## Port type id for references aimed at [param scope], allocated on first use.
+##
+## Every reference field shares one field type, so without this a character reference
+## and a bezier reference would look interchangeable to the graph. Two ports match only
+## when they point at the same kind of thing.
+func get_reference_type_id(scope: String) -> int:
+	if scope.is_empty():
+		return 0
+	if _reference_type_ids.has(scope):
+		return _reference_type_ids[scope]
+
+	var type_id: int = _next_field_type_id
+	_next_field_type_id += 1
+	_reference_type_ids[scope] = type_id
+	return type_id
 
 
 func is_compatible(type_id_a: int, type_id_b: int) -> bool:

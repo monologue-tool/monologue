@@ -2,7 +2,7 @@ class_name PortraitCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:
-	define_name_property("new portrait")
+	define_name_property()
 
 	define_property(Property.new("extra/protected")
 		.set_type("bool")

@@ -65,6 +65,13 @@ const KEY_PORT_SIZE: String = "port_size"
 const KEY_OPTIONS: String = "options"
 ## (dropdown) Dynamic source: a collection name or "self:<property>" path.
 const KEY_SOURCE: String = "source"
+## (reference) Where the target may be found: a collection name, "self:<property>",
+## "storylines", or "node:<type>". See [ReferenceResolver].
+const KEY_REFERENCE_SCOPE: String = "reference_scope"
+## (reference) Property of the target read to label it. Defaults to "name".
+const KEY_LABEL_PROPERTY: String = "label_property"
+## (reference) Whether "nothing selected" is an accepted value.
+const KEY_ALLOW_EMPTY: String = "allow_empty"
 ## (translatable) When true, renders a multi-line TextEdit instead of a LineEdit.
 const KEY_MULTILINE: String = "multiline"
 ## (text / translatable) Placeholder ghost text shown when the field is empty.

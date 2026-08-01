@@ -49,6 +49,44 @@ func initialize_properties() -> void:
 	pass
 
 
+## Reports wires whose other end is missing, as issues for the problems panel rather
+## than as engine warnings nobody reads.
+func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
+	for node: InspectableNode in nodes:
+		for property: Property in node.get_properties():
+			_validate_endpoints(result, node, property, property.connected_to)
+			_validate_endpoints(result, node, property, property.connected_from)
+
+
+func _validate_endpoints(
+	result: ValidationResult, node: InspectableNode, property: Property, connections: Array
+) -> void:
+	for connection: Dictionary in connections:
+		var peer_id: String = str(connection.get("node_id", ""))
+		var peer: InspectableNode = get_node(peer_id)
+		if not peer:
+			result.add(
+				ValidationIssue.error(
+					"'%s' is connected to '%s', which is not in this storyline."
+					% [property.get_display_name(), peer_id],
+					&"broken_connection"
+				).at(node, property.name)
+			)
+			continue
+
+		var peer_property: String = ConnectionManager.parse_composite_name(
+			str(connection.get("property_name", ""))
+		)[0]
+		if not peer.get_property(peer_property):
+			result.add(
+				ValidationIssue.error(
+					"'%s' is connected to '%s', which has no property '%s'."
+					% [property.get_display_name(), peer_id, peer_property],
+					&"broken_connection"
+				).at(node, property.name)
+			)
+
+
 func get_type() -> String:
 	return "storyline"
 

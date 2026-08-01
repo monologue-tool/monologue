@@ -10,6 +10,10 @@ var _enable_right_port: bool = false
 var sub_property_id: String = ""
 ## Port size: "normal" or "large"
 var port_size: String = "normal"
+## Slot type this row's ports use. 0 means "work it out from [member _type]".
+## Set for references, whose port type comes from what they point at rather than from
+## the field type they all share.
+var port_type_id: int = 0
 
 
 func _init(

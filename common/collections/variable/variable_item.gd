@@ -4,7 +4,7 @@ const VALUE_TYPES: Array[String] = ["bool", "string", "int", "float"]
 
 
 func initialize_properties() -> void:
-	define_name_property("new variable").validate(_must_be_an_identifier, &"variable_name")
+	define_name_property().validate(_must_be_an_identifier, &"variable_name")
 
 	define_property(Property.new("type")
 		.set_type("dropdown")

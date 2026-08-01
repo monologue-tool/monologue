@@ -2,7 +2,7 @@ class_name BezierCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:
-	define_name_property("new bezier")
+	define_name_property()
 
 	define_property(Property.new("bezier")
 		.set_type("bezier"))

@@ -2,7 +2,7 @@ class_name LocationCollectionItem extends CollectionItem
 
 
 func initialize_properties() -> void:
-	define_name_property("new location")
+	define_name_property()
 
 	define_property(Property.new("display_name")
 		.set_type("text"))

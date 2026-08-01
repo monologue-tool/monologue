@@ -17,8 +17,10 @@ func initialize_properties() -> void:
 		.set_type("text"))
 
 	define_property(Property.new("portraits/default_portrait")
-		.set_type("dropdown")
-		.source("self:portraits"))
+		.set_type("reference")
+		.reference_scope("self:portraits")
+		.label_property("name")
+		.default(default_portrait.get_property_value("id")))
 
 	define_property(Property.new("portraits/portraits")
 		.set_type("collection")

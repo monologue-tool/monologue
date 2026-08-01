@@ -15,6 +15,14 @@ func _init(command_manager: CommandManager = null) -> void:
 
 	super._init(command_manager)
 
+	# Free-form label shown on the node in the graph. Nothing ever points at it, so it
+	# can be changed at any time; the id is what references use.
+	define_property(Property.new("title")
+		.set_type("text")
+		.header()
+		.placeholder(Util.to_readable_name(get_type()))
+		.not_exposable())
+
 	define_property(Property.new("extra/notes")
 		.set_type("textarea")
 		.hidden_in_graph()
@@ -79,10 +87,11 @@ func rebuild_preview() -> void:
 
 @abstract func get_type() -> String
 
+## Returns a copy carrying its own id, offset so it does not land on the original.
 @warning_ignore("native_method_override")
 func duplicate(deep: bool = false) -> Resource:
 	var duplicated: InspectableNode = super.duplicate(deep)
-	duplicated.get_property("id").value = IDGen.generate(ID_LENGTH)
+	duplicated.get_property("id").value = IDGen.generate_object_id(get_type())
 	duplicated.get_property("position").value += [30, 30]
 
 	return duplicated

@@ -14,8 +14,9 @@ func initialize_properties() -> void:
 		.multiline())
 
 	define_property(Property.new("correspondent")
-		.set_type("dropdown")
-		.source("characters")
+		.set_type("reference")
+		.reference_scope("characters")
+		.label_property("name")
 		.hidden_in_graph())
 
 	define_property(Property.new("advanced/enabled")

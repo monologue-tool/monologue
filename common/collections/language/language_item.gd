@@ -6,7 +6,7 @@ func initialize_properties() -> void:
 	# protecting, since the user may rename or delete any language but the default.
 	define_property(Property.new("name")
 		.set_type("text")
-		.default("New Language")
+		.default(_generate_name())
 		.unique_among_siblings()
 		.placeholder("English")
 		.min_length(1))

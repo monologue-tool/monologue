@@ -4,8 +4,6 @@
 @abstract
 class_name InspectableObject extends Resource
 
-const ID_LENGTH: int = 4
-
 signal property_changed(property_name: String)
 
 var _properties: Dictionary[String, Property] = {}
@@ -39,8 +37,10 @@ func _init(command_manager: CommandManager = null) -> void:
 
 	define_property(Property.new("id")
 		.set_type("text")
-		.default("%s-%s" % [get_type(), IDGen.generate(ID_LENGTH)])
+		.default(IDGen.generate_object_id(get_type()))
 		.header()
+		.read_only()
+		.hidden_in_inspector()
 		.unique_among_siblings())
 
 	initialize_properties()

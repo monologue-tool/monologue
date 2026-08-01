@@ -228,6 +228,22 @@ func source(source_path: String) -> Property:
 	return set_setting(PropertySettings.KEY_SOURCE, source_path)
 
 
+## (reference) Where the target is looked up: a collection name, "self:<property>",
+## "storylines", or "node:<type>".
+func reference_scope(scope: String) -> Property:
+	return set_setting(PropertySettings.KEY_REFERENCE_SCOPE, scope)
+
+
+## (reference) Property of the target used as its label. Defaults to "name".
+func label_property(property_name: String) -> Property:
+	return set_setting(PropertySettings.KEY_LABEL_PROPERTY, property_name)
+
+
+## (reference) Accepts "nothing selected" as a value.
+func allow_empty(is_allowed: bool = true) -> Property:
+	return set_setting(PropertySettings.KEY_ALLOW_EMPTY, is_allowed)
+
+
 ## (text / translatable) Renders a multi-line editor.
 func multiline(rows: int = 3) -> Property:
 	set_setting(PropertySettings.KEY_MULTILINE, true)

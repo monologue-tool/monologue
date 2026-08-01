@@ -138,7 +138,11 @@ func _on_field_value_committed(value: Variant) -> void:
 	else:
 		_write_to_owners(formatted)
 
-	field.display_issues(ValidationService.validate_property(property, owner).issues)
+	field.display_issues(
+		ValidationService.validate_property(
+			property, owner, ValidationContext.Phase.COMMIT, ProjectManager.current_project
+		).issues
+	)
 	_refresh_owner_preview_from_change()
 
 

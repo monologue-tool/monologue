@@ -96,7 +96,9 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		if row.port_size == "large":
 			container.custom_minimum_size.y = 32
 
-		var type_id: int = MonologueRegistry.get_instance().get_field_type_id(row.get_type())
+		var type_id: int = row.port_type_id
+		if type_id == 0:
+			type_id = MonologueRegistry.get_instance().get_field_type_id(row.get_type())
 		graph_node.set_slot(
 			idx,
 			row._enable_left_port,
@@ -119,10 +121,13 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 	graph_node.reset_size()
 
 
+## Names the view after the node's id and titles it with the node's own title,
+## falling back to the type name when the title is blank.
 static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void:
 	if not is_instance_valid(graph_node):
 		return
-	graph_node.title = Util.to_readable_name(node.get_type())
+	var title: String = str(node.get_property_value("title"))
+	graph_node.title = title if not title.is_empty() else Util.to_readable_name(node.get_type())
 	var id_prop: Property = node.get_property("id")
 	graph_node.name = str(id_prop.get_value()) if id_prop else _derive_node_name(node)
 
@@ -165,7 +170,18 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	var row: GraphNodeRow = GraphNodeRow.new(label, row_type, enable_left, enable_right)
 	row._property_name = prop.name
 	row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")
+	if prop.type == "reference":
+		_apply_reference_port(row, prop)
 	return row
+
+
+## Types a reference row after what it points at, so a character port only accepts
+## another character port.
+static func _apply_reference_port(row: GraphNodeRow, prop: Property) -> void:
+	var scope: String = str(prop.get_settings_value(PropertySettings.KEY_REFERENCE_SCOPE, ""))
+	if scope.is_empty():
+		return
+	row.port_type_id = MonologueRegistry.get_instance().get_reference_type_id(scope)
 
 
 static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array[GraphNodeRow]:
@@ -216,12 +232,12 @@ static func _extract_dict_string(data: Dictionary, key: String) -> String:
 	return str(raw_dict.get("value", ""))
 
 
+## Returns the node's id, allocating one when it somehow has none.
 static func _derive_node_name(node: InspectableNode) -> String:
-	# Fallback to id (no type prefix) if needed
 	var id_value: String = ""
 	var id_property: Property = node.get_property("id")
 	if id_property:
 		id_value = str(id_property.get_value())
 	if id_value.is_empty():
-		id_value = IDGen.generate(5)
+		id_value = IDGen.generate_object_id(node.get_type())
 	return id_value

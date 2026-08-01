@@ -1,5 +1,8 @@
 class_name CollectionField extends BaseListField
 
+## How many referrers the delete confirmation spells out before summarising the rest.
+const MAX_LISTED_REFERRERS: int = 8
+
 var _collection_name: String = ""
 
 
@@ -129,13 +132,15 @@ func _on_duplicate_item(index: int) -> void:
 	emit_value_committed(get_value())
 
 
+## Gives a freshly copied item its own value for every property that must differ from
+## its siblings: a new id, and a numbered suffix for anything else.
 func _make_item_unique(item: CollectionItem) -> void:
 	for prop: Property in item.get_properties():
 		if not prop.get_settings_value(PropertySettings.KEY_UNIQUE, false):
 			continue
 
 		if prop.name == "id":
-			prop.value = IDGen.generate(InspectableObject.ID_LENGTH)
+			prop.value = IDGen.generate_object_id(item.get_type())
 
 		var base_val: String = str(prop.value)
 		var regex := RegEx.new()
@@ -150,18 +155,67 @@ func _make_item_unique(item: CollectionItem) -> void:
 
 		while _value_exists_in_list(prop.name, prop.value):
 			if prop.name == "id":
-				prop.value = IDGen.generate(InspectableObject.ID_LENGTH)
+				prop.value = IDGen.generate_object_id(item.get_type())
 			else:
 				prop.value = "%s%d" % [name_base, attempt]
 				attempt += 1
 
 
+## Deletes the item, asking first when something still points at it. The references
+## are never rewritten either way: they keep the id and start reporting it as missing.
 func _on_delete_item(index: int) -> void:
+	if not _is_valid_index(index):
+		return
+
 	var item: CollectionItem = get_items()[index]
+	var referrers: Array[ReferenceSite] = _referrers_of(item)
+	if referrers.is_empty():
+		_delete_item(item)
+		return
+
+	EventBus.ask_dialog.emit(
+		_on_delete_confirmed.bind(item),
+		"Delete %s?" % _describe(item),
+		_describe_referrers(referrers),
+		"Delete anyway",
+		"Keep",
+		"Cancel"
+	)
+
+
+func _on_delete_confirmed(response: int, item: CollectionItem) -> void:
+	if response == Prompt.CONFIRMED and is_instance_valid(item):
+		_delete_item(item)
+
+
+func _delete_item(item: CollectionItem) -> void:
 	_binding.owner.remove_property_children(_binding.property.name, item)
 
 	emit_value_committed(get_value())
 	_rebuild_ui()
+
+
+func _referrers_of(item: CollectionItem) -> Array[ReferenceSite]:
+	var project: MonologueProject = ProjectManager.current_project
+	if project == null:
+		return []
+	return project.get_object_registry().get_referrers(str(item.get_property_value("id")))
+
+
+static func _describe(item: CollectionItem) -> String:
+	var item_name: String = str(item.get_property_value("name"))
+	return item_name if not item_name.is_empty() else item.get_type()
+
+
+static func _describe_referrers(referrers: Array[ReferenceSite]) -> String:
+	var lines: PackedStringArray = [
+		"%d place(s) still point at it, and will show it as missing:" % referrers.size()
+	]
+	for site: ReferenceSite in referrers.slice(0, MAX_LISTED_REFERRERS):
+		lines.append("  - %s (%s)" % [site, site.document_name])
+	if referrers.size() > MAX_LISTED_REFERRERS:
+		lines.append("  - and %d more" % (referrers.size() - MAX_LISTED_REFERRERS))
+	return "\n".join(lines)
 
 
 func reorder_item(from_index: int, to_index: int) -> void:

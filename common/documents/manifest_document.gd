@@ -18,7 +18,8 @@ func initialize_properties() -> void:
 		.hidden_in_inspector())
 
 	define_property(Property.new("entry_point")
-		.set_type("dropdown")
+		.set_type("reference")
+		.reference_scope("storylines")
 		.tooltip("Storyline the project starts from."))
 
 	define_property(Property.new("author")

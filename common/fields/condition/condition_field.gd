@@ -13,6 +13,7 @@ const FIELD_TYPE_BY_VARIABLE_TYPE: Dictionary = {
 	"float": "float",
 	"string": "text",
 }
+const MISSING_VARIABLE_LABEL: String = "⚠ Missing variable (%s)"
 
 @onready var variable_dropdown: OptionButton = %VariableDropdown
 @onready var operator_dropdown: OptionButton = %OperatorDropdown
@@ -91,10 +92,25 @@ func _load_variables() -> void:
 
 
 func _select_variable(variable_id: String) -> void:
+	if variable_id.is_empty():
+		return
+
 	for item_idx: int in variable_dropdown.item_count:
 		if variable_dropdown.get_item_metadata(item_idx) == variable_id:
 			variable_dropdown.selected = item_idx
 			return
+
+	_add_missing_variable(variable_id)
+
+
+## Shows a variable the project no longer has, and keeps it selected. Leaving nothing
+## selected would drop the id and turn the condition into a comparison against blank.
+func _add_missing_variable(variable_id: String) -> void:
+	variable_dropdown.add_item(MISSING_VARIABLE_LABEL % variable_id)
+	var index: int = variable_dropdown.item_count - 1
+	variable_dropdown.set_item_metadata(index, variable_id)
+	variable_dropdown.set_item_disabled(index, true)
+	variable_dropdown.selected = index
 
 
 func _on_variable_item_selected(_new_variable: Variant) -> void:

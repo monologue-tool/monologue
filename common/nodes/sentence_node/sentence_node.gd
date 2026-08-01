@@ -14,8 +14,10 @@ func initialize_properties() -> void:
 		.multiline())
 
 	define_property(Property.new("speaker/speaker")
-		.set_type("dropdown")
-		.source("characters"))
+		.set_type("reference")
+		.reference_scope("characters")
+		.label_property("name")
+		.exported())
 
 	define_property(Property.new("speaker/display_name")
 		.set_type("translatable")

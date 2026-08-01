@@ -24,6 +24,9 @@ var active_language_code: String = "en"
 ## Whatever went wrong while reading this project from disk. Empty for a new project.
 var load_issues: ValidationResult = ValidationResult.ok()
 
+var _object_registry: ProjectObjectRegistry = ProjectObjectRegistry.new()
+var _object_registry_is_stale: bool = true
+
 
 func _init() -> void:
 	_init_documents.call_deferred()
@@ -31,6 +34,7 @@ func _init() -> void:
 	command_manager.command_executed.connect(_on_command_executed)
 	command_manager.undone.connect(_on_undo)
 	command_manager.redone.connect(_on_redo)
+	content_changed.connect(_on_content_changed)
 
 
 func _init_documents() -> void:
@@ -38,8 +42,20 @@ func _init_documents() -> void:
 	settings = ProjectSettingsDocument.new(command_manager)
 	storylines.append(StorylineDocument.new("main", command_manager))
 	_init_collections()
+	observe_storylines()
 
 	ready.emit()
+
+
+## Subscribes to every storyline so that adding or removing a node marks the reference
+## index for a rebuild. Safe to call again after storylines are loaded or added.
+func observe_storylines() -> void:
+	for storyline: StorylineDocument in storylines:
+		if not storyline.node_added.is_connected(_on_content_changed):
+			storyline.node_added.connect(_on_content_changed)
+		if not storyline.node_removed.is_connected(_on_content_changed):
+			storyline.node_removed.connect(_on_content_changed)
+	_object_registry_is_stale = true
 
 
 func get_all_documents() -> Array[InspectableDocument]:
@@ -127,6 +143,19 @@ func validate() -> ValidationResult:
 	return ValidationService.validate_project(self)
 
 
+## The project's identity map and reverse reference index, walked again whenever the
+## project has changed since it was last asked for.
+func get_object_registry() -> ProjectObjectRegistry:
+	if _object_registry_is_stale:
+		_object_registry_is_stale = false
+		_object_registry.rebuild(self)
+	return _object_registry
+
+
+func _on_content_changed() -> void:
+	_object_registry_is_stale = true
+
+
 func get_collection(collection_name: String) -> CollectionDocument:
 	for collection: CollectionDocument in collections:
 		if collection.name == collection_name:
@@ -170,6 +199,7 @@ func add_new_storyline() -> void:
 		attempt += 1
 
 	storylines.append(StorylineDocument.new(storyline_name, command_manager))
+	observe_storylines()
 
 
 func is_valid_storyline_name(storyline_name: String) -> bool:
@@ -287,6 +317,7 @@ static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
 	var result: ValidationResult = ValidationResult.ok()
 	var is_usable: bool = ProjectReader.read_into(project, reader, result)
 	project.load_issues = result
+	project.observe_storylines()
 
 	for issue: ValidationIssue in result.issues:
 		if issue.is_error():

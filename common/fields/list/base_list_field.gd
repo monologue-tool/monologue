@@ -15,9 +15,6 @@ func _ready() -> void:
 		add_button.pressed.connect(_on_add_button)
 
 
-## The child objects this list shows. Empty when the field has no owner to read them
-## from -- a list is a view onto one object's children, so a detached one has nothing
-## to show rather than something to crash on.
 func get_items() -> Array:
 	if not _binding or not _binding.owner:
 		return []

@@ -23,6 +23,7 @@ const FIELDS: Array[GDScript] = [
 	preload("res://common/fields/int/index.gd"),
 	preload("res://common/fields/list/index.gd"),
 	preload("res://common/fields/option/index.gd"),
+	preload("res://common/fields/reference/index.gd"),
 	preload("res://common/fields/slider/index.gd"),
 	preload("res://common/fields/text/index.gd"),
 	preload("res://common/fields/textarea/index.gd"),
