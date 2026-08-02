@@ -37,6 +37,12 @@ const NODES: Array[GDScript] = [
 	preload("res://common/nodes/choice_node/index.gd"),
 	preload("res://common/nodes/option_node/index.gd"),
 	preload("res://common/nodes/text_node/index.gd"),
+	preload("res://common/nodes/audio_node/index.gd"),
+	preload("res://common/nodes/background_node/index.gd"),
+	preload("res://common/nodes/condition_node/index.gd"),
+	preload("res://common/nodes/reroute_node/index.gd"),
+	preload("res://common/nodes/storyline_node/index.gd"),
+	preload("res://common/nodes/wait_node/index.gd"),
 	preload("res://common/nodes/zoo_node/index.gd"),
 ]
 

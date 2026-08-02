@@ -323,6 +323,20 @@ func value_range(minimum: float, maximum: float) -> Property:
 	return _add_rule("max", maximum)
 
 
+## (slider) The range the widget offers, which is also the range the value is checked
+## against: a slider that stops at 100 and a rule that allows 200 would disagree.
+func slider_range(minimum: float, maximum: float, step: float = 1.0) -> Property:
+	set_setting(PropertySettings.KEY_MIN_VALUE, minimum)
+	set_setting(PropertySettings.KEY_MAX_VALUE, maximum)
+	set_setting(PropertySettings.KEY_STEP, step)
+	return value_range(minimum, maximum)
+
+
+## (slider) Unit shown next to the number, such as "s" or "dB".
+func suffix(text: String) -> Property:
+	return set_setting(PropertySettings.KEY_SUFFIX, text)
+
+
 ## Sets one declared setting. Prefer a named method when one exists; this is for keys
 ## a plugin defines that the core knows nothing about.
 func set_setting(key: String, setting_value: Variant) -> Property:

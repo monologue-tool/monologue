@@ -61,6 +61,16 @@ const KEY_COLLECTION: String = "collection"
 const KEY_ITEM_TYPE: String = "item_type"
 ## (port) Visual size of the port slot ("normal" or "large").
 const KEY_PORT_SIZE: String = "port_size"
+## (slider) Lowest value the widget offers.
+const KEY_MIN_VALUE: String = "min_value"
+## (slider) Highest value the widget offers.
+const KEY_MAX_VALUE: String = "max_value"
+## (slider) Increment between two positions.
+const KEY_STEP: String = "step"
+## (slider) Unit shown after the number, such as "s" or "dB".
+const KEY_SUFFIX: String = "suffix"
+## (slider) Text shown before the number.
+const KEY_PREFIX: String = "prefix"
 ## (dropdown) Static array of option strings offered to the user.
 const KEY_OPTIONS: String = "options"
 ## (dropdown) Dynamic source: a collection name or "self:<property>" path.

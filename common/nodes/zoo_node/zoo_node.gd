@@ -85,6 +85,20 @@ func _define_reference_properties() -> void:
 		.set_type("dropdown")
 		.source("characters"))
 
+	define_property(Property.new("references/character")
+		.set_type("reference")
+		.reference_scope("characters"))
+
+	define_property(Property.new("references/storyline")
+		.set_type("reference")
+		.reference_scope("storylines"))
+
+	# Points into this node's own collection property, so the broken-reference chip can
+	# be seen by deleting the item it names.
+	define_property(Property.new("references/own_item")
+		.set_type("reference")
+		.reference_scope("self:collection"))
+
 
 func _define_list_properties() -> void:
 	define_property(Property.new("list/collection")

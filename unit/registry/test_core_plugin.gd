@@ -30,7 +30,20 @@ func test_every_declared_type_is_registered() -> void:
 func test_the_expected_types_are_present() -> void:
 	for field_name: String in ["text", "int", "bool", "collection", "condition", "translatable"]:
 		assert_object(_registry.get_field(field_name)).is_not_null()
-	for node_name: String in ["root", "sentence", "choice", "option", "text", "zoo"]:
+	for node_name: String in [
+		"root",
+		"sentence",
+		"choice",
+		"option",
+		"text",
+		"audio",
+		"background",
+		"condition",
+		"reroute",
+		"storyline",
+		"wait",
+		"zoo",
+	]:
 		assert_object(_registry.get_node(node_name)).is_not_null()
 	for collection_name: String in ["characters", "variables", "languages", "options"]:
 		assert_object(_registry.get_collection(collection_name)).is_not_null()
