@@ -11,7 +11,7 @@ func initialize_properties() -> void:
 	define_property(Property.new("seconds")
 		.set_type("float")
 		.default(1.0)
-		.slider_range(0.0, 60.0, 0.1)
+		.bounds(0.0, 60.0, 0.1)
 		.suffix("s")
 		.tooltip("How long the story pauses here before carrying on."))
 

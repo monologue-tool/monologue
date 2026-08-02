@@ -6,5 +6,6 @@ func _init() -> void:
 	display_name = "Sentence"
 	description = "A line of dialogue."
 	category = "Narration"
+	icon_path = "res://ui/assets/icons/comment.svg"
 	color = Color("af85fd")
 	node_script = preload("uid://bm2we18ivulms")

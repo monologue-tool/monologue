@@ -88,3 +88,14 @@ func test_a_declared_icon_actually_exists() -> void:
 		assert_bool(ResourceLoader.exists(indexer.icon_path)).override_failure_message(
 			"Node '%s' points at a missing icon: %s" % [indexer.name, indexer.icon_path]
 		).is_true()
+
+
+func test_every_offered_node_type_declares_an_icon() -> void:
+	# The picker tints each icon with the type's colour to make its rows recognisable;
+	# a type without one falls back to a plain dot and reads as unfinished.
+	for indexer: NodeIndexer in _each_node():
+		if indexer.category.begins_with("_"):
+			continue
+		assert_str(indexer.icon_path).override_failure_message(
+			"Node '%s' has no icon, so the picker shows it as a bare dot." % indexer.name
+		).is_not_empty()

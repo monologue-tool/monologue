@@ -6,5 +6,6 @@ func _init() -> void:
 	display_name = "Wait"
 	description = "Pauses for a moment before continuing."
 	category = "Flow"
+	icon_path = "res://ui/assets/icons/calendar.svg"
 	color = Color("45cee9")
 	node_script = preload("wait_node.gd")

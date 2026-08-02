@@ -61,15 +61,18 @@ const KEY_COLLECTION: String = "collection"
 const KEY_ITEM_TYPE: String = "item_type"
 ## (port) Visual size of the port slot ("normal" or "large").
 const KEY_PORT_SIZE: String = "port_size"
-## (slider) Lowest value the widget offers.
+## (int / float) Lowest value the widget offers. Declared together with KEY_MAX_VALUE;
+## a number missing either one is unbounded and drags freely.
 const KEY_MIN_VALUE: String = "min_value"
-## (slider) Highest value the widget offers.
+## (int / float) Highest value the widget offers.
 const KEY_MAX_VALUE: String = "max_value"
-## (slider) Increment between two positions.
+## (int / float) Increment between two values, and how many decimals are shown.
 const KEY_STEP: String = "step"
-## (slider) Unit shown after the number, such as "s" or "dB".
+## (int / float) Whether the value is kept whole. True for int, false for float.
+const KEY_ROUNDED: String = "rounded"
+## (int / float) Unit shown after the number, such as "s" or "dB".
 const KEY_SUFFIX: String = "suffix"
-## (slider) Text shown before the number.
+## (int / float) Text shown before the number.
 const KEY_PREFIX: String = "prefix"
 ## (dropdown) Static array of option strings offered to the user.
 const KEY_OPTIONS: String = "options"

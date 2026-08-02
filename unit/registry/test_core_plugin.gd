@@ -28,7 +28,9 @@ func test_every_declared_type_is_registered() -> void:
 
 
 func test_the_expected_types_are_present() -> void:
-	for field_name: String in ["text", "int", "bool", "collection", "condition", "translatable"]:
+	for field_name: String in [
+		"text", "int", "float", "bool", "collection", "condition", "reference", "translatable"
+	]:
 		assert_object(_registry.get_field(field_name)).is_not_null()
 	for node_name: String in [
 		"root",

@@ -137,6 +137,41 @@ func test_repeated_rules_accumulate_rather_than_replace() -> void:
 	assert_int(rules["max_length"]).is_equal(4)
 
 
+func test_bounds_sets_the_widget_range_and_the_check_together() -> void:
+	# A number that stops at 60 and a rule that allows 200 would disagree, and only one
+	# of the two would be visible.
+	var seconds := Property.new("seconds").set_type("float").bounds(0.0, 60.0, 0.1)
+
+	assert_float(seconds.get_settings_value(PropertySettings.KEY_MIN_VALUE)).is_equal(0.0)
+	assert_float(seconds.get_settings_value(PropertySettings.KEY_MAX_VALUE)).is_equal(60.0)
+	assert_float(seconds.get_settings_value(PropertySettings.KEY_STEP)).is_equal(0.1)
+
+	var rules: Dictionary = seconds.get_settings_value(PropertySettings.KEY_VALIDATION)
+	assert_float(rules["min"]).is_equal(0.0)
+	assert_float(rules["max"]).is_equal(60.0)
+
+
+func test_a_number_without_bounds_declares_none() -> void:
+	# This is what tells the widget to drag freely and draw no fill bar, so an absent
+	# range must stay absent rather than defaulting to 0..100.
+	var count := Property.new("count").set_type("int")
+
+	assert_bool(count.has_settings(PropertySettings.KEY_MIN_VALUE)).is_false()
+	assert_bool(count.has_settings(PropertySettings.KEY_MAX_VALUE)).is_false()
+	# The step still comes from the type, which is what rounds an int to whole numbers.
+	assert_bool(count.get_settings_value(PropertySettings.KEY_ROUNDED)).is_true()
+
+
+func test_int_and_float_differ_only_by_rounding_and_step() -> void:
+	var whole := Property.new("a").set_type("int")
+	var fractional := Property.new("b").set_type("float")
+
+	assert_bool(whole.get_settings_value(PropertySettings.KEY_ROUNDED)).is_true()
+	assert_bool(fractional.get_settings_value(PropertySettings.KEY_ROUNDED)).is_false()
+	assert_float(whole.get_settings_value(PropertySettings.KEY_STEP)).is_equal(1.0)
+	assert_float(fractional.get_settings_value(PropertySettings.KEY_STEP)).is_equal(0.1)
+
+
 func test_main_property_can_be_corrected_afterwards() -> void:
 	var root := Property.new("root").set_type("context").main_property().exposed(false).exported()
 

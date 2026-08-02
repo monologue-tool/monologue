@@ -20,17 +20,17 @@ func initialize_properties() -> void:
 		.tooltip("Keeps playing until something else stops it."))
 
 	define_property(Property.new("playback/volume")
-		.set_type("slider")
+		.set_type("float")
 		.default(0.0)
-		.slider_range(-60.0, 6.0, 0.5)
+		.bounds(-60.0, 6.0, 0.5)
 		.suffix("dB")
 		.hidden_in_graph()
 		.tooltip("0 plays the file at the level it was recorded."))
 
 	define_property(Property.new("playback/pitch")
-		.set_type("slider")
+		.set_type("float")
 		.default(1.0)
-		.slider_range(0.1, 4.0, 0.05)
+		.bounds(0.1, 4.0, 0.05)
 		.hidden_in_graph())
 
 

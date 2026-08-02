@@ -70,9 +70,54 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 	if position_property:
 		position_property.set_value(target_position)
 
-	var command: AddNodesCommand = AddNodesCommand.new(storyline.id, [node])
-	storyline.history.execute(command)
+	# One transaction, so a node dragged out of a port and its wire are undone together
+	# rather than in two steps.
+	var transaction: CommandTransaction = storyline.history.begin("Add %s node" % node_type)
+	storyline.history.execute(AddNodesCommand.new(storyline.id, [node]))
+	_connect_to_source_port(graph_edit, node, picker)
+	transaction.commit()
+
 	graph_edit.refresh()
+
+
+## Wires the new node to the port the picker was dragged out of. Does nothing when the
+## picker was opened from a menu, or when nothing on the node accepts that port.
+func _connect_to_source_port(
+	graph_edit: MonologueGraphEdit, node: InspectableNode, picker: GraphNodePicker
+) -> void:
+	if picker == null or not picker.has_source_port():
+		return
+
+	var from_property: String = graph_edit.get_property_name_at_port(
+		picker.from_node, picker.from_port, true
+	)
+	if from_property.is_empty():
+		return
+
+	var to_property: Property = _first_accepting_property(node, picker.source_port_type_id)
+	if to_property == null:
+		return
+
+	# The port has to exist before a wire can land on it. Through the object, so that
+	# undoing the whole thing closes it again.
+	node.set_property_settings_value(to_property.name, PropertySettings.KEY_EXPOSED, true)
+	graph_edit.get_storyline().history.execute(
+		NodeConnectionCommand.new(
+			graph_edit, picker.from_node, node.get_id(), from_property, to_property.name
+		)
+	)
+
+
+## The first property of [param node] that could take a wire of this type.
+func _first_accepting_property(node: InspectableNode, source_type_id: int) -> Property:
+	var registry: MonologueRegistry = MonologueRegistry.get_instance()
+	for property: Property in node.get_properties():
+		if not property.get_settings_value(PropertySettings.KEY_EXPOSABLE, false):
+			continue
+		var type_id: int = registry.get_field_type_id(property.type)
+		if type_id > 0 and registry.is_compatible(source_type_id, type_id):
+			return property
+	return null
 
 
 func load_project(path: String) -> void:

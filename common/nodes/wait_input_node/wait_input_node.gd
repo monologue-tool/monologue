@@ -7,7 +7,7 @@ func initialize_properties() -> void:
 		.set_type("context")
 		.exposed()
 		.exported())
-	
+
 	define_property(Property.new("hide_text_box")
 		.set_type("bool")
 		.default(false)

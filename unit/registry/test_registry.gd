@@ -70,11 +70,15 @@ func test_text_and_textarea_are_connection_compatible() -> void:
 func test_numeric_types_are_mutually_compatible() -> void:
 	var int_id: int = _registry.get_field_type_id("int")
 	var float_id: int = _registry.get_field_type_id("float")
-	var slider_id: int = _registry.get_field_type_id("slider")
 
 	assert_bool(_registry.is_compatible(int_id, float_id)).is_true()
-	assert_bool(_registry.is_compatible(float_id, slider_id)).is_true()
-	assert_bool(_registry.is_compatible(int_id, slider_id)).is_true()
+	assert_bool(_registry.is_compatible(float_id, int_id)).is_true()
+
+
+func test_there_is_no_separate_slider_type() -> void:
+	# int and float are both drag-and-type now, so a third numeric type would only be a
+	# second way to say the same thing.
+	assert_object(_registry.get_field("slider")).is_null()
 
 
 func test_the_any_wildcard_accepts_every_field_type() -> void:

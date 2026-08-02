@@ -66,9 +66,12 @@ func _define_value_properties() -> void:
 		.set_type("int")
 		.default(10))
 
-	define_property(Property.new("values/slider")
-		.set_type("slider")
-		.default(10.0))
+	# Bounded, so the fill bar is exercised next to the unbounded int and float above.
+	define_property(Property.new("values/bounded_float")
+		.set_type("float")
+		.default(10.0)
+		.bounds(0.0, 100.0, 0.5)
+		.suffix("%"))
 
 	define_property(Property.new("values/vector2")
 		.set_type("vector2"))
