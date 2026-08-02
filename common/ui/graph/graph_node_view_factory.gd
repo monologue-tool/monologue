@@ -76,8 +76,8 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 
 		var value_label: Label = Label.new()
 		value_label.mouse_filter = Control.MOUSE_FILTER_PASS
-		if row.get_type():
-			value_label.text = "[%s]" % row.get_type()
+		if row.get_type_label():
+			value_label.text = "[%s]" % row.get_type_label()
 
 		var row_indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(row.get_type())
 		var slot_color: Color = row_indexer.color if row_indexer else Color.WHITE
@@ -126,8 +126,7 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 static func apply_metadata(graph_node: GraphNode, node: InspectableNode) -> void:
 	if not is_instance_valid(graph_node):
 		return
-	var title: String = str(node.get_property_value("title"))
-	graph_node.title = title if not title.is_empty() else Util.to_readable_name(node.get_type())
+	graph_node.title = str(node.get_property_value("label"))
 	var id_prop: Property = node.get_property("id")
 	graph_node.name = str(id_prop.get_value()) if id_prop else _derive_node_name(node)
 
@@ -138,7 +137,7 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 		if not prop.is_visible_in_graph():
 			continue
 
-		var row: GraphNodeRow = _build_property_row(prop)
+		var row: GraphNodeRow = _build_property_row(prop, node)
 		if prop.get_settings_value("is_main_property"):
 			rows.push_front(row)
 			continue
@@ -150,7 +149,7 @@ static func _build_rows(node: InspectableNode) -> Array[GraphNodeRow]:
 	return rows
 
 
-static func _build_property_row(prop: Property) -> GraphNodeRow:
+static func _build_property_row(prop: Property, owner: InspectableNode) -> GraphNodeRow:
 	var enable_left: bool = prop.get_settings_value("exposed", false) == true
 	var enable_right: bool = prop.get_settings_value("export", false) == true
 	var label: String = (
@@ -171,17 +170,21 @@ static func _build_property_row(prop: Property) -> GraphNodeRow:
 	row._property_name = prop.name
 	row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")
 	if prop.type == "reference":
-		_apply_reference_port(row, prop)
+		_apply_reference_port(row, prop, owner)
 	return row
 
 
 ## Types a reference row after what it points at, so a character port only accepts
-## another character port.
-static func _apply_reference_port(row: GraphNodeRow, prop: Property) -> void:
+## another character port, and reads as "character" rather than "reference".
+static func _apply_reference_port(
+	row: GraphNodeRow, prop: Property, owner: InspectableNode
+) -> void:
 	var scope: String = str(prop.get_settings_value(PropertySettings.KEY_REFERENCE_SCOPE, ""))
 	if scope.is_empty():
 		return
+
 	row.port_type_id = MonologueRegistry.get_instance().get_reference_type_id(scope)
+	row.type_label = ReferenceResolver.describe_scope(scope, owner)
 
 
 static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array[GraphNodeRow]:

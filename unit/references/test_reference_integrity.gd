@@ -216,6 +216,38 @@ func test_reference_ports_are_typed_by_what_they_point_at() -> void:
 	).is_false()
 
 
+func test_a_reference_port_is_labelled_by_what_it_accepts() -> void:
+	# "reference" says nothing: every reference port would read the same.
+	assert_str(ReferenceResolver.describe_scope(CHARACTERS)).is_equal("character")
+	assert_str(ReferenceResolver.describe_scope("storylines")).is_equal("storyline")
+	assert_str(ReferenceResolver.describe_scope("node:option")).is_equal("option")
+	assert_str(ReferenceResolver.describe_scope("")).is_empty()
+	assert_str(ReferenceResolver.describe_scope("nothing_registered_here")).is_empty()
+
+
+func test_a_self_scope_is_labelled_after_the_collection_it_reaches() -> void:
+	var character: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		CHARACTERS, _project.command_manager
+	)
+
+	assert_str(
+		ReferenceResolver.describe_scope("self:portraits", character)
+	).is_equal("portrait")
+
+
+func test_an_item_type_is_read_from_the_item_not_guessed_from_the_name() -> void:
+	# Guessing would mean trimming an "s", which is what broke every option link when
+	# the collection was renamed.
+	var registry: MonologueRegistry = MonologueRegistry.get_instance()
+	for indexer: MonologueIndexer in registry.list(MonologueObjectType.COLLECTION):
+		var collection: CollectionIndexer = indexer
+		var item: CollectionItem = collection.instantiate(_project.command_manager)
+		assert_str(collection.get_item_type()).override_failure_message(
+			"Collection '%s' reports item type '%s' but its items say '%s'."
+			% [collection.name, collection.get_item_type(), item.get_type()]
+		).is_equal(item.get_type())
+
+
 func test_a_reference_port_never_shares_an_id_with_a_field_port() -> void:
 	var registry: MonologueRegistry = MonologueRegistry.get_instance()
 	var scope_id: int = registry.get_reference_type_id("locations")

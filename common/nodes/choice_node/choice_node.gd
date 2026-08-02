@@ -4,7 +4,7 @@ const MAX_CHOICES: int = 8
 ## Properties of a connected option node that this choice shows a copy of. A change to
 ## any of them has to redraw this node; anything else, position included, does not.
 const MIRRORED_PROPERTIES: Array[String] = [
-	"text", "title", "enabled", "one_shot", "condition"
+	"text", "label", "enabled", "one_shot", "condition"
 ]
 
 var _external_options: Array[Dictionary] = []
@@ -136,7 +136,7 @@ func _find_node_by_id(node_id: String) -> InspectableNode:
 
 
 ## How a connected option node is named in this choice's list: the line it offers, or
-## its title when it has none. Never its id.
+## its label when it has none. Never its id.
 func _get_option_node_name(node: InspectableNode) -> String:
 	var project: MonologueProject = ProjectManager.current_project
 	var language: String = project.active_language_code if project else ""
@@ -145,4 +145,4 @@ func _get_option_node_name(node: InspectableNode) -> String:
 	if not text.is_empty():
 		return text
 
-	return Util.to_label(node.get_property_value("title"), language)
+	return Util.to_label(node.get_property_value("label"), language)

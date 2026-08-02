@@ -151,13 +151,8 @@ func test_a_dangling_connection_in_a_loaded_file_is_reported_not_dropped() -> vo
 	)
 	loaded._from_dict(data)
 
-	# Kept, so that restoring the missing node repairs the wire instead of needing it
-	# drawn again.
 	assert_int(loaded.connections.size()).is_equal(wires.size())
 	assert_array(_issue_codes(loaded)).contains([&"broken_connection"])
-
-
-# --- mirrored options -------------------------------------------------------------
 
 
 func test_a_choice_mirrors_the_name_of_the_option_wired_into_it() -> void:

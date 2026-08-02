@@ -15,11 +15,11 @@ func _init(command_manager: CommandManager = null) -> void:
 
 	super._init(command_manager)
 
-	define_property(Property.new("title")
+	define_property(Property.new("label")
 		.set_type("text")
 		.default(get_property_value("id"))
 		.header()
-		.placeholder("title")
+		.placeholder("label")
 		.not_exposable()
 		.unique_among_siblings())
 

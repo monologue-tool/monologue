@@ -56,6 +56,27 @@ static func resolve_label(
 	return ""
 
 
+## The kind of thing a scope points at: "character", "portrait", "storyline". Used to
+## label a reference port, which would otherwise read "reference" whatever it accepts.
+## Returns "" for a scope nothing is registered for.
+static func describe_scope(scope: String, owner: InspectableObject = null) -> String:
+	if scope.is_empty():
+		return ""
+	if scope == STORYLINES_SCOPE:
+		return "storyline"
+	if scope.begins_with(NODE_PREFIX):
+		return scope.trim_prefix(NODE_PREFIX)
+
+	var collection_name: String = scope
+	if scope.begins_with(SELF_PREFIX):
+		collection_name = _own_collection_name(owner, scope.trim_prefix(SELF_PREFIX))
+
+	var indexer: CollectionIndexer = MonologueRegistry.get_instance().get_collection(
+		collection_name
+	)
+	return indexer.get_item_type() if indexer else ""
+
+
 ## True when the scope still holds the object. A false answer is what makes a
 ## reference render as broken instead of quietly pointing somewhere else.
 static func exists(
@@ -95,10 +116,20 @@ static func _list_own_items(
 	if value is not Array:
 		return []
 
-	var collection_name: String = str(
-		property.get_settings_value(PropertySettings.KEY_COLLECTION, "")
-	)
+	var collection_name: String = _own_collection_name(owner, property_name)
 	return _list_records(value, _resolve_label_property(collection_name, label_property))
+
+
+## Which collection a "self:<property>" scope ends up in, read from the property that
+## holds it rather than from the scope name.
+static func _own_collection_name(owner: InspectableObject, property_name: String) -> String:
+	if owner == null:
+		return ""
+
+	var property: Property = owner.get_property(property_name)
+	if property == null:
+		return ""
+	return str(property.get_settings_value(PropertySettings.KEY_COLLECTION, ""))
 
 
 ## Which property labels an item: what the reference declared, or failing that what the
@@ -135,12 +166,12 @@ static func _list_nodes(
 		if not node_type.is_empty() and node.get_type() != node_type:
 			continue
 		position += 1
-		var title: String = Util.to_label(
-			node.get_property_value("title"), project.active_language_code
+		var label: String = Util.to_label(
+			node.get_property_value("label"), project.active_language_code
 		)
-		if title.is_empty():
-			title = "%s %d" % [Util.to_readable_name(node.get_type()), position]
-		candidates.append({"id": node.get_id(), "label": title})
+		if label.is_empty():
+			label = "%s %d" % [node.get_id(), position]
+		candidates.append({"id": node.get_id(), "label": label})
 	return candidates
 
 

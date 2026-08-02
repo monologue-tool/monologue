@@ -22,9 +22,24 @@ var label_property: String = "name"
 ## field type. Renaming the collection to "options" broke every option-to-choice link.
 var port_type: String = ""
 
+var _item_type: String = ""
+
 
 func get_object_type() -> StringName:
 	return MonologueObjectType.COLLECTION
+
+
+## What one item of this collection calls itself: "character" for "characters".
+##
+## Read from the item script rather than declared, so it cannot drift from what the
+## items actually report, and guessed from the collection name even less: that is the
+## inference that broke every option link when "option" became "options".
+func get_item_type() -> String:
+	if _item_type.is_empty():
+		var probe: CollectionItem = instantiate(CommandManager.new()) as CollectionItem
+		if probe:
+			_item_type = probe.get_type()
+	return _item_type
 
 
 func validate_registration() -> String:

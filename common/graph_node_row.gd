@@ -14,6 +14,10 @@ var port_size: String = "normal"
 ## Set for references, whose port type comes from what they point at rather than from
 ## the field type they all share.
 var port_type_id: int = 0
+## What the row shows in brackets. Empty means "show [member _type]". A reference shows
+## what it accepts -- "character" -- since every one of them would otherwise read
+## "reference". The colour and the port type still come from [member _type].
+var type_label: String = ""
 
 
 func _init(
@@ -31,6 +35,11 @@ func get_key() -> String:
 
 func get_type() -> String:
 	return _type
+
+
+## The bracketed text drawn next to the key.
+func get_type_label() -> String:
+	return type_label if not type_label.is_empty() else _type
 
 
 ## Returns the connection-level identifier for this row.
