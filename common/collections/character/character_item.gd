@@ -22,6 +22,7 @@ func initialize_properties() -> void:
 	define_property(Property.new("color")
 		.set_type("color")
 		.default("#ffffff")
+		.tooltip("Tints this character's lines, where the game chooses to."))
 
 	define_property(Property.new("portraits/default_portrait")
 		.set_type("reference")

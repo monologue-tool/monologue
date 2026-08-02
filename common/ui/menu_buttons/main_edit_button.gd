@@ -8,7 +8,11 @@ func _build_menu() -> void:
 	add_row("Redo", _on_redo, command_manager.can_redo(), ["mnl_redo"])
 	add_submenu_row("Undo History", Callable(), false)
 	add_separator()
-	add_row("Open Localization Utility", Callable(), false)
+	add_row("Open Localization Utility", _on_open_localization)
+
+
+func _on_open_localization() -> void:
+	EventBus.open_localization.emit()
 
 
 func _on_undo() -> void:

@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/ui/inspector/inspector_panel.tscn" id="14_craj7"]
 [ext_resource type="Script" uid="uid://cd5ku56gijql7" path="res://common/ui/status_bar/status_bar.gd" id="14_ja8tm"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/ui/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
+[ext_resource type="PackedScene" uid="uid://c8k4wq2vn7xrm" path="res://common/ui/windows/localization_window/localization_window.tscn" id="16_local"]
 
 [sub_resource type="GDScript" id="GDScript_qnluh"]
 script/source = "extends Button
@@ -120,8 +121,8 @@ layout_mode = 2
 theme_type_variation = &"HBoxContainerLarge"
 
 [node name="ProjectPanel" type="PanelContainer" parent="VBox/MarginContainer/HBoxContainer" unique_id=1336539805]
-clip_contents = true
 custom_minimum_size = Vector2(200, 0)
+clip_contents = true
 layout_mode = 2
 theme_type_variation = &"EditorPanel"
 script = ExtResource("4_syr16")
@@ -221,6 +222,10 @@ visible = false
 keep_title_visible = false
 content_scale_mode = 2
 content_scale_aspect = 1
+
+[node name="LocalizationWindow" parent="." unique_id=718010171 instance=ExtResource("16_local")]
+unique_name_in_owner = true
+visible = false
 
 [connection signal="pressed" from="VBox/Header/HBoxContainer/RunButton" to="VBox/Header/HBoxContainer/RunButton" method="_on_pressed"]
 
