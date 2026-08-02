@@ -16,8 +16,7 @@ func initialize_properties() -> void:
 	define_property(Property.new("speaker/speaker")
 		.set_type("reference")
 		.reference_scope("characters")
-		.label_property("name")
-		.exported())
+		.label_property("name"))
 
 	define_property(Property.new("speaker/display_name")
 		.set_type("translatable")

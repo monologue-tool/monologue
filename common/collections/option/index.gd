@@ -9,7 +9,8 @@ func _init() -> void:
 	description = "Choices offered by a choice node. Only ever embedded in a node."
 	item_script = preload("uid://dhodjihl1pyka")
 	is_project_scoped = false
-	label_property = "name"
+	# An option has no name; what identifies it to a person is the line it offers.
+	label_property = "text"
 	# Matches OptionCollectionItem's main property, so an option node can be wired
 	# into a choice node's option list. Guarded by test_collection_port_types.
 	port_type = "option"

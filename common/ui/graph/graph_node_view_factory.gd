@@ -196,17 +196,22 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 	if not probe or not probe.has_main_property():
 		return sub_rows
 
+	var indexer: CollectionIndexer = MonologueRegistry.get_instance().get_collection(coll_name)
+	var label_property: String = indexer.label_property if indexer else "name"
+
 	# Internal items from the property value
 	var list_value: Variant = prop.get_value()
 	if list_value is Array:
-		for item_data: Dictionary in list_value:
+		for item_index: int in list_value.size():
+			var item_data: Variant = list_value[item_index]
 			if not item_data is Dictionary:
 				continue
 			var item_id: String = _extract_dict_string(item_data, "id")
 			if item_id.is_empty():
 				continue
-			var item_name: String = _extract_dict_string(item_data, "name")
-			var sub_label: String = "  %s" % [item_name if not item_name.is_empty() else item_id]
+			var sub_label: String = "  %s" % _item_label(
+				item_data, label_property, probe.get_type(), item_index
+			)
 			var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
 			sub_row.sub_property_id = "%s%s%s" % [
 				prop.name, NodeConnection.ITEM_SEPARATOR, item_id
@@ -215,12 +220,15 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 
 	# External items (e.g. connected OptionNodes)
 	var externals: Array[Dictionary] = node.get_external_list_items(prop.name)
-	for ext_data: Dictionary in externals:
+	for ext_index: int in externals.size():
+		var ext_data: Dictionary = externals[ext_index]
 		var ext_name: String = ext_data.get("name", "")
 		var ext_src_id: String = ext_data.get("source_node_id", "")
 		if ext_src_id.is_empty():
 			continue
-		var sub_label: String = "  %s" % [ext_name if not ext_name.is_empty() else ext_src_id]
+		if ext_name.is_empty():
+			ext_name = "%s %d" % [Util.to_readable_name(probe.get_type()), ext_index + 1]
+		var sub_label: String = "  %s" % ext_name
 		var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
 		sub_row.sub_property_id = "%s:ext_%s" % [prop.name, ext_src_id]
 		sub_rows.append(sub_row)
@@ -232,6 +240,20 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 static func _extract_dict_string(data: Dictionary, key: String) -> String:
 	var raw_dict: Dictionary = data.get(key, {})
 	return str(raw_dict.get("value", ""))
+
+
+## How one list item is named in the graph. Falls back to its type and position rather
+## than its id: an id says nothing to the person reading the node.
+static func _item_label(
+	item_data: Dictionary, label_property: String, type_name: String, item_index: int
+) -> String:
+	var raw: Variant = item_data.get(label_property)
+	var value: Variant = (raw as Dictionary).get("value") if raw is Dictionary else null
+	var project: MonologueProject = ProjectManager.current_project
+	var label: String = Util.to_label(value, project.active_language_code if project else "")
+	if not label.is_empty():
+		return label
+	return "%s %d" % [Util.to_readable_name(type_name), item_index + 1]
 
 
 ## Returns the node's id, allocating one when it somehow has none.

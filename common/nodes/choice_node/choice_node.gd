@@ -1,8 +1,16 @@
 class_name ChoiceNode extends InspectableNode
 
 const MAX_CHOICES: int = 8
+## Properties of a connected option node that this choice shows a copy of. A change to
+## any of them has to redraw this node; anything else, position included, does not.
+const MIRRORED_PROPERTIES: Array[String] = [
+	"text", "title", "enabled", "one_shot", "condition"
+]
 
 var _external_options: Array[Dictionary] = []
+## Option nodes currently mirrored here, kept so they can be unsubscribed from when the
+## wiring changes.
+var _watched_sources: Array[InspectableNode] = []
 
 
 func initialize_properties() -> void:
@@ -69,6 +77,7 @@ func _sync_external_options() -> void:
 	if not choices_prop:
 		return
 
+	var sources: Array[InspectableNode] = []
 	for conn: Dictionary in choices_prop.connected_from:
 		var source_node_id: String = conn.get("node_id", "")
 		if source_node_id.is_empty():
@@ -77,6 +86,7 @@ func _sync_external_options() -> void:
 		var source_node: InspectableNode = _find_node_by_id(source_node_id)
 		if not source_node or not (source_node is OptionNode):
 			continue
+		sources.append(source_node)
 		var ext_option: Dictionary = {
 			"external": true,
 			"source_node_id": source_node_id,
@@ -88,9 +98,36 @@ func _sync_external_options() -> void:
 		}
 		_external_options.append(ext_option)
 
+	_watch_sources(sources)
 
+
+## Follows the option nodes this choice mirrors, so renaming one redraws this node too.
+## The copy shown here is built when the node is drawn, and nothing else would tell it
+## the original had changed.
+func _watch_sources(sources: Array[InspectableNode]) -> void:
+	for watched: InspectableNode in _watched_sources:
+		if watched in sources or not is_instance_valid(watched):
+			continue
+		if watched.property_changed.is_connected(_on_source_property_changed):
+			watched.property_changed.disconnect(_on_source_property_changed)
+
+	for source: InspectableNode in sources:
+		if not source.property_changed.is_connected(_on_source_property_changed):
+			source.property_changed.connect(_on_source_property_changed)
+
+	_watched_sources = sources
+
+
+func _on_source_property_changed(property_name: String) -> void:
+	if property_name in MIRRORED_PROPERTIES:
+		rebuild_preview()
+
+
+## Looks a node up in the storyline this one belongs to. Returns null while the project
+## is still being built, which is when the default nodes get wired and no project is
+## current yet.
 func _find_node_by_id(node_id: String) -> InspectableNode:
-	if storyline_id.is_empty():
+	if storyline_id.is_empty() or ProjectManager.current_project == null:
 		return null
 	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(storyline_id)
 	if not storyline:
@@ -98,12 +135,14 @@ func _find_node_by_id(node_id: String) -> InspectableNode:
 	return storyline.get_node(node_id)
 
 
+## How a connected option node is named in this choice's list: the line it offers, or
+## its title when it has none. Never its id.
 func _get_option_node_name(node: InspectableNode) -> String:
-	var text_val: Variant = node.get_property_value("text")
-	if text_val is Dictionary:
-		var text_dict: Dictionary = text_val
-		if text_dict.has("value"):
-			var t: Variant = text_dict.get("value", "")
-			if not str(t).is_empty():
-				return str(t)
-	return str(node.get_property_value("id"))
+	var project: MonologueProject = ProjectManager.current_project
+	var language: String = project.active_language_code if project else ""
+
+	var text: String = Util.to_label(node.get_property_value("text"), language)
+	if not text.is_empty():
+		return text
+
+	return Util.to_label(node.get_property_value("title"), language)

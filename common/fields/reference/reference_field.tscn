@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://bqr7n2v5xk8dm"]
 
-[ext_resource type="Script" path="res://common/fields/reference/reference_field.gd" id="1_reference"]
+[ext_resource type="Script" uid="uid://nmfoeo064ipt" path="res://common/fields/reference/reference_field.gd" id="1_reference"]
 
-[node name="Reference" type="VBoxContainer"]
+[node name="Reference" type="VBoxContainer" unique_id=1369029207]
 offset_right = 76.0
 offset_bottom = 29.0
 size_flags_horizontal = 3
 script = ExtResource("1_reference")
 
-[node name="OptionButton" type="OptionButton" parent="."]
+[node name="OptionButton" type="OptionButton" parent="." unique_id=1684314252]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

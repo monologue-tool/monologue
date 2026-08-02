@@ -262,3 +262,47 @@ func test_deleting_a_variable_does_not_degrade_the_condition_silently() -> void:
 	var condition: Dictionary = option.get_property_value("condition")
 	assert_str(str(condition.get("variable"))).is_equal(variable_id)
 	assert_array(_project.get_object_registry().find_dangling()).is_not_empty()
+
+
+# --- labels -----------------------------------------------------------------------
+#
+# Ids are technical. Nothing a person reads should be one.
+
+
+func test_a_translatable_value_reads_as_text_not_a_dictionary() -> void:
+	assert_str(Util.to_label({"en": "Hello"}, "en")).is_equal("Hello")
+	# No English yet, but the item is not nameless: show what there is.
+	assert_str(Util.to_label({"fr": "Bonjour"}, "en")).is_equal("Bonjour")
+	assert_str(Util.to_label({"en": "   "}, "en")).is_empty()
+	assert_str(Util.to_label({}, "en")).is_empty()
+	assert_str(Util.to_label("plain")).is_equal("plain")
+	assert_str(Util.to_label(null)).is_empty()
+
+
+func test_an_option_is_labelled_by_its_text() -> void:
+	var choice: InspectableNode = _first_node("choice")
+	var options: Array = (choice.get_property_value("choices") as Array).duplicate(true)
+	options[0]["text"] = {"value": {"en": "Follow the cat"}}
+	choice.set_property_value("choices", options)
+
+	var candidates: Array[Dictionary] = ReferenceResolver.list_candidates(
+		_project, "self:choices", choice
+	)
+
+	assert_str(str(candidates[0]["label"])).is_equal("Follow the cat")
+
+
+func test_an_option_without_text_is_numbered_rather_than_shown_as_an_id() -> void:
+	var choice: InspectableNode = _first_node("choice")
+
+	var candidates: Array[Dictionary] = ReferenceResolver.list_candidates(
+		_project, "self:choices", choice
+	)
+
+	assert_array(candidates).is_not_empty()
+	for candidate: Dictionary in candidates:
+		var label: String = str(candidate["label"])
+		assert_str(label).is_not_equal(str(candidate["id"]))
+		assert_bool(label.begins_with("Option ")).override_failure_message(
+			"A nameless option is labelled '%s'." % label
+		).is_true()

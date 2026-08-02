@@ -43,11 +43,6 @@ func _issue_codes(document: StorylineDocument) -> Array[StringName]:
 	return codes
 
 
-static func _read_id(node_data: Dictionary) -> String:
-	var raw: Variant = node_data.get("id")
-	return str((raw as Dictionary).get("value", "")) if raw is Dictionary else ""
-
-
 func test_connect_then_disconnect_leaves_no_trace() -> void:
 	var manager: ConnectionManager = ConnectionManager.new(_storyline)
 	var first: InspectableNode = _storyline.create_node("text")
@@ -162,24 +157,54 @@ func test_a_dangling_connection_in_a_loaded_file_is_reported_not_dropped() -> vo
 	assert_array(_issue_codes(loaded)).contains([&"broken_connection"])
 
 
-func test_a_file_written_before_the_connection_list_still_loads_its_wires() -> void:
+# --- mirrored options -------------------------------------------------------------
+
+
+func test_a_choice_mirrors_the_name_of_the_option_wired_into_it() -> void:
+	var choice: InspectableNode = _node("choice")
+	_node("option").set_property_value("text", {"en": "Open the door"})
+
+	var externals: Array[Dictionary] = choice.get_external_list_items("choices")
+
+	assert_int(externals.size()).is_equal(1)
+	assert_str(str(externals[0]["name"])).is_equal("Open the door")
+
+
+func test_a_choice_follows_the_option_it_mirrors() -> void:
+	var choice: InspectableNode = _node("choice")
+	var option: InspectableNode = _node("option")
+
+	# Drawing the choice is what makes it subscribe to what it shows.
+	choice.get_external_list_items("choices")
+
+	# The redraw itself needs a graph view, so what is checked here is that the choice
+	# is listening at all. Without this it kept the name the option had when wired.
+	assert_bool(
+		option.property_changed.is_connected(choice._on_source_property_changed)
+	).is_true()
+
+
+func test_a_choice_stops_following_an_option_once_it_is_unwired() -> void:
+	var choice: InspectableNode = _node("choice")
+	var option: InspectableNode = _node("option")
+	choice.get_external_list_items("choices")
+
+	for connection: NodeConnection in _storyline.get_outgoing(option.get_id()):
+		_storyline.remove_connection(connection)
+	choice.get_external_list_items("choices")
+
+	assert_bool(
+		option.property_changed.is_connected(choice._on_source_property_changed)
+	).is_false()
+
+
+func test_a_storyline_without_a_connection_list_loads_with_no_wires() -> void:
 	var data: Dictionary = _storyline._to_dict()
-	var wires: Array = data["connections"]
 	data.erase("connections")
 
-	for wire: Dictionary in wires:
-		for node_data: Dictionary in data["nodes"]:
-			if _read_id(node_data) != wire["from_node_id"]:
-				continue
-			var property_data: Dictionary = node_data[wire["from_property"]]
-			var outgoing: Array = property_data.get_or_add("to_node", [])
-			outgoing.append(
-				{"node_id": wire["to_node_id"], "property_name": wire["to_property"]}
-			)
-
 	var loaded: StorylineDocument = auto_free(
-		StorylineDocument.new("legacy", _project.command_manager)
+		StorylineDocument.new("wireless", _project.command_manager)
 	)
 	loaded._from_dict(data)
 
-	assert_int(loaded.connections.size()).is_equal(wires.size())
+	assert_array(loaded.connections).is_empty()

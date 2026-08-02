@@ -76,7 +76,9 @@ static func _list_collection(
 	var collection: CollectionDocument = project.get_collection(collection_name)
 	if collection == null:
 		return []
-	return _list_records(collection.get_value(), label_property)
+	return _list_records(
+		collection.get_value(), _resolve_label_property(collection_name, label_property)
+	)
 
 
 static func _list_own_items(
@@ -90,7 +92,27 @@ static func _list_own_items(
 		return []
 
 	var value: Variant = property.get_value()
-	return _list_records(value, label_property) if value is Array else []
+	if value is not Array:
+		return []
+
+	var collection_name: String = str(
+		property.get_settings_value(PropertySettings.KEY_COLLECTION, "")
+	)
+	return _list_records(value, _resolve_label_property(collection_name, label_property))
+
+
+## Which property labels an item: what the reference declared, or failing that what the
+## collection itself declares. Options are labelled by their text, characters by name.
+static func _resolve_label_property(collection_name: String, declared: String) -> String:
+	if not declared.is_empty() and declared != DEFAULT_LABEL_PROPERTY:
+		return declared
+
+	var indexer: CollectionIndexer = MonologueRegistry.get_instance().get_collection(
+		collection_name
+	)
+	if indexer and not indexer.label_property.is_empty():
+		return indexer.label_property
+	return declared if not declared.is_empty() else DEFAULT_LABEL_PROPERTY
 
 
 static func _list_storylines(project: MonologueProject) -> Array[Dictionary]:
@@ -108,27 +130,40 @@ static func _list_nodes(
 		return []
 
 	var candidates: Array[Dictionary] = []
+	var position: int = 0
 	for node: InspectableNode in storyline.nodes:
 		if not node_type.is_empty() and node.get_type() != node_type:
 			continue
-		var title: String = str(node.get_property_value("title"))
-		var node_id: String = node.get_id()
-		candidates.append({"id": node_id, "label": title if not title.is_empty() else node_id})
+		position += 1
+		var title: String = Util.to_label(
+			node.get_property_value("title"), project.active_language_code
+		)
+		if title.is_empty():
+			title = "%s %d" % [Util.to_readable_name(node.get_type()), position]
+		candidates.append({"id": node.get_id(), "label": title})
 	return candidates
 
 
 ## Reads {"id": ..., "<label_property>": ...} out of stored collection items.
+##
+## An item with nothing in its label property is named after its type and position
+## rather than its id, which would mean nothing to the person choosing from the list.
 static func _list_records(records: Array, label_property: String) -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
-	for record: Variant in records:
+	for index: int in records.size():
+		var record: Variant = records[index]
 		if record is not Dictionary:
 			continue
 		var record_dict: Dictionary = record
 		var record_id: String = _read(record_dict, "id")
 		if record_id.is_empty():
 			continue
+
 		var label: String = _read(record_dict, label_property)
-		candidates.append({"id": record_id, "label": label if not label.is_empty() else record_id})
+		if label.is_empty():
+			var type_name: String = str(record_dict.get("$type", "item"))
+			label = "%s %d" % [Util.to_readable_name(type_name), index + 1]
+		candidates.append({"id": record_id, "label": label})
 	return candidates
 
 
@@ -142,8 +177,14 @@ static func _get_storyline_of(
 	return null
 
 
+## Reads one stored property out of an item, rendered as text. Handles translatable
+## values, which are a dictionary of languages rather than a plain string.
 static func _read(record: Dictionary, key: String) -> String:
 	var raw: Variant = record.get(key)
-	if raw is Dictionary:
-		return str((raw as Dictionary).get("value", ""))
-	return ""
+	if raw is not Dictionary:
+		return ""
+
+	var project: MonologueProject = ProjectManager.current_project
+	return Util.to_label(
+		(raw as Dictionary).get("value"), project.active_language_code if project else ""
+	)

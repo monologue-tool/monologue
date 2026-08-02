@@ -475,9 +475,3 @@ func _from_dict(raw: Dictionary) -> void:
 
 	value = raw.get("value", value)
 	_overrides = raw.get("_editor_settings", _overrides)
-	# Files written before connections moved to the storyline still carry them here.
-	# StorylineDocument harvests these, then overwrites both views from its own list.
-	if raw.get("from_node"):
-		connected_from.assign(raw.get("from_node", []))
-	if raw.get("to_node"):
-		connected_to.assign(raw.get("to_node", []))

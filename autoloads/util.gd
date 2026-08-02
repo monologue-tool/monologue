@@ -45,6 +45,33 @@ static func to_readable_name(snake_case_name: String) -> String:
 	return to_key_name(snake_case_name, " ")
 
 
+## Renders a stored property value as text a person can read.
+##
+## A translatable value is a {language_code: text} dictionary: it shows the requested
+## language, or the first language that has anything in it, so an item labelled only in
+## French still reads as something. Returns "" when there is nothing to show, which is
+## the caller's cue to fall back to a placeholder rather than an id.
+static func to_label(value: Variant, language_code: String = "") -> String:
+	if value is String:
+		return (value as String).strip_edges()
+
+	if value is Dictionary:
+		var translations: Dictionary = value
+		var preferred: String = str(translations.get(language_code, "")).strip_edges()
+		if not preferred.is_empty():
+			return preferred
+		for key: Variant in translations:
+			var text: String = str(translations[key]).strip_edges()
+			if not text.is_empty():
+				return text
+		return ""
+
+	if value == null or value is Array:
+		return ""
+
+	return str(value).strip_edges()
+
+
 ## Left-truncate a filename string based on MAX_FILENAME_LENGTH.
 static func truncate_filename(filename: String) -> String:
 	var truncated: String = filename

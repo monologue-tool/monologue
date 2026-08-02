@@ -325,35 +325,8 @@ func _from_dict(dict: Dictionary) -> void:
 		node._from_dict(node_data)
 		_register_node(node)
 
-	_read_connections(dict)
+	for entry: Variant in dict.get("connections", []):
+		if entry is Dictionary:
+			connections.append(NodeConnection.from_dict(entry))
+
 	rebuild_connection_views()
-
-
-## Reads the storyline's connection list, falling back to the per-property arrays that
-## files written before the list existed still carry.
-func _read_connections(dict: Dictionary) -> void:
-	if dict.has("connections"):
-		for entry: Variant in dict.get("connections", []):
-			if entry is Dictionary:
-				connections.append(NodeConnection.from_dict(entry))
-		return
-
-	for node: InspectableNode in nodes:
-		for property: Property in node.get_properties():
-			for entry: Dictionary in property.connected_to:
-				var connection: NodeConnection = NodeConnection.from_names(
-					node.get_id(),
-					_legacy_name(property.name, entry),
-					str(entry.get("node_id", "")),
-					str(entry.get("property_name", ""))
-				)
-				if not has_connection(connection):
-					connections.append(connection)
-
-
-## The outgoing entries of old files kept the source's own sub-port under "item_id".
-static func _legacy_name(property_name: String, entry: Dictionary) -> String:
-	var item_id: String = str(entry.get("item_id", ""))
-	if item_id.is_empty():
-		return property_name
-	return "%s%s%s" % [property_name, NodeConnection.ITEM_SEPARATOR, item_id]

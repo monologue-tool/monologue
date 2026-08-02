@@ -15,14 +15,20 @@ const STORYLINES_DIR: String = "storylines"
 ## Returns an empty Dictionary and records an issue when it is not.
 static func parse_object(raw: String, source: String, result: ValidationResult) -> Dictionary:
 	var parsed: Variant = JSON.parse_string(raw)
+	# The document name goes in the issue's location, not in its message, or it reads
+	# back as "'main.json' is not valid JSON. (main.json)".
 	if parsed == null:
-		result.add_error("'%s' is not valid JSON." % source, &"unreadable_json").in_document(source)
+		result.add(
+			ValidationIssue.error("Not valid JSON.", &"unreadable_json").in_document(source)
+		)
 		return {}
 	if parsed is not Dictionary:
-		result.add_error(
-			"'%s' should contain a JSON object, found %s." % [source, type_string(typeof(parsed))],
-			&"unexpected_json_shape"
-		).in_document(source)
+		result.add(
+			ValidationIssue.error(
+				"Should contain a JSON object, found %s." % type_string(typeof(parsed)),
+				&"unexpected_json_shape"
+			).in_document(source)
+		)
 		return {}
 	return parsed
 
@@ -54,6 +60,11 @@ static func read_into(
 	project.storylines.clear()
 
 	for file: String in reader.get_files():
+		# An archive lists its directories too, as entries ending in a slash. They are
+		# not files that failed to be JSON, so they are not worth reporting.
+		if file.ends_with("/"):
+			continue
+
 		var segments: PackedStringArray = file.split("/")
 		if segments.size() <= 1:
 			continue

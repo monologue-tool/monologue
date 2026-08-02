@@ -42,9 +42,15 @@ func _init(command_manager: CommandManager = null) -> void:
 		.unique_among_siblings())
 
 	initialize_properties()
-	_seal_properties.call_deferred()
+	_seal_properties()
 
 
+## Closes the schema: from here a property's type, default, settings and rules are
+## fixed, and only its value and the user's own overrides may still change. That is
+## what stops one instance of a type from quietly diverging from every other instance.
+##
+## A subclass may declare after calling super._init(), past this point;
+## [method define_property] freezes those on the spot, so declaration order is free.
 func _seal_properties() -> void:
 	for property: Property in _properties.values():
 		property.freeze()

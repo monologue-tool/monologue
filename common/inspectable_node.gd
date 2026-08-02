@@ -20,7 +20,8 @@ func _init(command_manager: CommandManager = null) -> void:
 		.default(get_property_value("id"))
 		.header()
 		.placeholder("title")
-		.not_exposable())
+		.not_exposable()
+		.unique_among_siblings())
 
 	define_property(Property.new("extra/notes")
 		.set_type("textarea")
