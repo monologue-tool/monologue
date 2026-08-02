@@ -203,14 +203,6 @@ func add_new_storyline() -> void:
 	observe_storylines()
 
 
-func is_valid_storyline_name(storyline_name: String) -> bool:
-	for doc_name: String in _get_all_document_names(storylines):
-		if doc_name == storyline_name:
-			return true
-
-	return false
-
-
 func _get_all_document_names(documents: Array) -> Array[String]:
 	var result: Array[String] = []
 	for doc: InspectableDocument in documents:

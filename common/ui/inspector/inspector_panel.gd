@@ -18,7 +18,6 @@ var history: Array[Array] = []
 
 func _ready() -> void:
 	EventBus.request_objects_inspection.connect(inspect)
-	EventBus.inspector_property_changed.connect(_on_external_property_changed)
 	EventBus.show_inspector.connect(_on_event_show_inspector)
 
 	ProjectManager.project_loaded.connect(_on_project_loaded)
@@ -43,16 +42,15 @@ func _on_history_undo_redo() -> void:
 
 
 ## Shows a selection. One object is not a special case here, just a selection of one.
+##
+## The graph's highlight is left alone: the graph owns it, and reaching in to clear it
+## makes the graph announce a selection the user never made. Inspecting a collection
+## item keeps its owning node highlighted, which is where the back button leads.
 func inspect(objects: Array[InspectableObject], from_history: bool = false) -> void:
 	var previous: Array[InspectableObject] = current_objects
 	if not objects.is_empty() and not previous.is_empty() and previous != objects:
 		if not from_history:
 			history.append(previous)
-
-		for object: InspectableObject in previous:
-			var node: InspectableNode = object as InspectableNode
-			if node and is_instance_valid(node.graph_view):
-				node.graph_view.selected = false
 
 	back_button.disabled = history.is_empty()
 	current_objects = objects
@@ -67,14 +65,6 @@ func inspect(objects: Array[InspectableObject], from_history: bool = false) -> v
 	Log.info("Inspect %d object(s): %s" % [objects.size(), ", ".join(_selection_ids(objects))])
 
 	rebuild()
-
-
-## Convenience for the single-object case. A null object clears the inspector.
-func inspect_one(object: InspectableObject, from_history: bool = false) -> void:
-	var selection: Array[InspectableObject] = []
-	if object:
-		selection.append(object)
-	inspect(selection, from_history)
 
 
 func _selection_ids(objects: Array[InspectableObject]) -> PackedStringArray:
@@ -480,31 +470,6 @@ func _on_inspect_connected_node(property: Property) -> void:
 
 func _is_list(property: Property) -> bool:
 	return property.type in ["list", "collection"]
-
-
-func _on_external_property_changed(
-	obj: InspectableObject, property_name: String, _is_undo: bool
-) -> void:
-	if not obj:
-		return
-
-	var property: Property = obj.get_property(property_name)
-	if not property:
-		return
-
-	if not property.get_settings_value("visible_in_inspector", true):
-		return
-
-	if _primary() in obj.get_property_children(property_name):
-		return
-
-	_pending_expand_category = property.get_category()
-
-	if obj == _primary():
-		rebuild()
-		return
-
-	inspect_one(obj)
 
 
 func _on_back_button_pressed() -> void:

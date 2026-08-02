@@ -148,8 +148,8 @@ func test_undoing_a_delete_restores_the_reference() -> void:
 func test_undoing_a_node_delete_restores_its_connections() -> void:
 	var storyline: StorylineDocument = _project.storylines[0]
 	var sentence: InspectableNode = _first_node("sentence")
-	var _before: Array[Dictionary] = sentence.get_main_property().connected_from.duplicate(true)
-	assert_array(_before).is_not_empty()
+	var initial: Array[Dictionary] = sentence.get_main_property().connected_from.duplicate(true)
+	assert_array(initial).is_not_empty()
 
 	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline.id, [_first_node("root")])
 	_project.command_manager.execute(command)
@@ -158,7 +158,7 @@ func test_undoing_a_node_delete_restores_its_connections() -> void:
 
 	_project.command_manager.undo()
 
-	assert_array(sentence.get_main_property().connected_from).is_equal(_before)
+	assert_array(sentence.get_main_property().connected_from).is_equal(initial)
 
 
 func test_id_collision_is_detected_and_a_fresh_id_is_allocated() -> void:

@@ -54,16 +54,16 @@ func test_connect_then_disconnect_leaves_no_trace() -> void:
 	var second: InspectableNode = _storyline.create_node("text")
 	var from_name: String = first.get_main_property().name
 	var to_name: String = second.get_main_property().name
-	var _before: int = _storyline.connections.size()
+	var initial: int = _storyline.connections.size()
 
 	manager.register_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
-	assert_int(_storyline.connections.size()).is_equal(_before + 1)
+	assert_int(_storyline.connections.size()).is_equal(initial + 1)
 	assert_array(first.get_main_property().connected_to).is_not_empty()
 	assert_array(second.get_main_property().connected_from).is_not_empty()
 
 	manager.unregister_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
 
-	assert_int(_storyline.connections.size()).is_equal(_before)
+	assert_int(_storyline.connections.size()).is_equal(initial)
 	assert_array(first.get_main_property().connected_to).is_empty()
 	assert_array(second.get_main_property().connected_from).is_empty()
 
@@ -74,12 +74,12 @@ func test_the_same_wire_is_never_stored_twice() -> void:
 	var second: InspectableNode = _storyline.create_node("text")
 	var from_name: String = first.get_main_property().name
 	var to_name: String = second.get_main_property().name
-	var _before: int = _storyline.connections.size()
+	var initial: int = _storyline.connections.size()
 
 	for _attempt: int in range(3):
 		manager.register_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
 
-	assert_int(_storyline.connections.size()).is_equal(_before + 1)
+	assert_int(_storyline.connections.size()).is_equal(initial + 1)
 
 
 func test_both_views_agree_because_there_is_only_one_list() -> void:
@@ -98,7 +98,7 @@ func test_both_views_agree_because_there_is_only_one_list() -> void:
 func test_deleting_a_node_removes_exactly_its_connections() -> void:
 	var root: InspectableNode = _node("root")
 	var root_id: String = root.get_id()
-	var _before: int = _storyline.connections.size()
+	var initial: int = _storyline.connections.size()
 	var touching: int = (
 		_storyline.get_outgoing(root_id).size() + _storyline.get_incoming(root_id).size()
 	)
@@ -109,7 +109,7 @@ func test_deleting_a_node_removes_exactly_its_connections() -> void:
 	var removed: Array[NodeConnection] = _storyline.remove_node(root)
 
 	assert_int(removed.size()).is_equal(touching)
-	assert_int(_storyline.connections.size()).is_equal(_before - touching)
+	assert_int(_storyline.connections.size()).is_equal(initial - touching)
 	for connection: NodeConnection in _storyline.connections:
 		assert_bool(connection.involves(root_id)).override_failure_message(
 			"%s survived the deletion of %s." % [connection, root_id]
@@ -117,19 +117,19 @@ func test_deleting_a_node_removes_exactly_its_connections() -> void:
 
 
 func test_undoing_a_node_delete_restores_its_connections() -> void:
-	var _before: Array[String] = _connection_keys()
+	var initial: Array[String] = _connection_keys()
 	var command: DeleteNodesCommand = DeleteNodesCommand.new(_storyline.id, [_node("root")])
 
 	_project.command_manager.execute(command)
-	assert_int(_storyline.connections.size()).is_less(_before.size())
+	assert_int(_storyline.connections.size()).is_less(initial.size())
 
 	_project.command_manager.undo()
 
-	assert_array(_connection_keys()).contains_exactly_in_any_order(_before)
+	assert_array(_connection_keys()).contains_exactly_in_any_order(initial)
 
 
 func test_connections_survive_a_dictionary_round_trip() -> void:
-	var _before: Array[String] = _connection_keys()
+	var initial: Array[String] = _connection_keys()
 
 	var loaded: StorylineDocument = auto_free(
 		StorylineDocument.new("loaded", _project.command_manager)
@@ -139,7 +139,7 @@ func test_connections_survive_a_dictionary_round_trip() -> void:
 	var keys: Array[String] = []
 	for connection: NodeConnection in loaded.connections:
 		keys.append(connection.to_key())
-	assert_array(keys).contains_exactly_in_any_order(_before)
+	assert_array(keys).contains_exactly_in_any_order(initial)
 
 
 func test_a_dangling_connection_in_a_loaded_file_is_reported_not_dropped() -> void:

@@ -54,10 +54,10 @@ jobs:
       - name: Collect project scripts
         id: files
         run: |
-          # addons/ is vendored; name_generator.gd is generated data, not code.
+          # addons/ is vendored. The name lists used to be excluded here too, back
+          # when they were 29k lines of GDScript; they are text files now.
           echo "list=$(git ls-files '*.gd' \
             | grep -v '^addons/' \
-            | grep -v 'name_generator' \
             | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
       # No gdformat --check here on purpose. Property declarations are written one

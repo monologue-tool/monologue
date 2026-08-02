@@ -16,9 +16,6 @@ signal request_nodes_selection(
 signal request_objects_inspection(objects: Array[InspectableObject])
 signal request_storyline_inspection(storyline: StorylineDocument)
 signal select_new_node
-signal inspector_property_changed(
-	objects: Array[InspectableObject], property_name: String, is_undo: bool
-)
 signal storyline_deleted
 
 signal save_file_request(
@@ -49,8 +46,16 @@ signal language_deleted
 
 signal show_welcome
 signal hide_welcome
+## Opens the node picker. [param node] is a graph view name, empty when the picker was
+## not dragged out of a port; the three positions are null in that case, and
+## [param center_window] puts the picker in the middle of the screen instead.
 signal enable_picker_mode(
-	node: GraphNode, port: int, release: Vector2, graph_release: Vector2, center: Vector2
+	node: String,
+	port: int,
+	release: Variant,
+	graph_release: Variant,
+	center: Variant,
+	center_window: bool
 )
 signal show_inspector(visible: bool)
 signal show_project_explorer(visible: bool)

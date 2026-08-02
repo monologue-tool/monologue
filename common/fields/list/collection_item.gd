@@ -44,8 +44,4 @@ func has_main_property() -> bool:
 	return _main_property_defined
 
 
-func _on_property_changed(_pname: String) -> void:
-	pass
-
-
 @abstract func get_preview_property_names() -> Array[String]
