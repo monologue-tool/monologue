@@ -1,6 +1,4 @@
 # gdlint: disable=max-public-methods
-# (22 and counting. The five *_property_children methods are the obvious thing to pull
-#  out into a child-collection object once something else needs them.)
 @abstract
 class_name InspectableObject extends Resource
 
@@ -38,13 +36,16 @@ func _init(command_manager: CommandManager = null) -> void:
 	define_property(Property.new("id")
 		.set_type("text")
 		.default(IDGen.generate_object_id(get_type()))
-		.header()
 		.read_only()
 		.hidden_in_inspector()
+		.hidden_in_graph()
 		.unique_among_siblings())
 
 	initialize_properties()
-	# Past this point the schema is fixed; only values and user overrides may change.
+	_seal_properties.call_deferred()
+
+
+func _seal_properties() -> void:
 	for property: Property in _properties.values():
 		property.freeze()
 	_is_sealed = true

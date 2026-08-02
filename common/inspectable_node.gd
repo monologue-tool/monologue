@@ -15,12 +15,11 @@ func _init(command_manager: CommandManager = null) -> void:
 
 	super._init(command_manager)
 
-	# Free-form label shown on the node in the graph. Nothing ever points at it, so it
-	# can be changed at any time; the id is what references use.
 	define_property(Property.new("title")
 		.set_type("text")
+		.default(get_property_value("id"))
 		.header()
-		.placeholder(Util.to_readable_name(get_type()))
+		.placeholder("title")
 		.not_exposable())
 
 	define_property(Property.new("extra/notes")
