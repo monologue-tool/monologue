@@ -32,8 +32,8 @@ func load_languages(languages: Array = []) -> void:
 	var seen_codes: PackedStringArray = []
 	for i: int in languages.size():
 		var lang: Dictionary = languages[i]
-		var lang_code: String = lang.get("code", {}).get("value", "en")
-		var lang_name: String = lang.get("name", {}).get("value", "Language %d" % (i + 1))
+		var lang_code: String = str(lang.get("code", "en"))
+		var lang_name: String = str(lang.get("name", "Language %d" % (i + 1)))
 		if seen_codes.has(lang_code):
 			continue
 		seen_codes.append(lang_code)

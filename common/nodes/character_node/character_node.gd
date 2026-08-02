@@ -7,7 +7,7 @@ func initialize_properties() -> void:
 		.main_property()
 		.exposed()
 		.exported(false))
-	
+
 	define_property(Property.new("who")
 		.set_type("reference")
 		)

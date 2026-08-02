@@ -239,10 +239,9 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 	return sub_rows
 
 
-## Extracts a string from a dict value.
+## Extracts a string from a stored object.
 static func _extract_dict_string(data: Dictionary, key: String) -> String:
-	var raw_dict: Dictionary = data.get(key, {})
-	return str(raw_dict.get("value", ""))
+	return str(data.get(key, ""))
 
 
 ## How one list item is named in the graph. Falls back to its type and position rather
@@ -250,10 +249,10 @@ static func _extract_dict_string(data: Dictionary, key: String) -> String:
 static func _item_label(
 	item_data: Dictionary, label_property: String, type_name: String, item_index: int
 ) -> String:
-	var raw: Variant = item_data.get(label_property)
-	var value: Variant = (raw as Dictionary).get("value") if raw is Dictionary else null
 	var project: MonologueProject = ProjectManager.current_project
-	var label: String = Util.to_label(value, project.active_language_code if project else "")
+	var label: String = Util.to_label(
+		item_data.get(label_property), project.active_language_code if project else ""
+	)
 	if not label.is_empty():
 		return label
 	return "%s %d" % [Util.to_readable_name(type_name), item_index + 1]

@@ -79,9 +79,9 @@ func _load_variables() -> void:
 		if not entry is Dictionary:
 			continue
 		var entry_dict: Dictionary = entry
-		var entry_id: String = str(entry_dict.get("id").get("value"))
-		var entry_name: String = str(entry_dict.get("name", {}).get("value", "<undefined>"))
-		var entry_type: String = str(entry_dict.get("type", {}).get("value", "string"))
+		var entry_id: String = str(entry_dict.get("id", ""))
+		var entry_name: String = str(entry_dict.get("name", "<undefined>"))
+		var entry_type: String = str(entry_dict.get("type", "string"))
 		if not entry_name.is_empty():
 			_variables[entry_id] = {"name": entry_name, "type": entry_type}
 

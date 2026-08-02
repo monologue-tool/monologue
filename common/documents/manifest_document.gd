@@ -26,7 +26,8 @@ func initialize_properties() -> void:
 		.tooltip("Storyline the project starts from."))
 
 	define_property(Property.new("author")
-		.set_type("text"))
+		.set_type("text")
+		.plain())
 
 	define_property(Property.new("description")
 		.set_type("textarea"))

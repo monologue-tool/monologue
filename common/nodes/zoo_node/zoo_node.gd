@@ -31,11 +31,12 @@ func _define_text_properties() -> void:
 	define_property(Property.new("text/textarea")
 		.set_type("textarea"))
 
-	define_property(Property.new("text/translatable")
-		.set_type("translatable"))
+	define_property(Property.new("text/plain")
+		.set_type("text")
+		.plain())
 
-	define_property(Property.new("text/translatable_multiline")
-		.set_type("translatable")
+	define_property(Property.new("text/translated_multiline")
+		.set_type("text")
 		.multiline())
 
 

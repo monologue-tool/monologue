@@ -51,13 +51,35 @@ func test_set_type_brings_in_that_types_defaults() -> void:
 
 
 func test_the_field_types_default_value_is_used_when_none_is_given() -> void:
-	assert_str(Property.new("a").set_type("text").get_value()).is_equal("")
+	# text is translated, so it starts as no translations rather than an empty string.
+	assert_dict(Property.new("a").set_type("text").get_value()).is_empty()
+	assert_str(Property.new("a").set_type("text").plain().get_value()).is_equal("")
 	assert_int(Property.new("b").set_type("int").get_value()).is_equal(0)
 	assert_bool(Property.new("c").set_type("bool").get_value()).is_false()
 
 
+func test_whether_text_is_translated_does_not_depend_on_declaration_order() -> void:
+	var type_first := Property.new("p").set_type("text").plain()
+	var plain_first := Property.new("p").plain().set_type("text")
+
+	for property: Property in [type_first, plain_first]:
+		assert_bool(property.is_translatable()).is_false()
+		assert_str(property.get_value()).is_equal("")
+
+
+func test_textarea_is_authoring_text_and_is_not_translated() -> void:
+	assert_bool(Property.new("notes").set_type("textarea").is_translatable()).is_false()
+	assert_bool(Property.new("line").set_type("text").is_translatable()).is_true()
+	# A multi-line property the player reads asks for it explicitly.
+	assert_bool(
+		Property.new("d").set_type("textarea").translatable().is_translatable()
+	).is_true()
+
+
 func test_an_explicit_default_beats_the_field_types() -> void:
-	assert_str(Property.new("a").set_type("text").default("hello").get_value()).is_equal("hello")
+	assert_str(
+		Property.new("a").set_type("text").plain().default("hello").get_value()
+	).is_equal("hello")
 
 
 func test_declaration_order_does_not_matter() -> void:
@@ -239,30 +261,22 @@ func test_changing_a_setting_notifies_listeners() -> void:
 	assert_signal(monitor).is_emitted("settings_changed")
 
 
-func test_property_round_trips_through_a_dictionary() -> void:
-	var original := Property.new("line").set_type("text").default("hi")
-	original.set_settings_value(PropertySettings.KEY_EXPOSED, true)
+func test_a_property_restores_its_value_and_its_overrides() -> void:
+	var property := Property.new("line").set_type("text").plain()
 
-	var restored := Property.new("line").set_type("text")
-	restored._from_dict(original._to_dict())
+	property._restore("hi", {PropertySettings.KEY_EXPOSED: true})
 
-	assert_str(restored.get_value()).is_equal("hi")
-	assert_bool(restored.get_settings_value(PropertySettings.KEY_EXPOSED)).is_true()
+	assert_str(property.get_value()).is_equal("hi")
+	assert_bool(property.get_settings_value(PropertySettings.KEY_EXPOSED)).is_true()
 
 
-func test_an_untouched_property_stays_out_of_the_save_file() -> void:
-	var dict: Dictionary = Property.new("line").set_type("text").default("hi")._to_dict()
+func test_an_untouched_property_has_no_overrides_to_save() -> void:
+	# The owning object only writes an _editor_settings entry for properties that have
+	# one, which is almost none of them.
+	var property := Property.new("line").set_type("text").plain().default("hi")
 
-	assert_bool(dict.has("_editor_settings")).is_false()
+	assert_dict(property._get_overrides()).is_empty()
 
+	property.set_settings_value(PropertySettings.KEY_EXPOSED, true)
 
-func test_a_property_does_not_save_its_connections() -> void:
-	# Wires belong to the storyline; these two arrays are only a view onto its list.
-	var property := Property.new("line").set_type("text")
-	property.set_connection_views([{"node_id": "sentence-ABC", "property_name": "sentence"}], [])
-
-	var dict: Dictionary = property._to_dict()
-
-	assert_int(property.connected_from.size()).is_equal(1)
-	assert_bool(dict.has("from_node")).is_false()
-	assert_bool(dict.has("to_node")).is_false()
+	assert_dict(property._get_overrides()).is_not_empty()

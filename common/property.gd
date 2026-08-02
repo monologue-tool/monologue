@@ -97,11 +97,44 @@ func set_type(type_name: String) -> Property:
 		for key: String in indexer.default_settings:
 			if not _declared_keys.has(key):
 				_settings[key] = indexer.default_settings[key]
-		if not _has_explicit_default:
-			default_value = indexer.default_value
 
-	value = resolve_default()
+	_refresh_default()
 	return self
+
+
+## (text) Stores a plain String instead of a set of translations. For anything the
+## player never reads: ids, labels, machine names, authoring notes.
+func plain() -> Property:
+	set_setting(PropertySettings.KEY_TRANSLATABLE, false)
+	_refresh_default()
+	return self
+
+
+## (text) Stores a set of translations keyed by language code. Already the case for
+## `text`; useful on `textarea`, which is plain by default.
+func translatable() -> Property:
+	set_setting(PropertySettings.KEY_TRANSLATABLE, true)
+	_refresh_default()
+	return self
+
+
+func is_translatable() -> bool:
+	return get_settings_value(PropertySettings.KEY_TRANSLATABLE, false) == true
+
+
+## Re-derives the starting value from the field type and from whether this property is
+## translated. Run whenever either changes, so the declaration reads the same in any
+## order: a translated text starts as no translations, a plain one as an empty string.
+func _refresh_default() -> void:
+	if _has_explicit_default:
+		return
+
+	var indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(type)
+	var base: Variant = indexer.default_value if indexer else null
+	if is_translatable() and base is String:
+		base = {}
+	default_value = base
+	value = resolve_default()
 
 
 ## Overrides the field type's default. Only needed when this property should start
@@ -475,18 +508,14 @@ func _add_rule(rule_name: String, rule_value: Variant) -> Property:
 	return set_setting(PropertySettings.KEY_VALIDATION, rules)
 
 
-func _to_dict() -> Dictionary:
-	var dict: Dictionary = {"value": get_value()}
-
-	if not _overrides.is_empty():
-		dict["_editor_settings"] = _overrides
-
-	return dict
+## Restores what was saved for this property. The owning object keeps every override
+## together in one map, so they arrive separately from the value.
+func _restore(stored_value: Variant, stored_overrides: Dictionary) -> void:
+	value = stored_value
+	_overrides = stored_overrides.duplicate(true)
 
 
-func _from_dict(raw: Dictionary) -> void:
-	if raw.is_empty():
-		return
-
-	value = raw.get("value", value)
-	_overrides = raw.get("_editor_settings", _overrides)
+## The user's runtime overrides, for the owning object to gather. Empty for a property
+## nobody has touched, which is most of them.
+func _get_overrides() -> Dictionary:
+	return _overrides

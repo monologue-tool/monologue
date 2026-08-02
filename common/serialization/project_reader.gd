@@ -36,10 +36,7 @@ static func parse_object(raw: String, source: String, result: ValidationResult) 
 ## Reads the format version out of a manifest, defaulting to the current one when the
 ## file predates the field.
 static func read_format_version(manifest_data: Dictionary) -> int:
-	var raw: Variant = manifest_data.get("format_version", {})
-	if raw is Dictionary:
-		return int((raw as Dictionary).get("value", ManifestDocument.FORMAT_VERSION))
-	return int(raw)
+	return int(manifest_data.get("format_version", ManifestDocument.FORMAT_VERSION))
 
 
 ## Fills [param project] from [param reader], which is a [ZIPReader] or a [DirAccess].

@@ -211,11 +211,8 @@ static func _get_storyline_of(
 ## Reads one stored property out of an item, rendered as text. Handles translatable
 ## values, which are a dictionary of languages rather than a plain string.
 static func _read(record: Dictionary, key: String) -> String:
-	var raw: Variant = record.get(key)
-	if raw is not Dictionary:
+	if not record.has(key):
 		return ""
 
 	var project: MonologueProject = ProjectManager.current_project
-	return Util.to_label(
-		(raw as Dictionary).get("value"), project.active_language_code if project else ""
-	)
+	return Util.to_label(record[key], project.active_language_code if project else "")

@@ -44,9 +44,7 @@ func set_value(value: Variant) -> void:
 		var child_found: bool = false
 		for child: CollectionItem in outdated_childrens:
 			var dict_match := false
-			var item_id: Variant = (
-				item_data.get("id", {}).get("value") if item_data.has("id") else null
-			)
+			var item_id: Variant = item_data.get("id")
 			var child_id: Variant = child.get_property_value("id")
 
 			if item_id != null and child_id != null:

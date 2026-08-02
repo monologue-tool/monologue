@@ -85,7 +85,11 @@ const KEY_REFERENCE_SCOPE: String = "reference_scope"
 const KEY_LABEL_PROPERTY: String = "label_property"
 ## (reference) Whether "nothing selected" is an accepted value.
 const KEY_ALLOW_EMPTY: String = "allow_empty"
-## (translatable) When true, renders a multi-line TextEdit instead of a LineEdit.
+## (text) Whether the value is a set of translations keyed by language code rather than
+## a plain String. On for `text`, off for `textarea`, and switched per property with
+## [method Property.plain] / [method Property.translatable].
+const KEY_TRANSLATABLE: String = "translatable"
+## (text) When true, renders a multi-line TextEdit instead of a LineEdit.
 const KEY_MULTILINE: String = "multiline"
 ## (text / translatable) Placeholder ghost text shown when the field is empty.
 const KEY_PLACEHOLDER: String = "placeholder"

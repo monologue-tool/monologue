@@ -179,11 +179,10 @@ func extract_list_values(values: Array) -> Array:
 	for item: Variant in values:
 		if item is Dictionary:
 			var item_dict: Dictionary = item
-			var entry_name: Variant = item_dict.get("name", item_dict.get("id", "<unknown>"))
-			if entry_name is Dictionary:
-				var entry_dict: Dictionary = entry_name
-				entry_name = entry_dict.get("value", "<unknown>")
-			result.append(entry_name)
+			var label: String = Util.to_label(item_dict.get("name"))
+			if label.is_empty():
+				label = str(item_dict.get("id", "<unknown>"))
+			result.append(label)
 		else:
 			result.append(str(item))
 

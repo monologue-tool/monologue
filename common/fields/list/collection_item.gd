@@ -17,6 +17,7 @@ func _init(command_manager: CommandManager = null) -> void:
 func define_name_property(default_value: Variant = null) -> Property:
 	return define_property(Property.new("name")
 		.set_type("text")
+		.plain()
 		.default(default_value if default_value != null else _generate_name())
 		.required()
 		.unique_among_siblings()

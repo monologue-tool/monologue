@@ -41,7 +41,7 @@ func _set_item_value(collection_name: String, item_id: String, key: String, valu
 	var items: Array = collection.get_value().duplicate(true)
 	for item: Dictionary in items:
 		if _read_id(item) == item_id:
-			item[key] = {"value": value}
+			item[key] = value
 	collection.set_property_value(collection_name, items)
 
 
@@ -70,8 +70,7 @@ func _issue_codes() -> Array[StringName]:
 
 
 static func _read_id(item: Dictionary) -> String:
-	var raw: Variant = item.get("id")
-	return str((raw as Dictionary).get("value", "")) if raw is Dictionary else ""
+	return str(item.get("id", ""))
 
 
 func test_renaming_a_character_does_not_break_its_references() -> void:
@@ -314,7 +313,7 @@ func test_a_translatable_value_reads_as_text_not_a_dictionary() -> void:
 func test_an_option_is_labelled_by_its_text() -> void:
 	var choice: InspectableNode = _first_node("choice")
 	var options: Array = (choice.get_property_value("choices") as Array).duplicate(true)
-	options[0]["text"] = {"value": {"en": "Follow the cat"}}
+	options[0]["text"] = {"en": "Follow the cat"}
 	choice.set_property_value("choices", options)
 
 	var candidates: Array[Dictionary] = ReferenceResolver.list_candidates(

@@ -150,3 +150,38 @@ func test_the_serialised_form_records_the_object_type() -> void:
 	var variable: CollectionItem = _new_variable()
 
 	assert_str(variable._to_dict()["$type"]).is_equal(variable.get_type())
+
+
+func test_a_saved_property_holds_its_value_and_nothing_else() -> void:
+	# No wrapper object: a property name maps straight to what it holds.
+	var variable: CollectionItem = _new_variable()
+	variable.set_property_value("name", "gold")
+
+	var dict: Dictionary = variable._to_dict()
+
+	assert_str(dict["name"]).is_equal("gold")
+	assert_bool(dict.has(InspectableObject.EDITOR_SETTINGS_KEY)).is_false()
+
+
+func test_user_overrides_are_gathered_beside_the_values() -> void:
+	# They live in one map on the object rather than sharing each value's slot, which is
+	# what lets a value be written bare.
+	var variable: CollectionItem = _new_variable()
+	variable.get_property("name").set_settings_value(PropertySettings.KEY_EXPOSED, true)
+
+	var dict: Dictionary = variable._to_dict()
+	var overrides: Dictionary = dict[InspectableObject.EDITOR_SETTINGS_KEY]
+
+	assert_bool(overrides["name"][PropertySettings.KEY_EXPOSED]).is_true()
+
+
+func test_overrides_survive_the_round_trip() -> void:
+	var original: CollectionItem = _new_variable()
+	original.get_property("name").set_settings_value(PropertySettings.KEY_EXPOSED, true)
+
+	var restored: CollectionItem = _new_variable()
+	restored._from_dict(original._to_dict())
+
+	assert_bool(
+		restored.get_property("name").get_settings_value(PropertySettings.KEY_EXPOSED)
+	).is_true()

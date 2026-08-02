@@ -9,8 +9,7 @@ func initialize_properties() -> void:
 		.exported())
 
 	define_property(Property.new("line")
-		.set_type("translatable")
-		.default({})
+		.set_type("text")
 		.multiline())
 
 	define_property(Property.new("speaker/speaker")
@@ -19,8 +18,7 @@ func initialize_properties() -> void:
 		.label_property("name"))
 
 	define_property(Property.new("speaker/display_name")
-		.set_type("translatable")
-		.default({})
+		.set_type("text")
 		.hidden_in_graph())
 
 	define_property(Property.new("speaker/voiceline")

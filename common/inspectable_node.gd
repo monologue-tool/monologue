@@ -17,6 +17,7 @@ func _init(command_manager: CommandManager = null) -> void:
 
 	define_property(Property.new("label")
 		.set_type("text")
+		.plain()
 		.default(get_property_value("id"))
 		.header()
 		.placeholder("label")

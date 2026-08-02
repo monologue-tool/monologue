@@ -9,7 +9,7 @@ func initialize_properties() -> void:
 		.exported())
 
 	define_property(Property.new("text")
-		.set_type("translatable")
+		.set_type("text")
 		.default({"en": "Enter something here:"})
 		.hidden_in_graph())
 
@@ -20,7 +20,7 @@ func initialize_properties() -> void:
 		.hidden_in_graph())
 
 	define_property(Property.new("placeholder")
-		.set_type("translatable")
+		.set_type("text")
 		.hidden_in_graph())
 
 	define_property(Property.new("allow_empty")

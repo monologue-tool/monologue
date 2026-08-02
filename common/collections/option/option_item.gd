@@ -16,8 +16,7 @@ static func get_option_properties() -> Array[Property]:
 			.hidden_in_graph(),
 
 		Property.new("text")
-			.set_type("translatable")
-			.default({})
+			.set_type("text")
 			.multiline(),
 
 		#Property.new("correspondent")

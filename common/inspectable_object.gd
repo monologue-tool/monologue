@@ -2,6 +2,11 @@
 @abstract
 class_name InspectableObject extends Resource
 
+## Names a saved object's type. Reserved: no property may be called this.
+const TYPE_KEY: String = "$type"
+## Holds every property's user overrides, keyed by property name. Also reserved.
+const EDITOR_SETTINGS_KEY: String = "_editor_settings"
+
 signal property_changed(property_name: String)
 
 var _properties: Dictionary[String, Property] = {}
@@ -35,6 +40,7 @@ func _init(command_manager: CommandManager = null) -> void:
 
 	define_property(Property.new("id")
 		.set_type("text")
+		.plain()
 		.default(IDGen.generate_object_id(get_type()))
 		.read_only()
 		.hidden_in_inspector()
@@ -222,19 +228,31 @@ func _on_property_children_property_change(
 	set_property_value(property_name, value)
 
 
+## Writes each property under its own name, holding its value and nothing else. The
+## user's port toggles and other overrides are gathered into one map beside them, so a
+## saved value never has to share its slot with editor bookkeeping.
 func _to_dict() -> Dictionary:
-	var dict: Dictionary = {"$type": get_type()}
+	var dict: Dictionary = {TYPE_KEY: get_type()}
+	var overrides: Dictionary = {}
+
 	for property: Property in get_properties():
-		var property_dict: Dictionary = property._to_dict()
-		dict[property.name] = property_dict
+		dict[property.name] = property.get_value()
+		var property_overrides: Dictionary = property._get_overrides()
+		if not property_overrides.is_empty():
+			overrides[property.name] = property_overrides
+
+	if not overrides.is_empty():
+		dict[EDITOR_SETTINGS_KEY] = overrides
+
 	return dict
 
 
 func _from_dict(dict: Dictionary) -> void:
-	dict.erase("$type")
+	var overrides: Dictionary = dict.get(EDITOR_SETTINGS_KEY, {})
 	for property: Property in get_properties():
-		var property_dict: Dictionary = dict.get(property.name, {})
-		property._from_dict(property_dict)
+		property._restore(
+			dict.get(property.name, property.get_value()), overrides.get(property.name, {})
+		)
 
 
 func get_settings() -> Dictionary:

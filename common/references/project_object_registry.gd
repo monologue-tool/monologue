@@ -228,9 +228,7 @@ func _index_record(record: Dictionary, collection_name: String, document_name: S
 	_known_ids[owner_id] = true
 
 	for property: Property in prototype.get_properties():
-		var raw: Variant = record.get(property.name)
-		var value: Variant = (raw as Dictionary).get("value") if raw is Dictionary else null
-		_index_value(owner_id, property, value, document_name)
+		_index_value(owner_id, property, record.get(property.name), document_name)
 
 
 ## Records the storyline's wires, each one owned by the node it leaves.
@@ -283,7 +281,4 @@ func _get_prototype(collection_name: String) -> CollectionItem:
 
 
 static func _read_record_value(record: Dictionary, key: String, fallback: String) -> String:
-	var raw: Variant = record.get(key)
-	if raw is Dictionary:
-		return str((raw as Dictionary).get("value", fallback))
-	return fallback
+	return str(record.get(key, fallback))

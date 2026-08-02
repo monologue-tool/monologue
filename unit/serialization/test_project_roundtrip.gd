@@ -183,7 +183,7 @@ func test_an_unknown_node_type_is_reported_and_skipped() -> void:
 	var storyline: StorylineDocument = _project.storylines[0]
 	var data: Dictionary = storyline._to_dict()
 	var nodes: Array = data["nodes"]
-	nodes.append({"$type": "teleporter", "id": {"value": "teleporter-XYZ"}})
+	nodes.append({"$type": "teleporter", "id": "teleporter-XYZ"})
 
 	storyline._from_dict(data)
 
@@ -199,7 +199,7 @@ func test_a_node_without_a_type_is_reported() -> void:
 	var storyline: StorylineDocument = _project.storylines[0]
 	var data: Dictionary = storyline._to_dict()
 	var nodes: Array = data["nodes"]
-	nodes.append({"id": {"value": "nameless-XYZ"}})
+	nodes.append({"id": "nameless-XYZ"})
 
 	storyline._from_dict(data)
 
@@ -225,7 +225,7 @@ func test_the_manifest_records_the_format_version() -> void:
 
 func test_a_file_from_a_newer_monologue_is_refused_with_an_explanation() -> void:
 	var manifest_data: Dictionary = _project.manifest._to_dict()
-	manifest_data["format_version"] = {"value": ManifestDocument.FORMAT_VERSION + 1}
+	manifest_data["format_version"] = ManifestDocument.FORMAT_VERSION + 1
 	_write_raw(_path, {"manifest.json": JSON.stringify(manifest_data)})
 
 	var result: ValidationResult = ValidationResult.ok()
@@ -242,7 +242,7 @@ func test_a_file_from_a_newer_monologue_is_refused_with_an_explanation() -> void
 
 func test_a_file_from_an_unsupported_older_format_is_refused() -> void:
 	var manifest_data: Dictionary = _project.manifest._to_dict()
-	manifest_data["format_version"] = {"value": 1}
+	manifest_data["format_version"] = 1
 	_write_raw(_path, {"manifest.json": JSON.stringify(manifest_data)})
 
 	var result: ValidationResult = ValidationResult.ok()
