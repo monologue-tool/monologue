@@ -2,10 +2,6 @@ extends GdUnitTestSuite
 
 ## A collection's declared port_type has to keep matching its item's actual main
 ## property, or graph links silently stop working.
-##
-## This is the regression that renaming the "option" collection to "options" caused:
-## the port type used to be inferred by looking for a field type sharing the
-## collection's name, which only ever worked by coincidence.
 
 var _registry: MonologueRegistry
 var _history: CommandManager

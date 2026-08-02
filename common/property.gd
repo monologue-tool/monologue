@@ -43,9 +43,11 @@ var type: String = ""
 var default_value: Variant = null
 var value: Variant = null
 
-## Input connections. Each entry: {"node_id": String, "property_name": String}.
+## Incoming wires, as {"node_id": String, "property_name": String, "item_id"?: String}.
+## A read-only view: the wires themselves live in [member StorylineDocument.connections],
+## which refills this. Never serialized.
 var connected_from: Array[Dictionary] = []
-## Output connections. Each entry: {"node_id": String, "property_name": String}.
+## Outgoing wires, in the same shape as [member connected_from].
 var connected_to: Array[Dictionary] = []
 
 ## What is currently wrong with this property's value. Transient: filled in by
@@ -438,34 +440,14 @@ func is_visible_in_graph() -> bool:
 	return visible or has_input or has_output
 
 
-func add_connection_from(node_id: String, property_name: String) -> void:
-	var connection: Dictionary = {"node_id": node_id, "property_name": property_name}
-	if connection not in connected_from:
-		connected_from.append(connection)
-		connection_changed.emit()
-
-
-func add_connection_to(node_id: String, property_name: String) -> void:
-	var connection: Dictionary = {"node_id": node_id, "property_name": property_name}
-	if connection not in connected_to:
-		connected_to.append(connection)
-		connection_changed.emit()
-
-
-func remove_connection_from(node_id: String, property_name: String) -> void:
-	_remove_connection(connected_from, node_id, property_name)
-
-
-func remove_connection_to(node_id: String, property_name: String) -> void:
-	_remove_connection(connected_to, node_id, property_name)
-
-
-func clear_connections() -> void:
-	var had_connections: bool = not connected_from.is_empty() or not connected_to.is_empty()
-	connected_from.clear()
-	connected_to.clear()
-	if had_connections:
-		connection_changed.emit()
+## Replaces the cached views, announcing the change only when there is one.
+## Called by [StorylineDocument], which holds the wires themselves.
+func set_connection_views(incoming: Array, outgoing: Array) -> void:
+	if connected_from == incoming and connected_to == outgoing:
+		return
+	connected_from.assign(incoming)
+	connected_to.assign(outgoing)
+	connection_changed.emit()
 
 
 func _warn_frozen() -> void:
@@ -478,27 +460,9 @@ func _add_rule(rule_name: String, rule_value: Variant) -> Property:
 	return set_setting(PropertySettings.KEY_VALIDATION, rules)
 
 
-func _remove_connection(
-	connections: Array[Dictionary], node_id: String, property_name: String
-) -> void:
-	var previous_size: int = connections.size()
-	connections.assign(
-		connections.filter(
-			(func(entry: Dictionary) -> bool:
-				return not (entry["node_id"] == node_id and entry["property_name"] == property_name))
-		)
-	)
-	if connections.size() != previous_size:
-		connection_changed.emit()
-
-
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {"value": get_value()}
 
-	if not connected_from.is_empty():
-		dict["from_node"] = connected_from
-	if not connected_to.is_empty():
-		dict["to_node"] = connected_to
 	if not _overrides.is_empty():
 		dict["_editor_settings"] = _overrides
 
@@ -511,6 +475,8 @@ func _from_dict(raw: Dictionary) -> void:
 
 	value = raw.get("value", value)
 	_overrides = raw.get("_editor_settings", _overrides)
+	# Files written before connections moved to the storyline still carry them here.
+	# StorylineDocument harvests these, then overwrites both views from its own list.
 	if raw.get("from_node"):
 		connected_from.assign(raw.get("from_node", []))
 	if raw.get("to_node"):

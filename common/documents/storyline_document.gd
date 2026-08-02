@@ -2,11 +2,15 @@ class_name StorylineDocument extends InspectableDocument
 
 signal node_added
 signal node_removed
+signal connections_changed
 
 var id: String:
 	get = _get_id
 var name: String = ""
 var nodes: Array[InspectableNode] = []
+## Every wire in this storyline, and the only place they are stored. Each property's
+## connected_from / connected_to are views onto this list.
+var connections: Array[NodeConnection] = []
 ## Anything [method _from_dict] could not make sense of, collected for the reader to
 ## report. Cleared on every load; never serialized.
 var load_issues: Array[ValidationIssue] = []
@@ -24,15 +28,119 @@ func add_node(node: InspectableNode) -> void:
 	_register_node(node)
 
 
-func remove_node(node: InspectableNode) -> void:
+## Removes a node and every wire that touched it, and returns those wires so that
+## undoing the removal can put them back exactly as they were.
+func remove_node(node: InspectableNode) -> Array[NodeConnection]:
 	if not node in nodes:
 		push_warning("Can't remove node %s " % str(node.get_property_value("id")))
-		return
+		return []
 
 	var node_id: String = node.get_property_value("id")
+	var removed: Array[NodeConnection] = []
+	var kept: Array[NodeConnection] = []
+	for connection: NodeConnection in connections:
+		if connection.involves(node_id):
+			removed.append(connection)
+		else:
+			kept.append(connection)
+
+	connections = kept
 	_node_index.erase(node_id)
 	nodes.erase(node)
+	rebuild_connection_views()
 	node_removed.emit()
+	return removed
+
+
+# --- connections ----------------------------------------------------------------
+
+
+## Adds a wire, ignoring one that is already there. Returns whether anything changed.
+func add_connection(connection: NodeConnection) -> bool:
+	if connection == null or has_connection(connection):
+		return false
+
+	connections.append(connection)
+	rebuild_connection_views()
+	connections_changed.emit()
+	return true
+
+
+func remove_connection(connection: NodeConnection) -> bool:
+	if connection == null:
+		return false
+
+	for existing: NodeConnection in connections:
+		if existing.equals(connection):
+			connections.erase(existing)
+			rebuild_connection_views()
+			connections_changed.emit()
+			return true
+	return false
+
+
+func has_connection(connection: NodeConnection) -> bool:
+	for existing: NodeConnection in connections:
+		if existing.equals(connection):
+			return true
+	return false
+
+
+## Wires arriving at a node, narrowed to one property when [param property_name] is given.
+func get_incoming(node_id: String, property_name: String = "") -> Array[NodeConnection]:
+	var found: Array[NodeConnection] = []
+	for connection: NodeConnection in connections:
+		if connection.to_node_id != node_id:
+			continue
+		if property_name.is_empty() or connection.to_property == property_name:
+			found.append(connection)
+	return found
+
+
+## Wires leaving a node, narrowed to one property when [param property_name] is given.
+func get_outgoing(node_id: String, property_name: String = "") -> Array[NodeConnection]:
+	var found: Array[NodeConnection] = []
+	for connection: NodeConnection in connections:
+		if connection.from_node_id != node_id:
+			continue
+		if property_name.is_empty() or connection.from_property == property_name:
+			found.append(connection)
+	return found
+
+
+## Refills every property's connected_from / connected_to from [member connections].
+## Run after any change to the list; properties only announce it when their own view
+## actually moved.
+func rebuild_connection_views() -> void:
+	var incoming: Dictionary = {}
+	var outgoing: Dictionary = {}
+
+	for connection: NodeConnection in connections:
+		var out_key: String = _view_key(connection.from_node_id, connection.from_property)
+		var out_entry: Dictionary = {
+			"node_id": connection.to_node_id, "property_name": connection.get_to_name()
+		}
+		if not connection.from_item_id.is_empty():
+			out_entry["item_id"] = connection.from_item_id
+		(outgoing.get_or_add(out_key, []) as Array).append(out_entry)
+
+		var in_key: String = _view_key(connection.to_node_id, connection.to_property)
+		var in_entry: Dictionary = {
+			"node_id": connection.from_node_id, "property_name": connection.get_from_name()
+		}
+		if not connection.to_item_id.is_empty():
+			in_entry["item_id"] = connection.to_item_id
+		(incoming.get_or_add(in_key, []) as Array).append(in_entry)
+
+	for node: InspectableNode in nodes:
+		var node_id: String = node.get_id()
+		for property: Property in node.get_properties():
+			var key: String = _view_key(node_id, property.name)
+			property.set_connection_views(incoming.get(key, []), outgoing.get(key, []))
+
+
+static func _view_key(node_id: String, property_name: String) -> String:
+	return "%s::%s" % [node_id, property_name]
 
 
 func create_node(node_type: String) -> InspectableNode:
@@ -49,42 +157,36 @@ func initialize_properties() -> void:
 	pass
 
 
-## Reports wires whose other end is missing, as issues for the problems panel rather
-## than as engine warnings nobody reads.
+## Reports wires whose ends are missing, as issues for the problems panel rather than
+## as engine warnings nobody reads.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
-	for node: InspectableNode in nodes:
-		for property: Property in node.get_properties():
-			_validate_endpoints(result, node, property, property.connected_to)
-			_validate_endpoints(result, node, property, property.connected_from)
+	for connection: NodeConnection in connections:
+		_validate_end(result, connection, connection.from_node_id, connection.from_property)
+		_validate_end(result, connection, connection.to_node_id, connection.to_property)
 
 
-func _validate_endpoints(
-	result: ValidationResult, node: InspectableNode, property: Property, connections: Array
+func _validate_end(
+	result: ValidationResult, connection: NodeConnection, node_id: String, property_name: String
 ) -> void:
-	for connection: Dictionary in connections:
-		var peer_id: String = str(connection.get("node_id", ""))
-		var peer: InspectableNode = get_node(peer_id)
-		if not peer:
-			result.add(
-				ValidationIssue.error(
-					"'%s' is connected to '%s', which is not in this storyline."
-					% [property.get_display_name(), peer_id],
-					&"broken_connection"
-				).at(node, property.name)
-			)
-			continue
+	var node: InspectableNode = get_node(node_id)
+	if not node:
+		result.add(
+			ValidationIssue.error(
+				"Connection %s points at '%s', which is not in this storyline."
+				% [connection, node_id],
+				&"broken_connection"
+			).in_document(name)
+		)
+		return
 
-		var peer_property: String = ConnectionManager.parse_composite_name(
-			str(connection.get("property_name", ""))
-		)[0]
-		if not peer.get_property(peer_property):
-			result.add(
-				ValidationIssue.error(
-					"'%s' is connected to '%s', which has no property '%s'."
-					% [property.get_display_name(), peer_id, peer_property],
-					&"broken_connection"
-				).at(node, property.name)
-			)
+	if not node.get_property(property_name):
+		result.add(
+			ValidationIssue.error(
+				"Connection %s uses property '%s', which '%s' does not have."
+				% [connection, property_name, node_id],
+				&"broken_connection"
+			).at(node, property_name)
+		)
 
 
 func get_type() -> String:
@@ -143,14 +245,15 @@ func _create_default_nodes() -> void:
 	_register_node(option_node)
 	_register_node(choice_node)
 
-	root_mp.add_connection_to(sent_node.get_id(), sent_mp.name)
-	sent_mp.add_connection_from(root_node.get_id(), root_mp.name)
-
-	sent_mp.add_connection_to(choice_node.get_id(), choice_mp.name)
-	choice_mp.add_connection_from(sent_node.get_id(), sent_mp.name)
-
-	option_mp.add_connection_to(choice_node.get_id(), "choices")
-	choice_node.get_property("choices").add_connection_from(option_node.get_id(), option_mp.name)
+	add_connection(
+		NodeConnection.create(root_node.get_id(), root_mp.name, sent_node.get_id(), sent_mp.name)
+	)
+	add_connection(
+		NodeConnection.create(sent_node.get_id(), sent_mp.name, choice_node.get_id(), choice_mp.name)
+	)
+	add_connection(
+		NodeConnection.create(option_node.get_id(), option_mp.name, choice_node.get_id(), "choices")
+	)
 
 
 func _register_node(node: InspectableNode) -> void:
@@ -180,6 +283,11 @@ func _to_dict() -> Dictionary:
 
 	dict["root_node_id"] = root_node_id
 
+	var connection_list: Array = []
+	for connection: NodeConnection in connections:
+		connection_list.append(connection._to_dict())
+	dict["connections"] = connection_list
+
 	return dict
 
 
@@ -188,6 +296,7 @@ func _from_dict(dict: Dictionary) -> void:
 		return
 
 	nodes.clear()
+	connections.clear()
 	_node_index.clear()
 	load_issues.clear()
 
@@ -215,3 +324,36 @@ func _from_dict(dict: Dictionary) -> void:
 			continue
 		node._from_dict(node_data)
 		_register_node(node)
+
+	_read_connections(dict)
+	rebuild_connection_views()
+
+
+## Reads the storyline's connection list, falling back to the per-property arrays that
+## files written before the list existed still carry.
+func _read_connections(dict: Dictionary) -> void:
+	if dict.has("connections"):
+		for entry: Variant in dict.get("connections", []):
+			if entry is Dictionary:
+				connections.append(NodeConnection.from_dict(entry))
+		return
+
+	for node: InspectableNode in nodes:
+		for property: Property in node.get_properties():
+			for entry: Dictionary in property.connected_to:
+				var connection: NodeConnection = NodeConnection.from_names(
+					node.get_id(),
+					_legacy_name(property.name, entry),
+					str(entry.get("node_id", "")),
+					str(entry.get("property_name", ""))
+				)
+				if not has_connection(connection):
+					connections.append(connection)
+
+
+## The outgoing entries of old files kept the source's own sub-port under "item_id".
+static func _legacy_name(property_name: String, entry: Dictionary) -> String:
+	var item_id: String = str(entry.get("item_id", ""))
+	if item_id.is_empty():
+		return property_name
+	return "%s%s%s" % [property_name, NodeConnection.ITEM_SEPARATOR, item_id]

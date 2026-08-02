@@ -180,10 +180,11 @@ func _index_document(document: InspectableDocument) -> void:
 	index_object(document, document_name)
 
 	if document is StorylineDocument:
-		for node: InspectableNode in (document as StorylineDocument).nodes:
+		var storyline: StorylineDocument = document
+		for node: InspectableNode in storyline.nodes:
 			register(node)
 			index_object(node, document_name)
-			_index_connections(node, document_name)
+		_index_connections(storyline, document_name)
 
 
 ## Walks one property value, recursing into collection items, which are stored as
@@ -232,24 +233,18 @@ func _index_record(record: Dictionary, collection_name: String, document_name: S
 		_index_value(owner_id, property, value, document_name)
 
 
-## Records the graph wires leaving a node. Only outgoing ones, so each wire is listed
-## once.
-func _index_connections(node: InspectableNode, document_name: String) -> void:
-	var owner_id: String = node.get_id()
-	for property: Property in node.get_properties():
-		for connection: Dictionary in property.connected_to:
-			var target_id: String = str(connection.get("node_id", ""))
-			if target_id.is_empty():
-				continue
-			_add_site(
-				ReferenceSite.create(
-					owner_id,
-					property.name,
-					target_id,
-					document_name,
-					ReferenceSite.KIND_CONNECTION
-				)
+## Records the storyline's wires, each one owned by the node it leaves.
+func _index_connections(storyline: StorylineDocument, document_name: String) -> void:
+	for connection: NodeConnection in storyline.connections:
+		_add_site(
+			ReferenceSite.create(
+				connection.from_node_id,
+				connection.from_property,
+				connection.to_node_id,
+				document_name,
+				ReferenceSite.KIND_CONNECTION
 			)
+		)
 
 
 func _add_site(site: ReferenceSite) -> void:

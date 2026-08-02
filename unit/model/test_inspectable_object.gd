@@ -84,8 +84,8 @@ func test_a_nodes_own_properties_are_frozen_too() -> void:
 	for property_name: String in ["color", "notes", "position", "id"]:
 		(
 			assert_bool(sentence.get_property(property_name).is_frozen())
-			. override_failure_message("Property '%s' escaped the freeze pass." % property_name)
-			. is_true()
+			.override_failure_message("Property '%s' escaped the freeze pass." % property_name)
+			.is_true()
 		)
 
 
@@ -130,7 +130,7 @@ func test_changing_a_value_announces_the_property_name() -> void:
 
 	variable.set_property_value("name", "gold")
 
-	await assert_signal(monitor).is_emitted("property_changed", ["name"])
+	assert_signal(monitor).is_emitted("property_changed", ["name"])
 
 
 func test_an_object_round_trips_through_a_dictionary() -> void:

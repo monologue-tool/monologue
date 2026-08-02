@@ -208,7 +208,9 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 			var item_name: String = _extract_dict_string(item_data, "name")
 			var sub_label: String = "  %s" % [item_name if not item_name.is_empty() else item_id]
 			var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
-			sub_row.sub_property_id = "%s:%s" % [prop.name, item_id]
+			sub_row.sub_property_id = "%s%s%s" % [
+				prop.name, NodeConnection.ITEM_SEPARATOR, item_id
+			]
 			sub_rows.append(sub_row)
 
 	# External items (e.g. connected OptionNodes)

@@ -1,6 +1,10 @@
+## Queries and edits a storyline's wires on behalf of the graph view.
+##
+## Holds nothing of its own: [member StorylineDocument.connections] is the source of
+## truth, and everything here reads or edits that list. The one exception is
+## [member _suspended_connections], which parks wires while a port is temporarily gone
+## so they can be put back when it returns.
 class_name ConnectionManager extends RefCounted
-
-## Manages connections between node properties for easy access and validation
 
 var _storyline: StorylineDocument
 var _suspended_connections: Dictionary = {}
@@ -10,175 +14,45 @@ func _init(storyline: StorylineDocument) -> void:
 	_storyline = storyline
 
 
-## Splits a composite property name like "choices:item_id" into [base_name, item_id].
-## Returns [property_name, ""] for simple names.
-static func parse_composite_name(property_name: String) -> Array:
-	if ":" in property_name:
-		var parts: PackedStringArray = property_name.split(":", true, 1)
-		return [parts[0], parts[1]]
-	return [property_name, ""]
-
-
 func register_connection_by_property(
 	from_node_id: String, from_property_name: String, to_node_id: String, to_property_name: String
 ) -> void:
-	var from_node: InspectableNode = _get_node_view_by_id(from_node_id)
-	var to_node: InspectableNode = _get_node_view_by_id(to_node_id)
-
-	if not from_node or not to_node:
-		push_warning("Cannot register connection: node not found")
+	var connection: NodeConnection = NodeConnection.from_names(
+		from_node_id, from_property_name, to_node_id, to_property_name
+	)
+	if not _endpoints_exist(connection):
+		push_warning("Cannot register connection: %s" % connection)
 		return
 
-	# Resolve composite sub-port names
-	var from_parsed: Array = parse_composite_name(from_property_name)
-	var from_base_name: String = from_parsed[0]
-	var from_item_id: String = from_parsed[1]
-
-	var to_parsed: Array = parse_composite_name(to_property_name)
-	var to_base_name: String = to_parsed[0]
-	var to_item_id: String = to_parsed[1]
-
-	var from_prop: Property = from_node.get_property(from_base_name)
-	var to_prop: Property = to_node.get_property(to_base_name)
-
-	if not from_prop or not to_prop:
-		push_warning("Cannot register connection: property not found")
-		return
-
-	# Build connection dict, including item_id if it's a sub-port
-	var to_conn: Dictionary = {"node_id": to_node_id, "property_name": to_property_name}
-	if not from_item_id.is_empty():
-		to_conn["item_id"] = from_item_id
-	var from_conn: Dictionary = {"node_id": from_node_id, "property_name": from_property_name}
-	if not to_item_id.is_empty():
-		from_conn["item_id"] = to_item_id
-
-	if to_conn not in from_prop.connected_to:
-		from_prop.connected_to.append(to_conn)
-		from_prop.connection_changed.emit()
-	if from_conn not in to_prop.connected_from:
-		to_prop.connected_from.append(from_conn)
-		to_prop.connection_changed.emit()
-
-
-func register_connection(
-	from_node_id: String, from_port: int, to_node_id: String, to_port: int
-) -> void:
-	var from_node: InspectableNode = _get_node_view_by_id(from_node_id)
-	var to_node: InspectableNode = _get_node_view_by_id(to_node_id)
-
-	if not from_node or not to_node:
-		push_warning("Cannot register connection: node not found")
-		return
-
-	var from_prop: Property = _get_property_at_port(from_node, from_port)
-	var to_prop: Property = _get_property_at_port(to_node, to_port)
-
-	if not from_prop or not to_prop:
-		push_warning("Cannot register connection: property not found")
-		return
-
-	# Track the connection using property names
-	register_connection_by_property(from_node_id, from_prop.name, to_node_id, to_prop.name)
+	_storyline.add_connection(connection)
 
 
 func unregister_connection_by_property(
 	from_node_id: String, from_property_name: String, to_node_id: String, to_property_name: String
 ) -> void:
-	var from_node: InspectableNode = _get_node_view_by_id(from_node_id)
-	var to_node: InspectableNode = _get_node_view_by_id(to_node_id)
-
-	if not from_node or not to_node:
-		return
-
-	# Resolve composite sub-port names
-	var from_base_name: String = parse_composite_name(from_property_name)[0]
-	var to_base_name: String = parse_composite_name(to_property_name)[0]
-
-	var from_prop: Property = from_node.get_property(from_base_name)
-	var to_prop: Property = to_node.get_property(to_base_name)
-
-	if not from_prop or not to_prop:
-		return
-
-	# Remove the connection from both properties, matching full property_name (with sub-port)
-	var old_to_size: int = from_prop.connected_to.size()
-	from_prop.connected_to.assign(
-		from_prop.connected_to.filter(
-			(func(c: Dictionary) -> bool:
-				return not (c["node_id"] == to_node_id and c["property_name"] == to_property_name))
+	_storyline.remove_connection(
+		NodeConnection.from_names(
+			from_node_id, from_property_name, to_node_id, to_property_name
 		)
 	)
-	if from_prop.connected_to.size() != old_to_size:
-		from_prop.connection_changed.emit()
-
-	var old_from_size: int = to_prop.connected_from.size()
-	to_prop.connected_from.assign(
-		to_prop.connected_from.filter(
-			(func(c: Dictionary) -> bool:
-				return not (
-					c["node_id"] == from_node_id and c["property_name"] == from_property_name
-				))
-		)
-	)
-	if to_prop.connected_from.size() != old_from_size:
-		to_prop.connection_changed.emit()
 
 
-func unregister_connection(
-	from_node_id: String, from_port: int, to_node_id: String, to_port: int
-) -> void:
-	var from_node: InspectableNode = _get_node_view_by_id(from_node_id)
-	var to_node: InspectableNode = _get_node_view_by_id(to_node_id)
-
-	if not from_node or not to_node:
-		return
-
-	var from_prop: Property = _get_property_at_port(from_node, from_port)
-	var to_prop: Property = _get_property_at_port(to_node, to_port)
-
-	if not from_prop or not to_prop:
-		return
-
-	# Remove the connection using property names
-	unregister_connection_by_property(from_node_id, from_prop.name, to_node_id, to_prop.name)
-
-
-## Gets all connections tracked by properties
-## Returns array of {from_node_id, from_property, to_node_id, to_property}
+## Every wire, as {from_node_id, from_property, to_node_id, to_property}, with
+## composite names where a wire touches one list item in particular.
 func get_all_connections() -> Array[Dictionary]:
-	var connections: Array[Dictionary] = []
-	var processed_connections: Dictionary = {}  # To avoid duplicates
-
-	for node: InspectableNode in _storyline.nodes:
-		var node_id: String = node.get_property("id").get_value()
-		for prop: Property in node.get_properties():
-			# Only process outgoing connections to avoid duplicates
-			for conn: Dictionary in prop.connected_to:
-				# Reconstruct composite from_property for sub-port connections
-				var from_property: String = prop.name
-				var item_id: String = conn.get("item_id", "")
-				if not item_id.is_empty():
-					from_property = "%s:%s" % [prop.name, item_id]
-				var key: String = (
-					"%s.%s->%s.%s"
-					% [node_id, from_property, conn["node_id"], conn["property_name"]]
-				)
-				if key not in processed_connections:
-					connections.append(
-						{
-							"from_node_id": node_id,
-							"from_property": from_property,
-							"to_node_id": conn["node_id"],
-							"to_property": conn["property_name"]
-						}
-					)
-					processed_connections[key] = true
-
-	return connections
+	var result: Array[Dictionary] = []
+	for connection: NodeConnection in _storyline.connections:
+		result.append(
+			{
+				"from_node_id": connection.from_node_id,
+				"from_property": connection.get_from_name(),
+				"to_node_id": connection.to_node_id,
+				"to_property": connection.get_to_name(),
+			}
+		)
+	return result
 
 
-## Gets all properties that are connected (have at least one connection)
 func get_connected_properties() -> Array[Property]:
 	var connected: Array[Property] = []
 	for node: InspectableNode in _storyline.nodes:
@@ -188,123 +62,78 @@ func get_connected_properties() -> Array[Property]:
 	return connected
 
 
-## Gets the node a property is connected to (for single connection)
+## The node at the other end of a property's first wire, whichever way it points.
 func get_connected_node(node: InspectableNode, property_name: String) -> InspectableNode:
-	var prop: Property = node.get_property(property_name)
-	if not prop or not prop.is_port_connected():
-		return null
+	var node_id: String = node.get_id()
 
-	# Get first connection (assuming single connection for simplicity)
-	var connection: Variant = null
-	if prop.connected_to.size() > 0:
-		connection = prop.connected_to[0]
-	elif prop.connected_from.size() > 0:
-		connection = prop.connected_from[0]
+	var outgoing: Array[NodeConnection] = _storyline.get_outgoing(node_id, property_name)
+	if not outgoing.is_empty():
+		return _storyline.get_node(outgoing[0].to_node_id)
 
-	if connection:
-		return _get_node_view_by_id(str(connection["node_id"]))
+	var incoming: Array[NodeConnection] = _storyline.get_incoming(node_id, property_name)
+	if not incoming.is_empty():
+		return _storyline.get_node(incoming[0].from_node_id)
 
 	return null
+
+
+# --- suspend and restore ---------------------------------------------------------
 
 
 func suspend_incoming_property_connections(node_id: String, property_name: String) -> void:
-	_suspend_property_connections(node_id, property_name, "incoming", "connected_from", true)
+	_suspend(node_id, property_name, true)
 
 
 func suspend_outgoing_property_connections(node_id: String, property_name: String) -> void:
-	_suspend_property_connections(node_id, property_name, "outgoing", "connected_to", false)
+	_suspend(node_id, property_name, false)
 
 
 func restore_incoming_property_connections(node_id: String, property_name: String) -> void:
-	_restore_property_connections(node_id, property_name, "incoming", true)
+	_restore(node_id, property_name, true)
 
 
 func restore_outgoing_property_connections(node_id: String, property_name: String) -> void:
-	_restore_property_connections(node_id, property_name, "outgoing", false)
+	_restore(node_id, property_name, false)
 
 
-func _suspend_property_connections(
-	node_id: String,
-	property_name: String,
-	direction: String,
-	connection_array_name: String,
-	is_incoming: bool
-) -> void:
-	var key: String = _connection_key(node_id, property_name)
-	if not _suspended_connections.has(key):
-		_suspended_connections[key] = {}
-
-	var node: InspectableNode = _get_node_view_by_id(node_id)
-	if not node:
+## Lifts a property's wires out of the storyline and parks them, so that a port about
+## to disappear does not take them with it.
+func _suspend(node_id: String, property_name: String, is_incoming: bool) -> void:
+	var parked: Array[NodeConnection] = (
+		_storyline.get_incoming(node_id, property_name)
+		if is_incoming
+		else _storyline.get_outgoing(node_id, property_name)
+	)
+	if parked.is_empty():
 		return
 
-	var prop: Property = node.get_property(property_name)
-	if not prop:
-		return
+	for connection: NodeConnection in parked:
+		_storyline.remove_connection(connection)
 
-	var connections: Array = []
-	var prop_val: Variant = prop.get(connection_array_name)
-	if prop_val is Array:
-		var prop_arr: Array = prop_val
-		connections = prop_arr.duplicate(true)
-	if connections.is_empty():
-		return
-
-	_suspended_connections[key][direction] = connections
-
-	# Unregister each connection
-	for conn_dict: Dictionary in connections:
-		var other_node: String = conn_dict.get("node_id", "")
-		var other_property: String = conn_dict.get("property_name", "")
-		if other_node.is_empty() or other_property.is_empty():
-			continue
-
-		if is_incoming:
-			unregister_connection_by_property(other_node, other_property, node_id, property_name)
-		else:
-			unregister_connection_by_property(node_id, property_name, other_node, other_property)
+	_suspended_connections[_connection_key(node_id, property_name, is_incoming)] = parked
 
 
-func _restore_property_connections(
-	node_id: String, property_name: String, direction: String, is_incoming: bool
-) -> void:
-	var key: String = _connection_key(node_id, property_name)
+func _restore(node_id: String, property_name: String, is_incoming: bool) -> void:
+	var key: String = _connection_key(node_id, property_name, is_incoming)
 	if not _suspended_connections.has(key):
 		return
 
-	var snapshot: Dictionary = _suspended_connections[key]
+	var parked: Array = _suspended_connections[key]
 	_suspended_connections.erase(key)
-
-	# Re-register each connection
-	var connections: Array = snapshot.get(direction, [])
-	for conn_dict: Dictionary in connections:
-		var other_node: String = conn_dict.get("node_id", "")
-		var other_property: String = conn_dict.get("property_name", "")
-		if other_node.is_empty() or other_property.is_empty():
-			continue
-
-		if is_incoming:
-			register_connection_by_property(other_node, other_property, node_id, property_name)
-		else:
-			register_connection_by_property(node_id, property_name, other_node, other_property)
+	for connection: NodeConnection in parked:
+		_storyline.add_connection(connection)
 
 
-func _connection_key(node_id: String, property_name: String) -> String:
-	return "%s::%s" % [node_id, property_name]
+static func _connection_key(node_id: String, property_name: String, is_incoming: bool) -> String:
+	return "%s::%s::%s" % [node_id, property_name, "in" if is_incoming else "out"]
 
 
-func _get_node_view_by_id(node_id: String) -> InspectableNode:
-	for node: InspectableNode in _storyline.nodes:
-		if node.get_property("id").get_value() == node_id:
-			return node
-	return null
-
-
-## Helper: Get property at a specific port index in the graph view
-func _get_property_at_port(node: InspectableNode, port: int) -> Property:
-	var visible_props: Array[Property] = node.get_visible_properties()
-
-	if port >= 0 and port < visible_props.size():
-		return visible_props[port]
-
-	return null
+func _endpoints_exist(connection: NodeConnection) -> bool:
+	var from_node: InspectableNode = _storyline.get_node(connection.from_node_id)
+	var to_node: InspectableNode = _storyline.get_node(connection.to_node_id)
+	if not from_node or not to_node:
+		return false
+	return (
+		from_node.get_property(connection.from_property) != null
+		and to_node.get_property(connection.to_property) != null
+	)

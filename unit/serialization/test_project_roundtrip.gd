@@ -1,5 +1,4 @@
 # gdlint: disable=max-public-methods
-# (a test suite is one public method per case, by design)
 extends GdUnitTestSuite
 
 ## Saving and loading is the only irreversible thing Monologue does, so it gets the
@@ -34,9 +33,6 @@ func _write_raw(archive_path: String, entries: Dictionary) -> void:
 		writer.write_file(str(entries[entry_path]).to_utf8_buffer())
 		writer.close_file()
 	writer.close()
-
-
-# --- the happy path ---------------------------------------------------------------
 
 
 func test_a_saved_project_can_be_read_back() -> void:
@@ -108,9 +104,6 @@ func test_user_setting_overrides_survive_the_trip() -> void:
 	).is_true()
 
 
-# --- the archive-growth regression ------------------------------------------------
-
-
 func test_saving_twice_does_not_grow_the_archive() -> void:
 	# ZIPPacker opened with APPEND_CREATE appends to an existing file, so every save
 	# used to add another copy of every document to the same zip.
@@ -138,9 +131,6 @@ func test_a_second_save_replaces_rather_than_accumulates_documents() -> void:
 	var loaded: MonologueProject = await _load()
 
 	assert_str(loaded.manifest.get_property_value("author")).is_equal("second pass")
-
-
-# --- malformed input --------------------------------------------------------------
 
 
 func test_malformed_json_is_reported_instead_of_crashing() -> void:
@@ -218,9 +208,6 @@ func test_a_node_without_a_type_is_reported() -> void:
 			func(issue: ValidationIssue) -> bool: return issue.code == &"node_without_type"
 		)
 	).is_not_empty()
-
-
-# --- format version ---------------------------------------------------------------
 
 
 func test_the_manifest_records_the_format_version() -> void:

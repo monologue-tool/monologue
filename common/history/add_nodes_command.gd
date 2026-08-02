@@ -2,6 +2,8 @@ class_name AddNodesCommand extends Command
 
 var storyline_id: String
 var nodes: Array = []
+## Wires the undo took away with the nodes, put back when the add is redone.
+var _removed_connections: Array[NodeConnection] = []
 
 
 func _init(
@@ -19,6 +21,9 @@ func execute() -> void:
 
 	for node: InspectableNode in nodes:
 		storyline.add_node(node)
+	for connection: NodeConnection in _removed_connections:
+		storyline.add_connection(connection)
+	_removed_connections.clear()
 	EventBus.refresh_graph.emit()
 
 
@@ -27,8 +32,9 @@ func undo() -> void:
 	if not storyline:
 		return
 
+	_removed_connections.clear()
 	for node: InspectableNode in nodes:
-		storyline.remove_node(node)
+		_removed_connections.append_array(storyline.remove_node(node))
 	EventBus.refresh_graph.emit()
 
 

@@ -1,12 +1,8 @@
 # gdlint: disable=max-public-methods
-# (a test suite is one public method per case, by design)
 extends GdUnitTestSuite
 
 ## Property is pure data: no SceneTree, no widgets, no autoloads beyond the type
 ## registry, which bootstraps itself.
-
-
-# --- the declaration path ---------------------------------------------------------
 
 
 func test_a_path_splits_into_category_and_name() -> void:
@@ -42,9 +38,6 @@ func test_category_can_still_be_overridden_after_the_path() -> void:
 
 func test_get_path_rebuilds_what_was_declared() -> void:
 	assert_str(Property.new("extra/notes").set_type("text").get_path()).is_equal("Extra/notes")
-
-
-# --- type and default -------------------------------------------------------------
 
 
 func test_set_type_brings_in_that_types_defaults() -> void:
@@ -119,9 +112,6 @@ func test_two_properties_of_one_type_do_not_share_settings() -> void:
 	assert_int(type_defaults[PropertySettings.KEY_ROWS]).is_equal(3)
 
 
-# --- declaration options ----------------------------------------------------------
-
-
 func test_a_declaration_reads_top_to_bottom() -> void:
 	var speaker := (
 		Property
@@ -172,9 +162,6 @@ func test_header_puts_a_property_in_the_inspector_strip() -> void:
 	assert_bool(color.is_visible_in_graph()).is_false()
 
 
-# --- freezing ---------------------------------------------------------------------
-
-
 func test_a_frozen_property_refuses_further_declaration() -> void:
 	var frozen := Property.new("p").set_type("text")
 	frozen.freeze()
@@ -214,28 +201,33 @@ func test_changing_a_setting_notifies_listeners() -> void:
 
 	property.set_settings_value(PropertySettings.KEY_EXPOSED, true)
 
-	await assert_signal(monitor).is_emitted("settings_changed")
-
-
-# --- serialisation ----------------------------------------------------------------
+	assert_signal(monitor).is_emitted("settings_changed")
 
 
 func test_property_round_trips_through_a_dictionary() -> void:
 	var original := Property.new("line").set_type("text").default("hi")
 	original.set_settings_value(PropertySettings.KEY_EXPOSED, true)
-	original.add_connection_from("sentence-ABC", "sentence")
 
 	var restored := Property.new("line").set_type("text")
 	restored._from_dict(original._to_dict())
 
 	assert_str(restored.get_value()).is_equal("hi")
 	assert_bool(restored.get_settings_value(PropertySettings.KEY_EXPOSED)).is_true()
-	assert_int(restored.connected_from.size()).is_equal(1)
 
 
 func test_an_untouched_property_stays_out_of_the_save_file() -> void:
 	var dict: Dictionary = Property.new("line").set_type("text").default("hi")._to_dict()
 
 	assert_bool(dict.has("_editor_settings")).is_false()
+
+
+func test_a_property_does_not_save_its_connections() -> void:
+	# Wires belong to the storyline; these two arrays are only a view onto its list.
+	var property := Property.new("line").set_type("text")
+	property.set_connection_views([{"node_id": "sentence-ABC", "property_name": "sentence"}], [])
+
+	var dict: Dictionary = property._to_dict()
+
+	assert_int(property.connected_from.size()).is_equal(1)
 	assert_bool(dict.has("from_node")).is_false()
 	assert_bool(dict.has("to_node")).is_false()

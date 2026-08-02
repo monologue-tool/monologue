@@ -1,5 +1,4 @@
 # gdlint: disable=max-public-methods
-# (a test suite is one public method per case, by design)
 extends GdUnitTestSuite
 
 ## References point at ids, never at names. These are the guarantees that buys:
@@ -20,9 +19,6 @@ func before_test() -> void:
 
 func after_test() -> void:
 	ProjectManager.current_project = null
-
-
-# --- helpers ----------------------------------------------------------------------
 
 
 func _add_item(collection_name: String, values: Dictionary) -> String:
@@ -78,9 +74,6 @@ static func _read_id(item: Dictionary) -> String:
 	return str((raw as Dictionary).get("value", "")) if raw is Dictionary else ""
 
 
-# --- renaming ---------------------------------------------------------------------
-
-
 func test_renaming_a_character_does_not_break_its_references() -> void:
 	var alice_id: String = _add_item(CHARACTERS, {"name": "Alice"})
 	var sentence: InspectableNode = _first_node("sentence")
@@ -101,9 +94,6 @@ func test_two_characters_sharing_a_name_stay_distinguishable() -> void:
 	assert_str(first_id).is_not_equal(second_id)
 	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, first_id)).is_true()
 	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, second_id)).is_true()
-
-
-# --- unresolvable ids -------------------------------------------------------------
 
 
 func test_unresolvable_id_never_resolves_to_a_different_object() -> void:
@@ -140,9 +130,6 @@ func test_the_reverse_index_finds_who_points_at_a_character() -> void:
 	assert_str(referrers[0].property_name).is_equal("speaker")
 
 
-# --- deleting and undoing ---------------------------------------------------------
-
-
 func test_undoing_a_delete_restores_the_reference() -> void:
 	var alice_id: String = _add_item(CHARACTERS, {"name": "Alice"})
 	var sentence: InspectableNode = _first_node("sentence")
@@ -161,8 +148,8 @@ func test_undoing_a_delete_restores_the_reference() -> void:
 func test_undoing_a_node_delete_restores_its_connections() -> void:
 	var storyline: StorylineDocument = _project.storylines[0]
 	var sentence: InspectableNode = _first_node("sentence")
-	var before: Array[Dictionary] = sentence.get_main_property().connected_from.duplicate(true)
-	assert_array(before).is_not_empty()
+	var _before: Array[Dictionary] = sentence.get_main_property().connected_from.duplicate(true)
+	assert_array(_before).is_not_empty()
 
 	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline.id, [_first_node("root")])
 	_project.command_manager.execute(command)
@@ -171,10 +158,7 @@ func test_undoing_a_node_delete_restores_its_connections() -> void:
 
 	_project.command_manager.undo()
 
-	assert_array(sentence.get_main_property().connected_from).is_equal(before)
-
-
-# --- id allocation ----------------------------------------------------------------
+	assert_array(sentence.get_main_property().connected_from).is_equal(_before)
 
 
 func test_id_collision_is_detected_and_a_fresh_id_is_allocated() -> void:
@@ -218,9 +202,6 @@ func test_generated_ids_carry_their_type_and_use_the_readable_alphabet() -> void
 		).is_true()
 
 
-# --- graph ports ------------------------------------------------------------------
-
-
 func test_reference_ports_are_typed_by_what_they_point_at() -> void:
 	var registry: MonologueRegistry = MonologueRegistry.get_instance()
 	var characters: int = registry.get_reference_type_id(CHARACTERS)
@@ -243,9 +224,6 @@ func test_a_reference_port_never_shares_an_id_with_a_field_port() -> void:
 		assert_int((indexer as FieldIndexer).type_id).is_not_equal(scope_id)
 
 
-# --- generated names --------------------------------------------------------------
-
-
 func test_new_items_are_born_with_a_unique_name() -> void:
 	var first: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		VARIABLES, _project.command_manager
@@ -265,9 +243,6 @@ func test_a_generated_variable_name_is_a_valid_identifier() -> void:
 	)
 
 	assert_bool(str(variable.get_property_value("name")).is_valid_identifier()).is_true()
-
-
-# --- conditions -------------------------------------------------------------------
 
 
 func test_deleting_a_variable_does_not_degrade_the_condition_silently() -> void:

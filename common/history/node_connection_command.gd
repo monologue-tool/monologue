@@ -33,8 +33,8 @@ func execute() -> void:
 
 	if disconnect_node:
 		if graph_view.connection_manager:
-			graph_view.connection_manager.unregister_connection(
-				from_node_id, from_port, to_node_id, to_port
+			graph_view.connection_manager.unregister_connection_by_property(
+				from_node_id, from_property_name, to_node_id, to_property_name
 			)
 
 		if from_port >= 0 and to_port >= 0:
@@ -60,8 +60,8 @@ func undo() -> void:
 
 	if not disconnect_node:
 		if graph_view.connection_manager:
-			graph_view.connection_manager.unregister_connection(
-				from_node_id, from_port, to_node_id, to_port
+			graph_view.connection_manager.unregister_connection_by_property(
+				from_node_id, from_property_name, to_node_id, to_property_name
 			)
 
 		if from_port >= 0 and to_port >= 0:

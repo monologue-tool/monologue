@@ -47,14 +47,15 @@ func _init_documents() -> void:
 	ready.emit()
 
 
-## Subscribes to every storyline so that adding or removing a node marks the reference
-## index for a rebuild. Safe to call again after storylines are loaded or added.
+## Subscribes to every storyline so that adding a node, removing one, or rewiring the
+## graph marks the reference index for a rebuild. Safe to call again after storylines
+## are loaded or added.
 func observe_storylines() -> void:
 	for storyline: StorylineDocument in storylines:
-		if not storyline.node_added.is_connected(_on_content_changed):
-			storyline.node_added.connect(_on_content_changed)
-		if not storyline.node_removed.is_connected(_on_content_changed):
-			storyline.node_removed.connect(_on_content_changed)
+		for signal_name: String in ["node_added", "node_removed", "connections_changed"]:
+			var storyline_signal: Signal = storyline.get(signal_name)
+			if not storyline_signal.is_connected(_on_content_changed):
+				storyline_signal.connect(_on_content_changed)
 	_object_registry_is_stale = true
 
 
