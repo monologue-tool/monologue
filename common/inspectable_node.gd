@@ -87,7 +87,7 @@ func rebuild_preview() -> void:
 
 @abstract func get_type() -> String
 
-## Returns a copy carrying its own id, offset so it does not land on the original.
+
 @warning_ignore("native_method_override")
 func duplicate(deep: bool = false) -> Resource:
 	var duplicated: InspectableNode = super.duplicate(deep)

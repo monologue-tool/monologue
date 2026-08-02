@@ -72,5 +72,4 @@ func validate_registration() -> String:
 
 @abstract func get_object_type() -> StringName
 
-## Creates one instance of the type this indexer describes.
 @abstract func instantiate(history: CommandManager = null) -> Object
