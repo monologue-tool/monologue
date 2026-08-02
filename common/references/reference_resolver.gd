@@ -77,6 +77,25 @@ static func describe_scope(scope: String, owner: InspectableObject = null) -> St
 	return indexer.get_item_type() if indexer else ""
 
 
+## One property read off the object a reference points at, as text. Empty when the
+## reference resolves to nothing. Used where a widget has to follow its target: the
+## value beside a variable takes the shape that variable declares.
+static func resolve_property(
+	project: MonologueProject,
+	scope: String,
+	target_id: String,
+	property_name: String,
+	owner: InspectableObject = null
+) -> String:
+	if target_id.is_empty() or property_name.is_empty():
+		return ""
+
+	for record: Dictionary in _records_in(project, scope, owner):
+		if _read(record, "id") == target_id:
+			return _read(record, property_name)
+	return ""
+
+
 ## True when the scope still holds the object. A false answer is what makes a
 ## reference render as broken instead of quietly pointing somewhere else.
 static func exists(
@@ -89,6 +108,25 @@ static func exists(
 		if candidate.get("id", "") == target_id:
 			return true
 	return false
+
+
+## The stored items a scope covers, before any labelling. Only collection scopes have
+## records; storylines and nodes are live objects and answer nothing here.
+static func _records_in(
+	project: MonologueProject, scope: String, owner: InspectableObject
+) -> Array:
+	if project == null or scope.is_empty():
+		return []
+
+	if scope.begins_with(SELF_PREFIX):
+		var property: Property = (
+			owner.get_property(scope.trim_prefix(SELF_PREFIX)) if owner else null
+		)
+		var value: Variant = property.get_value() if property else null
+		return value if value is Array else []
+
+	var collection: CollectionDocument = project.get_collection(scope)
+	return collection.get_value() if collection else []
 
 
 static func _list_collection(

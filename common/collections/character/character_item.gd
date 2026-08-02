@@ -11,10 +11,17 @@ func initialize_properties() -> void:
 	define_name_property(NameGenerator.generate)
 
 	define_property(Property.new("display_name")
-		.set_type("text"))
+		.set_type("text")
+		.tooltip("Shown to the player. Falls back to the name when empty."))
 
 	define_property(Property.new("nicknames")
-		.set_type("text"))
+		.set_type("list")
+		.item_type("text")
+		.tooltip("Other names this character is known by."))
+
+	define_property(Property.new("color")
+		.set_type("color")
+		.default("#ffffff")
 
 	define_property(Property.new("portraits/default_portrait")
 		.set_type("reference")
@@ -28,8 +35,16 @@ func initialize_properties() -> void:
 		.collection("portraits")
 		.warn_if(_has_no_portrait, &"no_portraits"))
 
+	define_property(Property.new("voice/voice_line_folder")
+		.set_type("file")
+		.tooltip("Where this character's recorded lines are kept."))
+
 	define_property(Property.new("extra/description")
 		.set_type("textarea"))
+
+	define_property(Property.new("extra/tags")
+		.set_type("list")
+		.item_type("text"))
 
 	define_property(Property.new("extra/protected")
 		.set_type("bool")

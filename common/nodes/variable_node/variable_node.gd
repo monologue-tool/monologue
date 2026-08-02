@@ -1,19 +1,12 @@
 ## Writes to a project variable as the story passes through.
 ##
 ## Which variable, how, and with what are three separate properties rather than one
-## composite value: each is inspected, validated and undone on its own.
+## composite value: each is inspected, validated and undone on its own. The value takes
+## the shape the chosen variable declares, so writing text into a number is not
+## something this node can express.
 class_name VariableNode extends InspectableNode
 
 const OPERATORS: Array = ["=", "+", "-", "*", "/"]
-## Value shapes offered, and the variable type each one answers for.
-const VALUE_CASES: Dictionary = {
-	"Text": {"type": "text", "default": ""},
-	"Number": {"type": "float", "default": 0.0},
-	"Flag": {"type": "bool", "default": false},
-}
-const VARIABLE_TYPE_BY_CASE: Dictionary = {
-	"Text": "string", "Number": "int", "Flag": "bool"
-}
 
 
 func initialize_properties() -> void:
@@ -35,16 +28,10 @@ func initialize_properties() -> void:
 		.default("=")
 		.hidden_in_graph())
 
-	define_property(Property.new("value_type")
-		.set_type("dropdown")
-		.options(VALUE_CASES.keys())
-		.default("Text")
-		.hidden_in_graph()
-		.tooltip("What kind of value to write. Must match the variable."))
-
+	# Reads its shape off the variable named by "target", not off a sibling of its own.
 	define_property(Property.new("value")
 		.set_type("dynamic")
-		.cases("value_type", VALUE_CASES)
+		.cases("target/type", _value_cases())
 		.hidden_in_graph())
 
 
@@ -52,32 +39,12 @@ func get_type() -> String:
 	return "variable"
 
 
-## Writing text into a number is the mistake this node makes easy, and the one nothing
-## else would catch until the story ran.
-func validate_object(result: ValidationResult, context: ValidationContext) -> void:
-	var target: String = str(get_property_value("target"))
-	if target.is_empty() or context.project == null:
-		return
-
-	var declared: String = _variable_type(context.project, target)
-	var expected: String = VARIABLE_TYPE_BY_CASE.get(str(get_property_value("value_type")), "")
-	if declared.is_empty() or expected.is_empty():
-		return
-
-	var numeric: Array = ["int", "float"]
-	if declared == expected or (declared in numeric and expected in numeric):
-		return
-
-	result.add(
-		ValidationIssue.warning(
-			"This writes a %s into '%s', which holds a %s." % [expected, target, declared],
-			&"value_type_mismatch"
-		).at(self, "value_type")
-	)
-
-
-static func _variable_type(project: MonologueProject, variable_id: String) -> String:
-	for entry: Variant in project.get_collection_value("variables"):
-		if entry is Dictionary and str((entry as Dictionary).get("id", "")) == variable_id:
-			return str((entry as Dictionary).get("type", ""))
-	return ""
+## Mirrors the types a variable can declare, in [constant
+## VariableCollectionItem.VALUE_TYPES].
+func _value_cases() -> Dictionary:
+	return {
+		"bool": {"type": "bool", "default": false},
+		"string": {"type": "text", "default": ""},
+		"int": {"type": "int", "default": 0},
+		"float": {"type": "float", "default": 0.0},
+	}

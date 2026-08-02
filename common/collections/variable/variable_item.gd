@@ -18,6 +18,10 @@ func initialize_properties() -> void:
 		.default("")
 		.cases("type", _value_cases()))
 
+	define_property(Property.new("persistent")
+		.set_type("bool")
+		.tooltip("Kept between runs rather than reset when the story restarts."))
+
 	define_property(Property.new("extra/description")
 		.set_type("textarea"))
 
