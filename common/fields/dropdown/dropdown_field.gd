@@ -145,6 +145,9 @@ func _normalize_options_array(source: Variant) -> Array:
 
 
 func _get_options_from_source(source: String) -> Array:
+	if source.begins_with("node:"):
+		return _get_options_from_nodes(source.trim_prefix("node:"))
+
 	if not source.begins_with("self:"):
 		var values: Array = ProjectManager.current_project.get_collection_value(source)
 		return extract_list_values(values)
@@ -171,6 +174,23 @@ func _get_options_from_source(source: String) -> Array:
 
 	var list_arr: Array = list_value
 	return extract_list_values(list_arr)
+
+
+## The labels of every node of one type in the storyline the owner belongs to. Used by
+## the jump node, which names a waypoint rather than pointing at its id.
+func _get_options_from_nodes(node_type: String) -> Array:
+	var storyline: InspectableObject = _get_storyline()
+	if storyline is not StorylineDocument:
+		return []
+
+	var labels: Array = []
+	for node: InspectableNode in (storyline as StorylineDocument).nodes:
+		if not node_type.is_empty() and node.get_type() != node_type:
+			continue
+		var label: String = str(node.get_property_value("label")).strip_edges()
+		if not label.is_empty() and label not in labels:
+			labels.append(label)
+	return labels
 
 
 func extract_list_values(values: Array) -> Array:

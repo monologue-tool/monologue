@@ -7,5 +7,5 @@ func _init() -> void:
 	description = "Pauses for a moment before continuing."
 	category = "Flow"
 	icon_path = "res://ui/assets/icons/calendar.svg"
-	color = Color("45cee9")
+	color = MonologuePalette.NUMBER
 	node_script = preload("wait_node.gd")

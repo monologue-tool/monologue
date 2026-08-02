@@ -6,5 +6,5 @@ func _init() -> void:
 	display_name = "Zoo"
 	description = "Development node exercising every field type. Hidden from the add menu."
 	category = "_technical"
-	color = Color("af85fd")
+	color = MonologuePalette.TEXT
 	node_script = preload("uid://hoqcsoq3aicf")

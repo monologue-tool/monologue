@@ -29,7 +29,8 @@ func test_every_declared_type_is_registered() -> void:
 
 func test_the_expected_types_are_present() -> void:
 	for field_name: String in [
-		"text", "textarea", "int", "float", "bool", "collection", "condition", "reference"
+		"text", "textarea", "int", "float", "bool", "collection",
+		"condition", "dynamic", "reference"
 	]:
 		assert_object(_registry.get_field(field_name)).is_not_null()
 	for node_name: String in [
@@ -44,6 +45,11 @@ func test_the_expected_types_are_present() -> void:
 		"reroute",
 		"storyline",
 		"wait",
+		"action",
+		"event",
+		"jump",
+		"label",
+		"variable",
 		"zoo",
 	]:
 		assert_object(_registry.get_node(node_name)).is_not_null()

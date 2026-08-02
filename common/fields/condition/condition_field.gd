@@ -21,6 +21,9 @@ const MISSING_VARIABLE_LABEL: String = "⚠ Missing variable (%s)"
 
 var _variables: Dictionary = {}
 var _value_field: Field
+## Variables as they were when the list was last read. Comparing against the project
+## avoids rebuilding the dropdown on every keystroke in the value beside it.
+var _variables_source: Array = []
 
 
 func _on_initialize() -> void:
@@ -66,15 +69,21 @@ func set_editable(is_editable: bool) -> void:
 		_value_field.set_editable(is_editable)
 
 
-func _load_variables() -> void:
-	_variables.clear()
-	variable_dropdown.clear()
-
-	var project: Variant = ProjectManager.current_project
+## Refills the variable dropdown, skipping the work when the project's variables have
+## not moved since last time.
+func _load_variables(force: bool = false) -> void:
+	var project: MonologueProject = ProjectManager.current_project
 	if project == null:
 		return
 
 	var entries: Array = project.get_collection_value(VARIABLES_COLLECTION)
+	if not force and entries == _variables_source and not _variables.is_empty():
+		return
+
+	_variables_source = entries.duplicate(true)
+	_variables.clear()
+	variable_dropdown.clear()
+
 	for entry: Variant in entries:
 		if not entry is Dictionary:
 			continue
@@ -122,6 +131,10 @@ func _on_variable_item_selected(_new_variable: Variant) -> void:
 
 func _on_operator_item_selected(_new_operator: Variant) -> void:
 	emit_value_committed(get_value())
+
+
+func _on_value_field_changed(_new_value: Variant) -> void:
+	emit_value_changed(get_value())
 
 
 func _on_value_field_committed(_new_value: Variant) -> void:
@@ -173,8 +186,11 @@ func _rebuild_value_field(variable_id: String, value: Variant) -> void:
 
 	if new_field is Field:
 		_value_field = new_field
-		_value_field._binding = _binding
+		# Deliberately no binding: this widget belongs to the condition, not to a
+		# property of its own. Handing it the condition's binding made it read the
+		# condition's settings and write the condition's value.
 		_value_field.initialize()
+		_value_field.value_changed.connect(_on_value_field_changed)
 		_value_field.value_committed.connect(_on_value_field_committed)
 		var initial_value: Variant = (
 			value if value != null else _default_value_for_type(variable_type)

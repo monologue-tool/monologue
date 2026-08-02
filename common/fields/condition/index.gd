@@ -5,7 +5,7 @@ func _init() -> void:
 	name = "condition"
 	display_name = "Condition"
 	description = "Compares a project variable against a value."
-	color = Color("d1b37b")
+	color = MonologuePalette.LOGIC
 	scene_uid = "uid://b6bfebqeejpsg"
 	default_value = {"variable": "", "operator": ">=", "value": true}
 

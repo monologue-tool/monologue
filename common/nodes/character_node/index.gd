@@ -6,5 +6,5 @@ func _init() -> void:
 	display_name = "Character"
 	description = "Branches the story on a choice offered to the player."
 	category = "Flow"
-	color = Color("eb5074ff")
+	color = MonologuePalette.CHARACTER
 	node_script = preload("character_node.gd")

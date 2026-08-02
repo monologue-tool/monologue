@@ -5,7 +5,7 @@ func _init() -> void:
 	name = "reference"
 	display_name = "Reference"
 	description = "Points at another object by its id, whatever that object is called."
-	color = Color("b48ead")
+	color = MonologuePalette.REFERENCE
 	scene_uid = "uid://bqr7n2v5xk8dm"
 	default_value = ""
 	default_settings = {

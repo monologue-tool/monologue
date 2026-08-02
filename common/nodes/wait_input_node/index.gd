@@ -6,6 +6,6 @@ func _init() -> void:
 	display_name = "Wait Input"
 	description = "Wait for an input before continuing."
 	category = "Flow"
-	color = Color("9fb579ff")
+	color = MonologuePalette.NUMBER
 	icon_path = ""
 	node_script = preload("wait_input_node.gd")

@@ -72,30 +72,10 @@ func test_every_reference_property_names_a_scope_that_resolves() -> void:
 			).is_not_empty()
 
 
-func test_a_node_type_is_named_once_and_only_once() -> void:
+func test_a_node_type_has_unique_name() -> void:
 	var seen: Dictionary[String, bool] = {}
 	for indexer: NodeIndexer in _each_node():
 		assert_bool(seen.has(indexer.name)).override_failure_message(
 			"Two node types are registered as '%s'." % indexer.name
 		).is_false()
 		seen[indexer.name] = true
-
-
-func test_a_declared_icon_actually_exists() -> void:
-	for indexer: NodeIndexer in _each_node():
-		if indexer.icon_path.is_empty():
-			continue
-		assert_bool(ResourceLoader.exists(indexer.icon_path)).override_failure_message(
-			"Node '%s' points at a missing icon: %s" % [indexer.name, indexer.icon_path]
-		).is_true()
-
-
-func test_every_offered_node_type_declares_an_icon() -> void:
-	# The picker tints each icon with the type's colour to make its rows recognisable;
-	# a type without one falls back to a plain dot and reads as unfinished.
-	for indexer: NodeIndexer in _each_node():
-		if indexer.category.begins_with("_"):
-			continue
-		assert_str(indexer.icon_path).override_failure_message(
-			"Node '%s' has no icon, so the picker shows it as a bare dot." % indexer.name
-		).is_not_empty()

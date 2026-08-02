@@ -42,13 +42,19 @@ func _on_initialize() -> void:
 	pass
 
 
+## A field with no binding is one a composite widget drives itself, such as the value
+## inside a condition. It has no property to name, and announcing is still its job.
+func _describe() -> String:
+	return _binding.property.name if _binding and _binding.property else "<detached>"
+
+
 func emit_value_changed(value: Variant) -> void:
-	Log.debug("Field value of property '%s' has changed." % _binding.property.name)
+	Log.debug("Field value of property '%s' has changed." % _describe())
 	value_changed.emit(value)
 
 
 func emit_value_committed(value: Variant) -> void:
-	Log.info("Field value of property '%s' has been committed." % _binding.property.name)
+	Log.info("Field value of property '%s' has been committed." % _describe())
 	value_committed.emit(value)
 
 

@@ -6,6 +6,6 @@ func _init() -> void:
 	display_name = "Input"
 	description = "Prompt the user to enter a value."
 	category = "Logic"
-	color = Color("438ab0ff")
+	color = MonologuePalette.TEXT
 	icon_path = ""
 	node_script = preload("input_node.gd")

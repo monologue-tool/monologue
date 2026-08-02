@@ -7,5 +7,5 @@ func _init() -> void:
 	description = "Branches the story on a choice offered to the player."
 	category = "Flow"
 	icon_path = "res://ui/assets/icons/choice.svg"
-	color = Color("e89145")
+	color = MonologuePalette.CHOICE
 	node_script = preload("choice_node.gd")

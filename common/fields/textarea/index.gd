@@ -5,7 +5,7 @@ func _init() -> void:
 	name = "textarea"
 	display_name = "Text Area"
 	description = "Multi-line notes for whoever writes the story. Not translated."
-	color = Color("af85fd")
+	color = MonologuePalette.TEXT
 	scene_uid = "uid://be0xxn5gocqjo"  # text_field.tscn
 	default_value = ""
 	compatible_types = ["text"]
