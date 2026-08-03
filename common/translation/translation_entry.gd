@@ -15,8 +15,15 @@ var key: String = ""
 var context: String = ""
 var document_name: String = ""
 var property_name: String = ""
+## What holds this text: "sentence", "option", "character". Shown, and sorted on.
+var object_type: String = ""
+## Who says it, when anything does. Empty for text with no speaker.
+var speaker: String = ""
 ## {language_code: text}. The same dictionary shape the property itself holds.
 var translations: Dictionary = {}
+## The declaring property's settings. Carried so an editor can honour what the property
+## asked for -- multiline, rows, placeholder -- rather than guess from the text.
+var settings: Dictionary = {}
 
 ## The live object holding the root property this text lives under.
 var owner: InspectableObject
@@ -32,6 +39,9 @@ static func create(
 	p_object_id: String,
 	p_context: String,
 	p_document_name: String,
+	p_object_type: String,
+	p_settings: Dictionary,
+	p_speaker: String = "",
 	p_path: Array = []
 ) -> TranslationEntry:
 	var entry: TranslationEntry = TranslationEntry.new()
@@ -41,8 +51,21 @@ static func create(
 	entry.key = "%s%s%s" % [p_object_id, KEY_SEPARATOR, p_property_name]
 	entry.context = p_context
 	entry.document_name = p_document_name
+	entry.object_type = p_object_type
+	entry.settings = p_settings.duplicate(true)
+	entry.speaker = p_speaker
 	entry.path = p_path.duplicate(true)
 	return entry
+
+
+## True when the property was declared multi-line, and so needs an editor that can hold
+## a line break rather than one that swallows it.
+func is_multiline() -> bool:
+	return settings.get(PropertySettings.KEY_MULTILINE, false) == true
+
+
+func get_rows() -> int:
+	return int(settings.get(PropertySettings.KEY_ROWS, 3))
 
 
 func get_text(language: String) -> String:

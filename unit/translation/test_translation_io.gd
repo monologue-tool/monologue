@@ -114,3 +114,49 @@ func test_importing_writes_into_the_project() -> void:
 
 	assert_int(applied).is_equal(1)
 	assert_str(_table.get_entry(key).get_text("fr")).is_equal("Bonjour")
+
+
+# --- Portable Object ---------------------------------------------------------------
+
+
+func test_po_survives_the_round_trip() -> void:
+	var key: String = _first_key()
+	_table.apply(key, "en", "Hello")
+	_table.apply(key, "fr", "Bonjour")
+	var path: String = _path("po")
+
+	TranslationIO.write(_table, ["fr"], path, "en")
+	var batch: Dictionary = TranslationIO.read(path, ValidationResult.ok())
+
+	assert_str(str((batch["fr"] as Dictionary)[key])).is_equal("Bonjour")
+
+
+func test_po_keeps_quotes_and_newlines_intact() -> void:
+	var key: String = _first_key()
+	var awkward: String = 'He said "no"\nand left'
+	_table.apply(key, "fr", awkward)
+	var path: String = _path("po")
+
+	TranslationIO.write(_table, ["fr"], path, "en")
+	var batch: Dictionary = TranslationIO.read(path, ValidationResult.ok())
+
+	assert_str(str((batch["fr"] as Dictionary)[key])).is_equal(awkward)
+
+
+func test_po_carries_the_key_in_msgctxt_not_in_msgid() -> void:
+	# Two lines may read the same; only the key tells them apart.
+	var key: String = _first_key()
+	_table.apply(key, "en", "Yes")
+
+	var text: String = TranslationIO.to_po(_table, "en", "fr")
+
+	assert_str(text).contains('msgctxt "%s"' % key)
+	assert_str(text).contains('msgid "Yes"')
+
+
+func test_a_po_without_a_language_header_is_refused() -> void:
+	var result: ValidationResult = ValidationResult.ok()
+
+	TranslationIO.from_po('msgctxt "a"\nmsgid "b"\nmsgstr "c"\n', result)
+
+	assert_array(result.with_code(&"translation_import_no_language")).is_not_empty()

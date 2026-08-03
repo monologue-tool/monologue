@@ -128,8 +128,11 @@ func _collect_object(object: InspectableObject, document_name: String) -> void:
 				property.name,
 				property.get_value() if property.get_value() is Dictionary else {},
 				object_id,
-				"%s · %s" % [context, property.get_display_name()],
-				document_name
+				context,
+				document_name,
+				object.get_type(),
+				property.get_settings(),
+				_speaker_of(object.get_property_value("speaker"))
 			)
 		)
 
@@ -168,8 +171,11 @@ func _collect_records(
 					item_property.name,
 					stored if stored is Dictionary else {},
 					record_id,
-					"%s · %s" % [_describe_record(record_dict, prototype), item_property.name],
+					_describe_record(record_dict, prototype),
 					document_name,
+					prototype.get_type(),
+					property.get_settings(),
+					_speaker_of(record_dict.get("speaker")),
 					step
 				)
 			)
@@ -262,6 +268,17 @@ func _read_at(owner: InspectableObject, path: Array, property_name: String) -> V
 			property_name if depth == path.size() - 1 else str(path[depth + 1]["property"])
 		)
 	return records
+
+
+## The name of the character a line is spoken by. Resolved once at collect time: the
+## table is rebuilt whenever it is shown, so it cannot go stale in the meantime.
+static func _speaker_of(reference: Variant) -> String:
+	var character_id: String = str(reference) if reference != null else ""
+	if character_id.is_empty():
+		return ""
+	return ReferenceResolver.resolve_property(
+		ProjectManager.current_project, "characters", character_id, "name"
+	)
 
 
 # --- naming ---------------------------------------------------------------------

@@ -149,3 +149,34 @@ func test_the_languages_come_from_the_project() -> void:
 	_add_language("fr")
 
 	assert_array(TranslationTable.languages_of(_project)).contains(["en", "fr"])
+
+
+# --- what an editor needs to know -------------------------------------------------
+
+
+func test_an_entry_carries_what_its_property_asked_for() -> void:
+	# A sentence line is declared multiline; an editor that ignored that would swallow
+	# every line break the translator typed.
+	var sentence: InspectableNode = _first_node("sentence")
+	var entry: TranslationEntry = _table().get_entry("%s/line" % sentence.get_id())
+
+	assert_bool(entry.is_multiline()).is_true()
+	assert_int(entry.get_rows()).is_greater(0)
+
+
+func test_an_entry_knows_what_holds_it() -> void:
+	var sentence: InspectableNode = _first_node("sentence")
+	var entry: TranslationEntry = _table().get_entry("%s/line" % sentence.get_id())
+
+	assert_str(entry.object_type).is_equal("sentence")
+	assert_str(entry.property_name).is_equal("line")
+
+
+func test_a_line_knows_who_speaks_it() -> void:
+	var sentence: InspectableNode = _first_node("sentence")
+	var narrator: String = str(
+		(_project.get_collection_value("characters")[0] as Dictionary).get("id", "")
+	)
+	sentence.set_property_value("speaker", narrator)
+
+	assert_str(_table().get_entry("%s/line" % sentence.get_id()).speaker).is_equal("Narrator")

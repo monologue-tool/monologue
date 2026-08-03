@@ -14,15 +14,17 @@ func initialize_properties() -> void:
 		.default({})
 		.hidden_in_graph())
 
-	define_property(Property.new("if_true")
+	define_property(Property.new("pass")
 		.set_type("context")
 		.exported()
-		.not_exposable())
+		.not_exposable()
+		.hidden_in_inspector())
 
-	define_property(Property.new("if_false")
+	define_property(Property.new("fail")
 		.set_type("context")
 		.exported()
-		.not_exposable())
+		.not_exposable()
+		.hidden_in_inspector())
 
 
 func get_type() -> String:

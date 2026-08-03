@@ -1,20 +1,21 @@
 [gd_scene format=3 uid="uid://c8k4wq2vn7xrm"]
 
 [ext_resource type="Script" uid="uid://c33ogbx0clc18" path="res://common/ui/windows/localization_window/localization_window.gd" id="1_loc"]
+[ext_resource type="Script" uid="uid://dgm5tp3jy5k68" path="res://common/ui/windows/localization_window/localization_file_button.gd" id="2_file"]
+[ext_resource type="Script" uid="uid://dddx4sbmtdxda" path="res://common/ui/windows/localization_window/localization_view_button.gd" id="3_view"]
 
 [node name="LocalizationWindow" type="Window" unique_id=1243323731]
 auto_translate_mode = 1
 oversampling_override = 1.0
 title = "Localization"
 position = Vector2i(0, 36)
-size = Vector2i(900, 620)
+size = Vector2i(1000, 640)
 transient = true
 transient_to_focused = true
 exclusive = true
 popup_window = true
 extend_to_title = true
-force_native = true
-min_size = Vector2i(520, 360)
+min_size = Vector2i(640, 380)
 keep_title_visible = true
 content_scale_mode = 1
 script = ExtResource("1_loc")
@@ -25,73 +26,110 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"EditorPanel"
+theme_type_variation = &"EditorBackground"
 
 [node name="VBox" type="VBoxContainer" parent="PanelContainer" unique_id=1045352026]
 layout_mode = 2
-theme_type_variation = &"VBoxContainerMedium"
+theme_type_variation = &"VBoxContainerCompact"
 
-[node name="Toolbar" type="HBoxContainer" parent="PanelContainer/VBox" unique_id=943741286]
+[node name="MenuPanel" type="PanelContainer" parent="PanelContainer/VBox" unique_id=1928737229]
+layout_mode = 2
+theme_type_variation = &"EditorHeader"
+
+[node name="Menus" type="HBoxContainer" parent="PanelContainer/VBox/MenuPanel" unique_id=943741286]
 layout_mode = 2
 theme_type_variation = &"HBoxContainerMedium"
 
-[node name="SearchBar" type="LineEdit" parent="PanelContainer/VBox/Toolbar" unique_id=824211131]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=320407311]
+layout_mode = 2
+
+[node name="FileButton" type="Button" parent="PanelContainer/VBox/MenuPanel/Menus/HBoxContainer" unique_id=1177230811]
+layout_mode = 2
+text = "File"
+script = ExtResource("2_file")
+
+[node name="ViewButton" type="Button" parent="PanelContainer/VBox/MenuPanel/Menus/HBoxContainer" unique_id=1177230812]
+layout_mode = 2
+text = "View"
+script = ExtResource("3_view")
+
+[node name="Separator" type="VSeparator" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=1177230813]
+layout_mode = 2
+theme_type_variation = &"SmallVSeparator"
+
+[node name="SearchBar" type="LineEdit" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=824211131]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search lines"
 clear_button_enabled = true
 
-[node name="FromLabel" type="Label" parent="PanelContainer/VBox/Toolbar" unique_id=102120869]
+[node name="Separator2" type="VSeparator" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=206012958]
+layout_mode = 2
+theme_type_variation = &"SmallVSeparator"
+
+[node name="FromLabel" type="Label" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=102120869]
 layout_mode = 2
 theme_type_variation = &"NoteLabel"
 text = "From"
 
-[node name="SourceLanguage" type="OptionButton" parent="PanelContainer/VBox/Toolbar" unique_id=535721606]
+[node name="SourceLanguage" type="OptionButton" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=535721606]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ToLabel" type="Label" parent="PanelContainer/VBox/Toolbar" unique_id=1843974205]
+[node name="ToLabel" type="Label" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=1843974205]
 layout_mode = 2
 theme_type_variation = &"NoteLabel"
 text = "To"
 
-[node name="TargetLanguage" type="OptionButton" parent="PanelContainer/VBox/Toolbar" unique_id=894796127]
+[node name="TargetLanguage" type="OptionButton" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=894796127]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="MissingOnly" type="CheckBox" parent="PanelContainer/VBox/Toolbar" unique_id=1500548226]
+[node name="MissingOnly" type="CheckBox" parent="PanelContainer/VBox/MenuPanel/Menus" unique_id=1500548226]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Untranslated only"
 
-[node name="Tree" type="Tree" parent="PanelContainer/VBox" unique_id=1515038052]
-unique_name_in_owner = true
+[node name="Body" type="MarginContainer" parent="PanelContainer/VBox" unique_id=1346605484]
 layout_mode = 2
 size_flags_vertical = 3
-columns = 3
-column_titles_visible = true
-hide_root = true
 
-[node name="Footer" type="HBoxContainer" parent="PanelContainer/VBox" unique_id=1450946680]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBox/Body" unique_id=1016361987]
+layout_mode = 2
+theme_type_variation = &"EditorPanel"
+
+[node name="Table" type="VBoxContainer" parent="PanelContainer/VBox/Body/PanelContainer" unique_id=2127861206]
+layout_mode = 2
+theme_type_variation = &"VBoxContainerCompact"
+
+[node name="Header" type="HBoxContainer" parent="PanelContainer/VBox/Body/PanelContainer/Table" unique_id=1515038051]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="PanelContainer/VBox/Body/PanelContainer/Table" unique_id=2021903261]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="PanelContainer/VBox/Body/PanelContainer/Table/Scroll" unique_id=1515038052]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"VBoxContainerCompact"
+
+[node name="FooterPanel" type="PanelContainer" parent="PanelContainer/VBox" unique_id=1860179241]
+layout_mode = 2
+theme_type_variation = &"EditorHeader"
+
+[node name="Footer" type="HBoxContainer" parent="PanelContainer/VBox/FooterPanel" unique_id=1450946680]
 layout_mode = 2
 theme_type_variation = &"HBoxContainerMedium"
 
-[node name="Coverage" type="Label" parent="PanelContainer/VBox/Footer" unique_id=1322668314]
+[node name="Coverage" type="Label" parent="PanelContainer/VBox/FooterPanel/Footer" unique_id=1322668314]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"NoteLabel"
 
-[node name="ImportButton" type="Button" parent="PanelContainer/VBox/Footer" unique_id=316368954]
-layout_mode = 2
-theme_type_variation = &"PlainButton"
-text = "Import..."
-
-[node name="ExportButton" type="Button" parent="PanelContainer/VBox/Footer" unique_id=22493451]
-layout_mode = 2
-text = "Export..."
-
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
-[connection signal="pressed" from="PanelContainer/VBox/Footer/ImportButton" to="." method="_on_import_pressed"]
-[connection signal="pressed" from="PanelContainer/VBox/Footer/ExportButton" to="." method="_on_export_pressed"]
