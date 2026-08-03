@@ -108,6 +108,35 @@ func get_outgoing(node_id: String, property_name: String = "") -> Array[NodeConn
 	return found
 
 
+## Where the chain starting at [param start_node_id] runs out: the nodes it reaches
+## that lead nowhere further. A call node grows one exit per answer.
+##
+## Walks forward through the wires, remembering where it has been, so a chain that
+## loops back on itself is followed once rather than for ever.
+func find_terminations(start_node_id: String) -> Array[InspectableNode]:
+	var terminations: Array[InspectableNode] = []
+	var visited: Dictionary[String, bool] = {start_node_id: true}
+	var pending: Array[String] = [start_node_id]
+
+	while not pending.is_empty():
+		var node_id: String = pending.pop_front()
+		var outgoing: Array[NodeConnection] = get_outgoing(node_id)
+
+		if outgoing.is_empty():
+			var node: InspectableNode = get_node(node_id)
+			if node and node_id != start_node_id:
+				terminations.append(node)
+			continue
+
+		for connection: NodeConnection in outgoing:
+			if visited.has(connection.to_node_id):
+				continue
+			visited[connection.to_node_id] = true
+			pending.append(connection.to_node_id)
+
+	return terminations
+
+
 ## Refills every property's connected_from / connected_to from [member connections].
 ## Run after any change to the list; properties only announce it when their own view
 ## actually moved.

@@ -109,9 +109,6 @@ func apply_batch(batch: Dictionary, result: ValidationResult = null) -> int:
 	return applied
 
 
-# --- walking --------------------------------------------------------------------
-
-
 func _collect_object(object: InspectableObject, document_name: String) -> void:
 	var object_id: String = str(object.get_property_value("id"))
 	var context: String = _describe(object)
@@ -186,9 +183,6 @@ func _add(entry: TranslationEntry) -> void:
 		return
 	entries.append(entry)
 	_by_key[entry.key] = entry
-
-
-# --- writing back ---------------------------------------------------------------
 
 
 ## Puts a new set of translations where the entry came from. Everything goes through
@@ -272,16 +266,13 @@ func _read_at(owner: InspectableObject, path: Array, property_name: String) -> V
 
 ## The name of the character a line is spoken by. Resolved once at collect time: the
 ## table is rebuilt whenever it is shown, so it cannot go stale in the meantime.
-static func _speaker_of(reference: Variant) -> String:
-	var character_id: String = str(reference) if reference != null else ""
+static func _speaker_of(ref: Variant) -> String:
+	var character_id: String = str(ref) if ref != null else ""
 	if character_id.is_empty():
 		return ""
 	return ReferenceResolver.resolve_property(
 		ProjectManager.current_project, "characters", character_id, "name"
 	)
-
-
-# --- naming ---------------------------------------------------------------------
 
 
 static func _describe(object: InspectableObject) -> String:
