@@ -40,68 +40,68 @@ const KEY_PROTECT: String = "protect"
 
 ## Dictionary of field-type-specific validation rules applied during commit.
 ## Example: { "min_length": 1, "max_length": 64 }
-const KEY_VALIDATION: String = "validation"
+const KEY_VALIDATION: StringName = "validation"
 
 # Ports
 
 ## Whether an input port (left side) is shown, allowing incoming connections.
-const KEY_EXPOSED: String = "exposed"
+const KEY_EXPOSED: StringName = &"exposed"
 ## Whether an output port (right side) is shown, allowing outgoing connections.
-const KEY_EXPORT: String = "export"
+const KEY_EXPORT: StringName = &"export"
 ## Whether the user can toggle the input port via the inspector.
-const KEY_EXPOSABLE: String = "exposable"
+const KEY_EXPOSABLE: StringName = &"exposable"
 ## Marks this as the primary connectable context property of the node.
-const KEY_IS_MAIN_PROPERTY: String = "is_main_property"
+const KEY_IS_MAIN_PROPERTY: StringName = &"is_main_property"
 
 # Field-type-specific
 
 ## (list) Name of the collection registry to query for list items.
-const KEY_COLLECTION: String = "collection"
+const KEY_COLLECTION: StringName = &"collection"
 ## (list) Field type used by each standard list item.
-const KEY_ITEM_TYPE: String = "item_type"
+const KEY_ITEM_TYPE: StringName = &"item_type"
 ## (port) Visual size of the port slot ("normal" or "large").
-const KEY_PORT_SIZE: String = "port_size"
+const KEY_PORT_SIZE: StringName = &"port_size"
 ## (int / float) Lowest value the widget offers. Declared together with KEY_MAX_VALUE;
 ## a number missing either one is unbounded and drags freely.
-const KEY_MIN_VALUE: String = "min_value"
+const KEY_MIN_VALUE: StringName = &"min_value"
 ## (int / float) Highest value the widget offers.
-const KEY_MAX_VALUE: String = "max_value"
+const KEY_MAX_VALUE: StringName = &"max_value"
 ## (int / float) Increment between two values, and how many decimals are shown.
-const KEY_STEP: String = "step"
+const KEY_STEP: StringName = &"step"
 ## (int / float) Whether the value is kept whole. True for int, false for float.
-const KEY_ROUNDED: String = "rounded"
+const KEY_ROUNDED: StringName = &"rounded"
 ## (int / float) Unit shown after the number, such as "s" or "dB".
-const KEY_SUFFIX: String = "suffix"
+const KEY_SUFFIX: StringName = &"suffix"
 ## (int / float) Text shown before the number.
-const KEY_PREFIX: String = "prefix"
+const KEY_PREFIX: StringName = &"prefix"
 ## (dropdown) Static array of option strings offered to the user.
-const KEY_OPTIONS: String = "options"
+const KEY_OPTIONS: StringName = &"options"
 ## (dropdown) Dynamic source: a collection name or "self:<property>" path.
-const KEY_SOURCE: String = "source"
+const KEY_SOURCE: StringName = &"source"
 ## (reference) Where the target may be found: a collection name, "self:<property>",
 ## "storylines", or "node:<type>". See [ReferenceResolver].
-const KEY_REFERENCE_SCOPE: String = "reference_scope"
+const KEY_REFERENCE_SCOPE: StringName = &"reference_scope"
 ## (reference) Property of the target read to label it. Defaults to "name".
-const KEY_LABEL_PROPERTY: String = "label_property"
+const KEY_LABEL_PROPERTY: StringName = &"label_property"
 ## (reference) Whether "nothing selected" is an accepted value.
-const KEY_ALLOW_EMPTY: String = "allow_empty"
+const KEY_ALLOW_EMPTY: StringName = &"allow_empty"
 ## (text) Whether the value is a set of translations keyed by language code rather than
 ## a plain String. On for `text`, off for `textarea`, and switched per property with
 ## [method Property.plain] / [method Property.translatable].
-const KEY_TRANSLATABLE: String = "translatable"
+const KEY_TRANSLATABLE: StringName = &"translatable"
 ## (text) When true, renders a multi-line TextEdit instead of a LineEdit.
-const KEY_MULTILINE: String = "multiline"
+const KEY_MULTILINE: StringName = &"multiline"
 ## (text / translatable) Placeholder ghost text shown when the field is empty.
-const KEY_PLACEHOLDER: String = "placeholder"
+const KEY_PLACEHOLDER: StringName = &"placeholder"
 ## (textarea) Number of visible text rows used to compute minimum height.
-const KEY_ROWS: String = "rows"
+const KEY_ROWS: StringName = &"rows"
 ## (dynamic) Name of the sibling property whose value selects the active variant.
-const KEY_CASE_PROPERTY: String = "case_property"
+const KEY_CASE_PROPERTY: StringName = &"case_property"
 ## (dynamic) Mapping from case-value string to { type, default, coerce? } dict.
-const KEY_CASES: String = "cases"
+const KEY_CASES: StringName = &"cases"
 ## (file) Array of file filter strings passed to the file dialog (e.g. ["*.png", "*.jpg"]).
 ## An empty array means no filter (all files are shown).
-const KEY_FILE_FILTERS: String = "file_filters"
+const KEY_FILE_FILTERS: StringName = &"file_filters"
 
 # Defaults
 

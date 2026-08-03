@@ -15,7 +15,7 @@ func initialize_properties() -> void:
 
 	define_property(Property.new("target")
 		.set_type("dropdown")
-		.source("node:label")
+		.source("node:*:label")
 		.required()
 		.tooltip("Waypoint to continue from."))
 
