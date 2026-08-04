@@ -25,17 +25,23 @@ func initialize_properties() -> void:
 		.suffix("fps")
 		.tooltip("Only used when there is more than one frame."))
 
-	define_property(Property.new("display/mirrored")
+	define_property(Property.new("display/flip_h")
 		.set_type("bool")
-		.tooltip("Flips the image, for a character facing the other way."))
+		.tooltip("Flips the image in the horizontal axis."))
+
+	define_property(Property.new("display/flip_v")
+		.set_type("bool")
+		.tooltip("Flips the image in the vertical axis."))
 
 	define_property(Property.new("display/offset")
 		.set_type("vector2")
-		.tooltip("Nudges the image from where it would otherwise sit."))
+		.tooltip("Offset the image from it's original position."))
 
 	define_property(Property.new("extra/protected")
 		.set_type("bool")
 		.hidden_in_inspector())
+
+	define_default_property()
 
 
 func get_type() -> String:

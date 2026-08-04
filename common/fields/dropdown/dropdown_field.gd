@@ -175,12 +175,12 @@ func _get_options_from_source(source: String) -> Array:
 	return extract_list_values(list_arr)
 
 
-## The labels of every node of one type in the storyline the owner belongs to. 
+## The labels of every node of one type in the storyline the owner belongs to.
 func _get_options_from_nodes(path: String) -> Array:
 	var storyline: InspectableObject = _get_storyline()
 	if storyline is not StorylineDocument:
 		return []
-	
+
 	var paths: PackedStringArray = path.split(":")
 	var node_type: String = paths[0] if paths.size() >= 1 else "*"
 	var property: String = paths[1] if paths.size() >= 2 else "label"
@@ -191,7 +191,7 @@ func _get_options_from_nodes(path: String) -> Array:
 		and (node.get_type() != node_type and node_type != "*")\
 		and node.get_property(property):
 			continue
-		
+
 		var label: String = str(node.get_property_value(property)).strip_edges()
 		if not label.is_empty() and label not in labels:
 			labels.append(label)

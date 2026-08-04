@@ -6,6 +6,5 @@ func _init() -> void:
 	display_name = "Audio"
 	description = "Plays a sound or a piece of music."
 	category = "Stage"
-	color = MonologuePalette.ASSET
 	icon_path = "res://ui/assets/icons/media_play.svg"
 	node_script = preload("audio_node.gd")

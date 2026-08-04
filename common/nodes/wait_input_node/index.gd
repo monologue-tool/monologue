@@ -4,8 +4,7 @@ extends NodeIndexer
 func _init() -> void:
 	name = "wait_input"
 	display_name = "Wait Input"
-	description = "Wait for an input before continuing."
+	description = "Waits for the player to press something before continuing."
 	category = "Flow"
-	color = MonologuePalette.NUMBER
-	icon_path = ""
+	icon_path = "res://ui/assets/icons/media_play.svg"
 	node_script = preload("wait_input_node.gd")

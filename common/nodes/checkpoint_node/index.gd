@@ -4,8 +4,7 @@ extends NodeIndexer
 func _init() -> void:
 	name = "checkpoint"
 	display_name = "Checkpoint"
-	description = "Create a checkpoint here."
+	description = "Marks a place the story can be resumed from."
 	category = "Flow"
-	color = MonologuePalette.FLOW
-	icon_path = ""
+	icon_path = "res://ui/assets/icons/media_skip_backward.svg"
 	node_script = preload("checkpoint_node.gd")

@@ -149,6 +149,45 @@ func set_property_settings_value(pname: String, skey: String, svalue: Variant) -
 	history.execute(command)
 
 
+## Whether [param property] may currently be edited, given the property gating it.
+## True when nothing gates it. See [method Property.enabled_by].
+func is_property_enabled(property: Property) -> bool:
+	return _is_gate_open(property.get_gate(PropertySettings.KEY_ENABLED_BY))
+
+
+## Whether [param property] currently belongs in the inspector, given the property
+## gating it. True when nothing gates it. See [method Property.shown_by].
+func is_property_shown(property: Property) -> bool:
+	return _is_gate_open(property.get_gate(PropertySettings.KEY_SHOWN_BY))
+
+
+## True when some property is gated on [param property_name], so a change to it changes
+## what the inspector should be showing.
+func gates_other_properties(property_name: String) -> bool:
+	for property: Property in get_properties():
+		for key: StringName in [PropertySettings.KEY_ENABLED_BY, PropertySettings.KEY_SHOWN_BY]:
+			if str(property.get_gate(key).get("property", "")) == property_name:
+				return true
+	return false
+
+
+## A gate is open when nothing was declared, and when the property it names holds one of
+## the values it lists. A gate pointing at a property this object does not have is open
+## too: a declaration typo should not silently freeze half the inspector.
+func _is_gate_open(gate: Dictionary) -> bool:
+	if gate.is_empty():
+		return true
+
+	var source: Property = get_property(str(gate.get("property", "")))
+	if source == null:
+		return true
+
+	var accepted: Variant = gate.get("values", [])
+	if accepted is not Array:
+		return true
+	return source.get_value() in (accepted as Array)
+
+
 func get_property_children(property_name: String) -> Array:
 	return _children.get(property_name, [])
 

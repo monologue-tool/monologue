@@ -23,6 +23,8 @@ var label_property: String = "name"
 var port_type: String = ""
 
 var _item_type: String = ""
+## -1 until probed, then 0 or 1. See [method has_default_item].
+var _default_support: int = -1
 
 
 func get_object_type() -> StringName:
@@ -40,6 +42,17 @@ func get_item_type() -> String:
 		if probe:
 			_item_type = probe.get_type()
 	return _item_type
+
+
+## True when one item of this collection can be marked as the one to fall back to.
+##
+## Read off the item script, the same way [method get_item_type] is, so a collection
+## cannot claim a fallback its items have no room to store.
+func has_default_item() -> bool:
+	if _default_support < 0:
+		var probe: CollectionItem = instantiate(CommandManager.new()) as CollectionItem
+		_default_support = 1 if probe and probe.get_property("is_default") else 0
+	return _default_support == 1
 
 
 func validate_registration() -> String:

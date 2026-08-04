@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://collectionfield0001"]
+[gd_scene format=3 uid="uid://cw0f8k3t7otlw"]
 
-[ext_resource type="Script" path="res://common/fields/collection/collection_field.gd" id="1_collection"]
+[ext_resource type="Script" uid="uid://bqosgu0pi38hf" path="res://common/fields/collection/collection_field.gd" id="1_collection"]
 
 [node name="CollectionField" type="VBoxContainer" unique_id=1282527206]
 offset_right = 300.0
@@ -8,6 +8,29 @@ offset_bottom = 35.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
 script = ExtResource("1_collection")
+
+[node name="DefaultContainer" type="PanelContainer" parent="." unique_id=2041567541]
+layout_mode = 2
+theme_type_variation = &"DarkerPanel"
+
+[node name="HBox" type="HBoxContainer" parent="DefaultContainer" unique_id=1587489507]
+layout_mode = 2
+theme_type_variation = &"HBoxContainerMedium"
+
+[node name="Label" type="Label" parent="DefaultContainer/HBox" unique_id=1475844797]
+layout_mode = 2
+theme_type_variation = &"NoteLabel"
+text = "default"
+
+[node name="DefaultOptionButton" type="OptionButton" parent="DefaultContainer/HBox" unique_id=1816145699]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 2
+popup/item_0/text = "12121"
+popup/item_0/id = 0
+popup/item_1/text = "1212121"
+popup/item_1/id = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1918604036]
 layout_mode = 2

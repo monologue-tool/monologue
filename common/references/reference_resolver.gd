@@ -3,11 +3,16 @@
 ##
 ## Scopes:
 ## [codeblock]
-## "characters"      a project collection, by name
-## "self:portraits"  a collection property of the object holding the reference
-## "storylines"      the project's storylines
-## "node:option"     nodes of one type, in the storyline the owner belongs to
+## "characters"         a project collection, by name
+## "self:portraits"     a collection property of the object holding the reference
+## "ref:who:portraits"  a collection held by whatever another property points at
+## "storylines"         the project's storylines
+## "node:option"        nodes of one type, in the storyline the owner belongs to
 ## [/codeblock]
+##
+## In the "ref:" form the last segment names both the property on the target and the
+## collection it holds, which is how a node offers the portraits of the one character it
+## names rather than every portrait in the project.
 ##
 ## Resolution is done every time it is needed rather than cached, so renaming the
 ## target is enough for every reference to it to show the new name.
@@ -15,8 +20,11 @@ class_name ReferenceResolver
 
 const SELF_PREFIX: String = "self:"
 const NODE_PREFIX: String = "node:"
+const REF_PREFIX: String = "ref:"
 const STORYLINES_SCOPE: String = "storylines"
 const DEFAULT_LABEL_PROPERTY: String = "name"
+## Property a collection item marks itself with when it is the one to fall back to.
+const DEFAULT_FLAG_PROPERTY: String = "is_default"
 
 
 ## Every candidate in [param scope], as {"id": String, "label": String}, in the order
@@ -36,6 +44,10 @@ static func list_candidates(
 		return _list_nodes(project, scope.trim_prefix(NODE_PREFIX), owner)
 	if scope.begins_with(SELF_PREFIX):
 		return _list_own_items(owner, scope.trim_prefix(SELF_PREFIX), label_property)
+	if scope.begins_with(REF_PREFIX):
+		return _list_referenced_items(
+			project, owner, scope.trim_prefix(REF_PREFIX), label_property
+		)
 	return _list_collection(project, scope, label_property)
 
 
@@ -70,6 +82,8 @@ static func describe_scope(scope: String, owner: InspectableObject = null) -> St
 	var collection_name: String = scope
 	if scope.begins_with(SELF_PREFIX):
 		collection_name = _own_collection_name(owner, scope.trim_prefix(SELF_PREFIX))
+	elif scope.begins_with(REF_PREFIX):
+		collection_name = _referenced_collection_name(scope.trim_prefix(REF_PREFIX))
 
 	var indexer: CollectionIndexer = MonologueRegistry.get_instance().get_collection(
 		collection_name
@@ -94,6 +108,31 @@ static func resolve_property(
 		if _read(record, "id") == target_id:
 			return _read(record, property_name)
 	return ""
+
+
+## The id of the item [param scope] falls back to when a reference is left empty, or ""
+## when the collection has no fallback or nothing is marked.
+static func find_default(
+	project: MonologueProject, scope: String, owner: InspectableObject = null
+) -> String:
+	for record: Variant in _records_in(project, scope, owner):
+		if record is Dictionary and (record as Dictionary).get(DEFAULT_FLAG_PROPERTY) == true:
+			return _read(record, "id")
+	return ""
+
+
+## What an empty reference to [param scope] actually resolves to, as text: "Ease" for a
+## curve that falls back to the default one, "" when there is nothing to fall back to.
+static func describe_default(
+	project: MonologueProject,
+	scope: String,
+	owner: InspectableObject = null,
+	label_property: String = DEFAULT_LABEL_PROPERTY
+) -> String:
+	var default_id: String = find_default(project, scope, owner)
+	if default_id.is_empty():
+		return ""
+	return resolve_label(project, scope, default_id, owner, label_property)
 
 
 ## True when the scope still holds the object. A false answer is what makes a
@@ -124,6 +163,9 @@ static func _records_in(
 		)
 		var value: Variant = property.get_value() if property else null
 		return value if value is Array else []
+
+	if scope.begins_with(REF_PREFIX):
+		return _referenced_records(project, owner, scope.trim_prefix(REF_PREFIX))
 
 	var collection: CollectionDocument = project.get_collection(scope)
 	return collection.get_value() if collection else []
@@ -156,6 +198,57 @@ static func _list_own_items(
 
 	var collection_name: String = _own_collection_name(owner, property_name)
 	return _list_records(value, _resolve_label_property(collection_name, label_property))
+
+
+## Items held by whatever another property points at. [param body] is the part of a
+## "ref:<property>:<collection>" scope after the prefix.
+static func _list_referenced_items(
+	project: MonologueProject,
+	owner: InspectableObject,
+	body: String,
+	label_property: String
+) -> Array[Dictionary]:
+	var collection_name: String = _referenced_collection_name(body)
+	return _list_records(
+		_referenced_records(project, owner, body),
+		_resolve_label_property(collection_name, label_property)
+	)
+
+
+## The stored items of a "ref:" scope: follow the sibling property to its target, then
+## read the list the target keeps under the named property. Empty while the sibling
+## points at nothing, which is the state a fresh node is in.
+static func _referenced_records(
+	project: MonologueProject, owner: InspectableObject, body: String
+) -> Array:
+	var segments: PackedStringArray = body.split(":")
+	if segments.size() < 2 or owner == null:
+		return []
+
+	var pointer: Property = owner.get_property(segments[0])
+	if pointer == null:
+		return []
+
+	var target_id: String = str(pointer.get_value())
+	if target_id.is_empty():
+		return []
+
+	var target_scope: String = str(
+		pointer.get_settings_value(PropertySettings.KEY_REFERENCE_SCOPE, "")
+	)
+	for record: Variant in _records_in(project, target_scope, owner):
+		if record is not Dictionary or _read(record, "id") != target_id:
+			continue
+		var items: Variant = (record as Dictionary).get(segments[1])
+		return items if items is Array else []
+	return []
+
+
+## The collection a "ref:" scope ends up in: the last segment names it, and names the
+## property holding it on the target too.
+static func _referenced_collection_name(body: String) -> String:
+	var segments: PackedStringArray = body.split(":")
+	return segments[1] if segments.size() >= 2 else ""
 
 
 ## Which collection a "self:<property>" scope ends up in, read from the property that

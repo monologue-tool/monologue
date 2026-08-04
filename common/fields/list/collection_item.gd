@@ -25,6 +25,24 @@ func define_name_property(default_value: Variant = null) -> Property:
 		.min_length(1))
 
 
+## Marks this collection as one whose items can nominate a fallback: the portrait a
+## character shows when a node names none, the easing curve an animation uses when it
+## asks for no particular one.
+##
+## At most one item of a list carries the flag; [CollectionField] is what keeps that
+## true, and [method ReferenceResolver.find_default] is what reads it.
+func define_default_property() -> Property:
+	return define_property(Property.new("extra/is_default")
+		.set_type("bool")
+		.hidden_in_inspector()
+		.hidden_in_graph()
+		.not_exposable())
+
+
+func is_default_item() -> bool:
+	return get_property_value("is_default") == true
+
+
 ## Turns "variable-K4M2XQ7B" into "variable_K4M2XQ7B": unique because the id is, and a
 ## valid identifier, which is what conditions and setters need of a variable name.
 func _generate_name() -> String:

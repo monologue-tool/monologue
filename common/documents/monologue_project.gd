@@ -4,6 +4,8 @@ const FILE_FORMAT: String = "mnlp"
 const FORMAT_FILTER: Array = [
 	"*.mnlp;Monologue Project", "*.%s;Monologue File" % InspectableDocument.FILE_FORMAT
 ]
+## Name of the save dialog's checkbox, and the key its answer comes back under.
+const COMPACT_OPTION: String = "Compact"
 
 signal ready
 signal content_changed
@@ -14,6 +16,8 @@ var manifest: ManifestDocument
 var settings: ProjectSettingsDocument
 var collections: Array[CollectionDocument]
 var storylines: Array[StorylineDocument]
+## True to write the project as a single .mnlp archive, false to write it as a folder of
+## JSON files that can be diffed and merged like source.
 var compact: bool = true
 
 var command_manager: CommandManager = CommandManager.new()
@@ -122,6 +126,8 @@ func _init_collections() -> void:
 		)
 		bezier_item.set_property_value("name", bezier_name)
 		bezier_item.set_property_value("bezier", default_beziers.get(bezier_name))
+		# Ease is what an animation asking for no particular curve gets.
+		bezier_item.set_property_value("is_default", bezier_name == "Ease")
 		beziers_data.append(bezier_item._to_dict())
 
 	collections.append(
@@ -237,7 +243,7 @@ func save() -> void:
 			_open_file_request_callback,
 			FORMAT_FILTER,
 			"",
-			[{"name": "Compact", "values": [], "default_value_index": 1}]
+			[{"name": COMPACT_OPTION, "values": [], "default_value_index": 1}]
 		)
 		await project_path_changed
 
@@ -263,8 +269,13 @@ func save() -> void:
 	ProjectManager._update_window_title()
 
 
-func _open_file_request_callback(path: String) -> void:
-	project_path = path
+## Takes what the save dialog came back with. An unpacked project is a folder rather
+## than a file, so the extension the dialog insisted on is dropped from its path.
+func _open_file_request_callback(path: String, options: Dictionary = {}) -> void:
+	if options.has(COMPACT_OPTION):
+		compact = options[COMPACT_OPTION] == true
+
+	project_path = path if compact else path.get_basename()
 	project_path_changed.emit()
 
 
@@ -290,7 +301,7 @@ static func from_dir_path(path: String) -> MonologueProject:
 		Log.error("Can't load project from an invalid path.")
 		return null
 
-	var reader: DirAccess = DirAccess.open(path)
+	var reader: ProjectDirectoryReader = ProjectDirectoryReader.new(path)
 
 	var project: MonologueProject = await _from_path_core(reader, path)
 	if project:
@@ -298,7 +309,7 @@ static func from_dir_path(path: String) -> MonologueProject:
 	return project
 
 
-## 'reader' can be either a 'ZIPReader' or a 'DirAccess'.
+## 'reader' can be either a 'ZIPReader' or a 'ProjectDirectoryReader'.
 static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
 	var project: MonologueProject = MonologueProject.new()
 	await project.ready

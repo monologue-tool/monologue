@@ -35,6 +35,12 @@ const KEY_UNIQUE: String = "unique"
 const KEY_REQUIRED: String = "required"
 ## Whether the list item that carries this property is protected from deletion.
 const KEY_PROTECT: String = "protect"
+## Sibling property whose value decides whether this one may be edited, stored as
+## { "property": String, "values": Array }. Absent when nothing gates it.
+const KEY_ENABLED_BY: StringName = &"enabled_by"
+## Same shape as KEY_ENABLED_BY, but takes the property out of the inspector instead of
+## greying it out.
+const KEY_SHOWN_BY: StringName = &"shown_by"
 
 # Validation
 

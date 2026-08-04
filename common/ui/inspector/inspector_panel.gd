@@ -14,6 +14,9 @@ var current_objects: Array[InspectableObject] = []
 ## Selections the back button steps through, most recent last. Each entry is a whole
 ## selection, not a single object.
 var history: Array[Array] = []
+## Objects currently listened to, so a property that decides whether others are shown
+## can be unsubscribed from when the selection moves on.
+var _watched_objects: Array[InspectableObject] = []
 
 
 func _ready() -> void:
@@ -54,6 +57,7 @@ func inspect(objects: Array[InspectableObject], from_history: bool = false) -> v
 
 	back_button.disabled = history.is_empty()
 	current_objects = objects
+	_watch_gates(objects)
 
 	# Nothing selected means nothing to inspect. This used to hide the panel whenever
 	# both the old and the new selection were non-empty, which is the normal case.
@@ -131,6 +135,27 @@ func rebuild() -> void:
 ## button. Those are per-object, so with several selected they follow the first.
 func _primary() -> InspectableObject:
 	return current_objects[0] if not current_objects.is_empty() else null
+
+
+## Follows the inspected objects so that changing a property which decides whether
+## others are shown redraws the panel around it.
+func _watch_gates(objects: Array[InspectableObject]) -> void:
+	for object: InspectableObject in _watched_objects:
+		if not is_instance_valid(object):
+			continue
+		if object.property_changed.is_connected(_on_inspected_property_changed):
+			object.property_changed.disconnect(_on_inspected_property_changed)
+
+	_watched_objects = objects.duplicate()
+	for object: InspectableObject in _watched_objects:
+		object.property_changed.connect(_on_inspected_property_changed)
+
+
+func _on_inspected_property_changed(property_name: String) -> void:
+	for object: InspectableObject in _watched_objects:
+		if is_instance_valid(object) and object.gates_other_properties(property_name):
+			rebuild()
+			return
 
 
 ## What the inspector shows for a selection. One object gives all its properties;
@@ -225,9 +250,12 @@ func _find_focusable_fields(node: Node, fields: Array) -> void:
 
 func _group_by_category(properties: Array[Property]) -> Dictionary:
 	var groups: Dictionary[String, Array] = {}
+	var owner: InspectableObject = _primary()
 	for prop: Property in properties:
 		# Skip properties not visible in inspector
 		if not prop.get_settings_value("visible_in_inspector", true):
+			continue
+		if owner and not owner.is_property_shown(prop):
 			continue
 
 		var category: String = "General"

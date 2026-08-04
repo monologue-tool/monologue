@@ -4,8 +4,7 @@ extends NodeIndexer
 func _init() -> void:
 	name = "input"
 	display_name = "Input"
-	description = "Prompt the user to enter a value."
-	category = "Logic"
-	color = MonologuePalette.TEXT
-	icon_path = ""
+	description = "Asks the player to type something, and keeps it in a variable."
+	category = "Narration"
+	icon_path = "res://ui/assets/icons/text.svg"
 	node_script = preload("input_node.gd")

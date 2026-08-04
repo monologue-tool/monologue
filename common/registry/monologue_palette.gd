@@ -29,3 +29,24 @@ const ASSET: Color = Color("6a9fb5")
 const CURVE: Color = Color("9df27e")
 ## People.
 const CHARACTER: Color = Color("eb5074")
+
+## The colour each node category is drawn in.
+##
+## A node takes the colour of the family it belongs to rather than one of its own, the
+## way Blender's node editor colours a whole menu at once: the graph is then readable by
+## area before a single title is read. A type that needs to stand out sets its own
+## [member MonologueIndexer.color] and keeps it.
+const NODE_CATEGORIES: Dictionary = {
+	"Flow": FLOW,
+	"Narration": TEXT,
+	"Stage": ASSET,
+	"Logic": LOGIC,
+	"Value": NUMBER,
+	"World": CONTAINER,
+}
+
+
+## The colour declared for [param category], or white when nothing is declared for it.
+static func for_category(category: String) -> Color:
+	var declared: Variant = NODE_CATEGORIES.get(category)
+	return declared if declared is Color else Color.WHITE

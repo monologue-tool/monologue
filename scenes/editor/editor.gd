@@ -54,6 +54,11 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 		Log.error("No active storyline available to add node.")
 		return
 
+	var indexer: NodeIndexer = MonologueRegistry.get_instance().get_node(node_type)
+	if indexer and indexer.is_singleton:
+		Log.warn("A storyline already has its own '%s' node." % node_type)
+		return
+
 	var node: InspectableNode = storyline.create_node(node_type)
 	if node == null:
 		Log.error("Unable to create node of type '%s'." % node_type)
@@ -66,7 +71,7 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 	else:
 		target_position = graph_edit.scroll_offset / graph_edit.zoom
 
-	var position_property: Property = node.get_property("position")
+	var position_property: Property = node.get_property("editor_position")
 	if position_property:
 		position_property.set_value(target_position)
 

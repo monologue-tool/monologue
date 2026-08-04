@@ -7,5 +7,4 @@ func _init() -> void:
 	description = "A named place a jump can aim at."
 	category = "Flow"
 	icon_path = "res://ui/assets/icons/magnet.svg"
-	color = MonologuePalette.CONTAINER
 	node_script = preload("label_node.gd")

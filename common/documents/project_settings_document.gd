@@ -7,4 +7,4 @@ func initialize_properties() -> void:
 
 
 func get_type() -> String:
-	return "manifest"
+	return "settings"

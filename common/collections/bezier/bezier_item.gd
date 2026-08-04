@@ -7,6 +7,8 @@ func initialize_properties() -> void:
 	define_property(Property.new("bezier")
 		.set_type("bezier"))
 
+	define_default_property()
+
 
 func get_type() -> String:
 	return "bezier"

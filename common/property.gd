@@ -211,6 +211,36 @@ func protected() -> Property:
 	return set_setting(PropertySettings.KEY_PROTECT, true)
 
 
+## Greys this property out unless [param property_name] holds one of [param values]:
+## [codeblock]
+## define_property(Property.new("display/max_stack")
+##     .set_type("int")
+##     .enabled_by("stackable"))
+## [/codeblock]
+## The property stays where it is, the way Godot and Blender leave a setting visible
+## when it does not currently apply.
+func enabled_by(property_name: String, values: Array = [true]) -> Property:
+	return set_setting(
+		PropertySettings.KEY_ENABLED_BY, {"property": property_name, "values": values}
+	)
+
+
+## Takes this property out of the inspector unless [param property_name] holds one of
+## [param values]. For settings a choice does not merely disable but makes meaningless,
+## such as where a character stands when the action is to walk off.
+func shown_by(property_name: String, values: Array = [true]) -> Property:
+	return set_setting(
+		PropertySettings.KEY_SHOWN_BY, {"property": property_name, "values": values}
+	)
+
+
+## The gate declared under [param key], or an empty Dictionary when nothing gates this
+## property. See [method enabled_by] and [method shown_by].
+func get_gate(key: StringName) -> Dictionary:
+	var gate: Variant = get_settings_value(key, {})
+	return gate if gate is Dictionary else {}
+
+
 ## The object's primary connectable property: drawn first in the graph, so it owns
 ## port index 0, and hidden from the inspector.
 ##

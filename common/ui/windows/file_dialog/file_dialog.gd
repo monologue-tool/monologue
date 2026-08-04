@@ -94,10 +94,14 @@ func _core_request(
 	popup_centered()
 
 
+## Hands the chosen path back, and the dialog's own options with it when the callback
+## has somewhere to put them. Callbacks that do not offer anything keep their
+## single-argument shape.
 func _on_file_selected(path: String) -> void:
-	if file_mode == FILE_MODE_SAVE_FILE:
-		FileAccess.open(path, FileAccess.WRITE)
-	_callback.call(path as String)
+	if _callback.get_argument_count() >= 2:
+		_callback.call(path as String, get_selected_options())
+	else:
+		_callback.call(path as String)
 
 
 func _on_files_selected(paths: PackedStringArray) -> void:

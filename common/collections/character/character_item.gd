@@ -7,6 +7,7 @@ func initialize_properties() -> void:
 	)
 	default_portrait.set_property_value("name", "default")
 	default_portrait.set_property_value("protected", true)
+	default_portrait.set_property_value("is_default", true)
 
 	define_name_property(NameGenerator.generate)
 
@@ -23,12 +24,6 @@ func initialize_properties() -> void:
 		.set_type("color")
 		.default("#ffffff")
 		.tooltip("Tints this character's lines, where the game chooses to."))
-
-	define_property(Property.new("portraits/default_portrait")
-		.set_type("reference")
-		.reference_scope("self:portraits")
-		.label_property("name")
-		.default(default_portrait.get_property_value("id")))
 
 	define_property(Property.new("portraits/portraits")
 		.set_type("collection")

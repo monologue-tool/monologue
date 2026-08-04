@@ -7,6 +7,8 @@ class_name ReferenceField extends Field
 
 const MISSING_PREFIX: String = "[!] Missing: "
 const EMPTY_LABEL: String = "<none>"
+## How the empty entry reads when the collection has an item to fall back to.
+const DEFAULT_LABEL: String = "Default (%s)"
 
 var _value: String = ""
 var _is_listening: bool = false
@@ -63,7 +65,7 @@ func _populate() -> void:
 	option_button.clear()
 
 	if settings.get(PropertySettings.KEY_ALLOW_EMPTY, true):
-		_add_entry(EMPTY_LABEL, "")
+		_add_entry(_empty_label(), "")
 
 	var selected_index: int = -1
 	for candidate: Dictionary in _list_candidates():
@@ -100,13 +102,32 @@ func _list_candidates() -> Array[Dictionary]:
 		return []
 
 	return ReferenceResolver.list_candidates(
-		_get_project(),
-		str(property.get_settings_value(PropertySettings.KEY_REFERENCE_SCOPE, "")),
-		_binding.owner,
-		str(
-			property.get_settings_value(
-				PropertySettings.KEY_LABEL_PROPERTY, ReferenceResolver.DEFAULT_LABEL_PROPERTY
-			)
+		_get_project(), _scope(), _binding.owner, _label_property()
+	)
+
+
+## What choosing nothing actually means: the name of the item the collection falls back
+## to, so an empty reference says what will happen rather than that nothing was picked.
+func _empty_label() -> String:
+	if _binding == null or _binding.property == null:
+		return EMPTY_LABEL
+
+	var fallback: String = ReferenceResolver.describe_default(
+		_get_project(), _scope(), _binding.owner, _label_property()
+	)
+	return DEFAULT_LABEL % fallback if not fallback.is_empty() else EMPTY_LABEL
+
+
+func _scope() -> String:
+	return str(
+		_binding.property.get_settings_value(PropertySettings.KEY_REFERENCE_SCOPE, "")
+	)
+
+
+func _label_property() -> String:
+	return str(
+		_binding.property.get_settings_value(
+			PropertySettings.KEY_LABEL_PROPERTY, ReferenceResolver.DEFAULT_LABEL_PROPERTY
 		)
 	)
 

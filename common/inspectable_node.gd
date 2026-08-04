@@ -9,7 +9,7 @@ var _main_property_defined: bool = false
 func _init(command_manager: CommandManager = null) -> void:
 	define_property(Property.new("color")
 		.set_type("color")
-		.default("#000000")
+		.default("000000")
 		.header()
 		.no_expand())
 
@@ -29,7 +29,7 @@ func _init(command_manager: CommandManager = null) -> void:
 		.hidden_in_graph()
 		.not_exposable())
 
-	define_property(Property.new("extra/position")
+	define_property(Property.new("extra/editor_position")
 		.set_type("vector2")
 		.hidden_in_graph()
 		.hidden_in_inspector()
@@ -93,6 +93,6 @@ func rebuild_preview() -> void:
 func duplicate(deep: bool = false) -> Resource:
 	var duplicated: InspectableNode = super.duplicate(deep)
 	duplicated.get_property("id").value = IDGen.generate_object_id(get_type())
-	duplicated.get_property("position").value += [30, 30]
+	duplicated.get_property("editor_position").value += [30, 30]
 
 	return duplicated

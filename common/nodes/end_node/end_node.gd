@@ -8,7 +8,7 @@ func initialize_properties() -> void:
 		.main_property()
 		.exposed()
 		.exported(false))
-	
+
 	define_property(Property.new("can_retrieve")
 		.set_type("bool")
 		.default(true)

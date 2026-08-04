@@ -41,6 +41,7 @@ func test_the_expected_types_are_present() -> void:
 		"text",
 		"audio",
 		"background",
+		"character",
 		"condition",
 		"reroute",
 		"storyline",
@@ -50,10 +51,16 @@ func test_the_expected_types_are_present() -> void:
 		"jump",
 		"label",
 		"variable",
-		"zoo",
+		"function",
+		"call",
+		"inventory",
+		"location",
+		"bool",
+		"int",
+		"float",
 	]:
 		assert_object(_registry.get_node(node_name)).is_not_null()
-	for collection_name: String in ["characters", "variables", "languages", "options"]:
+	for collection_name: String in ["characters", "variables", "languages", "options", "exits"]:
 		assert_object(_registry.get_collection(collection_name)).is_not_null()
 
 

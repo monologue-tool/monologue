@@ -1,17 +1,9 @@
-# This file builds the whole editor theme in code and embeds SVG markup as string
-# literals, so a few linter rules do not apply here:
-#   max-line-length              -- SVG attributes cannot be wrapped without altering the markup.
-#   function-preload-variable-name -- locals hold preloaded textures, not class references.
-#   max-file-lines               -- one function per themed control; splitting it per
-#                                   control group is worth doing, but not urgent.
 # gdlint: disable=max-line-length,function-preload-variable-name,max-file-lines
 @abstract class_name ThemeLayout
 
 static var font_main: FontVariation = preload("res://ui/assets/fonts/Main.tres")
 static var font_typing: FontVariation = preload("res://ui/assets/fonts/Typing.tres")
 
-# Shared by FoldableContainer and by the PopupMenu submenu arrows. Never recoloured, so a
-# single instance is fine here -- icons that mutate color_map take a duplicate() instead.
 static var folded_arrow_icon: DPITexture = preload("res://ui/assets/icons/folded_arrow.svg")
 static var folded_arrow_mirrored_icon: DPITexture = preload(
 	"res://ui/assets/icons/folded_arrow_mirrored.svg"
@@ -176,6 +168,12 @@ static func _setup_panel(theme: Theme) -> void:
 	stylebox.content_margin_right = margin_md.x
 	stylebox.bg_color = bg_surface_color
 	theme.set_stylebox("panel", "PanelContainer", stylebox)
+
+	theme.add_type("DarkerPanel")
+	theme.set_type_variation("DarkerPanel", "PanelContainer")
+	var darker_panel_stylebox: StyleBoxFlat = stylebox.duplicate()
+	darker_panel_stylebox.bg_color = bg_primary_color
+	theme.set_stylebox("panel", "DarkerPanel", darker_panel_stylebox)
 
 	theme.add_type("EditorBackground")
 	theme.set_type_variation("EditorBackground", "PanelContainer")
@@ -769,8 +767,8 @@ static func _setup_foldablecontainer(theme: Theme) -> void:
 
 	var title_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	title_panel_stylebox.bg_color = bg_surface_color
-	title_panel_stylebox.content_margin_top = margin_sm.y
-	title_panel_stylebox.content_margin_bottom = margin_sm.y
+	title_panel_stylebox.content_margin_top = margin_md.y
+	title_panel_stylebox.content_margin_bottom = margin_md.y
 	title_panel_stylebox.content_margin_left = margin_sm.x
 	title_panel_stylebox.content_margin_right = margin_sm.x
 	theme.set_stylebox("title_panel", "FoldableContainer", title_panel_stylebox)
@@ -936,10 +934,6 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	theme.set_font_size("font_size", "PopupMenu", font_size_sm)
 	theme.set_font_size("font_separator_size", "PopupMenu", font_size_sm)
 
-	# preload() hands back the cached resource instance, so each recoloured icon takes a
-	# duplicate() of its source. color_map is assigned whole rather than mutated in place:
-	# only the setter re-rasterises the SVG, and it early-outs when handed the dictionary
-	# it already holds, so `icon.color_map[key] = value` alone is a no-op.
 	var menu_checked_source: DPITexture = preload("res://ui/assets/theme/menu_checked.svg")
 
 	var menu_checked_icon: DPITexture = menu_checked_source.duplicate()

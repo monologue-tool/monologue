@@ -45,6 +45,37 @@ func test_a_saved_project_can_be_read_back() -> void:
 	assert_int(loaded.collections.size()).is_equal(_project.collections.size())
 
 
+func test_a_project_saved_as_a_folder_can_be_read_back() -> void:
+	# The unpacked form is what makes a project diffable, so it has to survive the same
+	# trip the archive does.
+	var folder: String = "%s/unpacked_%d" % [create_temp_dir("mnlp_dir"), randi()]
+	_project.compact = false
+
+	assert_bool(ProjectWriter.write_project(_project, folder).is_valid()).is_true()
+	assert_bool(FileAccess.file_exists(folder.path_join("manifest.json"))).is_true()
+	assert_bool(FileAccess.file_exists(folder.path_join("storylines/main.json"))).is_true()
+
+	var loaded: MonologueProject = await MonologueProject.from_dir_path(folder)
+	assert_object(loaded).is_not_null()
+	auto_free(loaded)
+
+	assert_bool(loaded.compact).is_false()
+	assert_int(loaded.storylines.size()).is_equal(_project.storylines.size())
+	assert_int(loaded.storylines[0].nodes.size()).is_equal(_project.storylines[0].nodes.size())
+
+
+func test_a_folder_lists_the_documents_nested_inside_it() -> void:
+	# DirAccess.get_files() only ever listed the top level, which is why a folder used
+	# to load with its manifest and nothing else.
+	var folder: String = "%s/listing_%d" % [create_temp_dir("mnlp_dir"), randi()]
+	_project.compact = false
+	ProjectWriter.write_project(_project, folder)
+
+	var files: PackedStringArray = ProjectDirectoryReader.new(folder).get_files()
+
+	assert_array(files).contains(["manifest.json", "storylines/main.json"])
+
+
 func test_property_values_survive_the_trip() -> void:
 	_project.manifest.set_property_value("author", "Atomic Junky")
 	_project.manifest.set_property_value("description", "A test project.")

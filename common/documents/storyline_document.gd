@@ -186,12 +186,38 @@ func initialize_properties() -> void:
 	pass
 
 
-## Reports wires whose ends are missing, as issues for the problems panel rather than
-## as engine warnings nobody reads.
+## Reports wires whose ends are missing, and a storyline that does not have exactly the
+## one entry point it is supposed to, as issues for the problems panel rather than as
+## engine warnings nobody reads.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
 	for connection: NodeConnection in connections:
 		_validate_end(result, connection, connection.from_node_id, connection.from_property)
 		_validate_end(result, connection, connection.to_node_id, connection.to_property)
+
+	_validate_singletons(result)
+
+
+## A storyline holds exactly one of each singleton node type. Nothing in the editor can
+## add or remove one, so anything else got here through a hand-edited file.
+func _validate_singletons(result: ValidationResult) -> void:
+	var counts: Dictionary[String, int] = {}
+	for node: InspectableNode in nodes:
+		if NodeIndexer.is_permanent(node):
+			counts[node.get_type()] = counts.get(node.get_type(), 0) + 1
+
+	for indexer: MonologueIndexer in MonologueRegistry.get_instance().list(MonologueObjectType.NODE):
+		if not (indexer as NodeIndexer).is_singleton:
+			continue
+		var found: int = counts.get(indexer.name, 0)
+		if found == 1:
+			continue
+		result.add(
+			ValidationIssue.error(
+				"This storyline has %d '%s' nodes; it must have exactly one."
+				% [found, indexer.name],
+				&"singleton_count"
+			).in_document(name)
+		)
 
 
 func _validate_end(
@@ -263,9 +289,9 @@ func _create_default_nodes() -> void:
 		)
 		choice_opt.append(choice_item._to_dict())
 
-	sent_node.get_property("position").set_value([240.0, 0])
-	option_node.get_property("position").set_value([240.0, 120.0])
-	choice_node.get_property("position").set_value([480.0, 0])
+	sent_node.get_property("editor_position").set_value([240.0, 0])
+	option_node.get_property("editor_position").set_value([240.0, 120.0])
+	choice_node.get_property("editor_position").set_value([480.0, 0])
 	choice_node.get_property("choices").set_value(choice_opt)
 	choice_node.get_property("choices").set_settings_value("exposed", true)
 

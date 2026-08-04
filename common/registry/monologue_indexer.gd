@@ -45,6 +45,15 @@ func get_display_name() -> String:
 	return Util.to_readable_name(name)
 
 
+## The colour this type is drawn in: its own when it declares one, otherwise the colour
+## of the family its category names. Leaving [member color] alone is what keeps a whole
+## category reading as one thing.
+func get_color() -> Color:
+	if color != Color.WHITE:
+		return color
+	return MonologuePalette.for_category(category)
+
+
 ## Loads [member icon_path] on first call and caches it. Null when unset or missing.
 func get_icon() -> Texture2D:
 	if _icon_loaded:

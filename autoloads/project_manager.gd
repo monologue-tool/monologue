@@ -55,11 +55,15 @@ func save_project(project: MonologueProject) -> void:
 	project.save()
 
 
+## Opens a project from an archive, from the folder an unpacked one lives in, or from
+## any file inside that folder, since that is what a file dialog lets the user point at.
 func load_project_from_path(path: String) -> void:
 	var new_project: MonologueProject
 	if FileAccess.file_exists(path) and path.ends_with(".%s" % MonologueProject.FILE_FORMAT):
 		new_project = await MonologueProject.from_file_path(path)
-	elif path.ends_with(".%s" % ManifestDocument.FILE_FORMAT):
+	elif DirAccess.dir_exists_absolute(path):
+		new_project = await MonologueProject.from_dir_path(path)
+	elif FileAccess.file_exists(path):
 		new_project = await MonologueProject.from_dir_path(path.get_base_dir())
 
 	if not new_project:

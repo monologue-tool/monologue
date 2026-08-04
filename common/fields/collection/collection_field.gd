@@ -4,6 +4,10 @@ class_name CollectionField extends BaseListField
 const MAX_LISTED_REFERRERS: int = 8
 
 var _collection_name: String = ""
+## True while the fallback is being handed from one item to another. The items announce
+## every write, and letting those through would push the repair into the property before
+## the edit that caused it is committed, which swallows its undo step.
+var _is_repairing_default: bool = false
 
 
 func _on_initialize() -> void:
@@ -101,7 +105,63 @@ func _create_new_list_item(from_data: Dictionary = {}) -> CollectionItem:
 func _on_item_property_changed(_property_name: String, _item: CollectionItem) -> void:
 	# The undo/redo is handle by the CollectionItem it self.
 	# We're just updating the value of the list property.
+	if _is_repairing_default:
+		return
 	_binding.property.value = get_value()
+
+
+func supports_default_item() -> bool:
+	var indexer: CollectionIndexer = MonologueRegistry.get_instance().get_collection(
+		_collection_name
+	)
+	return indexer != null and indexer.has_default_item()
+
+
+## Points the list at one item and clears the flag on every other, so "the default" is
+## always exactly one thing. Written straight to the properties rather than through
+## commands: the whole switch is one edit, and undoing half of it would leave the list
+## with two defaults or none.
+func set_default_item(index: int) -> void:
+	if not _is_valid_index(index):
+		return
+
+	_flag_default(get_items()[index])
+	emit_value_committed(get_value())
+	_rebuild_ui()
+
+
+## Keeps the fallback pointing at something that is still there. A list with items in it
+## always names exactly one, so deleting the default hands the role to the first item
+## left rather than leaving the list pointing at nothing.
+##
+## Returns whether anything had to be changed.
+func _ensure_one_default() -> bool:
+	if not supports_default_item():
+		return false
+
+	var items: Array = get_items()
+	if items.is_empty():
+		return false
+
+	var flagged: Array = items.filter(
+		func(item: CollectionItem) -> bool: return item.is_default_item()
+	)
+	if flagged.size() == 1:
+		return false
+
+	_flag_default(flagged[0] if not flagged.is_empty() else items[0])
+	return true
+
+
+## Marks [param chosen] as the fallback and clears every sibling, as one change: the
+## list is never briefly left with two defaults or none.
+func _flag_default(chosen: CollectionItem) -> void:
+	_is_repairing_default = true
+	for item: CollectionItem in get_items():
+		var flag: Property = item.get_property("is_default")
+		if flag:
+			flag.set_value(item == chosen)
+	_is_repairing_default = false
 
 
 func _on_add_button() -> void:
@@ -126,8 +186,15 @@ func _on_duplicate_item(index: int) -> void:
 	new_item._from_dict(item_data)
 	_make_item_unique(new_item)
 
+	# Being the fallback is the list's business, not the item's: a copy of the default
+	# is a second item, never a second default.
+	var flag: Property = new_item.get_property("is_default")
+	if flag:
+		flag.set_value(false)
+
 	_binding.owner.add_property_children(_binding.property.name, new_item)
 	emit_value_committed(get_value())
+	_rebuild_ui()
 
 
 ## Gives a freshly copied item its own value for every property that must differ from
@@ -188,6 +255,7 @@ func _on_delete_confirmed(response: int, item: CollectionItem) -> void:
 
 func _delete_item(item: CollectionItem) -> void:
 	_binding.owner.remove_property_children(_binding.property.name, item)
+	_ensure_one_default()
 
 	emit_value_committed(get_value())
 	_rebuild_ui()
@@ -236,6 +304,8 @@ func add_item() -> void:
 	var new_item: CollectionItem = _create_new_list_item()
 	_make_item_unique(new_item)
 	_binding.owner.add_property_children(_binding.property.name, new_item)
+	# The first item of an empty list becomes its fallback; later ones change nothing.
+	_ensure_one_default()
 
 	emit_value_committed(get_value())
 	_rebuild_ui()

@@ -43,6 +43,10 @@ func reload_tree() -> void:
 		for indexer: MonologueIndexer in registry.list_by_category(
 			MonologueObjectType.NODE, category
 		):
+			# A storyline creates its own singletons, so offering one here would only
+			# ever produce a second root.
+			if (indexer as NodeIndexer).is_singleton:
+				continue
 			if accepted.is_empty() or indexer.name in accepted:
 				offered.append(indexer)
 		if offered.is_empty():
@@ -105,7 +109,7 @@ func _create_indexer_item(parent: TreeItem, indexer: MonologueIndexer) -> void:
 
 	var icon: Texture2D = indexer.get_icon()
 	item.set_icon(NAME_COLUMN, icon if icon else _fallback_icon)
-	item.set_icon_modulate(NAME_COLUMN, indexer.color)
+	item.set_icon_modulate(NAME_COLUMN, indexer.get_color())
 
 	item.set_metadata(NAME_COLUMN, indexer.name)
 

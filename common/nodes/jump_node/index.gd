@@ -7,5 +7,4 @@ func _init() -> void:
 	description = "Continues the story at a label, without drawing a wire across the graph."
 	category = "Flow"
 	icon_path = "res://ui/assets/icons/arrow_right.svg"
-	color = MonologuePalette.CONTAINER
 	node_script = preload("jump_node.gd")

@@ -81,7 +81,7 @@ func test_a_nodes_own_properties_are_frozen_too() -> void:
 		"sentence", _history
 	)
 
-	for property_name: String in ["color", "notes", "position", "id"]:
+	for property_name: String in ["color", "notes", "editor_position", "id"]:
 		(
 			assert_bool(sentence.get_property(property_name).is_frozen())
 			.override_failure_message("Property '%s' escaped the freeze pass." % property_name)

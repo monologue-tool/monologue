@@ -119,7 +119,7 @@ func add_graph_node_view(node: InspectableNode) -> GraphNode:
 
 ## Called when InspectableNode property changes (undo/redo, programmatic)
 func _on_inspectable_node_property_changed(property_name: String, node: InspectableNode) -> void:
-	if property_name == "position":
+	if property_name == "editor_position":
 		if not _is_applying_position:
 			_sync_position_from_property(node)
 	else:
@@ -135,7 +135,7 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 	if _pending_positions.has(node.graph_view):
 		return
 
-	var position_property: Property = node.get_property("position")
+	var position_property: Property = node.get_property("editor_position")
 	var raw: Variant = position_property.get_value() if position_property else null
 	var desired_position: Vector2
 	if raw is Vector2:
@@ -414,7 +414,7 @@ func _on_end_node_move() -> void:
 		var target_position: Array = [
 			_pending_positions[graph_node].x, _pending_positions[graph_node].y
 		]
-		var position_property: Property = node.get_property("position")
+		var position_property: Property = node.get_property("editor_position")
 		if not position_property:
 			continue
 		if not position_property.get_value() is Array:
@@ -424,7 +424,7 @@ func _on_end_node_move() -> void:
 			continue
 
 		var command: PropertyChangeCommand = PropertyChangeCommand.new(
-			node, "position", positon_value, target_position
+			node, "editor_position", positon_value, target_position
 		)
 		history.execute(command)
 
@@ -470,17 +470,33 @@ func _on_disconnection_request(
 	storyline.history.execute(command)
 
 
+## The nodes of a selection the user actually owns. A storyline creates its own root and
+## keeps it: copying it would produce a second one, and deleting it would leave the
+## storyline with no way in.
+func _user_owned(nodes: Array[InspectableNode]) -> Array[InspectableNode]:
+	var owned: Array[InspectableNode] = []
+	for node: InspectableNode in nodes:
+		if node and not NodeIndexer.is_permanent(node):
+			owned.append(node)
+	return owned
+
+
+## Every node currently selected, whatever the graph's own bookkeeping says.
+func _selected_model_nodes() -> Array[InspectableNode]:
+	var nodes: Array[InspectableNode] = []
+	for graph_node: Node in get_children():
+		if graph_node is GraphNode and _selected_nodes.get(graph_node, false):
+			var node: InspectableNode = _node_map.get(graph_node)
+			if node:
+				nodes.append(node)
+	return nodes
+
+
 func _on_copy_nodes_request() -> void:
-	if _selected_nodes.size() <= 0:
-		return
 	_copied_nodes.clear()
 
-	for node: Node in get_children():
-		if node is GraphNode and _selected_nodes.get(node, false):
-			var source_node: InspectableNode = _node_map.get(node)
-			if source_node:
-				var duplicated: InspectableNode = source_node.duplicate(true)
-				_copied_nodes.append(duplicated)
+	for source_node: InspectableNode in _user_owned(_selected_model_nodes()):
+		_copied_nodes.append(source_node.duplicate(true))
 
 
 func _on_paste_nodes_request() -> void:
@@ -491,34 +507,32 @@ func _on_paste_nodes_request() -> void:
 
 
 func _on_cut_nodes_request() -> void:
-	if _selected_nodes.size() <= 0:
-		return
 	_copied_nodes.clear()
 
-	var nodes_to_delete: Array[InspectableNode] = []
+	var nodes_to_delete: Array[InspectableNode] = _user_owned(_selected_model_nodes())
+	if nodes_to_delete.is_empty():
+		return
 
-	for node: Node in get_children():
-		if node is GraphNode and _selected_nodes.get(node, false):
-			var source_node: InspectableNode = _node_map.get(node)
-			if source_node:
-				var duplicated: InspectableNode = source_node.duplicate(true)
-				_copied_nodes.append(duplicated)
-				nodes_to_delete.append(source_node)
+	for source_node: InspectableNode in nodes_to_delete:
+		_copied_nodes.append(source_node.duplicate(true))
 
 	var storyline: StorylineDocument = get_storyline()
-	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline_id, nodes_to_delete)
-	storyline.history.execute(command)
+	storyline.history.execute(DeleteNodesCommand.new(storyline_id, nodes_to_delete))
 
 
 func _on_delete_nodes_request(graph_nodes: Array[StringName]) -> void:
-	var storyline: StorylineDocument = get_storyline()
 	var nodes: Array[InspectableNode] = []
 	for node_name: StringName in graph_nodes:
 		var graph_node: GraphNode = get_node("%s" % node_name)
 		var node: InspectableNode = _node_map.get(graph_node)
-		nodes.append(node)
+		if node:
+			nodes.append(node)
 
-	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline_id, nodes)
-	storyline.history.execute(command)
+	var removable: Array[InspectableNode] = _user_owned(nodes)
+	if removable.is_empty():
+		return
+
+	var storyline: StorylineDocument = get_storyline()
+	storyline.history.execute(DeleteNodesCommand.new(storyline_id, removable))
 
 	refresh()

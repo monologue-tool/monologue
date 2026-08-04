@@ -4,7 +4,7 @@ extends NodeIndexer
 func _init() -> void:
 	name = "character"
 	display_name = "Character"
-	description = "Branches the story on a choice offered to the player."
-	category = "Flow"
-	color = MonologuePalette.CHARACTER
+	description = "Brings a character on stage, takes them off, or changes how they look."
+	category = "Stage"
+	icon_path = "res://ui/assets/icons/character.svg"
 	node_script = preload("character_node.gd")

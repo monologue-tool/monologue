@@ -41,6 +41,7 @@ const NODES: Array[GDScript] = [
 	preload("res://common/nodes/checkpoint_node/index.gd"),
 	preload("res://common/nodes/end_node/index.gd"),
 	preload("res://common/nodes/function_node/index.gd"),
+	preload("res://common/nodes/call_node/index.gd"),
 	preload("res://common/nodes/input_node/index.gd"),
 	preload("res://common/nodes/reroute_node/index.gd"),
 	preload("res://common/nodes/storyline_node/index.gd"),
@@ -49,8 +50,13 @@ const NODES: Array[GDScript] = [
 	preload("res://common/nodes/action_node/index.gd"),
 	preload("res://common/nodes/event_node/index.gd"),
 	preload("res://common/nodes/jump_node/index.gd"),
+	preload("res://common/nodes/bool_node/index.gd"),
+	preload("res://common/nodes/int_node/index.gd"),
+	preload("res://common/nodes/float_node/index.gd"),
 	preload("res://common/nodes/label_node/index.gd"),
 	preload("res://common/nodes/variable_node/index.gd"),
+	preload("res://common/nodes/inventory_node/index.gd"),
+	preload("res://common/nodes/location_node/index.gd"),
 	preload("res://common/nodes/character_node/index.gd")
 ]
 
@@ -63,6 +69,7 @@ const COLLECTIONS: Array[GDScript] = [
 	preload("res://common/collections/portrait/index.gd"),
 	preload("res://common/collections/bezier/index.gd"),
 	preload("res://common/collections/option/index.gd"),
+	preload("res://common/collections/exit/index.gd"),
 ]
 
 

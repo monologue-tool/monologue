@@ -50,6 +50,8 @@ func initialize() -> void:
 		# The model no longer holds widget references; a binding subscribes instead.
 		property.settings_changed.connect(refresh)
 	field.tree_exiting.connect(_on_field_tree_exiting)
+	if owner and not owner.property_changed.is_connected(_on_owner_property_changed):
+		owner.property_changed.connect(_on_owner_property_changed)
 	_sync_from_property()
 	_update_editable_state()
 	field.clear_issues()
@@ -71,6 +73,8 @@ func release() -> void:
 			property.value_changed.disconnect(_on_property_value_changed)
 		if property.settings_changed.is_connected(refresh):
 			property.settings_changed.disconnect(refresh)
+	if owner and owner.property_changed.is_connected(_on_owner_property_changed):
+		owner.property_changed.disconnect(_on_owner_property_changed)
 
 
 func refresh() -> void:
@@ -102,6 +106,7 @@ func _update_editable_state() -> void:
 		property.get_settings_value(PropertySettings.KEY_EDITABLE, true)
 		and not property.get_settings_value(PropertySettings.KEY_READ_ONLY, false)
 		and not property.is_input_connected()
+		and (owner == null or owner.is_property_enabled(property))
 	)
 	field.set_editable(is_editable)
 
@@ -202,6 +207,13 @@ func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> voi
 	field.set_value(property.get_value())
 	field.display_issues(property.issues)
 	_is_syncing = false
+
+
+## A sibling property changed, which may be the one this field is gated on.
+func _on_owner_property_changed(_property_name: String) -> void:
+	if _is_released or not is_instance_valid(field):
+		return
+	_update_editable_state()
 
 
 func _on_field_tree_exiting() -> void:
