@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://creja611rnsop" path="res://common/ui/project_panel/project_panel.gd" id="4_syr16"]
 [ext_resource type="Script" uid="uid://b8tpwk6h2qmhc" path="res://common/ui/menu_buttons/main_help_button.gd" id="5_j530m"]
 [ext_resource type="Script" uid="uid://bw5hfxuolu4p3" path="res://common/ui/search_bar.gd" id="6_hg2ka"]
-[ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/h_auto_split_container.gd" id="6_syr16"]
+[ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/ratio_split_container.gd" id="6_syr16"]
 [ext_resource type="PackedScene" uid="uid://dqdrf7wtegye6" path="res://common/ui/console/console.tscn" id="9_oljq2"]
 [ext_resource type="Script" uid="uid://dvcbv5akqxtp5" path="res://common/ui/tooltip_label.gd" id="9_pq70c"]
 [ext_resource type="PackedScene" uid="uid://c8525nhvwt1y0" path="res://common/ui/graph/graph_container.tscn" id="9_qd5yd"]
@@ -157,6 +157,7 @@ script = ExtResource("6_syr16")
 layout_mode = 2
 split_offsets = PackedInt32Array(510)
 split_offset = 510
+script = ExtResource("6_syr16")
 
 [node name="Graph" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
 layout_mode = 2

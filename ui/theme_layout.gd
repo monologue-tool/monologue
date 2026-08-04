@@ -189,7 +189,7 @@ static func _setup_panel(theme: Theme) -> void:
 	var darker_panel_stylebox: StyleBoxFlat = stylebox.duplicate()
 	darker_panel_stylebox.bg_color = bg_primary_color
 	theme.set_stylebox("panel", "DarkerPanel", darker_panel_stylebox)
-	
+
 	theme.add_type("WindowPanel")
 	theme.set_type_variation("WindowPanel", "PanelContainer")
 	var window_panel_stylebox: StyleBoxFlat = stylebox.duplicate()
