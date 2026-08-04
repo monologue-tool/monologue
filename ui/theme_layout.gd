@@ -17,9 +17,13 @@ static var bg_primary_color: Color
 static var bg_surface_color: Color
 static var bg_elevated_color: Color
 static var bg_higher_color: Color
+## One step above whatever a control sits on, for the hover of a filled widget.
+static var bg_hover_color: Color
 
 static var text_primary_color: Color
 static var text_muted_color: Color
+## The one border colour. Sits just above the surface it outlines, so an edge is felt
+## rather than drawn: a dark outline around a dark panel reads as a crack in the layout.
 static var border_color: Color
 static var selection_color: Color
 static var disabled_selection_color: Color
@@ -29,8 +33,12 @@ static var fail_color: Color
 static var success_color: Color
 static var highlight_color: Color
 
+## Corners: square for what butts up against something else, [member radius_sm] for a
+## widget, [member radius_md] for a surface that floats.
+static var radius_none: int = 0
 static var radius_sm: int = 4
 static var radius_md: int = 6
+static var border_width: int = 1
 static var margin_sm: Vector2 = Vector2(5, 2)
 static var margin_md: Vector2 = Vector2(10, 5)
 static var spacing_sm: int = 5
@@ -61,6 +69,7 @@ static func recalculate_colors() -> void:
 	bg_surface_color = Color("202020") if is_theme_dark else Color("e8e8e8")
 	bg_elevated_color = Color("323232") if is_theme_dark else Color("d6d6d6")
 	bg_higher_color = Color("424242") if is_theme_dark else Color("c8c8c8")
+	bg_hover_color = Color("3d3d3d") if is_theme_dark else Color("cdcdcd")
 
 	text_primary_color = Color("d3d3d3") if is_theme_dark else Color("2c2c2c")
 	text_muted_color = Color("777777") if is_theme_dark else Color("888888")
@@ -141,6 +150,7 @@ static func generate_theme() -> Theme:
 	_setup_splitcontainer(theme)
 	_setup_tree(theme)
 	_setup_popupmenu(theme)
+	_setup_spinslider(theme)
 
 	var end_time: float = Time.get_unix_time_from_system()
 	var elasped: float = end_time - start_time
@@ -158,6 +168,11 @@ static func generate_and_apply_theme() -> void:
 	default_theme.merge_with(generated_theme)
 
 
+## Panels are the regions of the editor: docks, headers, the graph, dialogs.
+##
+## Only the surfaces that genuinely float -- a window body, a prompt -- carry an outline,
+## and it is [member border_color] rather than something darker: a near-black line around
+## a dark panel reads as a gap in the layout instead of an edge.
 static func _setup_panel(theme: Theme) -> void:
 	theme.add_type("PanelContainer")
 	var stylebox: StyleBoxFlat = StyleBoxFlat.new()
@@ -174,6 +189,12 @@ static func _setup_panel(theme: Theme) -> void:
 	var darker_panel_stylebox: StyleBoxFlat = stylebox.duplicate()
 	darker_panel_stylebox.bg_color = bg_primary_color
 	theme.set_stylebox("panel", "DarkerPanel", darker_panel_stylebox)
+	
+	theme.add_type("WindowPanel")
+	theme.set_type_variation("WindowPanel", "PanelContainer")
+	var window_panel_stylebox: StyleBoxFlat = stylebox.duplicate()
+	window_panel_stylebox.set_corner_radius_all(0)
+	theme.set_stylebox("panel", "WindowPanel", window_panel_stylebox)
 
 	theme.add_type("EditorBackground")
 	theme.set_type_variation("EditorBackground", "PanelContainer")
@@ -201,6 +222,26 @@ static func _setup_panel(theme: Theme) -> void:
 	editor_panel_stylebox.content_margin_right = margin_md.x
 	editor_panel_stylebox.bg_color = bg_surface_color
 	theme.set_stylebox("panel", "EditorPanel", editor_panel_stylebox)
+
+	theme.add_type("OuterPanel")
+	theme.set_type_variation("OuterPanel", "PanelContainer")
+	var outer_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	outer_panel_stylebox.set_corner_radius_all(radius_md)
+	outer_panel_stylebox.set_content_margin_all(margin_md.x)
+	outer_panel_stylebox.bg_color = bg_surface_color
+	outer_panel_stylebox.set_border_width_all(border_width)
+	outer_panel_stylebox.border_color = border_color
+	#outer_panel_stylebox.shadow_color = Color(bg_primary_color, 0.25)
+	#outer_panel_stylebox.shadow_size = 48
+	theme.set_stylebox("panel", "OuterPanel", outer_panel_stylebox)
+
+	theme.add_type("InspectorPanel")
+	theme.set_type_variation("InspectorPanel", "PanelContainer")
+	theme.set_stylebox("panel", "InspectorPanel", stylebox.duplicate())
+
+	theme.add_type("FieldContainer")
+	theme.set_type_variation("FieldContainer", "PanelContainer")
+	theme.set_stylebox("panel", "FieldContainer", stylebox.duplicate())
 
 	theme.add_type("EditorGraphPanel")
 	theme.set_type_variation("EditorGraphPanel", "PanelContainer")
@@ -291,11 +332,11 @@ static func _setup_button(theme: Theme) -> void:
 	theme.set_stylebox("hover", "Button", hover_button_stylebox)
 
 	var pressed_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
-	pressed_button_stylebox.bg_color = bg_elevated_color
+	pressed_button_stylebox.bg_color = bg_higher_color
 	theme.set_stylebox("pressed", "Button", pressed_button_stylebox)
 
 	var hover_pressed_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
-	hover_pressed_button_stylebox.bg_color = bg_elevated_color
+	hover_pressed_button_stylebox.bg_color = bg_higher_color
 	theme.set_stylebox("hover_pressed", "Button", hover_pressed_button_stylebox)
 
 	var disabled_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
@@ -316,15 +357,47 @@ static func _setup_button(theme: Theme) -> void:
 	var hover_pressed_toggle_button_stylebox: StyleBoxFlat = (
 		hover_pressed_button_stylebox.duplicate()
 	)
-	hover_pressed_toggle_button_stylebox.bg_color = accent_color
+	hover_pressed_toggle_button_stylebox.bg_color = accent_color.lightened(0.1)
 	theme.set_stylebox("hover_pressed", "ToggleButton", hover_pressed_toggle_button_stylebox)
 
 	theme.add_type("PlainButton")
 	theme.set_type_variation("PlainButton", "Button")
 
-	var normal_plain_button_stylebox: StyleBoxFlat = pressed_button_stylebox.duplicate()
+	var normal_plain_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
 	normal_plain_button_stylebox.bg_color = bg_elevated_color
 	theme.set_stylebox("normal", "PlainButton", normal_plain_button_stylebox)
+
+	var hover_plain_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
+	hover_plain_button_stylebox.bg_color = bg_hover_color
+	theme.set_stylebox("hover", "PlainButton", hover_plain_button_stylebox)
+
+	var pressed_plain_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
+	pressed_plain_button_stylebox.bg_color = bg_higher_color
+	theme.set_stylebox("pressed", "PlainButton", pressed_plain_button_stylebox)
+	theme.set_stylebox("hover_pressed", "PlainButton", pressed_plain_button_stylebox)
+
+	# A filled button that is off still has to look off rather than merely quiet.
+	var disabled_plain_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
+	disabled_plain_button_stylebox.bg_color = bg_surface_color
+	theme.set_stylebox("disabled", "PlainButton", disabled_plain_button_stylebox)
+
+	# Declared rather than inherited from Button: the joined variant below copies every
+	# state off this type by name, and a state it does not hold cannot be copied.
+	theme.set_stylebox("focus", "PlainButton", normal_plain_button_stylebox.duplicate())
+
+	theme.add_type("ButtonWarning")
+	theme.set_type_variation("ButtonWarning", "Button")
+	theme.set_color("font_hover_color", "ButtonWarning", bg_primary_color)
+	theme.set_color("icon_hover_color", "ButtonWarning", bg_primary_color)
+
+	var hover_warning_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
+	hover_warning_button_stylebox.bg_color = fail_color
+	theme.set_stylebox("hover", "ButtonWarning", hover_warning_button_stylebox)
+
+	var pressed_warning_button_stylebox: StyleBoxFlat = button_stylebox.duplicate()
+	pressed_warning_button_stylebox.bg_color = fail_color.darkened(0.2)
+	theme.set_stylebox("pressed", "ButtonWarning", pressed_warning_button_stylebox)
+	theme.set_stylebox("hover_pressed", "ButtonWarning", pressed_warning_button_stylebox)
 
 	theme.add_type("IconButton")
 	theme.set_type_variation("IconButton", "Button")
@@ -336,6 +409,7 @@ static func _setup_button(theme: Theme) -> void:
 	theme.set_stylebox("normal", "IconButton", normal_icon_button_stylebox)
 
 	var hover_icon_button_stylebox: StyleBoxFlat = hover_button_stylebox.duplicate()
+	hover_icon_button_stylebox.bg_color = bg_hover_color
 	hover_icon_button_stylebox.set_content_margin_all(margin_sm.x)
 	theme.set_stylebox("hover", "IconButton", hover_icon_button_stylebox)
 
@@ -365,14 +439,16 @@ static func _setup_button(theme: Theme) -> void:
 		"hover_pressed", "ToggleIconButton", hover_pressed_toggle_icon_button_stylebox
 	)
 
+	# Quiet until pointed at. Staying muted on hover was the one state where the icon and
+	# the lit background behind it were both mid-grey, which is where they disappeared.
 	theme.add_type("ListItemIconButton")
 	theme.set_type_variation("ListItemIconButton", "IconButton")
 	theme.set_color("icon_normal_color", "ListItemIconButton", text_muted_color)
-	theme.set_color("icon_hover_color", "ListItemIconButton", text_muted_color)
-	theme.set_color("icon_pressed_color", "ListItemIconButton", text_muted_color)
-	theme.set_color("icon_hover_pressed_color", "ListItemIconButton", text_muted_color)
-	theme.set_color("icon_focus_color", "ListItemIconButton", text_muted_color)
-	theme.set_color("icon_disabled_color", "ListItemIconButton", Color(text_muted_color, 0.5))
+	theme.set_color("icon_hover_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_pressed_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_hover_pressed_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_focus_color", "ListItemIconButton", text_primary_color)
+	theme.set_color("icon_disabled_color", "ListItemIconButton", Color(text_muted_color, 0.6))
 
 	var normal_list_item_icon_button_stylebox: StyleBoxFlat = (
 		normal_icon_button_stylebox.duplicate()
@@ -403,6 +479,36 @@ static func _setup_button(theme: Theme) -> void:
 	)
 	disabled_list_item_icon_button_stylebox.draw_center = false
 	theme.set_stylebox("disabled", "ListItemIconButton", disabled_list_item_icon_button_stylebox)
+
+	# Buttons sat against a field: rounded on the outside only, square where they meet
+	# whatever is beside them, so the row reads as one control instead of three.
+	_add_joined_variation(theme, "JoinedButtonMiddle", "PlainButton", false, false)
+	_add_joined_variation(theme, "JoinedButtonRight", "PlainButton", false, true)
+
+
+## Declares [param variation] as a copy of [param base] with the rounding kept only on
+## the sides asked for. Every state the base holds is copied; a state it does not hold
+## cannot be, so the base has to declare all of them.
+static func _add_joined_variation(
+	theme: Theme, variation: String, base: String, round_left: bool, round_right: bool
+) -> void:
+	theme.add_type(variation)
+	theme.set_type_variation(variation, base)
+	for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+		if not theme.has_stylebox(state, base):
+			continue
+		var joined: StyleBoxFlat = theme.get_stylebox(state, base).duplicate()
+		_round_sides(joined, round_left, round_right)
+		theme.set_stylebox(state, variation, joined)
+
+
+## Squares the corners on whichever sides are not asked to stay rounded, so two controls
+## sitting against each other share a straight seam.
+static func _round_sides(stylebox: StyleBoxFlat, round_left: bool, round_right: bool) -> void:
+	stylebox.corner_radius_top_left = radius_sm if round_left else radius_none
+	stylebox.corner_radius_bottom_left = radius_sm if round_left else radius_none
+	stylebox.corner_radius_top_right = radius_sm if round_right else radius_none
+	stylebox.corner_radius_bottom_right = radius_sm if round_right else radius_none
 
 
 static func _setup_checkbox(theme: Theme) -> void:
@@ -490,6 +596,12 @@ static func _setup_optionbutton(theme: Theme) -> void:
 	theme.set_constant("modulate_arrow", "OptionButton", 1)
 	theme.set_font_size("font_size", "OptionButton", font_size_sm)
 	theme.set_icon("arrow", "OptionButton", preload("res://ui/assets/icons/arrow_down.svg"))
+	theme.set_color("font_color", "OptionButton", text_primary_color)
+	theme.set_color("font_hover_color", "OptionButton", text_primary_color)
+	theme.set_color("font_pressed_color", "OptionButton", text_primary_color)
+	theme.set_color("font_hover_pressed_color", "OptionButton", text_primary_color)
+	theme.set_color("font_focus_color", "OptionButton", text_primary_color)
+	theme.set_color("font_disabled_color", "OptionButton", text_muted_color)
 
 	var stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	stylebox.set_corner_radius_all(radius_sm)
@@ -501,18 +613,22 @@ static func _setup_optionbutton(theme: Theme) -> void:
 	var normal_stylebox: StyleBoxFlat = stylebox.duplicate()
 	normal_stylebox.bg_color = bg_elevated_color
 	theme.set_stylebox("normal", "OptionButton", normal_stylebox)
-	theme.set_stylebox("pressed", "OptionButton", normal_stylebox)
-	theme.set_stylebox("hover_pressed", "OptionButton", normal_stylebox)
 
-	var focus_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
-	theme.set_stylebox("focus", "OptionButton", focus_stylebox)
+	var pressed_stylebox: StyleBoxFlat = stylebox.duplicate()
+	pressed_stylebox.bg_color = bg_higher_color
+	theme.set_stylebox("pressed", "OptionButton", pressed_stylebox)
+	theme.set_stylebox("hover_pressed", "OptionButton", pressed_stylebox)
+
+	theme.set_stylebox("focus", "OptionButton", StyleBoxEmpty.new())
 
 	var hover_stylebox: StyleBoxFlat = stylebox.duplicate()
-	hover_stylebox.bg_color = bg_elevated_color
+	hover_stylebox.bg_color = bg_hover_color
 	theme.set_stylebox("hover", "OptionButton", hover_stylebox)
 
+	# Sunk into the panel rather than raised out of it, which is what tells a dropdown
+	# that cannot be opened apart from one that simply has nothing under the pointer.
 	var disabled_stylebox: StyleBoxFlat = stylebox.duplicate()
-	disabled_stylebox.bg_color = bg_primary_color
+	disabled_stylebox.bg_color = bg_surface_color
 	theme.set_stylebox("disabled", "OptionButton", disabled_stylebox)
 
 
@@ -542,8 +658,10 @@ static func _setup_lineedit(theme: Theme) -> void:
 	normal_stylebox.bg_color = bg_primary_color
 	theme.set_stylebox("normal", "LineEdit", normal_stylebox)
 
+	# Lit, not emptied. draw_center = false here took the field's background away on the
+	# way past it, so pointing at a text box was what made it hardest to read.
 	var hover_stylebox: StyleBoxFlat = stylebox.duplicate()
-	hover_stylebox.draw_center = false
+	hover_stylebox.bg_color = bg_primary_color.lightened(0.06)
 	theme.set_stylebox("hover", "LineEdit", hover_stylebox)
 
 	var focus_stylebox: StyleBoxEmpty = StyleBoxEmpty.new()
@@ -560,11 +678,34 @@ static func _setup_lineedit(theme: Theme) -> void:
 	normal_preview_stylebox.bg_color = bg_elevated_color
 	theme.set_stylebox("normal", "LineEditListItemPreview", normal_preview_stylebox)
 
-	var hover_preview_stylebox: StyleBoxFlat = hover_stylebox.duplicate()
+	var hover_preview_stylebox: StyleBoxFlat = normal_preview_stylebox.duplicate()
+	hover_preview_stylebox.bg_color = bg_hover_color
 	theme.set_stylebox("hover", "LineEditListItemPreview", hover_preview_stylebox)
 
-	var focus_preview_stylebox: StyleBoxEmpty = focus_stylebox.duplicate()
-	theme.set_stylebox("focus", "LineEditListItemPreview", focus_preview_stylebox)
+	theme.set_stylebox("focus", "LineEditListItemPreview", StyleBoxEmpty.new())
+
+	# Nothing but the text: for a name edited in place, where a field's own box would
+	# double up with the row already drawn around it.
+	theme.add_type("FlatLineEdit")
+	theme.set_type_variation("FlatLineEdit", "LineEdit")
+
+	var flat_normal_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
+	flat_normal_stylebox.draw_center = false
+	theme.set_stylebox("normal", "FlatLineEdit", flat_normal_stylebox)
+	theme.set_stylebox("read_only", "FlatLineEdit", flat_normal_stylebox)
+
+	var flat_hover_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
+	flat_hover_stylebox.bg_color = Color(bg_primary_color, 0.5)
+	theme.set_stylebox("hover", "FlatLineEdit", flat_hover_stylebox)
+
+	# The field end of a widget pair, square where the buttons meet it. Focus is left
+	# alone: it carries no box to round.
+	theme.add_type("JoinedLineEdit")
+	theme.set_type_variation("JoinedLineEdit", "LineEdit")
+	for state: String in ["normal", "hover", "read_only"]:
+		var joined: StyleBoxFlat = theme.get_stylebox(state, "LineEdit").duplicate()
+		_round_sides(joined, true, false)
+		theme.set_stylebox(state, "JoinedLineEdit", joined)
 
 
 static func _setup_scrollbar(theme: Theme) -> void:
@@ -621,11 +762,11 @@ static func _setup_separator(theme: Theme) -> void:
 	theme.set_stylebox("separator", "SmallHSeparator", h_small_stylebox)
 
 	theme.add_type("WideHSeparator")
-	theme.set_type_variation("SmallHSeparator", "HSeparator")
+	theme.set_type_variation("WideHSeparator", "HSeparator")
 	var h_wide_stylebox: StyleBoxLine = h_stylebox.duplicate()
 	h_wide_stylebox.grow_begin = spacing_sm
 	h_wide_stylebox.grow_end = spacing_sm
-	theme.set_stylebox("separator", "SmallHSeparator", h_wide_stylebox)
+	theme.set_stylebox("separator", "WideHSeparator", h_wide_stylebox)
 
 	theme.add_type("UltraWideHSeparator")
 	theme.set_type_variation("UltraWideHSeparator", "HSeparator")
@@ -653,12 +794,15 @@ static func _setup_margincontainer(theme: Theme) -> void:
 	theme.set_constant("margin_right", "MarginContainer", spacing_sm)
 	theme.set_constant("margin_bottom", "MarginContainer", spacing_sm)
 
+	theme.add_type("SmallMarginContainer")
+	theme.set_type_variation("SmallMarginContainer", "MarginContainer")
+	for side: String in ["left", "top", "right", "bottom"]:
+		theme.set_constant("margin_%s" % side, "SmallMarginContainer", margin_sm.y as int)
+
 	theme.add_type("MediumMarginContainer")
 	theme.set_type_variation("MediumMarginContainer", "MarginContainer")
-	theme.set_constant("margin_left", "MarginContainer", spacing_md)
-	theme.set_constant("margin_top", "MarginContainer", spacing_md)
-	theme.set_constant("margin_right", "MarginContainer", spacing_md)
-	theme.set_constant("margin_bottom", "MarginContainer", spacing_md)
+	for side: String in ["left", "top", "right", "bottom"]:
+		theme.set_constant("margin_%s" % side, "MediumMarginContainer", spacing_md)
 
 
 static func _setup_label(theme: Theme) -> void:
@@ -697,10 +841,50 @@ static func _setup_label(theme: Theme) -> void:
 	theme.set_color("font_color", "GraphNodeViewValueLabel", text_primary_color)
 	theme.set_font_size("font_size", "GraphNodeViewValueLabel", font_size_md)
 
+	theme.add_type("HeaderSmall")
+	theme.set_type_variation("HeaderSmall", "Label")
+	theme.set_font_size("font_size", "HeaderSmall", font_size_lg)
+	theme.set_color("font_color", "HeaderSmall", text_primary_color)
+
 	theme.add_type("TooltipLabel")
 	theme.set_color("font_color", "TooltipLabel", text_primary_color)
 	theme.set_font_size("font_size", "TooltipLabel", font_size_sm)
 	theme.set_font("font", "TooltipLabel", font_main)
+
+
+## The number that is both a slider and a field. Drawn by [SpinSlider] rather than by a
+## Control Godot knows about, so its states live here instead of in the widget.
+static func _setup_spinslider(theme: Theme) -> void:
+	theme.add_type("SpinSlider")
+	theme.set_color("font_color", "SpinSlider", text_primary_color)
+	theme.set_color("font_disabled_color", "SpinSlider", text_muted_color)
+	theme.set_font("font", "SpinSlider", font_main)
+	theme.set_font_size("font_size", "SpinSlider", font_size_sm)
+	theme.set_icon("decrease", "SpinSlider", preload("res://ui/assets/icons/arrow_left.svg"))
+	theme.set_icon("increase", "SpinSlider", preload("res://ui/assets/icons/arrow_right.svg"))
+
+	var normal_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	normal_stylebox.bg_color = bg_elevated_color
+	normal_stylebox.set_corner_radius_all(radius_sm)
+	theme.set_stylebox("normal", "SpinSlider", normal_stylebox)
+
+	var hover_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
+	hover_stylebox.bg_color = bg_hover_color
+	theme.set_stylebox("hover", "SpinSlider", hover_stylebox)
+
+	var disabled_stylebox: StyleBoxFlat = normal_stylebox.duplicate()
+	disabled_stylebox.bg_color = bg_surface_color
+	disabled_stylebox.set_border_width_all(border_width)
+	disabled_stylebox.border_color = border_color
+	theme.set_stylebox("disabled", "SpinSlider", disabled_stylebox)
+
+	# The filled part of a bounded number. Squared on the right so the fill reads as a
+	# level rather than as a second rounded widget floating inside the first.
+	var fill_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	fill_stylebox.bg_color = Color(accent_color, 0.55)
+	fill_stylebox.corner_radius_top_left = radius_sm
+	fill_stylebox.corner_radius_bottom_left = radius_sm
+	theme.set_stylebox("fill", "SpinSlider", fill_stylebox)
 
 
 static func _setup_textedit(theme: Theme) -> void:
@@ -903,6 +1087,16 @@ static func _setup_tree(theme: Theme) -> void:
 	#preload("res://ui/assets/icons/unchecked_disabled.svg")
 	#)
 
+	theme.set_color("font_color", "Tree", text_primary_color)
+	theme.set_color("font_selected_color", "Tree", text_primary_color)
+	theme.set_color("font_disabled_color", "Tree", text_muted_color)
+	theme.set_color("guide_color", "Tree", border_color)
+	theme.set_color("relationship_line_color", "Tree", border_color)
+	theme.set_color("parent_hl_line_color", "Tree", border_color)
+	theme.set_color("children_hl_line_color", "Tree", border_color)
+	theme.set_color("drop_position_color", "Tree", accent_color)
+	theme.set_font_size("font_size", "Tree", font_size_sm)
+
 	var tree_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	tree_stylebox.bg_color = bg_surface_color
 	tree_stylebox.set_corner_radius_all(radius_sm)
@@ -911,6 +1105,23 @@ static func _setup_tree(theme: Theme) -> void:
 	tree_stylebox.content_margin_left = margin_sm.x
 	tree_stylebox.content_margin_right = margin_sm.x
 	theme.set_stylebox("panel", "Tree", tree_stylebox)
+
+	# The row under the pointer and the row that is chosen, which the picker had no way
+	# of telling apart: both were Godot's stock blue-grey.
+	var tree_selected_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	tree_selected_stylebox.bg_color = bg_higher_color
+	tree_selected_stylebox.set_corner_radius_all(radius_sm)
+	theme.set_stylebox("selected", "Tree", tree_selected_stylebox)
+	theme.set_stylebox("selected_focus", "Tree", tree_selected_stylebox)
+
+	var tree_hovered_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	tree_hovered_stylebox.bg_color = bg_elevated_color
+	tree_hovered_stylebox.set_corner_radius_all(radius_sm)
+	theme.set_stylebox("hovered", "Tree", tree_hovered_stylebox)
+	theme.set_stylebox("hovered_dimmed", "Tree", tree_hovered_stylebox)
+
+	theme.set_stylebox("cursor", "Tree", StyleBoxEmpty.new())
+	theme.set_stylebox("cursor_unfocused", "Tree", StyleBoxEmpty.new())
 
 
 static func _setup_popupmenu(theme: Theme) -> void:
@@ -988,15 +1199,11 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	panel_stylebox.content_margin_right = margin_md.x
 	theme.set_stylebox("panel", "PopupMenu", panel_stylebox)
 
+	# Configures the hover box rather than the panel one, which is what the block here
+	# used to do -- taking the popup's own corner radius with it.
 	var hover_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	hover_stylebox.bg_color = bg_surface_color
-	panel_stylebox.set_corner_radius_all(radius_sm)
-	panel_stylebox.set_border_width_all(1)
-	panel_stylebox.border_color = border_color
-	panel_stylebox.content_margin_top = margin_md.y
-	panel_stylebox.content_margin_bottom = margin_md.y
-	panel_stylebox.content_margin_left = margin_md.x
-	panel_stylebox.content_margin_right = margin_md.x
+	hover_stylebox.set_corner_radius_all(radius_sm)
 	theme.set_stylebox("hover", "PopupMenu", hover_stylebox)
 
 	var separator_stylebox: StyleBoxLine = StyleBoxLine.new()

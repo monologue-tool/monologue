@@ -28,17 +28,27 @@ var _prefix: String = ""
 var _suffix: String = ""
 var _editable: bool = true
 
+const ARROW_WIDTH: float = 16.0
+
 var _is_dragging: bool = false
 var _drag_position: Vector2 = Vector2.ZERO
 var _travelled: float = 0.0
 var _line_edit: LineEdit
+var _is_hovered: bool = false
 
 
 func _ready() -> void:
 	custom_minimum_size.y = MIN_HEIGHT
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_CLICK
+	mouse_entered.connect(_on_hover_changed.bind(true))
+	mouse_exited.connect(_on_hover_changed.bind(false))
 	_build_line_edit()
+
+
+func _on_hover_changed(is_hovered: bool) -> void:
+	_is_hovered = is_hovered
+	queue_redraw()
 
 
 ## Reads the property settings this number was declared with. Bounded only when both
@@ -113,6 +123,13 @@ func _handle_button(event: InputEventMouseButton) -> void:
 		return
 
 	if event.pressed:
+		var step: int = _arrow_at(event.position)
+		if step != 0:
+			set_value(value + _step * step)
+			value_submitted.emit(value)
+			accept_event()
+			return
+
 		_is_dragging = true
 		_drag_position = get_viewport().get_mouse_position()
 		_travelled = 0.0
@@ -128,6 +145,19 @@ func _handle_button(event: InputEventMouseButton) -> void:
 	else:
 		value_submitted.emit(value)
 	accept_event()
+
+
+## Which nudge arrow [param position] is over: -1 for the left one, 1 for the right one,
+## 0 for the body in between. The arrows are only drawn on hover, and only answer here
+## when they are.
+func _arrow_at(position: Vector2) -> int:
+	if not _is_hovered or size.x < ARROW_WIDTH * 3.0:
+		return 0
+	if position.x <= ARROW_WIDTH:
+		return -1
+	if position.x >= size.x - ARROW_WIDTH:
+		return 1
+	return 0
 
 
 func _handle_motion(event: InputEventMouseMotion) -> void:
@@ -186,30 +216,75 @@ func _on_editor_gui_input(event: InputEvent) -> void:
 		_line_edit.accept_event()
 
 
+## Which stylebox the number is currently wearing.
+func _current_state() -> String:
+	if not _editable:
+		return "disabled"
+	return "hover" if _is_hovered or _is_dragging else "normal"
+
+
 func _draw() -> void:
 	if _line_edit.visible:
 		return
 
 	var box: Rect2 = Rect2(Vector2.ZERO, size)
-	draw_rect(box, ThemeLayout.bg_elevated_color)
+	draw_style_box(get_theme_stylebox(_current_state(), "SpinSlider"), box)
 
 	if _bounded:
-		var filled: float = inverse_lerp(_minimum, _maximum, value)
-		var fill: Rect2 = Rect2(Vector2.ZERO, Vector2(size.x * clampf(filled, 0.0, 1.0), size.y))
-		draw_rect(fill, ThemeLayout.accent_color * Color(1, 1, 1, 0.45))
+		_draw_fill(box)
 
-	var font: Font = get_theme_default_font()
-	var font_size: int = ThemeLayout.font_size_md
+	if _editable and _is_hovered and not _is_dragging:
+		_draw_arrows(box)
+
+	_draw_value(box)
+
+
+## The part of the range already covered, clipped to the widget so the rounded corners
+## of the box cut the fill rather than the fill overhanging them.
+func _draw_fill(box: Rect2) -> void:
+	var filled: float = clampf(inverse_lerp(_minimum, _maximum, value), 0.0, 1.0)
+	if is_zero_approx(filled):
+		return
+
+	var fill_box: Rect2 = Rect2(box.position, Vector2(box.size.x * filled, box.size.y))
+	draw_style_box(get_theme_stylebox("fill", "SpinSlider"), fill_box)
+
+
+## The two nudge arrows, shown only under the pointer so a row of numbers stays quiet
+## until one of them is being aimed at.
+func _draw_arrows(box: Rect2) -> void:
+	var color: Color = Color(get_theme_color("font_color", "SpinSlider"), 0.6)
+	var decrease: Texture2D = get_theme_icon("decrease", "SpinSlider")
+	var increase: Texture2D = get_theme_icon("increase", "SpinSlider")
+
+	for icon: Texture2D in [decrease, increase]:
+		if icon == null:
+			continue
+		var offset_x: float = (
+			(ARROW_WIDTH - icon.get_width()) * 0.5
+			if icon == decrease
+			else box.size.x - ARROW_WIDTH + (ARROW_WIDTH - icon.get_width()) * 0.5
+		)
+		draw_texture(
+			icon, Vector2(offset_x, (box.size.y - icon.get_height()) * 0.5), color
+		)
+
+
+func _draw_value(box: Rect2) -> void:
+	var font: Font = get_theme_font("font", "SpinSlider")
+	var font_size: int = get_theme_font_size("font_size", "SpinSlider")
 	var text: String = get_display_text()
-	var text_size: Vector2 = font.get_string_size(
-		text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size
+	var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+	var color: Color = get_theme_color(
+		"font_color" if _editable else "font_disabled_color", "SpinSlider"
 	)
-	var color: Color = (
-		ThemeLayout.text_primary_color if _editable else ThemeLayout.text_muted_color
-	)
+
 	draw_string(
 		font,
-		Vector2((size.x - text_size.x) * 0.5, (size.y + text_size.y) * 0.5 - font.get_descent(font_size)),
+		Vector2(
+			(box.size.x - text_size.x) * 0.5,
+			(box.size.y + text_size.y) * 0.5 - font.get_descent(font_size)
+		),
 		text,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,

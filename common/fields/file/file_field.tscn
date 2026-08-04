@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c2beyft8hr7na"]
 
 [ext_resource type="Script" uid="uid://d3nlb4x8yyd80" path="res://common/fields/file/file_field.gd" id="1_filefld"]
+[ext_resource type="Texture2D" uid="uid://b0umav8s8l2qa" path="res://ui/assets/icons/cross.svg" id="3_cross"]
 
 [node name="FileField" type="VBoxContainer" unique_id=1539597147]
 offset_right = 40.0
@@ -10,15 +11,17 @@ script = ExtResource("1_filefld")
 [node name="HBox" type="HBoxContainer" parent="." unique_id=75452527]
 layout_mode = 2
 
-[node name="PathLineEdit" type="LineEdit" parent="HBox" unique_id=1621716622]
+[node name="BrowseButton" type="Button" parent="HBox" unique_id=1510434406]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "No file selected"
-editable = false
+theme_type_variation = &"PlainButton"
+text = "Select a file"
 
-[node name="BrowseButton" type="Button" parent="HBox" unique_id=1551303389]
+[node name="ClearButton" type="Button" parent="HBox" unique_id=1551303390]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-tooltip_text = "Browse for a file"
-text = "..."
+tooltip_text = "Clear"
+theme_type_variation = &"PlainButton"
+icon = ExtResource("3_cross")

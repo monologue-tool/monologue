@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"MarginContainer_Small"
+theme_type_variation = &"SmallMarginContainer"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
@@ -29,7 +29,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 1
-theme_type_variation = &"LineEdit_Flat"
+theme_type_variation = &"FlatLineEdit"
 theme_override_colors/font_uneditable_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "English"
@@ -42,7 +42,7 @@ text_direction = 1
 
 [node name="ControlsContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
-theme_type_variation = &"HBoxContainer_Medium"
+theme_type_variation = &"HBoxContainerMedium"
 alignment = 2
 
 [node name="btnEdit" type="TextureButton" parent="MarginContainer/HBoxContainer/ControlsContainer"]

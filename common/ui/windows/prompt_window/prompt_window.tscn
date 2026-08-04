@@ -54,11 +54,11 @@ stretch_mode = 5
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_type_variation = &"VBoxContainer_Big"
+theme_type_variation = &"VBoxContainerLarge"
 
 [node name="LabelHBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/HBox/VBox" unique_id=186543798]
 layout_mode = 2
-theme_type_variation = &"VBoxContainer_Medium"
+theme_type_variation = &"VBoxContainerMedium"
 
 [node name="TitleLabel" type="Label" parent="PanelContainer/MarginContainer/HBox/VBox/LabelHBox" unique_id=1794345615]
 unique_name_in_owner = true
@@ -78,7 +78,7 @@ autowrap_mode = 3
 
 [node name="HBox" type="HBoxContainer" parent="PanelContainer/MarginContainer/HBox/VBox" unique_id=1773416990]
 layout_mode = 2
-theme_type_variation = &"HBoxContainer_Big"
+theme_type_variation = &"HBoxContainerLarge"
 
 [node name="ConfirmButton" type="Button" parent="PanelContainer/MarginContainer/HBox/VBox/HBox" unique_id=1491844496]
 unique_name_in_owner = true
