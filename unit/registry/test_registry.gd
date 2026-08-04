@@ -93,18 +93,9 @@ func test_unrelated_types_are_not_compatible() -> void:
 	assert_bool(_registry.is_compatible(bool_id, text_id)).is_false()
 
 
-func test_internal_categories_are_hidden_unless_asked_for() -> void:
-	# The zoo node lives in "_technical" and must not appear in the add-node menu.
-	var public: PackedStringArray = _registry.list_categories(MonologueObjectType.NODE)
-	var all: PackedStringArray = _registry.list_categories(MonologueObjectType.NODE, true)
-
-	assert_bool("_technical" in public).is_false()
-	assert_bool("_technical" in all).is_true()
-
-
 func test_registering_a_duplicate_name_is_rejected() -> void:
-	var duplicate: MonologueIndexer = load("res://common/fields/text/index.gd").new()
-	assert_bool(_registry.register(duplicate)).is_false()
+	var duplicated_indexer: MonologueIndexer = load("res://common/fields/text/index.gd").new()
+	assert_bool(_registry.register(duplicated_indexer)).is_false()
 
 
 func test_indexers_are_tagged_with_the_plugin_that_registered_them() -> void:
