@@ -70,6 +70,25 @@ func items(key: String) -> Array[Dictionary]:
 
 
 ## One of this node's own properties, as the text a reader sees.
+## One record out of a list held inside another: the one named, or the one marked as the
+## fallback, or the first there is. A character's portrait and a location's variation are
+## both chosen this way, and a behaviour bringing its own kind of list should not have to
+## write it a third time.
+func pick(items_of: Variant, item_id: String) -> Dictionary:
+	var fallback: Dictionary = {}
+	if items_of is not Array:
+		return fallback
+
+	for record: Variant in items_of:
+		if record is not Dictionary:
+			continue
+		if str(record.get("id", "")) == item_id:
+			return record
+		if fallback.is_empty() or record.get("is_default") == true:
+			fallback = record
+	return fallback
+
+
 func text(key: String) -> String:
 	return label(value(key))
 

@@ -375,8 +375,8 @@ func test_the_stage_nodes_reach_their_parts_and_leave_the_stage_behind_them() ->
 		"The character's default portrait did not stand in for the one nobody named."
 	).is_equal("default")
 
-	assert_int(_player.speakers.played.size()).is_equal(1)
-	assert_bool(_player.speakers.played[0]["loop"]).is_true()
+	assert_int(_player.audio.played.size()).is_equal(1)
+	assert_bool(_player.audio.played[0]["loop"]).is_true()
 
 	assert_str(str(session.state.stage.get("background", ""))).is_equal("art/room.png")
 	assert_dict(session.state.stage.get("characters", {})).override_failure_message(
@@ -415,7 +415,6 @@ func test_a_restored_save_comes_back_to_the_picture_it_left() -> void:
 
 	assert_array(reader.backdrop.images).contains(["art/room.png"])
 	assert_dict(reader.staged.restaged).contains_keys([cast])
-	assert_int(reader.speakers.played.size()).override_failure_message(
+	assert_int(reader.audio.played.size()).override_failure_message(
 		"The music that was still playing did not start again."
 	).is_equal(1)
-

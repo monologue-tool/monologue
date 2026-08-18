@@ -8,6 +8,8 @@ class_name ScriptedPlayer extends MonologuePlayer
 
 ## Every line said, in order.
 var said: Array[String] = []
+## Every speaker named alongside them, same order.
+var speakers: Array[String] = []
 ## Every set of options offered, as the keys they carried.
 var offered: Array = []
 ## What to answer with, taken in order. An empty list takes the first option offered.
@@ -23,17 +25,17 @@ var silent: bool = false
 ## The same three parts the player carries, named again so a test reads them without casting.
 var staged: Staged
 var backdrop: Backdrop
-var speakers: Speakers
+var audio: Audio
 
 
 func _init() -> void:
 	staged = Staged.new()
 	backdrop = Backdrop.new()
-	speakers = Speakers.new()
+	audio = Audio.new()
 	characters = staged
 	scenery = backdrop
-	sound = speakers
-	for part: Node in [staged, backdrop, speakers]:
+	sound = audio
+	for part: Node in [staged, backdrop, audio]:
 		add_child(part)
 
 
@@ -107,7 +109,7 @@ class Backdrop extends MonologueSceneryPart:
 		images.append(path)
 
 
-class Speakers extends MonologueSoundPart:
+class Audio extends MonologueSoundPart:
 	var played: Array[Dictionary] = []
 	var voices: PackedStringArray = []
 	var stopped: int = 0

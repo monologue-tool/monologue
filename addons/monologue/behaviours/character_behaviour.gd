@@ -45,8 +45,9 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 ## Everything the part needs to draw, resolved here rather than there: a part is handed a
 ## portrait and a curve, never an id it would have to go looking up.
 func _look(ctx: MonologueContext, who: String, duration: float) -> Dictionary:
+	var portraits: Variant = ctx.graph.record("characters", who).get("portraits", [])
 	return {
-		"portrait": _portrait(ctx, who, str(ctx.value("portrait", ""))),
+		"portrait": ctx.pick(portraits, str(ctx.value("portrait", ""))),
 		"position": str(ctx.value("position", "Left")),
 		"z_index": int(ctx.value("z_index", 0)),
 		"flip_h": bool(ctx.value("flip_h", false)),
@@ -55,19 +56,6 @@ func _look(ctx: MonologueContext, who: String, duration: float) -> Dictionary:
 		"duration": duration,
 		"curve": _curve(ctx, str(ctx.value("curve", ""))),
 	}
-
-
-## The named portrait, or the character's default one, or the first they have.
-func _portrait(ctx: MonologueContext, who: String, chosen: String) -> Dictionary:
-	var fallback: Dictionary = {}
-	for record: Variant in ctx.graph.record("characters", who).get("portraits", []):
-		if not record is Dictionary:
-			continue
-		if str(record.get("id", "")) == chosen:
-			return record
-		if fallback.is_empty() or record.get("is_default") == true:
-			fallback = record
-	return fallback
 
 
 ## The named ease, or the project's default one, as its four coordinates.
