@@ -14,6 +14,15 @@ var port_size: String = "normal"
 ## Set for references, whose port type comes from what they point at rather than from
 ## the field type they all share.
 var port_type_id: int = 0
+## Slot type the outgoing side uses, when it is not the one the incoming side uses.
+##
+## A reroute takes in anything and gives back only what it was given, so its two sides are
+## not the same type. 0 means both sides are alike, which is every other row.
+var output_type_id: int = 0
+## What the outgoing side shows in brackets, when it differs from the incoming one.
+var output_type_label: String = ""
+## What the outgoing side is drawn in, when it differs from the incoming one.
+var output_color: Color = Color.TRANSPARENT
 ## What the row shows in brackets. Empty means "show [member _type]". A reference shows
 ## what it accepts -- "character" -- since every one of them would otherwise read
 ## "reference". The colour and the port type still come from [member _type].

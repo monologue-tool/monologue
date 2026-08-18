@@ -138,3 +138,107 @@ func test_a_choice_shows_an_option_by_name_and_stops_when_unwired() -> void:
 	choice.get_external_list_items("choices")
 
 	assert_bool(option.property_changed.is_connected(choice._on_source_property_changed)).is_false()
+
+
+func test_an_empty_reroute_takes_anything_and_gives_back_anything() -> void:
+	var bend: InspectableNode = _storyline.create_node("reroute")
+
+	assert_dict(bend.carried_port(bend.get_main_property())).override_failure_message(
+		"A reroute with nothing plugged in claimed to be carrying something."
+	).is_empty()
+	assert_int(_given_back(bend)).is_equal(
+		MonologueRegistry.get_instance().get_field_type_id("any")
+	)
+
+
+func test_a_reroute_gives_back_only_what_was_plugged_into_it() -> void:
+	# The whole of what a reroute is: it takes in anything, so it can always be rewired, and
+	# hands on only what it was given, so it cannot turn one kind of thing into another on
+	# the way past.
+	var manager: ConnectionManager = ConnectionManager.new(_storyline)
+	var source: InspectableNode = _storyline.create_node("text")
+	var bend: InspectableNode = _storyline.create_node("reroute")
+
+	manager.register_connection_by_property(
+		source.get_id(), source.get_main_property().name,
+		bend.get_id(), bend.get_main_property().name
+	)
+
+	var registry: MonologueRegistry = MonologueRegistry.get_instance()
+	assert_int(_given_back(bend)).override_failure_message(
+		"A reroute fed a text did not give a text back."
+	).is_equal(registry.get_field_type_id("text"))
+	assert_str(str(bend.carried_port(bend.get_main_property())["label"])).is_equal("text")
+
+	# What it takes in is untouched, or it could never be rewired without first being
+	# unplugged from whatever it feeds.
+	assert_int(_taken_in(bend)).is_equal(registry.get_field_type_id("any"))
+
+	# And a bend in the wire is still a bend however many of them there are.
+	var second: InspectableNode = _storyline.create_node("reroute")
+	manager.register_connection_by_property(
+		bend.get_id(), bend.get_main_property().name,
+		second.get_id(), second.get_main_property().name
+	)
+	assert_int(_given_back(second)).override_failure_message(
+		"A type stopped at the first bend instead of carrying on down the chain."
+	).is_equal(registry.get_field_type_id("text"))
+
+
+func test_a_reroute_wired_in_a_circle_carries_nothing_rather_than_hanging() -> void:
+	var manager: ConnectionManager = ConnectionManager.new(_storyline)
+	var first: InspectableNode = _storyline.create_node("reroute")
+	var second: InspectableNode = _storyline.create_node("reroute")
+
+	manager.register_connection_by_property(
+		first.get_id(), first.get_main_property().name,
+		second.get_id(), second.get_main_property().name
+	)
+	manager.register_connection_by_property(
+		second.get_id(), second.get_main_property().name,
+		first.get_id(), first.get_main_property().name
+	)
+
+	assert_int(_given_back(first)).override_failure_message(
+		"A reroute wired in a circle did not give up on working out what it carries."
+	).is_equal(MonologueRegistry.get_instance().get_field_type_id("any"))
+
+
+func test_a_reroute_says_so_when_it_hands_on_what_the_far_end_cannot_take() -> void:
+	# Rewiring what feeds a reroute can leave it handing something else on to a port that was
+	# never able to take it, and the wire looks exactly as it did before.
+	var manager: ConnectionManager = ConnectionManager.new(_storyline)
+	var wording: InspectableNode = _storyline.create_node("text")
+	var bend: InspectableNode = _storyline.create_node("reroute")
+	var pause: InspectableNode = _storyline.create_node("wait")
+
+	manager.register_connection_by_property(
+		wording.get_id(), wording.get_main_property().name,
+		bend.get_id(), bend.get_main_property().name
+	)
+	manager.register_connection_by_property(
+		bend.get_id(), bend.get_main_property().name, pause.get_id(), "seconds"
+	)
+
+	var context: ValidationContext = ValidationContext.new()
+	context.object = bend
+	context.project = _project
+	context.phase = ValidationContext.Phase.AUDIT
+
+	var result: ValidationResult = ValidationResult.ok()
+	bend.validate_object(result, context)
+
+	assert_array(result.with_code(&"rerouted_into_the_wrong_type")).override_failure_message(
+		"A text was carried into a port that takes a number and nobody said anything."
+	).is_not_empty()
+
+
+## The port a node hands on, as the graph would draw it.
+func _given_back(node: InspectableNode) -> int:
+	return int(NodePort.of(node, node.get_main_property())["type_id"])
+
+
+## The port a node takes in, which is always the one it declares.
+func _taken_in(node: InspectableNode) -> int:
+	return MonologueRegistry.get_instance().get_field_type_id(node.get_main_property().type)
+

@@ -102,6 +102,19 @@ func _build_preview(_language: String = "") -> Control:
 	return null
 
 
+## What this property gives back, when that is not what it declares: a reroute hands on
+## whatever was plugged into it. Returned as {"type_id": int, "label": String}, empty for a
+## node that is only ever itself, which is all of them but one.
+##
+## Only the outgoing side is answered. What a node takes in stays what it declares, or a
+## reroute could never be rewired without first being unplugged from whatever it feeds.
+##
+## [param hops] counts how many of these have already been followed, so that a reroute wired
+## in a circle is given up on rather than asked forever.
+func carried_port(_property: Property, _hops: int = 0) -> Dictionary:
+	return {}
+
+
 ## Redraws the preview alone. What a value still being typed needs: rebuilding the whole view
 ## would take the ports and their wires with it, on every keystroke.
 func refresh_preview() -> void:

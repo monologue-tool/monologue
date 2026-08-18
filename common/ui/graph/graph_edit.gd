@@ -67,6 +67,8 @@ func refresh() -> void:
 	_pending_positions.clear()
 	clear_connections()
 
+	MonologueRegistry.get_instance().apply_connection_types(self)
+
 	for child: GraphElement in get_all_graph_nodes():
 		child.queue_free()
 

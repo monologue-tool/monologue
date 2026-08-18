@@ -281,6 +281,15 @@ func apply_connection_types(graph_edit: GraphEdit) -> void:
 			if is_compatible(from_field.type_id, to_field.type_id):
 				graph_edit.add_valid_connection_type(from_field.type_id, to_field.type_id)
 
+		# A reference port is not a field type, so the loop above never reaches one. A field
+		# that accepts anything has to be told about them by name, and they are handed out as
+		# they are first asked for -- which is why this is worth calling again after a redraw.
+		if "*" not in from_field.compatible_types:
+			continue
+		for reference_type_id: int in _reference_type_ids.values():
+			graph_edit.add_valid_connection_type(from_field.type_id, reference_type_id)
+			graph_edit.add_valid_connection_type(reference_type_id, from_field.type_id)
+
 
 static func _sort_by_display_name(a: MonologueIndexer, b: MonologueIndexer) -> bool:
 	return a.get_display_name().naturalnocasecmp_to(b.get_display_name()) < 0

@@ -86,11 +86,16 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 
 		var value_label: Label = Label.new()
 		value_label.mouse_filter = Control.MOUSE_FILTER_PASS
-		if row.get_type_label():
-			value_label.text = "[%s]" % row.get_type_label()
+		# What a row gives back is the informative half when the two differ: an empty reroute
+		# reads "any", and one with something plugged in reads what it is carrying.
+		var shown_label: String = (
+			row.output_type_label if not row.output_type_label.is_empty()
+			else row.get_type_label()
+		)
+		if shown_label:
+			value_label.text = "[%s]" % shown_label
 
-		var row_indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(row.get_type())
-		var slot_color: Color = row_indexer.color if row_indexer else Color.WHITE
+		var slot_color: Color = NodePort.color_of(row.get_type())
 
 		value_label.label_settings = LabelSettings.new()
 		value_label.label_settings.font_color = slot_color
@@ -115,14 +120,20 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		var type_id: int = row.port_type_id
 		if type_id == 0:
 			type_id = MonologueRegistry.get_instance().get_field_type_id(row.get_type())
+		# The two sides are typed apart so that a reroute can take in anything and still give
+		# back only what it was given.
+		var out_type_id: int = row.output_type_id if row.output_type_id != 0 else type_id
+		var out_color: Color = (
+			row.output_color if row.output_color != Color.TRANSPARENT else slot_color
+		)
 		graph_node.set_slot(
 			idx,
 			row._enable_left_port,
 			type_id,
 			slot_color,
 			row._enable_right_port,
-			type_id,
-			slot_color,
+			out_type_id,
+			out_color,
 			SLOT_IN_TEXTURE,
 			SLOT_OUT_TEXTURE,
 			true
@@ -238,22 +249,19 @@ static func _build_property_row(prop: Property, owner: InspectableNode) -> Graph
 	var row: GraphNodeRow = GraphNodeRow.new(label, row_type, enable_left, enable_right)
 	row._property_name = prop.name
 	row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")
-	if prop.type == "reference":
-		_apply_reference_port(row, prop, owner)
+
+	# What a node takes in is what it declares; what it gives back may be something it is
+	# only carrying. The two are one row for every node but a reroute.
+	var taken: Dictionary = NodePort.declared(owner, prop)
+	var given: Dictionary = NodePort.of(owner, prop)
+	row.port_type_id = int(taken["type_id"])
+	row.type_label = str(taken["label"])
+
+	if int(given["type_id"]) != int(taken["type_id"]):
+		row.output_type_id = int(given["type_id"])
+		row.output_type_label = str(given["label"])
+		row.output_color = given["color"]
 	return row
-
-
-## Types a reference row after what it points at, so a character port only accepts
-## another character port, and reads as "character" rather than "reference".
-static func _apply_reference_port(
-	row: GraphNodeRow, prop: Property, owner: InspectableNode
-) -> void:
-	var scope: String = str(prop.get_settings_value(PropertySettings.KEY_REFERENCE_SCOPE, ""))
-	if scope.is_empty():
-		return
-
-	row.port_type_id = MonologueRegistry.get_instance().get_reference_type_id(scope)
-	row.type_label = ReferenceResolver.describe_scope(scope, owner)
 
 
 static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array[GraphNodeRow]:
