@@ -1,6 +1,6 @@
-## A story flattened into the shape the runtime walks. Built once and never changed:
-## everything that moves lives in [MonologueState], so two players can share one graph and
-## rewinding is restoring a state rather than rebuilding anything.
+## A story flattened into the shape the runtime walks. Built once and never changed.
+## Everything that moves lives in [MonologueState], so two players can share one graph, and
+## rewinding restores a state instead of rebuilding anything.
 ##
 ## Knows the shape of the format and no node type whatsoever.
 class_name MonologueStoryGraph extends RefCounted
@@ -8,7 +8,7 @@ class_name MonologueStoryGraph extends RefCounted
 ## No id, property name or item id can contain a pipe, so an edge key needs no escaping.
 const KEY_SEPARATOR: String = "|"
 ## Marks a sub-port standing for something computed rather than stored. Must match
-## NodeConnection.EXTERNAL_PREFIX in the editor; a test holds the two together.
+## NodeConnection.EXTERNAL_PREFIX in the editor. A test holds the two together.
 const EXTERNAL_PREFIX: String = "ext_"
 ## Editor bookkeeping, which stops at the door.
 const RESERVED_KEYS: PackedStringArray = ["$type", "_editor_settings"]
@@ -79,9 +79,9 @@ func entry_of(storyline_id: String) -> String:
 	return str((storylines.get(storyline_id, {}) as Dictionary).get("entry", ""))
 
 
-## How a jump finds a waypoint, since the editor stores the name written on the node rather
-## than its id. Walked rather than indexed: an index would have to be told which properties
-## are worth indexing, which is the runtime deciding things about node types.
+## How a jump finds a waypoint, since the editor stores the name written on the node and not
+## its id. Walked and not indexed. An index would have to be told which properties are worth
+## indexing, which is the runtime deciding things about node types.
 func find_by(storyline_id: String, key_name: String, value: Variant) -> PackedStringArray:
 	var found: PackedStringArray = []
 	for node_id: String in nodes:
@@ -122,7 +122,7 @@ func _index(source: MonologueSource) -> void:
 	entry_storyline = _resolve_entry(source)
 
 
-## In the order the project stores them; the first is what a story falls back to.
+## In the order the project stores them. The first is what a story falls back to.
 static func _languages_of(source: MonologueSource) -> PackedStringArray:
 	var codes: PackedStringArray = []
 	for record_data: Variant in source.records("languages"):
@@ -181,8 +181,8 @@ static func _strip_reserved(node: Dictionary) -> Dictionary:
 	return kept
 
 
-## The item id is taken verbatim: the editor stores it beside the property name rather than
-## glued to it, so nothing here parses a composite "choices:option-XXXX" string.
+## The item id is taken verbatim. The editor stores it beside the property name and not glued
+## to it, so nothing here parses a composite "choices:option-XXXX" string.
 func _index_connections(document: Dictionary, storyline_id: String) -> void:
 	for candidate: Variant in document.get("connections", []):
 		if candidate is not Dictionary:
@@ -220,8 +220,8 @@ func _index_connections(document: Dictionary, storyline_id: String) -> void:
 		in_edges[to_key] = incoming
 
 
-## Reporting the guess matters: a story that starts somewhere the author did not choose looks
-## like a bug in the game.
+## The guess is reported. A story starting somewhere the author did not choose looks like a
+## bug in the game.
 func _resolve_entry(source: MonologueSource) -> String:
 	var declared: String = source.entry_point()
 	if storylines.has(declared):

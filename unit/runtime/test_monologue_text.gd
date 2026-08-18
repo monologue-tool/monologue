@@ -6,7 +6,7 @@ extends GdUnitTestSuite
 
 
 func test_the_asked_for_language_wins_and_a_gap_falls_back_rather_than_going_blank() -> void:
-	# A blank line reads as a bug in the game; another language reads as a gap in the
+	# A blank line reads as a bug in the game. Another language reads as a gap in the
 	# translation, which is what it is. Whitespace is a gap too.
 	var both: Dictionary = {"en": "Hello.", "fr": "Bonjour."}
 	assert_str(MonologueText.to_label(both, "fr")).is_equal("Bonjour.")

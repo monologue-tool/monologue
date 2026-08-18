@@ -12,7 +12,7 @@ var nodes: Array[InspectableNode] = []
 ## connected_from / connected_to are views onto this list.
 var connections: Array[NodeConnection] = []
 ## Anything [method _from_dict] could not make sense of, collected for the reader to
-## report. Cleared on every load; never serialized.
+## report. Cleared on every load, never serialized.
 var load_issues: Array[ValidationIssue] = []
 var _node_index: Dictionary = {}
 
@@ -26,8 +26,7 @@ func add_node(node: InspectableNode) -> void:
 	register_node(node)
 
 
-## Removes a node and every wire that touched it, and returns those wires so that
-## undoing the removal can put them back exactly as they were.
+## Returns the wires it removed, so undoing can put them back.
 func remove_node(node: InspectableNode) -> Array[NodeConnection]:
 	if not node in nodes:
 		push_warning("Can't remove node %s " % str(node.get_property_value("id")))
@@ -102,16 +101,13 @@ func get_outgoing(node_id: String, property_name: String = "") -> Array[NodeConn
 	return found
 
 
-## Where the chain starting at [param start_node_id] runs out: the nodes it reaches that
-## lead nowhere further, and from which the story could carry on. A call node grows one
-## exit per answer.
+## The nodes the chain from [param start_node_id] reaches that lead nowhere further. A call
+## node grows one exit per answer.
 ##
-## Walks forward through the wires, remembering where it has been, so a chain that loops
-## back on itself is followed once rather than for ever.
+## Remembers where it has been, so a chain looping back on itself is followed once.
 ##
-## A node that stops the story on purpose is not an answer: an end ends it, a jump and a
-## storyline continue it elsewhere. Counting them grew exits nothing could ever come back
-## through.
+## A node that stops the story on purpose is not an answer. An end ends it, a jump and a
+## storyline continue it elsewhere, and nothing can come back through any of them.
 func find_terminations(start_node_id: String) -> Array[InspectableNode]:
 	var terminations: Array[InspectableNode] = []
 	var visited: Dictionary[String, bool] = {start_node_id: true}
@@ -136,8 +132,7 @@ func find_terminations(start_node_id: String) -> Array[InspectableNode]:
 	return terminations
 
 
-## True when the node declares no output port at all, so the flow stops here because the
-## type says so rather than because a wire is missing.
+## The node declares no output port, so the flow stops here by design and not by omission.
 ##
 ## Read off the schema instead of a list of type names, so a plugin's own terminal node
 ## is recognised without this file knowing it exists.
@@ -155,7 +150,7 @@ static func is_terminal_by_design(node: InspectableNode) -> bool:
 
 
 ## Refills every property's connected_from / connected_to from [member connections].
-## Run after any change to the list; properties only announce it when their own view
+## Run after any change to the list. Properties only announce it when their own view
 ## actually moved.
 func rebuild_connection_views() -> void:
 	var incoming: Dictionary = {}

@@ -1,6 +1,5 @@
 class_name WelcomeWindow extends MonologueWindow
 
-## Callback for loading projects after file selection.
 var file_callback: Callable = func(path: String) -> void: EventBus.load_project.emit(path)
 
 @onready var close_button: BaseButton = %CloseButton

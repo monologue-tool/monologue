@@ -1,4 +1,3 @@
-## Music, effects and voice.
 @abstract class_name MonologueSoundPart extends Node
 
 

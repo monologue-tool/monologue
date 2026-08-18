@@ -2,7 +2,7 @@
 ##
 ## Nothing is written to disk first: the documents go straight from the live project into the
 ## addon, so an unsaved edit is what you watch. It is the shipped runtime doing the playing,
-## not an editor-side imitation of it, which is the point -- what runs here is what a game
+## not an editor-side imitation of it. What runs here is what a game
 ## running the same story would do.
 class_name MonologueRunWindow extends Window
 

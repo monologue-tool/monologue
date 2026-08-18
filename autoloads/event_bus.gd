@@ -49,7 +49,7 @@ signal hide_welcome
 ## Opens the window listing every translatable line in the project.
 signal open_localization
 ## Opens the node picker. [param node] is a graph view name, empty when the picker was
-## not dragged out of a port; the three positions are null in that case, and
+## not dragged out of a port. The three positions are null in that case, and
 ## [param center_window] puts the picker in the middle of the screen instead.
 signal enable_picker_mode(
 	node: String,

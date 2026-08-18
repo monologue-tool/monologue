@@ -1,4 +1,3 @@
-## Leaves by one of two ports depending on what the test says.
 extends MonologueBehaviour
 
 

@@ -1,5 +1,4 @@
-## Puts an image behind everyone, and remembers it so a restored save does not come back to
-## an empty stage.
+## Remembers the image, so a restored save does not come back to an empty stage.
 extends MonologueBehaviour
 
 const SLOT: String = "background"
@@ -9,8 +8,7 @@ func handles() -> PackedStringArray:
 	return ["background"]
 
 
-## Called again after a save is put back, which is when the stage has to be rebuilt without
-## replaying the story that filled it.
+## Rebuilds the stage after a save is put back, without replaying the story.
 func setup(ctx: MonologueContext) -> void:
 	var kept: String = str(ctx.state.stage.get(SLOT, ""))
 	if not kept.is_empty():

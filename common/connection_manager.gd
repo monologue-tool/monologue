@@ -1,9 +1,8 @@
 ## Queries and edits a storyline's wires on behalf of the graph view.
 ##
-## Holds nothing of its own: [member StorylineDocument.connections] is the source of
-## truth, and everything here reads or edits that list. The one exception is
-## [member _suspended_connections], which parks wires while a port is temporarily gone
-## so they can be put back when it returns.
+## Holds nothing of its own. [member StorylineDocument.connections] is the source of truth.
+## The one exception is [member _suspended_connections], which parks wires while a port is
+## gone so they can be put back when it returns.
 class_name ConnectionManager extends RefCounted
 
 var _storyline: StorylineDocument
@@ -37,8 +36,8 @@ func unregister_connection_by_property(
 	)
 
 
-## Every wire, as {from_node_id, from_property, to_node_id, to_property}, with
-## composite names where a wire touches one list item in particular.
+## Every wire, as {from_node_id, from_property, to_node_id, to_property}. Names are
+## composite where a wire touches one list item.
 func get_all_connections() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for connection: NodeConnection in _storyline.connections:
@@ -96,8 +95,7 @@ func restore_outgoing_property_connections(node_id: String, property_name: Strin
 	_restore(node_id, property_name, false)
 
 
-## Lifts a property's wires out of the storyline and parks them, so that a port about
-## to disappear does not take them with it.
+## Parks a property's wires, so a port about to disappear does not take them with it.
 func _suspend(node_id: String, property_name: String, is_incoming: bool) -> void:
 	var parked: Array[NodeConnection] = (
 		_storyline.get_incoming(node_id, property_name)

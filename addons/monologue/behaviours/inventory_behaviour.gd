@@ -1,4 +1,3 @@
-## Gives, takes or sets how many of an item a character is carrying.
 extends MonologueBehaviour
 
 
@@ -24,7 +23,6 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 		"Set": held = quantity
 		_: held += quantity
 
-	# Kept at zero rather than dropped: a story asking how many are held reads the same
-	# either way, and the entry says the item was met.
+	# Kept at zero, so the entry still says the item was met.
 	ctx.state.hold(who, item, held)
 	return BehaviourResult.progress(ctx.next())

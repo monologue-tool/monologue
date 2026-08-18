@@ -41,7 +41,7 @@ func _draw() -> void:
 	draw_dashed_line(cp2.position + cp2.size / 2, Vector2(size.x, 0), Color("ffffff3f"), 1.0, 5.0)
 	draw_dashed_line(Vector2(0, size.y), Vector2(size.x, 0), Color("ffffff3f"), 1.0, 5.0)
 
-	# Time runs along the bar at a constant rate; the ball sits at what the curve makes of it.
+	# Time runs along the bar at a constant rate. The ball sits at what the curve makes of it.
 	draw_circle(
 		Vector2(_eased_at(points, _ball_progress) * size.x, size.y * 0.5),
 		12.0,

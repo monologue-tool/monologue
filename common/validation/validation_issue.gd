@@ -48,7 +48,6 @@ func at(object: InspectableObject, target_property: String = "") -> ValidationIs
 	return self
 
 
-## Pins the issue to a document by name. Chainable.
 func in_document(name: String) -> ValidationIssue:
 	document_name = name
 	return self

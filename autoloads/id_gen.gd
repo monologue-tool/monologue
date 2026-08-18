@@ -18,12 +18,11 @@ static func generate(length: int = DEFAULT_LENGTH) -> String:
 
 
 ## Returns an object id such as "character-7QK2M9XZ". The type prefix makes an id
-## readable on its own; the suffix is what makes it unique.
+## readable on its own. The suffix makes it unique.
 static func generate_object_id(type_name: String, length: int = DEFAULT_LENGTH) -> String:
 	return "%s-%s" % [type_name, generate(length)]
 
 
-## Returns the type prefix of an object id, or "" when it carries none.
 static func get_type_prefix(object_id: String) -> String:
 	var separator_index: int = object_id.rfind("-")
 	return object_id.substr(0, separator_index) if separator_index > 0 else ""

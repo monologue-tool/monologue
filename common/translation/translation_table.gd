@@ -1,12 +1,10 @@
 ## Every translatable piece of text in a project, gathered in one place.
 ##
-## Headless: it walks the model, not the editor. Which properties count is decided by
-## the properties themselves -- [method Property.is_translatable] -- so a new field type
-## that holds translations appears here without this class hearing about it.
+## Which properties count is decided by [method Property.is_translatable], so a new field
+## type holding translations appears here on its own.
 ##
-## Text lives in two shapes: on live objects such as nodes and documents, and inside
-## collection records, which are plain dictionaries. Both are walked; an entry knows
-## which it came from and writes itself back accordingly.
+## Text lives on live objects and inside collection records, which are plain dictionaries.
+## Both are walked, and an entry knows which it came from.
 class_name TranslationTable extends RefCounted
 
 const COLLECTION_TYPE: String = "collection"
@@ -17,7 +15,6 @@ var _prototypes: Dictionary[String, CollectionItem] = {}
 var _history: CommandManager
 
 
-## Walks a project and returns everything translatable in it.
 static func collect(project: MonologueProject) -> TranslationTable:
 	var table: TranslationTable = TranslationTable.new()
 	if project == null:
@@ -32,7 +29,6 @@ static func collect(project: MonologueProject) -> TranslationTable:
 	return table
 
 
-## The language codes the project declares, in the order they were added.
 static func languages_of(project: MonologueProject) -> PackedStringArray:
 	var codes: PackedStringArray = []
 	if project == null:
@@ -58,7 +54,6 @@ func get_keys() -> PackedStringArray:
 	return keys
 
 
-## Entries with nothing written in [param language].
 func missing(language: String) -> Array[TranslationEntry]:
 	var found: Array[TranslationEntry] = []
 	for entry: TranslationEntry in entries:
@@ -67,16 +62,15 @@ func missing(language: String) -> Array[TranslationEntry]:
 	return found
 
 
-## How much of the project reads in [param language], from 0 to 1. An empty project is
-## fully translated, which is the only answer that does not divide by zero.
+## From 0 to 1. An empty project counts as fully translated.
 func coverage(language: String) -> float:
 	if entries.is_empty():
 		return 1.0
 	return float(entries.size() - missing(language).size()) / float(entries.size())
 
 
-## Writes one translation back into the project, through the undo history. Returns
-## false when the key is unknown or the text was already that.
+## Goes through the undo history. False when the key is unknown or the text was already
+## that.
 func apply(key: String, language: String, text: String) -> bool:
 	var entry: TranslationEntry = get_entry(key)
 	if entry == null or language.is_empty():
@@ -134,7 +128,6 @@ func _collect_object(object: InspectableObject, document_name: String) -> void:
 		)
 
 
-## Walks the records of a collection property, and the collections nested inside them.
 func _collect_records(
 	owner: InspectableObject, property: Property, path: Array, document_name: String
 ) -> void:
@@ -241,7 +234,6 @@ func _rebuild(
 	return rebuilt
 
 
-## Reads the property holding a nested collection, following the path taken so far.
 func _read_at(owner: InspectableObject, path: Array, property_name: String) -> Variant:
 	if path.is_empty():
 		return owner.get_property_value(property_name)

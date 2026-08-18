@@ -160,7 +160,7 @@ static func from_csv_lines(
 # --- JSON -------------------------------------------------------------------------
 
 
-## {language: {key: text}} -- the shape most translation tools expect, and the one that
+## {language: {key: text}}, the shape most translation tools expect, and the one that
 ## diffs cleanly when only one language moves.
 static func to_json(table: TranslationTable, languages: PackedStringArray) -> Dictionary:
 	var out: Dictionary = {}

@@ -5,7 +5,6 @@
 ## bootstraps itself, which is what lets headless tests run with no autoloads at all.
 extends Node
 
-## Convenience accessor so scene code can write `Monologue.registry`.
 var registry: MonologueRegistry
 
 

@@ -1,8 +1,8 @@
 ## Picks another object and stores its id.
 ##
-## The label comes from the target every time the list is drawn, so renaming the target
-## updates every reference to it. An id the scope no longer holds is shown as broken and
-## kept as it is: nothing is ever silently swapped for a different object.
+## The label comes from the target every time the list is drawn, so renaming it updates every
+## reference. An id the scope no longer holds is shown as broken and kept, never swapped for
+## something else.
 class_name ReferenceField extends Field
 
 const MISSING_PREFIX: String = "[!] Missing: "

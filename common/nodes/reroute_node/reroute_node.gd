@@ -1,4 +1,4 @@
-## Passes the story straight through. Carries nothing of its own; it exists so a long
+## Passes the story straight through. Carries nothing of its own. It exists so a long
 ## wire can be bent around the rest of the graph instead of crossing it.
 ##
 ## It takes in anything and gives back only what it was given: its outgoing side is typed

@@ -25,7 +25,7 @@ func _build_preview(_language: String = "") -> Control:
 	return NodePreview.line(NodePreview.seconds(float(get_property_value("seconds"))))
 
 
-## A wait of nothing is a node that does nothing; worth saying, not worth blocking.
+## A wait of nothing is a node that does nothing. Worth saying, not worth blocking.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
 	if float(get_property_value("seconds")) <= 0.0:
 		result.add(

@@ -35,8 +35,8 @@ func _init(command_manager: CommandManager = null) -> void:
 		.hidden_in_inspector()
 		.not_exposable())
 
-	# Asked of the properties rather than of the flag: a node redeclaring one of the names
-	# above overwrites its own main property here, and the flag would still say it had one.
+	# Asked of the properties, not the flag. A node redeclaring one of the names above
+	# overwrites its own main property, and the flag would still say it had one.
 	if get_main_property() == null:
 		push_error(
 			"%s has no main property; check it does not redeclare id, color, label, notes "
@@ -69,8 +69,7 @@ func get_main_property() -> Property:
 	return null
 
 
-## Returns properties visible in the graph, ordered with main property first.
-## Used for port index calculation and graph node display.
+## Properties visible in the graph, main property first.
 func get_visible_properties() -> Array[Property]:
 	var visible: Array[Property] = []
 	for prop: Property in get_properties():
@@ -91,32 +90,28 @@ func rebuild_preview() -> void:
 		graph_edit.refresh_node(self)
 
 
-## What this node shows under its ports: any [Control] at all, so that a preview can be a
-## line of text, a picture, a diagram of where somebody stands. [NodePreview] holds the pieces
-## most of them are built out of.
+## What this node shows under its ports. Any [Control]. [NodePreview] holds the pieces most
+## of them are built from.
 ##
-## Null means none, which is right for a node whose ports already say everything. The view
-## owns whatever comes back: it is clipped to the width the ports already gave the node,
-## capped in height, freed with it, and asked for again every time a value changes.
+## Null means no preview. The view owns what comes back, clips it to the node's width, caps
+## its height, and asks again on every change.
 func _build_preview(_language: String = "") -> Control:
 	return null
 
 
-## What this property gives back, when that is not what it declares: a reroute hands on
-## whatever was plugged into it. Returned as {"type_id": int, "label": String}, empty for a
-## node that is only ever itself, which is all of them but one.
+## What this property gives back when that differs from what it declares. A reroute hands on
+## whatever was plugged into it. Returns {"type_id": int, "label": String}, or empty.
 ##
-## Only the outgoing side is answered. What a node takes in stays what it declares, or a
-## reroute could never be rewired without first being unplugged from whatever it feeds.
+## Only the outgoing side. What a node takes in stays what it declares, otherwise a reroute
+## could never be rewired without first being unplugged.
 ##
-## [param hops] counts how many of these have already been followed, so that a reroute wired
-## in a circle is given up on rather than asked forever.
+## [param hops] bounds the walk, so a reroute wired in a circle is given up on.
 func carried_port(_property: Property, _hops: int = 0) -> Dictionary:
 	return {}
 
 
-## Redraws the preview alone. What a value still being typed needs: rebuilding the whole view
-## would take the ports and their wires with it, on every keystroke.
+## Redraws the preview alone. Rebuilding the whole view would take the ports and their wires
+## with it, on every keystroke.
 func refresh_preview() -> void:
 	if is_instance_valid(graph_view):
 		GraphNodeViewFactory.refresh_preview(graph_view, self)

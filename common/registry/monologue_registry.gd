@@ -1,38 +1,24 @@
 ## Single source of truth for every type Monologue knows about.
 ##
-## Headless by construction: this class never touches the SceneTree, a Control or an
-## autoload, so model code and unit tests can use it without booting the editor.
-## Widget creation lives in [FieldWidgetFactory] instead.
-##
-## Access it with [method get_instance]; the first call installs the built-in plugins.
-## [codeblock]
-## var registry := MonologueRegistry.get_instance()
-## var indexer := registry.get_field("text")
-## var node := registry.create_node("sentence", history)
-## [/codeblock]
+## Access it with [method get_instance]. The first call installs the built-in plugins.
 class_name MonologueRegistry extends RefCounted
 
 signal indexer_registered(indexer: MonologueIndexer)
 signal registry_changed
 
-## Loaded at runtime rather than preloaded: the core plugin pulls in node and item
-## scripts, which reach back to this class, and a preload cycle would not resolve.
 const CORE_PLUGIN_PATH: String = "res://common/plugins/core/core_plugin.gd"
 
 static var _instance: MonologueRegistry
 
-## object_type -> name -> MonologueIndexer.
-## Nested rather than flat because names collide across object types: "text" and
-## "option" each name more than one kind of thing.
+## object_type -> name -> MonologueIndexer. Nested because names collide across object
+## types. "text" and "option" each name more than one kind of thing.
 var _by_type: Dictionary[StringName, Dictionary] = {}
 var _plugins: Array[MonologuePlugin] = []
-## Fast reverse lookup for port compatibility checks, which run on every graph refresh.
 var _field_by_type_id: Dictionary[int, FieldIndexer] = {}
-## 1-based. GraphNode treats slot type 0 as its own default, so 0 is kept free to mean
-## "not a registered field type".
+## 1-based. GraphNode treats slot type 0 as its own default, so 0 means "not registered".
 var _next_field_type_id: int = 1
-## Port type ids for reference targets, keyed by scope. Drawn from the same counter as
-## field types, which is what keeps a "characters" port from matching any other port.
+## scope -> port type id. Drawn from the same counter as field types, so a "characters" port
+## matches nothing else.
 var _reference_type_ids: Dictionary[String, int] = {}
 var _installing_plugin: String = ""
 
@@ -42,12 +28,10 @@ func _init() -> void:
 		_by_type[object_type] = {}
 
 
-## Returns the shared registry, installing the built-in plugins on first call.
 static func get_instance() -> MonologueRegistry:
 	if _instance == null:
-		# Assigned before bootstrapping so that anything reached during installation
-		# which calls get_instance() sees the same partially-filled registry instead
-		# of recursing.
+		# Assigned before bootstrapping. Anything calling get_instance() during installation
+		# must see this partly-filled registry instead of starting another one.
 		_instance = MonologueRegistry.new()
 		_instance._install_builtin_plugins()
 	return _instance
@@ -89,7 +73,6 @@ func install(plugin: MonologuePlugin) -> void:
 	registry_changed.emit()
 
 
-## Removes a plugin and every type it registered.
 func uninstall(plugin_name: String) -> void:
 	var plugin: MonologuePlugin = null
 	for installed: MonologuePlugin in _plugins:
@@ -172,7 +155,6 @@ func get_collection(collection_name: String) -> CollectionIndexer:
 	return get_indexer(MonologueObjectType.COLLECTION, collection_name) as CollectionIndexer
 
 
-## All indexers of one object type, sorted by display name.
 func list(object_type: StringName) -> Array[MonologueIndexer]:
 	var result: Array[MonologueIndexer] = []
 	result.assign(_by_type.get(object_type, {}).values())
@@ -180,8 +162,7 @@ func list(object_type: StringName) -> Array[MonologueIndexer]:
 	return result
 
 
-## Unique category names for one object type, sorted.
-## Categories starting with "_" are internal and hidden unless [param include_internal].
+## Categories starting with "_" are hidden unless [param include_internal].
 func list_categories(object_type: StringName, include_internal: bool = false) -> PackedStringArray:
 	var categories: PackedStringArray = []
 	for indexer: MonologueIndexer in _by_type.get(object_type, {}).values():
@@ -230,11 +211,8 @@ func get_field_type_id(field_name: String) -> int:
 	return indexer.type_id if indexer else 0
 
 
-## Port type id for references aimed at [param scope], allocated on first use.
-##
-## Every reference field shares one field type, so without this a character reference
-## and an ease reference would look interchangeable to the graph. Two ports match only
-## when they point at the same kind of thing.
+## Allocated on first use. Every reference field shares one field type, so scope is all that
+## tells a character port and an ease port apart.
 func get_reference_type_id(scope: String) -> int:
 	if scope.is_empty():
 		return 0
@@ -265,11 +243,9 @@ func _accepts(from_type_id: int, to_type_id: int) -> bool:
 	return false
 
 
-## Teaches a GraphEdit every compatible (type_id, type_id) pair.
-##
-## Without this, compatible_types is dead configuration: GraphEdit refuses a drag
-## between differing slot types *before* emitting connection_request, so
-## [method is_compatible] would only ever be consulted for identical types.
+## Teaches a GraphEdit every compatible (type_id, type_id) pair. GraphEdit refuses a drag
+## between differing slot types *before* emitting connection_request. Without this,
+## [method is_compatible] would only ever see identical types.
 func apply_connection_types(graph_edit: GraphEdit) -> void:
 	if graph_edit == null:
 		return
@@ -281,9 +257,8 @@ func apply_connection_types(graph_edit: GraphEdit) -> void:
 			if is_compatible(from_field.type_id, to_field.type_id):
 				graph_edit.add_valid_connection_type(from_field.type_id, to_field.type_id)
 
-		# A reference port is not a field type, so the loop above never reaches one. A field
-		# that accepts anything has to be told about them by name, and they are handed out as
-		# they are first asked for -- which is why this is worth calling again after a redraw.
+		# A reference port is not a field type, so the loop above never reaches one. Their ids
+		# are handed out on first use. Call this again after a redraw to catch new ones.
 		if "*" not in from_field.compatible_types:
 			continue
 		for reference_type_id: int in _reference_type_ids.values():

@@ -1,31 +1,22 @@
-## Describes one field type: how it is edited, how it is drawn as a graph port, and
-## which other field types it may connect to.
-##
-## The editor widget is referenced by uid rather than preloaded so that requiring this
-## script does not drag Control and the theme into headless code. Call
-## [method get_scene] only from the UI layer.
+## Describes one field type. How it is edited, how it is drawn as a graph port, and which
+## other field types it may connect to.
 @abstract
 class_name FieldIndexer extends MonologueIndexer
 
 ## "uid://" or "res://" of the [Field] scene. Loaded on first use.
 var scene_uid: String = ""
-## True for port-only pseudo-types (any, context, option) that have no editor widget.
-## [method instantiate] returns null for these, by design.
+## True for port-only pseudo-types (any, context, option). [method instantiate] returns null
+## for those.
 var is_port_only: bool = false
-## Value a property of this type starts with when none is given.
 var default_value: Variant = null
 ## Type-level property settings, merged underneath per-property settings.
 var default_settings: Dictionary = {}
-## Names of other field types this type may connect to in the graph.
-## "*" means "any type". Applied to the GraphEdit by
-## [method MonologueRegistry.apply_connection_types].
+## Other field types this one may connect to. "*" means any.
 var compatible_types: Array[String] = []
-## Type-level validators. See the validation docs for the contract.
 var validators: Array[Callable] = []
-## Optional normaliser applied to a value before it is stored.
 var formatter: Callable
-## Assigned by the registry, 1-based. 0 means "not a registered field type".
-## Used as the GraphEdit slot type, where 0 is the engine's own default.
+## GraphEdit slot type, assigned by the registry. 1-based: 0 is GraphEdit's own default and
+## means "not registered".
 var type_id: int = 0
 
 var _scene_cache: PackedScene
@@ -45,7 +36,6 @@ func validate_registration() -> String:
 	return ""
 
 
-## Loads the widget scene on first call and caches it. Null when [member is_port_only].
 func get_scene() -> PackedScene:
 	if _scene_loaded:
 		return _scene_cache
@@ -60,8 +50,7 @@ func get_scene() -> PackedScene:
 	return _scene_cache
 
 
-## Returns a new [Field] widget, or null for port-only types.
-## Prefer [FieldWidgetFactory] over calling this directly.
+## Null for port-only types. Prefer [FieldWidgetFactory] to calling this.
 func instantiate(_history: CommandManager = null) -> Object:
 	var scene: PackedScene = get_scene()
 	if scene == null or not scene.can_instantiate():
@@ -74,8 +63,7 @@ func instantiate(_history: CommandManager = null) -> Object:
 	return null
 
 
-## Rules every property of this field type is checked against, on top of whatever the
-## property itself declares. Running them is [ValidationService]'s job.
+## On top of what the property itself declares. [ValidationService] runs them.
 func get_validation_rules() -> Array[ValidationRule]:
 	var rules: Array[ValidationRule] = []
 	for validator: Callable in validators:
@@ -83,10 +71,7 @@ func get_validation_rules() -> Array[ValidationRule]:
 	return rules
 
 
-## Returns the ids of every object a value of this type points at.
-##
-## The default is "no references". Override for composite types that embed one, such
-## as `condition`, which stores a variable id inside its Dictionary. This is what lets
-## the project build a reverse reference index without any node class knowing about it.
+## Feeds the project's reverse reference index. Override for composite types that embed a
+## reference, such as `condition`, which holds a variable id inside its Dictionary.
 func extract_references(_value: Variant) -> PackedStringArray:
 	return PackedStringArray()

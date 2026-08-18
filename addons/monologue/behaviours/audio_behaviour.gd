@@ -1,5 +1,4 @@
-## Starts a sound or a piece of music, and remembers the looping ones so a restored save does
-## not come back to silence.
+## Remembers the looping ones, so a restored save does not come back to silence.
 extends MonologueBehaviour
 
 const SLOT: String = "audio"
@@ -28,8 +27,7 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 		"pitch": float(ctx.value("pitch", 1.0)),
 	}
 
-	# A one-shot has long finished by the time anyone loads the save. Only what would still
-	# be playing is worth putting back.
+	# A one-shot has long finished by the time anyone loads the save.
 	if playback["loop"]:
 		ctx.state.stage[SLOT] = playback
 	else:

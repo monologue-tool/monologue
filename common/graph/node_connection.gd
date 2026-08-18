@@ -4,7 +4,7 @@
 ## through [method equals] rather than identity.
 ##
 ## A port may be a sub-port of a list item, such as one particular option of a choice
-## node. That is the item id, kept beside the property name rather than glued into it;
+## node. That is the item id, kept beside the property name instead of glued into it.
 ## [method get_from_name] and [method get_to_name] produce the composite form the graph
 ## view and the connection dictionaries use.
 class_name NodeConnection extends RefCounted
@@ -44,7 +44,7 @@ static func create(
 	return connection
 
 
-## Builds a connection from names that may carry an item id, as "choices:option-4F2K".
+## Names may carry an item id, as "choices:option-4F2K".
 static func from_names(
 	p_from_node_id: String, p_from_name: String, p_to_node_id: String, p_to_name: String
 ) -> NodeConnection:

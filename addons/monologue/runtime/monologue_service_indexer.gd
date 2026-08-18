@@ -1,7 +1,7 @@
 ## Holds the services and hands them out by name.
 ##
-## Lives on the runtime rather than on a session: a game that alternates story and gameplay
-## expects what it collected in the first scene to still be there in the third.
+## Lives on the runtime, not a session. What a game collected in the first scene is still
+## there in the third.
 class_name MonologueServiceIndexer extends MonologueIndex
 
 const BUILT_IN_FOLDER: String = "res://addons/monologue/services/"
@@ -20,13 +20,12 @@ func names_of(thing: Node) -> PackedStringArray:
 	return [(thing as MonologueService).service_name()]
 
 
-## Any object a behaviour can call is a legal service, so this takes an Object and not a
-## Node: what a game hands over is already in its scene and answers to nobody here.
+## Takes an Object and not a Node. What a game hands over is already in its scene.
 func provide(service_name: String, object: Object, problems: Array[MonologueProblem] = []) -> void:
 	_claim(service_name, object, problems)
 
 
-## Null when nothing answers to that name; a story must still play in a game with no
+## Null when nothing answers to that name. A story still plays in a game with no
 ## inventory.
 func get_service(service_name: String) -> Object:
 	return _by_name.get(service_name)

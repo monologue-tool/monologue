@@ -19,7 +19,6 @@ func get_type() -> String:
 	return "background"
 
 
-## The image alone: a preview has no room for the folders it sits in.
 func _build_preview(_language: String = "") -> Control:
 	var image: String = NodePreview.file(str(get_property_value("image")))
 	return NodePreview.line(NodePreview.plain(image)) if not image.is_empty() else null

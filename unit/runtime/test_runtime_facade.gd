@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## What a game sees of Monologue: one node, four verbs, and a way to reach its own things
 ## from inside a story.
 ##
-## The cases here are the ones a game that is not only a story runs into -- a run that ends
+## The cases here are the ones a game that is not only a story runs into. A run that ends
 ## so gameplay can resume, a run paused while something else happens over it, a story node
 ## that has to reach the inventory. A pure visual novel is the easy subset of this.
 
@@ -97,7 +97,7 @@ func test_a_game_loads_a_project_plays_it_and_is_told_when_it_is_over() -> void:
 
 	_runtime.start()
 
-	# Nothing holds this story, so it is over inside start() -- and it was announced as
+	# Nothing holds this story, so it is over inside start(), and it was announced as
 	# beginning before it was announced as ending.
 	assert_int(began.size()).is_equal(1)
 	assert_int(ended.size()).is_equal(1)

@@ -1,18 +1,15 @@
 ## Fills a project from documents a [MonologueSource] already read and parsed.
 ##
-## Every failure is reported rather than raised: a truncated file, a corrupt document, a node
-## type this build does not know about. The project still loads, missing the parts that could
-## not be read, and the caller decides what to tell the user.
+## Nothing raises. A truncated file, a corrupt document or an unknown node type is reported,
+## the project loads without that part, and the caller decides what to tell the user.
 class_name ProjectReader
 
 
-## Parses [param raw] and checks it really is a JSON object, recording why when it is not.
-## A project's own documents come parsed from the source; this is for everything else the
-## editor reads, such as its configuration file.
+## For what the editor reads outside a project, such as its configuration file. A project's
+## own documents arrive already parsed.
 static func parse_object(raw: String, source: String, result: ValidationResult) -> Dictionary:
 	var parsed: Variant = JSON.parse_string(raw)
-	# The document name goes in the issue's location, not in its message, or it reads back
-	# as "'main.mnlf' is not valid JSON. (main.mnlf)".
+	# The name goes in the issue's location, not its message, or it reads back doubled.
 	if parsed == null:
 		result.add(ValidationIssue.error("Not valid JSON.", &"unreadable_json").in_document(source))
 		return {}
@@ -27,8 +24,7 @@ static func parse_object(raw: String, source: String, result: ValidationResult) 
 	return parsed
 
 
-## Reads the format version out of a manifest, defaulting to the current one when the file
-## predates the field.
+## Defaults to the current version when the file predates the field.
 static func read_format_version(manifest_data: Dictionary) -> int:
 	return int(manifest_data.get("format_version", ManifestDocument.FORMAT_VERSION))
 
@@ -40,8 +36,6 @@ static func read_into(
 	for problem: MonologueProblem in source.problems:
 		result.add(_as_issue(problem))
 
-	# A missing manifest or a format from the future are the source's refusals, already
-	# reported above. Nothing here can improve on them.
 	if not source.is_readable:
 		return false
 

@@ -1,29 +1,19 @@
 ## Lets a button's own text be edited in place on a double click.
 ##
-## Attached to a button rather than replacing it, so that everything about how that button
-## looks and behaves stays where it already was:
 ## [codeblock]
 ## InlineRename.attach(button).committed.connect(_on_renamed)
 ## [/codeblock]
 ##
-## While the edit is open the field stands where the button stood, and the button is put away.
-## Laid over the top instead, the button would go on drawing itself underneath -- pressed,
-## highlighted, with its own icon and padding -- behind a field that does not line up with any
-## of it.
+## While the edit is open the field stands where the button stood, and the button is hidden.
 ##
-## Nothing is written here. The new name is announced and whoever attached this decides what
-## it means, and may refuse it -- which is why the button comes back saying what it said.
+## Nothing is written here. The name is announced, and whoever attached this decides what it
+## means and may refuse it. The button comes back saying what it said.
 class_name InlineRename extends Node
 
 ## What the reader typed, once. Never empty, and never the name it already had.
 signal committed(new_name: String)
 
-## How the field is themed. A row that already draws a box of its own wants "FlatLineEdit",
-## which is nothing but the text; standing alone in a list, a field does better to look like
-## one.
-##
-## Settable at any time: [method attach] returns after the field already exists, so a caller
-## setting this on the way out would otherwise be too late.
+## "FlatLineEdit" for a row that already draws its own box. Settable at any time.
 var variation: StringName = &"":
 	set(value):
 		variation = value
@@ -52,13 +42,11 @@ func _ready() -> void:
 	_field.gui_input.connect(_on_field_input)
 	_field.hide()
 
-	# Kept on the button while idle so that it is freed with it. Hidden, and a button is not
-	# a container, so it neither draws nor takes any room there.
 	_button.add_child(_field)
 	_button.gui_input.connect(_on_button_input)
 
 
-## Starts the edit without waiting for a double click. What a "Rename" in a context menu calls.
+## Starts the edit without waiting for a double click.
 func open() -> void:
 	var row: Node = _button.get_parent()
 	if _editing or _field == null or row == null:
@@ -67,7 +55,6 @@ func open() -> void:
 	_editing = true
 	_before = _button.text
 
-	# The height the button had, so the list does not jump while a name is being typed.
 	_field.custom_minimum_size.y = _button.size.y
 	_field.text = _before
 
@@ -94,8 +81,7 @@ func _on_button_input(event: InputEvent) -> void:
 		open()
 
 
-## Escape puts the name back. A field with nowhere to say so would otherwise only be leavable
-## by committing whatever half-typed thing is in it.
+## Escape puts the name back.
 func _on_field_input(event: InputEvent) -> void:
 	if _editing and event.is_action_pressed(&"ui_cancel"):
 		_field.accept_event()
@@ -106,13 +92,13 @@ func _on_submitted(_text: String) -> void:
 	_close(true)
 
 
-## Clicking away is agreeing, the way it is everywhere a name is edited in a list. Enter has
-## already closed the edit by the time focus leaves, so this cannot commit a second time.
+## Clicking away agrees. Enter has already closed the edit by then, so this cannot commit a
+## second time.
 func _on_focus_exited() -> void:
 	_close(true)
 
 
-func _close(keep: bool) -> void:
+func _close(commit: bool) -> void:
 	if not _editing:
 		return
 
@@ -126,5 +112,5 @@ func _close(keep: bool) -> void:
 	_button.add_child(_field)
 	_button.show()
 
-	if keep and not written.is_empty() and written != _before:
+	if commit and not written.is_empty() and written != _before:
 		committed.emit(written)

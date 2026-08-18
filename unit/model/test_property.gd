@@ -41,7 +41,7 @@ func test_the_order_a_declaration_is_written_in_has_no_effect() -> void:
 		assert_bool(property.is_translatable()).is_false()
 		assert_str(property.get_value()).is_equal("")
 
-	# A later call corrects an earlier one; the type's own default never wins over either.
+	# A later call corrects an earlier one. The type's own default never wins over either.
 	assert_bool(Property.new("p").default(true).set_type("bool").get_value()).is_true()
 	var reopened := Property.new("text").set_type("text").main_property().editable()
 	assert_bool(reopened.get_settings_value(PropertySettings.KEY_VISIBLE_IN_INSPECTOR)).is_true()

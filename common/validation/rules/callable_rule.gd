@@ -1,18 +1,8 @@
-## Wraps a check written by hand next to the property it guards:
-## [codeblock]
-## define_property(Property.new("name")
-##     .set_type("text")
-##     .validate(_must_be_an_identifier))
+## Wraps a check written by hand next to the property it guards.
 ##
-## func _must_be_an_identifier(context: ValidationContext) -> Variant:
-##     if str(context.value).is_valid_identifier():
-##         return null
-##     return "Use letters, digits and underscores only."
-## [/codeblock]
-##
-## The function may take a [ValidationContext] or just the value, and may return
-## null / true (fine), false (generic failure), a String (that message), or a
-## [ValidationIssue] / [ValidationResult] used as-is. See [method _coerce].
+## The function takes a [ValidationContext] or just the value. It returns null or true when
+## the value is fine, false for a generic failure, a String for that message, or a
+## [ValidationIssue] or [ValidationResult] used as-is.
 class_name CallableRule extends ValidationRule
 
 var function: Callable

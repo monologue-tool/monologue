@@ -23,8 +23,7 @@ func input(ctx: MonologueContext) -> BehaviourResult:
 	return BehaviourResult.progress(ctx.next("choices", picked))
 
 
-## What a reader sees: a key to answer with and text already in the right language. Which
-## options survive and what they say is decided here; the part only draws them.
+## A key to answer with, and text already in the right language. The part only draws them.
 func _offered(ctx: MonologueContext) -> Array[Dictionary]:
 	var offered: Array[Dictionary] = []
 	for option: Dictionary in ctx.items("choices"):

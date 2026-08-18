@@ -103,7 +103,7 @@ func _show_open_storyline() -> void:
 	if not is_instance_valid(_open_storyline) or not project.storylines.has(_open_storyline):
 		var was_showing_one: bool = _open_storyline != null
 		_open_storyline = project.storylines[0]
-		# The storyline that was open has just gone; the graph is still on it. Deferred
+		# The storyline that was open has just gone, and the graph is still on it. Deferred
 		# because a rebuild also happens while a project is still being opened, before
 		# the graph is in any state to be handed one.
 		if was_showing_one:

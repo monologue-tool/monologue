@@ -7,18 +7,14 @@ const NO_SELECTION_HINT: String = "Pick a node type to read what it does."
 @onready var search_bar: LineEdit = %SearchBar
 @onready var description_label: RichTextLabel = %Description
 
-## The node in which the picker was spawned/dragged from.
 var from_node: String
-## The port in which the picker was spawned/dragged from.
 var from_port: int
 ## Slot type of that port, or 0 when the picker was not opened from one. The tree
 ## offers only the types this can reach.
 var source_port_type_id: int = 0
-## Mouse release global position.
 var release: Variant = null
 ## Release position adjusted to the graph's scroll and zoom.
 var graph_release: Variant = null
-## Center position of the graph.
 var center: Variant = null
 
 
@@ -143,7 +139,6 @@ func _on_create_button_pressed() -> void:
 		close()
 
 
-## Enter in the search bar adds whatever the search selected.
 func _on_search_submitted(_text: String) -> void:
 	if node_tree.create_selected_descriptor():
 		close()

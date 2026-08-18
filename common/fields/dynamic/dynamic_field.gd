@@ -64,7 +64,7 @@ func _reads_through_reference() -> bool:
 	return TARGET_SEPARATOR in _case_property
 
 
-## The property the case is watched on: the reference itself when reading through one.
+## The reference itself when reading through one.
 func _case_source() -> Property:
 	if not _binding or not _binding.owner:
 		return null
@@ -72,7 +72,7 @@ func _case_source() -> Property:
 	return _binding.owner.get_property(path)
 
 
-## The current case name, resolved either from a sibling or through a reference.
+## From a sibling, or through a reference.
 func _resolve_case() -> String:
 	var source: Property = _case_source()
 	if source == null:

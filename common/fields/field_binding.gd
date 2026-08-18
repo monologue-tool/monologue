@@ -4,15 +4,11 @@ var property: Property
 var field: Field
 var indexer: FieldIndexer
 
-## Every object this field writes to. One entry is the ordinary case; several means the
-## user selected several objects and is editing them together.
-##
-## There is no separate multi-selection object: a selection of one is just an array of
-## one, so nothing special-cases it.
+## Every object this field writes to. Several means the user is editing a selection.
 var owners: Array[InspectableObject] = []
 
-## The object the field reads its context from -- children, history, list sources.
-## Those only ever make sense for a single object, so they use the first.
+## Children, history and list sources only make sense for one object, so they use the
+## first.
 var owner: InspectableObject:
 	get:
 		return owners[0] if not owners.is_empty() else null
@@ -47,7 +43,6 @@ func initialize() -> void:
 	field.value_committed.connect(_on_field_value_committed)
 	if property:
 		property.value_changed.connect(_on_property_value_changed)
-		# The model no longer holds widget references; a binding subscribes instead.
 		property.settings_changed.connect(refresh)
 	field.tree_exiting.connect(_on_field_tree_exiting)
 	if owner and not owner.property_changed.is_connected(_on_owner_property_changed):
@@ -92,8 +87,6 @@ func _sync_from_property() -> void:
 	if not field.is_inside_tree():
 		return
 	_is_syncing = true
-	# No null fallback needed: define_property already resolved the field type's
-	# default into the property when it was declared.
 	field.set_value(property.get_value())
 	field.clear_issues()
 	_is_syncing = false
@@ -111,8 +104,7 @@ func _update_editable_state() -> void:
 	field.set_editable(is_editable)
 
 
-## The user is still typing: judge the candidate value without writing it, and never
-## take the keystroke back.
+## Judges the candidate without writing it, and never takes the keystroke back.
 func _on_field_value_changed(value: Variant) -> void:
 	if _is_syncing or _is_released or value == property.get_value():
 		return
@@ -126,10 +118,7 @@ func _on_field_value_changed(value: Variant) -> void:
 	_refresh_owner_preview_from_typing(value)
 
 
-## The user confirmed. The value is always written; validation only annotates it.
-##
-## This used to revert to the stored value when a rule failed, silently and with no
-## message, so typing an empty name simply made the text reappear.
+## The value is always written. Validation only annotates it.
 func _on_field_value_committed(value: Variant) -> void:
 	if _is_syncing or _is_released or value == property.get_value():
 		return
@@ -152,8 +141,7 @@ func _on_field_value_committed(value: Variant) -> void:
 	_refresh_owner_preview_from_change()
 
 
-## Writes to every selected object. More than one becomes a single undo step, so
-## editing a selection of twenty is one Ctrl+Z rather than twenty.
+## One undo step however many objects are selected.
 func _write_to_owners(value: Variant) -> void:
 	if owners.size() == 1:
 		owners[0].set_property_value(property.name, value)
@@ -174,7 +162,6 @@ func _write_to_owners(value: Variant) -> void:
 
 
 ## A DynamicField swapping its inner widget leaves bindings pointing at freed nodes.
-## Releasing here is what stops the crash that the old FIXME described.
 func _is_field_live() -> bool:
 	if not is_instance_valid(field) or not field.is_inside_tree():
 		release()
@@ -188,8 +175,7 @@ func _format(value: Variant) -> Variant:
 	return value
 
 
-## The preview alone, from a value that is not written yet: it is handed the candidate so
-## that what is on screen is what is being typed, and nothing else in the view is disturbed.
+## Handed the candidate, so the preview shows what is being typed.
 func _refresh_owner_preview_from_typing(value: Variant) -> void:
 	if _is_syncing or _is_released:
 		return
@@ -224,7 +210,6 @@ func _on_property_value_changed(_old_value: Variant, _new_value: Variant) -> voi
 	_is_syncing = false
 
 
-## A sibling property changed, which may be the one this field is gated on.
 func _on_owner_property_changed(_property_name: String) -> void:
 	if _is_released or not is_instance_valid(field):
 		return

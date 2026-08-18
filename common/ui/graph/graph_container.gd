@@ -82,7 +82,7 @@ func _on_graph_selection_changed(nodes: Array[InspectableObject]) -> void:
 	if _is_applying_selection:
 		return
 
-	# Several nodes go straight to the inspector; a single one also records an undo
+	# Several nodes go straight to the inspector. A single one also records an undo
 	# step, so stepping back through the graph works.
 	if nodes.size() > 1:
 		EventBus.request_objects_inspection.emit(nodes)
@@ -115,7 +115,7 @@ func request_node_selection(nodes: Array[InspectableObject], skip_history: bool 
 
 	var needs_selection_update: bool = current_nodes != nodes
 	if not needs_selection_update:
-		# Same set, but the graph may have lost the highlight -- put it back.
+		# Same set, but the graph may have lost the highlight. Put it back.
 		for object: InspectableObject in nodes:
 			var node: InspectableNode = object as InspectableNode
 			if node and is_instance_valid(node.graph_view) and not node.graph_view.selected:
@@ -143,7 +143,7 @@ func _apply_selection(nodes: Array[InspectableObject], storyline_id: String) -> 
 	else:
 		_selected_nodes[storyline_id] = nodes
 
-	# set_selected() deselects everything else, so only the first call may use it; the
+	# set_selected() deselects everything else, so only the first call may use it. The
 	# rest add to the selection.
 	var is_first: bool = true
 	for object: InspectableObject in nodes:

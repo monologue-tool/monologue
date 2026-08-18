@@ -1,6 +1,7 @@
 ## The one thing a game talks to.
-## Written for a game that is not only a story: a run starts, ends, and the game carries on
-## around it. The services outlive every run; the playthrough does not.
+##
+## Written for a game that is not only a story. A run starts, ends, and the game carries on
+## around it. The services outlive every run. The playthrough does not.
 ##
 ##     Monologue.load_project("res://story.mnlp")
 ##     Monologue.player = %DialogueLayer
@@ -37,14 +38,13 @@ func load_project(path: String) -> bool:
 	return _adopt(MonologueSource.open(path))
 
 
-## The same, from documents already in memory. What lets an editor play a story that has
-## never been saved.
+## The same, from documents already in memory. Lets an editor play an unsaved story.
 func load_documents(documents: Dictionary) -> bool:
 	return _adopt(MonologueSource.of(documents))
 
 
-## Loading replaces what came before, problems included: a story reloaded after a fix must
-## not still be carrying the complaint that fix answered.
+## Loading replaces what came before, problems included. A story reloaded after a fix must
+## not still carry the complaint it answered.
 func _adopt(source: MonologueSource) -> bool:
 	stop()
 	problems.clear()
@@ -63,7 +63,7 @@ func _adopt(source: MonologueSource) -> bool:
 
 
 ## Plays a storyline from its beginning, or from any node in it. Both arguments default to
-## what the project says the story starts with.
+## what the project starts with.
 func start(storyline_id: String = "", node_id: String = "") -> MonologueSession:
 	if graph == null:
 		_complain(&"no_project", "Nothing has been loaded, so there is nothing to play.")
@@ -118,14 +118,13 @@ func service(service_name: String) -> Object:
 	return services.get_service(service_name)
 
 
-## Hands the runtime something already in your scene. Any object will do: it only has to
+## Hands the runtime something already in your scene. Any object will do. It only has to
 ## answer the calls the behaviours make on it.
 func provide(service_name: String, object: Object) -> void:
 	services.provide(service_name, object, problems)
 
 
-## Where the story is, plus whatever every service kept. A game saved outside a story is a
-## legal save.
+## Where the story is, plus whatever every service kept. Saving outside a story is legal.
 func save() -> Dictionary:
 	return {
 		"story": session.snapshot() if session else {},
@@ -133,8 +132,8 @@ func save() -> Dictionary:
 	}
 
 
-## The story resumes at the top of the node it was on: a line half typed is not something a
-## save file remembers.
+## The story resumes at the top of the node it was on. A save file does not remember a line
+## half typed.
 func restore(data: Dictionary) -> void:
 	if graph == null:
 		_complain(&"no_project", "A save cannot be restored before a project is loaded.")

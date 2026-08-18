@@ -2,14 +2,14 @@
 ## Identity map of a project plus the reverse index of everything that points at
 ## something else. Owned by [MonologueProject]. Headless.
 ##
-## Two kinds of object live in a project: ones that exist as instances (documents and
-## graph nodes) and ones that are stored as plain dictionaries inside a collection
-## property (characters, portraits, variables). Both get an id here;
-## [method get_object] answers for the first, [method get_record] for the second.
+## Two kinds of object live in a project. Instances, meaning documents and graph nodes, and
+## plain dictionaries stored inside a collection property, meaning characters, portraits and
+## variables. Both get an id here. [method get_object] answers for the first,
+## [method get_record] for the second.
 ##
 ## Reference extraction never asks an object what it points at. It asks the field type,
-## through [method FieldIndexer.extract_references], so a new composite field is one
-## method and no node class has to know it exists.
+## through [method FieldIndexer.extract_references], so a new composite field is one method
+## and no node class has to know it exists.
 class_name ProjectObjectRegistry extends RefCounted
 
 signal object_registered(object: InspectableObject)
@@ -38,8 +38,7 @@ var _history: CommandManager
 # --- identity -------------------------------------------------------------------
 
 
-## Returns an id that nothing else in the project uses. Keeps [param preferred_id] when
-## it is free, and allocates a fresh one when it is taken.
+## An id nothing else in the project uses. Keeps [param preferred_id] when it is free.
 func allocate_id(type_name: String, preferred_id: String = "") -> String:
 	if not preferred_id.is_empty() and not _known_ids.has(preferred_id):
 		_known_ids[preferred_id] = true
@@ -55,8 +54,8 @@ func allocate_id(type_name: String, preferred_id: String = "") -> String:
 	return fresh
 
 
-## Adds an object to the identity map and returns the id it ended up with, which
-## differs from the one it arrived with only when that id was already taken.
+## Adds an object to the identity map. Returns the id it ended up with, which differs from
+## the one it arrived with only when that was taken.
 func register(object: InspectableObject) -> String:
 	if object == null:
 		return ""
@@ -73,8 +72,8 @@ func register(object: InspectableObject) -> String:
 	return allocated_id
 
 
-## Drops an object from the identity map. Referrers are left untouched: they keep the
-## id they always had, and start reporting it as missing instead.
+## Drops an object from the identity map. Referrers keep the id they had and start reporting
+## it as missing.
 func unregister(object: InspectableObject) -> void:
 	if object == null:
 		return
@@ -91,8 +90,8 @@ func get_object(object_id: String) -> InspectableObject:
 	return _by_id.get(object_id)
 
 
-## Returns the stored dictionary of a collection item, or an empty one when the id
-## belongs to a live object or to nothing at all.
+## The stored dictionary of a collection item. Empty when the id belongs to a live object or
+## to nothing.
 func get_record(object_id: String) -> Dictionary:
 	return _records_by_id.get(object_id, {})
 
@@ -151,8 +150,8 @@ func find_dangling() -> Array[ReferenceSite]:
 # --- building -------------------------------------------------------------------
 
 
-## Discards everything and walks the project again. Cheap enough to run whenever the
-## project reports a change, which is what [MonologueProject] does.
+## Discards everything and walks the project again. Cheap enough to run on every change,
+## which is what [MonologueProject] does.
 func rebuild(project: MonologueProject) -> void:
 	clear()
 	if project == null:
@@ -187,8 +186,6 @@ func _index_document(document: InspectableDocument) -> void:
 		_index_connections(storyline, document_name)
 
 
-## Walks one property value, recursing into collection items, which are stored as
-## dictionaries rather than instances.
 func _index_value(
 	owner_id: String, property: Property, value: Variant, document_name: String
 ) -> void:
@@ -266,8 +263,7 @@ func _forget_sites_of(owner_id: String) -> void:
 	_sites_by_owner.erase(owner_id)
 
 
-## Returns a throwaway item of the given collection type, used only to read which
-## properties items of that type have and what field type each one is.
+## A throwaway item, only to read which properties that type has and their field types.
 func _get_prototype(collection_name: String) -> CollectionItem:
 	if _prototypes.has(collection_name):
 		return _prototypes[collection_name]

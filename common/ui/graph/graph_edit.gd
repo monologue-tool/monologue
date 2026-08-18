@@ -3,9 +3,8 @@ signal node_view_selected(node: InspectableNode)
 ## Emitted once per selection change, after the frame settles, so rubber-banding over
 ## ten nodes reports one selection of ten rather than ten selections of one.
 ##
-## Typed on InspectableObject rather than InspectableNode even though it only ever
-## carries nodes: GDScript typed arrays are invariant, so the narrower type would need
-## converting at every boundary it crosses.
+## Typed on InspectableObject though it only ever carries nodes. GDScript typed arrays are
+## invariant, so the narrower type would need converting at every boundary.
 signal selection_changed(nodes: Array[InspectableObject])
 
 var storyline_id: String
@@ -58,11 +57,9 @@ func refresh() -> void:
 	if not storyline:
 		return
 
-	# Initialize connection manager if not already done
 	if not connection_manager:
 		connection_manager = ConnectionManager.new(storyline)
 
-	# Clear node map and connections
 	_node_map.clear()
 	_pending_positions.clear()
 	clear_connections()
@@ -75,7 +72,6 @@ func refresh() -> void:
 	for node: InspectableNode in storyline.nodes:
 		add_graph_node_view(node)
 
-	# Reconnect all tracked connections after rebuilding nodes
 	_reconnect_all_slots()
 
 
@@ -99,27 +95,22 @@ func refresh_node(node: InspectableNode) -> void:
 func add_graph_node_view(node: InspectableNode) -> GraphNode:
 	var graph_node: GraphNode = GraphNodeViewFactory.build(node)
 
-	# Store bidirectional mapping
 	_node_map[graph_node] = node
 	node.graph_view = graph_node
 
-	# Connect signals
 	if not graph_node.position_offset_changed.is_connected(
 		_on_graph_node_position_changed.bind(graph_node)
 	):
 		graph_node.position_offset_changed.connect(_on_graph_node_position_changed.bind(graph_node))
 
-	# Add to scene and set initial position
 	add_child(graph_node)
 	if not node.property_changed.is_connected(_on_inspectable_node_property_changed):
 		node.property_changed.connect(_on_inspectable_node_property_changed.bind(node))
 
-	# Apply initial position from property
 	_sync_position_from_property(node)
 	return graph_node
 
 
-## Called when InspectableNode property changes (undo/redo, programmatic)
 func _on_inspectable_node_property_changed(property_name: String, node: InspectableNode) -> void:
 	if property_name == "editor_position":
 		if not _is_applying_position:
@@ -128,7 +119,6 @@ func _on_inspectable_node_property_changed(property_name: String, node: Inspecta
 		refresh_node(node)
 
 
-## Sync GraphNode position from InspectableNode property
 func _sync_position_from_property(node: InspectableNode) -> void:
 	if not node or not is_instance_valid(node.graph_view):
 		return
@@ -159,7 +149,6 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 	_is_applying_position = false
 
 
-## Called when GraphNode position changes (user drag)
 func _on_graph_node_position_changed(graph_node: GraphNode) -> void:
 	if _is_applying_position:
 		return
@@ -182,9 +171,8 @@ func _on_node_deselected(graph_node: Node) -> void:
 
 ## Every node currently selected, in the order they appear in the graph.
 ##
-## Read from GraphNode.selected rather than from a dictionary kept in step with the
-## signals: box-selecting updates the nodes directly, so the bookkeeping was always a
-## frame or two behind and the inspector saw only part of the rectangle.
+## Read from GraphNode.selected, not from a dictionary kept in step with the signals.
+## Box-selecting updates the nodes directly, and bookkeeping runs a frame or two behind.
 func get_selected_nodes() -> Array[InspectableObject]:
 	var nodes: Array[InspectableObject] = []
 	for graph_node: Node in get_all_graph_nodes():
@@ -198,9 +186,9 @@ func get_selected_nodes() -> Array[InspectableObject]:
 
 ## Waits for the selection to stop changing before announcing it.
 ##
-## Godot selects nodes one at a time as the rubber band sweeps over them, across
-## several frames. Announcing on the first one reported a rectangle of ten as a
-## selection of one; announcing on every one would rebuild the inspector ten times.
+## Godot selects nodes one at a time as the rubber band sweeps over them, across several
+## frames. Announcing on the first reports a rectangle of ten as a selection of one.
+## Announcing on every one rebuilds the inspector ten times.
 func _announce_selection() -> void:
 	_selection_snapshot = _selected_view_names()
 	_settle_selection.call_deferred()
@@ -242,7 +230,6 @@ func _on_connection_request(
 	if not MonologueRegistry.get_instance().is_compatible(from_port_type, to_port_type):
 		return
 
-	# Get property names at the port indices
 	var from_property_name: String = get_property_name_at_port(
 		String(from_view_name), from_port, true
 	)
@@ -277,9 +264,9 @@ func _has_connection_at_slot(node_name: StringName, port_index: int, is_output: 
 	return false
 
 
-## Replays whatever was asked for while a wire was in flight. Deferred by a frame so
-## GraphEdit has finished with the drop -- connection_request fires around the same
-## time, and rebuilding underneath it would put us back where we started.
+## Replays whatever was asked for while a wire was in flight. Deferred a frame so GraphEdit
+## has finished with the drop. connection_request fires around the same time, and rebuilding
+## underneath it undoes the drop.
 func _flush_deferred_refresh() -> void:
 	if not _refresh_deferred and _nodes_to_refresh.is_empty():
 		return
@@ -304,7 +291,6 @@ func get_all_graph_nodes() -> Array:
 	return get_children().filter(func(child: Node) -> bool: return child is GraphNode)
 
 
-## Reconnect all slots based on tracked connections in connection_manager
 func _reconnect_all_slots() -> void:
 	if not connection_manager:
 		return
@@ -327,23 +313,19 @@ func _reconnect_all_slots() -> void:
 		var from_view_name: String = from_node.graph_view.name
 		var to_view_name: String = to_node.graph_view.name
 
-		# Get port indices for the properties
 		var from_port: int = get_port_index_for_property(from_view_name, from_property, true)
 		var to_port: int = get_port_index_for_property(to_view_name, to_property, false)
 
-		# Only connect if both ports are valid
 		if from_port >= 0 and to_port >= 0:
 			connect_node(from_view_name, from_port, to_view_name, to_port)
 
 
-## Get visible properties in the same order as displayed in graph
 func _get_visible_properties(node: InspectableNode) -> Array[Property]:
 	return node.get_visible_properties()
 
 
-## Get the port index for a specific property by name.
-## is_output=true counts only export ports (output), false counts only exposed ports (input).
-## Supports composite names like "choices:item_id" for sub-ports.
+## is_output counts export ports, otherwise exposed ports. Takes composite names like
+## "choices:item_id" for sub-ports.
 func get_port_index_for_property(
 	node_name: String, property_name: String, is_output: bool = false
 ) -> int:
@@ -373,8 +355,7 @@ func get_node_from_view_name(graph_view_name: String) -> InspectableNode:
 	return null
 
 
-## Get property name at a specific port index.
-## Returns composite name (e.g. "choices:item_id") for sub-ports.
+## Composite, as "choices:item_id", for a sub-port.
 func get_property_name_at_port(node_name: String, port_index: int, is_output: bool) -> String:
 	var node: InspectableNode = get_node_from_view_name(node_name)
 	if not node:
@@ -443,9 +424,9 @@ func _on_disconnection_request(
 	var from_node: InspectableNode = get_node_from_view_name(from_view_name)
 	var to_node: InspectableNode = get_node_from_view_name(to_view_name)
 
-	# No port-type check here on purpose. It used to require the two types to be
-	# strictly equal, while connecting only requires them to be *compatible*, so any
-	# link between differing-but-compatible types could be made and never undone.
+	# No port-type check here on purpose. Connecting only requires the two types to be
+	# *compatible*, so requiring them to be equal here would leave links that cannot be
+	# undone.
 	var from_property_name: String = get_property_name_at_port(
 		String(from_view_name), from_port, true
 	)
@@ -455,11 +436,9 @@ func _on_disconnection_request(
 		push_warning("Cannot remove connection: property not found at port")
 		return
 
-	# The last argument is what makes this a disconnection. Leaving it out built a
-	# *connect* command instead, so pulling a wire off an input port detached it and
-	# then immediately reattached it -- the old line snapped back and the user was
-	# left dragging a second one. The command unregisters from the model itself, so
-	# there is deliberately no unregister_connection() call here.
+	# The last argument is what makes this a disconnection. Without it the command connects
+	# instead, and pulling a wire off an input port reattaches it. The command unregisters
+	# from the model itself, so there is deliberately no unregister_connection() call.
 	var storyline: StorylineDocument = get_storyline()
 	var command: NodeConnectionCommand = NodeConnectionCommand.new(
 		self,
@@ -473,8 +452,7 @@ func _on_disconnection_request(
 
 
 ## The nodes of a selection the user actually owns. A storyline creates its own root and
-## keeps it: copying it would produce a second one, and deleting it would leave the
-## storyline with no way in.
+## keeps it. Copying it would make a second one, deleting it would leave no way in.
 func _user_owned(nodes: Array[InspectableNode]) -> Array[InspectableNode]:
 	var owned: Array[InspectableNode] = []
 	for node: InspectableNode in nodes:

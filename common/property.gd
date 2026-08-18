@@ -1,28 +1,14 @@
 # gdlint: disable=max-public-methods
-## One property of an [InspectableObject]: what it is called, what type of value it
-## holds, how it is presented, and what it currently contains.
+## One property of an [InspectableObject]. What it is called, what it holds, how it is
+## presented, and its current value.
 ##
-## Declared inside [method InspectableObject.initialize_properties], one option per
-## line so the whole shape of a property is readable at a glance:
-## [codeblock]
-## define_property(Property.new("speaker/name")
-##     .set_type("reference")
-##     .required()
-##     .tooltip("Who says this line."))
-## [/codeblock]
+## Declared from [method InspectableObject.initialize_properties], one option per line.
 ##
-## The path given to [method _init] is "category/name". A path with no slash lands in
-## the General category, so "notes" and "general/notes" mean the same thing. The
-## category segment is title-cased for display: "extra/notes" shows under "Extra".
+## The path is "category/name". With no slash it lands in General, so "notes" and
+## "general/notes" mean the same thing. The category is title-cased for display.
 ##
-## Once the owning object has finished declaring, the property is frozen: the methods
-## below stop having any effect, and only the value and the user's own overrides can
-## still change. That is what stops one node from quietly diverging from every other
-## node of the same type.
-##
-## Pure data: it knows nothing about widgets or the scene tree, so it can be built and
-## asserted on without booting the editor. The UI observes it through
-## [signal value_changed] and [signal settings_changed].
+## Once the owning object has finished declaring, the property freezes. The builder methods
+## below stop having any effect. Only the value and the user's overrides still change.
 class_name Property extends RefCounted
 
 ## Separates the category from the name in the path given to [method _init].
@@ -30,28 +16,27 @@ const PATH_SEPARATOR: String = "/"
 
 signal value_changed(old_value: Variant, new_value: Variant)
 signal connection_changed
-## Emitted when a runtime override changes, e.g. the user toggling a port on.
-## Bound fields refresh themselves from this.
+## A runtime override changed, such as the user toggling a port on. Bound fields refresh
+## themselves from this.
 signal settings_changed
 
 ## Machine name. Also the JSON key this property is saved under.
 var name: String = ""
-## Name of the field type used to edit it. Set with [method set_type].
 var type: String = ""
-## What a fresh instance starts with. May be a [Callable], evaluated per instance.
-## Defaults to the field type's own default until [method default] says otherwise.
+## What a fresh instance starts with. A [Callable] here is evaluated per instance. Falls
+## back to the field type's own default.
 var default_value: Variant = null
 var value: Variant = null
 
 ## Incoming wires, as {"node_id": String, "property_name": String, "item_id"?: String}.
-## A read-only view: the wires themselves live in [member StorylineDocument.connections],
-## which refills this. Never serialized.
+## A read-only view. The wires live in [member StorylineDocument.connections], which refills
+## this. Never serialized.
 var connected_from: Array[Dictionary] = []
 ## Outgoing wires, in the same shape as [member connected_from].
 var connected_to: Array[Dictionary] = []
 
-## What is currently wrong with this property's value. Transient: filled in by
-## [ValidationService], rendered by the bound field, never serialized.
+## What is currently wrong with the value. Filled in by [ValidationService], rendered by the
+## bound field, never serialized.
 var issues: Array[ValidationIssue] = []
 
 ## Declared in code. Frozen once the owning object is built.
@@ -79,19 +64,17 @@ func _init(path: String) -> void:
 		_settings[PropertySettings.KEY_CATEGORY] = Util.to_readable_name(raw_category)
 
 
-## Sets the field type used to edit this property, and folds in that type's own
-## defaults underneath anything this declaration has already stated.
-##
-## Order-independent: calling it before or after the other methods gives the same
-## result, and it never overwrites a default set with [method default].
+## Sets the field type, and folds that type's defaults in underneath anything already
+## stated here. Can be called before or after the other methods, and never overwrites a
+## default set with [method default].
 func set_type(type_name: String) -> Property:
 	if _frozen:
 		_warn_frozen()
 		return self
 
 	type = type_name
-	# The one place a property consults the type registry. The registry is headless,
-	# so this keeps working outside the editor.
+	# The one place a property consults the type registry, which is headless, so this keeps
+	# working outside the editor.
 	var indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(type_name)
 	if indexer:
 		for key: String in indexer.default_settings:
@@ -102,16 +85,16 @@ func set_type(type_name: String) -> Property:
 	return self
 
 
-## (text) Stores a plain String instead of a set of translations. For anything the
-## player never reads: ids, labels, machine names, authoring notes.
+## (text) Stores a plain String instead of translations. For anything the player never
+## reads, like ids, labels and authoring notes.
 func plain() -> Property:
 	set_setting(PropertySettings.KEY_TRANSLATABLE, false)
 	_refresh_default()
 	return self
 
 
-## (text) Stores a set of translations keyed by language code. Already the case for
-## `text`; useful on `textarea`, which is plain by default.
+## (text) Stores translations keyed by language code. Already the case for `text`, useful
+## on `textarea`, which is plain by default.
 func translatable() -> Property:
 	set_setting(PropertySettings.KEY_TRANSLATABLE, true)
 	_refresh_default()
@@ -122,9 +105,8 @@ func is_translatable() -> bool:
 	return get_settings_value(PropertySettings.KEY_TRANSLATABLE, false) == true
 
 
-## Re-derives the starting value from the field type and from whether this property is
-## translated. Run whenever either changes, so the declaration reads the same in any
-## order: a translated text starts as no translations, a plain one as an empty string.
+## Re-derives the starting value from the field type and whether the property is translated.
+## Run whenever either changes, so the declaration reads the same in any order.
 func _refresh_default() -> void:
 	if _has_explicit_default:
 		return
@@ -137,8 +119,6 @@ func _refresh_default() -> void:
 	value = resolve_default()
 
 
-## Overrides the field type's default. Only needed when this property should start
-## with something else.
 func default(new_default: Variant) -> Property:
 	if _frozen:
 		_warn_frozen()
@@ -150,7 +130,7 @@ func default(new_default: Variant) -> Property:
 	return self
 
 
-## Overrides the inspector label. Defaults to a readable form of the name.
+## Defaults to a readable form of the name.
 func label(text: String) -> Property:
 	return set_setting(PropertySettings.KEY_LABEL, text)
 
@@ -159,7 +139,6 @@ func tooltip(text: String) -> Property:
 	return set_setting(PropertySettings.KEY_TOOLTIP, text)
 
 
-## Overrides the category taken from the declaration path.
 func category(category_name: String) -> Property:
 	return set_setting(PropertySettings.KEY_CATEGORY, category_name)
 
@@ -172,13 +151,12 @@ func hidden_in_inspector() -> Property:
 	return set_setting(PropertySettings.KEY_VISIBLE_IN_INSPECTOR, false)
 
 
-## Renders without a background panel.
 func flat() -> Property:
 	return set_setting(PropertySettings.KEY_FLAT, true)
 
 
-## Belongs in the inspector's header strip rather than a category section: compact,
-## panel-less, and never drawn as a graph row. Used by id and color.
+## Puts the property in the inspector's header strip instead of a category section.
+## Compact, panel-less, never drawn as a graph row. Used by id and color.
 func header() -> Property:
 	category("Special:Header")
 	hidden_in_graph()
@@ -189,14 +167,13 @@ func no_expand() -> Property:
 	return set_setting(PropertySettings.KEY_EXPAND, false)
 
 
-## Shown in the inspector and editable. Use after [method main_property], which hides
-## the property by default.
+## Shown in the inspector and editable. Use after [method main_property], which hides it.
 func editable() -> Property:
 	set_setting(PropertySettings.KEY_VISIBLE_IN_INSPECTOR, true)
 	return set_setting(PropertySettings.KEY_EDITABLE, true)
 
 
-## Shown but frozen. Unlike [method not_editable], stays visible in the inspector.
+## Shown but frozen. Unlike [method not_editable], stays visible.
 func read_only() -> Property:
 	return set_setting(PropertySettings.KEY_READ_ONLY, true)
 
@@ -206,7 +183,6 @@ func not_editable() -> Property:
 	return set_setting(PropertySettings.KEY_EDITABLE, false)
 
 
-## Marks the owning list item as undeletable.
 func protected() -> Property:
 	return set_setting(PropertySettings.KEY_PROTECT, true)
 
@@ -217,17 +193,16 @@ func protected() -> Property:
 ##     .set_type("int")
 ##     .enabled_by("stackable"))
 ## [/codeblock]
-## The property stays where it is, the way Godot and Blender leave a setting visible
-## when it does not currently apply.
+## The property stays where it is.
 func enabled_by(property_name: String, values: Array = [true]) -> Property:
 	return set_setting(
 		PropertySettings.KEY_ENABLED_BY, {"property": property_name, "values": values}
 	)
 
 
-## Takes this property out of the inspector unless [param property_name] holds one of
-## [param values]. For settings a choice does not merely disable but makes meaningless,
-## such as where a character stands when the action is to walk off.
+## Hides this property unless [param property_name] holds one of [param values]. For
+## settings another choice makes meaningless, like where a character stands when the action
+## is to walk off.
 func shown_by(property_name: String, values: Array = [true]) -> Property:
 	return set_setting(
 		PropertySettings.KEY_SHOWN_BY, {"property": property_name, "values": values}
@@ -241,10 +216,10 @@ func get_gate(key: StringName) -> Dictionary:
 	return gate if gate is Dictionary else {}
 
 
-## The object's primary connectable property: drawn first in the graph, so it owns
-## port index 0, and hidden from the inspector.
+## The object's primary connectable property. Drawn first in the graph, so it owns port
+## index 0, and hidden from the inspector.
 ##
-## Call this before the port overrides, so exposed()/exported() have the last word.
+## Call it before the port overrides, so exposed() and exported() have the last word.
 func main_property() -> Property:
 	set_setting(PropertySettings.KEY_IS_MAIN_PROPERTY, true)
 	set_setting(PropertySettings.KEY_VISIBLE_IN_GRAPH, true)
@@ -253,17 +228,14 @@ func main_property() -> Property:
 	return set_setting(PropertySettings.KEY_EXPOSABLE, true)
 
 
-## Input port on the left of the graph node.
 func exposed(is_exposed: bool = true) -> Property:
 	return set_setting(PropertySettings.KEY_EXPOSED, is_exposed)
 
 
-## Output port on the right of the graph node.
 func exported(is_exported: bool = true) -> Property:
 	return set_setting(PropertySettings.KEY_EXPORT, is_exported)
 
 
-## Prevents the user toggling the input port from the inspector.
 func not_exposable() -> Property:
 	return set_setting(PropertySettings.KEY_EXPOSABLE, false)
 
@@ -273,27 +245,24 @@ func port_size(size: String) -> Property:
 	return set_setting(PropertySettings.KEY_PORT_SIZE, size)
 
 
-## (collection) Name of the collection type each item is built from.
 func collection(collection_name: String) -> Property:
 	return set_setting(PropertySettings.KEY_COLLECTION, collection_name)
 
 
-## (list) Field type of each item.
 func item_type(field_type: String) -> Property:
 	return set_setting(PropertySettings.KEY_ITEM_TYPE, field_type)
 
 
-## (dropdown) Static choices.
 func options(values: Array) -> Property:
 	return set_setting(PropertySettings.KEY_OPTIONS, values)
 
 
-## (dropdown) Dynamic choices: a collection name, or "self:<property>".
+## (dropdown) Dynamic choices. A collection name, or "self:<property>".
 func source(source_path: String) -> Property:
 	return set_setting(PropertySettings.KEY_SOURCE, source_path)
 
 
-## (reference) Where the target is looked up: a collection name, "self:<property>",
+## (reference) Where the target is looked up. A collection name, "self:<property>",
 ## "storylines", or "node:<type>".
 func reference_scope(scope: String) -> Property:
 	return set_setting(PropertySettings.KEY_REFERENCE_SCOPE, scope)
@@ -309,7 +278,6 @@ func allow_empty(is_allowed: bool = true) -> Property:
 	return set_setting(PropertySettings.KEY_ALLOW_EMPTY, is_allowed)
 
 
-## (text / translatable) Renders a multi-line editor.
 func multiline(rows: int = 3) -> Property:
 	set_setting(PropertySettings.KEY_MULTILINE, true)
 	return set_setting(PropertySettings.KEY_ROWS, rows)
@@ -334,14 +302,13 @@ func required() -> Property:
 	return set_setting(PropertySettings.KEY_REQUIRED, true)
 
 
-## Value must differ from every sibling item's value for the same property.
 func unique_among_siblings() -> Property:
 	return set_setting(PropertySettings.KEY_UNIQUE, true)
 
 
-## Attaches a check written next to the property it guards. [param function] takes a
-## [ValidationContext] (or nothing) and returns null/true when the value is fine, or a
-## String / [ValidationIssue] describing what is wrong:
+## Attaches a check next to the property it guards. [param function] takes a
+## [ValidationContext] or nothing, and returns null or true when the value is fine, or a
+## String or [ValidationIssue] saying what is wrong:
 ## [codeblock]
 ## define_property(Property.new("name")
 ##     .set_type("text")
@@ -355,8 +322,8 @@ func validate(function: Callable, code: StringName = &"custom") -> Property:
 	return self
 
 
-## Same as [method validate], but reports a warning instead of an error, so it shows up
-## in the problems panel without marking the value broken.
+## Like [method validate], but reports a warning. Shows in the problems panel without
+## marking the value broken.
 func warn_if(function: Callable, code: StringName = &"custom") -> Property:
 	if _frozen:
 		_warn_frozen()
@@ -367,7 +334,7 @@ func warn_if(function: Callable, code: StringName = &"custom") -> Property:
 	return self
 
 
-## Rules declared with [method validate] / [method warn_if]. Read by ValidationService.
+## Rules declared with [method validate] and [method warn_if].
 func get_validation_rules() -> Array[ValidationRule]:
 	return _validation_rules
 
@@ -386,9 +353,8 @@ func value_range(minimum: float, maximum: float) -> Property:
 	return _add_rule("max", maximum)
 
 
-## (int / float) The range the widget offers, which is also the range the value is
-## checked against: a number that stops at 100 and a rule that allows 200 would
-## disagree. A number declared without bounds drags freely and shows no fill.
+## (int / float) The range the widget offers, and the range the value is checked against.
+## Declaring no bounds lets the number drag freely and shows no fill.
 func bounds(minimum: float, maximum: float, step: float = 1.0) -> Property:
 	set_setting(PropertySettings.KEY_MIN_VALUE, minimum)
 	set_setting(PropertySettings.KEY_MAX_VALUE, maximum)
@@ -401,8 +367,8 @@ func suffix(text: String) -> Property:
 	return set_setting(PropertySettings.KEY_SUFFIX, text)
 
 
-## Sets one declared setting. Prefer a named method when one exists; this is for keys
-## a plugin defines that the core knows nothing about.
+## Sets one declared setting. Prefer a named method when one exists. This is for keys a
+## plugin defines that the core knows nothing about.
 func set_setting(key: String, setting_value: Variant) -> Property:
 	if _frozen:
 		_warn_frozen()
@@ -427,8 +393,8 @@ func is_frozen() -> bool:
 	return _frozen
 
 
-## The value a fresh instance starts with: evaluates a [Callable] default, and
-## deep-copies containers so two objects never share one Array.
+## The value a fresh instance starts with. Evaluates a [Callable] default, and deep-copies
+## containers so two objects never share one Array.
 func resolve_default() -> Variant:
 	var resolved: Variant = default_value
 	if resolved is Callable:
@@ -450,8 +416,8 @@ func get_value() -> Variant:
 	return value
 
 
-## Records a user override, which survives into the save file. Distinct from
-## [method set_setting], which declares the default and is frozen after startup.
+## Records a user override, which is saved. Unlike [method set_setting], which declares the
+## default and freezes after startup.
 func set_settings_value(key: String, setting_value: Variant) -> void:
 	_overrides[key] = setting_value
 	settings_changed.emit()
@@ -509,8 +475,8 @@ func is_port_connected() -> bool:
 	return is_input_connected() or is_output_connected()
 
 
-## True when this property should be a row in the graph node view: either it is marked
-## visible, or it carries at least one port.
+## True when this property should be a row in the graph node view. Either it is marked
+## visible, or it carries a port.
 func is_visible_in_graph() -> bool:
 	var has_input: bool = get_settings_value(PropertySettings.KEY_EXPOSED, false) == true
 	var has_output: bool = get_settings_value(PropertySettings.KEY_EXPORT, false) == true
@@ -518,8 +484,8 @@ func is_visible_in_graph() -> bool:
 	return visible or has_input or has_output
 
 
-## Replaces the cached views, announcing the change only when there is one.
-## Called by [StorylineDocument], which holds the wires themselves.
+## Replaces the cached views, announcing the change only when there is one. Called by
+## [StorylineDocument], which holds the wires.
 func set_connection_views(incoming: Array, outgoing: Array) -> void:
 	if connected_from == incoming and connected_to == outgoing:
 		return
@@ -538,14 +504,12 @@ func _add_rule(rule_name: String, rule_value: Variant) -> Property:
 	return set_setting(PropertySettings.KEY_VALIDATION, rules)
 
 
-## Restores what was saved for this property. The owning object keeps every override
-## together in one map, so they arrive separately from the value.
+## Restores what was saved. The owning object keeps every override in one map, so they
+## arrive separately from the value.
 func _restore(stored_value: Variant, stored_overrides: Dictionary) -> void:
 	value = stored_value
 	_overrides = stored_overrides.duplicate(true)
 
 
-## The user's runtime overrides, for the owning object to gather. Empty for a property
-## nobody has touched, which is most of them.
 func _get_overrides() -> Dictionary:
 	return _overrides

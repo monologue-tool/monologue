@@ -1,6 +1,5 @@
 class_name LanguageSwitcher extends OptionButton
 
-## Current graph edit which has the loaded languages.
 var graph_edit: MonologueGraphEdit
 var _is_applying: bool = false
 
@@ -63,7 +62,7 @@ func _on_item_selected(idx: int) -> void:
 
 
 func _on_global_refresh() -> void:
-	# Another source (e.g. TranslatableField LocalizationOption) changed the language;
+	# Another source, such as a TranslatableField LocalizationOption, changed the language.
 	# update our selection to match without re-emitting refresh.
 	if _is_applying:
 		return

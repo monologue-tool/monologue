@@ -3,8 +3,7 @@ extends GdUnitTestSuite
 ## Some node types may exist once per storyline and no more. The root is the one: it is not
 ## offered by the add menus and cannot be deleted, so a storyline has exactly one way in.
 ##
-## Which is two separate guarantees. The document only reports the count; it is the project's
-## template that puts the root there in the first place.
+## Two guarantees. The document reports the count, the template puts the root there.
 
 var _registry: MonologueRegistry
 var _history: CommandManager
@@ -27,7 +26,7 @@ func _singleton_issues(storyline: StorylineDocument) -> Array[ValidationIssue]:
 
 
 func test_a_storyline_reports_any_count_of_a_singleton_but_one() -> void:
-	# A document builds nothing of its own, so this starts with none -- which is as wrong as
+	# A document builds nothing of its own, so this starts with none, which is as wrong as
 	# having two, and is what "no way in" looks like.
 	var storyline: StorylineDocument = StorylineDocument.new("main", _history)
 	assert_array(_singleton_issues(storyline)).override_failure_message(

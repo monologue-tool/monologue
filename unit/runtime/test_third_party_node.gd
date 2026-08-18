@@ -2,13 +2,12 @@ extends GdUnitTestSuite
 
 ## Somebody else's node type, running in a story, without a line of the addon changing.
 ##
-## This is the property the whole design exists for. A behaviour is handed its data, its
-## wires and the graph, and answers where the story goes; nothing about it is declared to the
-## runtime in advance.
+## A behaviour is handed its data, its wires and the graph, and answers where the story goes.
+## Nothing about it is declared to the runtime in advance.
 
 
-## Looks up another node by a name written on it -- the thing a jump does -- entirely on its
-## own, and reports its own problem when it cannot.
+## Looks another node up by a name written on it, the way a jump does, and reports its own
+## problem when it cannot.
 class ChapterBehaviour extends MonologueBehaviour:
 	func handles() -> PackedStringArray:
 		return ["chapter"]
@@ -25,8 +24,7 @@ class ChapterBehaviour extends MonologueBehaviour:
 		return BehaviourResult.progress(found[0])
 
 
-## Holds the story until the game answers, exactly as the shipped types do: show in run(),
-## leave in input().
+## Holds the story until the game answers. Show in run(), leave in input().
 class ShoutBehaviour extends MonologueBehaviour:
 	func handles() -> PackedStringArray:
 		return ["shout"]
@@ -39,8 +37,8 @@ class ShoutBehaviour extends MonologueBehaviour:
 		return BehaviourResult.progress(ctx.next())
 
 
-## Claims no type at all: it only watches, which is what every behaviour may do while
-## another one holds the story.
+## Claims no type. Only watches, which every behaviour may do while another holds the
+## story.
 class NoseyBehaviour extends MonologueBehaviour:
 	var seen: Array[String] = []
 	var ticks: int = 0

@@ -1,8 +1,8 @@
-## A split container that holds its divider at a share of the width rather than at a
-## number of pixels, so resizing the window leaves the layout looking the way it did.
+## A split container holding its divider at a share of the width instead of a pixel offset,
+## so resizing the window leaves the layout looking the way it did.
 ##
-## Works either way round: [member SplitContainer.vertical] decides which extent the
-## share is taken along, so one script covers the horizontal and the vertical splits.
+## [member SplitContainer.vertical] decides which extent the share is taken along, so one
+## script covers both directions.
 class_name RatioSplitContainer extends SplitContainer
 
 ## How many correction passes one request is allowed.
@@ -14,15 +14,15 @@ const TOLERANCE: float = 1.0
 @export_range(0.0, 100.0, 0.1, "suffix:%") var split_percent: float = 50.0:
 	set = set_split_percent
 
-## True while the container is moving its own divider, so the moves it makes are not read
-## back as though the user had made them.
+## True while the container moves its own divider, so its moves are not read back as the
+## user's.
 var _is_applying: bool = false
-## True from the moment a drag is seen until the share has been read off it. A resize
-## arriving in between must not pull the divider back to where it used to be.
+## True from the moment a drag is seen until the share is read off it. A resize arriving in
+## between must not pull the divider back.
 var _is_dragging: bool = false
-## True once something has actually chosen a share: the scene file, the inspector, or
-## code. Until then the container adopts whatever offset it was laid out with, so putting
-## this script on a split that already sits where it should does not move it.
+## True once something has chosen a share, whether the scene file, the inspector or code.
+## Until then the container keeps the offset it was laid out with, so adding this script to a
+## split that already sits right does not move it.
 var _percent_is_chosen: bool = false
 var _passes_left: int = 0
 var _is_scheduled: bool = false
@@ -77,8 +77,8 @@ func _apply_pass() -> void:
 	_apply_pass.call_deferred()
 
 
-## Moves the divider one step towards the wanted share. Returns whether it is still off,
-## which is what asks for another pass.
+## Moves the divider one step towards the wanted share. True while it is still off, which
+## asks for another pass.
 func _move_towards_percent() -> bool:
 	if not is_inside_tree() or collapsed or _is_dragging:
 		return false
@@ -105,7 +105,7 @@ func _on_layout_changed() -> void:
 	_schedule_apply()
 
 
-## The user moved the divider, so the share follows it rather than the other way round.
+## The user moved the divider, so the share follows it.
 ## Read on the next frame: the panes are still their old size when this fires.
 func _on_dragged(_offset: int) -> void:
 	_is_dragging = true

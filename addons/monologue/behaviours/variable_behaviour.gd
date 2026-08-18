@@ -29,7 +29,7 @@ static func _applied(
 	if operator == "=":
 		return amount
 
-	# Adding to text joins it; the alternative is silently reading "3" as three.
+	# Adding to text joins it. The alternative is silently reading "3" as three.
 	if operator == "+" and (current is String or amount is String):
 		return str(current) + str(amount)
 

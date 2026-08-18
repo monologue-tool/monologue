@@ -1,11 +1,11 @@
 ## Who is on screen, in one of three places.
 ##
-## The three slots and where they sit are the scene's business; everything here only fills
+## The three slots and where they sit are the scene's business. Everything here only fills
 ## them. A slot is a place on the stage rather than a person: somebody stepping into one
 ## takes it from whoever was standing there.
 ##
 ## What the story asks for is a picture, a place, and how long to take about it. Arriving and
-## leaving are fades, shaped by the easing curve the node names -- there is nothing in the
+## leaving are fades, shaped by the easing curve the node names. There is nothing in the
 ## data saying where a character would slide in from, so nothing here invents one.
 class_name MonologueDefaultCharacters extends MonologueCharacterPart
 
@@ -120,7 +120,7 @@ func _slot_named(place: String) -> TextureRect:
 
 
 ## How far along a curve is at [param at], the curve being the four coordinates of a cubic
-## bezier running from (0, 0) to (1, 1) -- the same shape the editor draws.
+## bezier running from (0, 0) to (1, 1), the same shape the editor draws.
 ##
 ## Solved rather than evaluated: the curve says y for a given x, and x is not the parameter.
 static func _eased(curve: Array, at: float) -> float:

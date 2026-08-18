@@ -1,12 +1,11 @@
 ## A player with no scene and no clock: it answers the moment it is asked, and keeps what the
 ## story asked for.
 ##
-## This is what makes a headless test possible at all -- a whole playthrough happens inside
+## This is what makes a headless test possible at all. A whole playthrough happens inside
 ## one `session.play()`, with no frames and no presentation. Set [member silent] to hold the
 ## story instead, the way a real player waiting on a reader does, and answer by hand.
 class_name ScriptedPlayer extends MonologuePlayer
 
-## Every line said, in order.
 var said: Array[String] = []
 ## Every speaker named alongside them, same order.
 var speakers: Array[String] = []

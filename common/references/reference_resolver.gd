@@ -11,11 +11,10 @@
 ## [/codeblock]
 ##
 ## In the "ref:" form the last segment names both the property on the target and the
-## collection it holds, which is how a node offers the portraits of the one character it
-## names rather than every portrait in the project.
+## collection it holds. That is how a node offers the portraits of the one character it names
+## instead of every portrait in the project.
 ##
-## Resolution is done every time it is needed rather than cached, so renaming the
-## target is enough for every reference to it to show the new name.
+## Nothing is cached. Renaming a target is enough for every reference to show the new name.
 class_name ReferenceResolver
 
 const SELF_PREFIX: String = "self:"
@@ -27,8 +26,7 @@ const DEFAULT_LABEL_PROPERTY: String = "name"
 const DEFAULT_FLAG_PROPERTY: String = "is_default"
 
 
-## Every candidate in [param scope], as {"id": String, "label": String}, in the order
-## they are stored.
+## Every candidate in [param scope], as {"id": String, "label": String}, in stored order.
 static func list_candidates(
 	project: MonologueProject,
 	scope: String,
@@ -68,9 +66,9 @@ static func resolve_label(
 	return ""
 
 
-## The kind of thing a scope points at: "character", "portrait", "storyline". Used to
-## label a reference port, which would otherwise read "reference" whatever it accepts.
-## Returns "" for a scope nothing is registered for.
+## The kind of thing a scope points at: "character", "portrait", "storyline". Labels a
+## reference port, which would otherwise read "reference" whatever it accepts. "" for a scope
+## nothing is registered for.
 static func describe_scope(scope: String, owner: InspectableObject = null) -> String:
 	if scope.is_empty():
 		return ""
@@ -91,9 +89,9 @@ static func describe_scope(scope: String, owner: InspectableObject = null) -> St
 	return indexer.get_item_type() if indexer else ""
 
 
-## One property read off the object a reference points at, as text. Empty when the
-## reference resolves to nothing. Used where a widget has to follow its target: the
-## value beside a variable takes the shape that variable declares.
+## One property read off the object a reference points at, as text. Empty when the reference
+## resolves to nothing. For a widget that has to follow its target, like the value beside a
+## variable taking the shape that variable declares.
 static func resolve_property(
 	project: MonologueProject,
 	scope: String,
@@ -121,8 +119,8 @@ static func find_default(
 	return ""
 
 
-## What an empty reference to [param scope] actually resolves to, as text: "Ease" for a
-## curve that falls back to the default one, "" when there is nothing to fall back to.
+## What an empty reference to [param scope] resolves to, as text. "Ease" for a curve falling
+## back to the default one, "" when there is nothing to fall back to.
 static func describe_default(
 	project: MonologueProject,
 	scope: String,
@@ -135,8 +133,8 @@ static func describe_default(
 	return resolve_label(project, scope, default_id, owner, label_property)
 
 
-## True when the scope still holds the object. A false answer is what makes a
-## reference render as broken instead of quietly pointing somewhere else.
+## True when the scope still holds the object. False makes a reference render as broken
+## instead of quietly pointing somewhere else.
 static func exists(
 	project: MonologueProject, scope: String, target_id: String, owner: InspectableObject = null
 ) -> bool:
@@ -149,8 +147,8 @@ static func exists(
 	return false
 
 
-## The stored items a scope covers, before any labelling. Only collection scopes have
-## records; storylines and nodes are live objects and answer nothing here.
+## The stored items a scope covers, before labelling. Only collection scopes have records.
+## Storylines and nodes are live objects and answer nothing here.
 static func _records_in(
 	project: MonologueProject, scope: String, owner: InspectableObject
 ) -> Array:
@@ -200,8 +198,7 @@ static func _list_own_items(
 	return _list_records(value, _resolve_label_property(collection_name, label_property))
 
 
-## Items held by whatever another property points at. [param body] is the part of a
-## "ref:<property>:<collection>" scope after the prefix.
+## Items held by whatever another property points at. [param body] is what follows "ref:".
 static func _list_referenced_items(
 	project: MonologueProject,
 	owner: InspectableObject,
@@ -215,9 +212,8 @@ static func _list_referenced_items(
 	)
 
 
-## The stored items of a "ref:" scope: follow the sibling property to its target, then
-## read the list the target keeps under the named property. Empty while the sibling
-## points at nothing, which is the state a fresh node is in.
+## Follows the sibling property to its target, then reads the list the target keeps under the
+## named property. Empty while the sibling points at nothing, which is how a fresh node is.
 static func _referenced_records(
 	project: MonologueProject, owner: InspectableObject, body: String
 ) -> Array:
@@ -244,15 +240,14 @@ static func _referenced_records(
 	return []
 
 
-## The collection a "ref:" scope ends up in: the last segment names it, and names the
-## property holding it on the target too.
+## The collection a "ref:" scope ends up in. The last segment names it, and names the
+## property holding it on the target.
 static func _referenced_collection_name(body: String) -> String:
 	var segments: PackedStringArray = body.split(":")
 	return segments[1] if segments.size() >= 2 else ""
 
 
-## Which collection a "self:<property>" scope ends up in, read from the property that
-## holds it rather than from the scope name.
+## Which collection a "self:<property>" scope ends up in, read from the property holding it.
 static func _own_collection_name(owner: InspectableObject, property_name: String) -> String:
 	if owner == null:
 		return ""
@@ -263,8 +258,8 @@ static func _own_collection_name(owner: InspectableObject, property_name: String
 	return str(property.get_settings_value(PropertySettings.KEY_COLLECTION, ""))
 
 
-## Which property labels an item: what the reference declared, or failing that what the
-## collection itself declares. Options are labelled by their text, characters by name.
+## Which property labels an item. What the reference declared, or what the collection
+## declares. Options are labelled by their text, characters by name.
 static func _resolve_label_property(collection_name: String, declared: String) -> String:
 	if not declared.is_empty() and declared != DEFAULT_LABEL_PROPERTY:
 		return declared
@@ -308,8 +303,8 @@ static func _list_nodes(
 
 ## Reads {"id": ..., "<label_property>": ...} out of stored collection items.
 ##
-## An item with nothing in its label property is named after its type and position
-## rather than its id, which would mean nothing to the person choosing from the list.
+## An item with nothing in its label property is named after its type and position. An id
+## would mean nothing to the person choosing from the list.
 static func _list_records(records: Array, label_property: String) -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
 	for index: int in records.size():
@@ -339,8 +334,8 @@ static func _get_storyline_of(
 	return null
 
 
-## Reads one stored property out of an item, rendered as text. Handles translatable
-## values, which are a dictionary of languages rather than a plain string.
+## Reads one stored property out of an item, as text. Handles translatable values, which are
+## a dictionary of languages instead of a plain string.
 static func _read(record: Dictionary, key: String) -> String:
 	if not record.has(key):
 		return ""

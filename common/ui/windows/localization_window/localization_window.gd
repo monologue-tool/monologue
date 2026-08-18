@@ -1,15 +1,13 @@
 ## Every translatable line in the project, side by side across languages.
 ##
-## The editor's other surfaces show one object at a time, which is the wrong shape for
-## translating: a translator works down a column, not around a graph. This shows the
-## column.
+## A translator works down a column, not around a graph, which is the shape every other
+## surface has.
 ##
-## Rows are built by hand rather than by a Tree so that a cell can be a real widget --
-## the translation is an editable field, not a cell that turns into one.
+## Rows are built by hand and not by a Tree, so the translation cell can be a real editable
+## field instead of one that turns into one.
 class_name LocalizationWindow extends MonologueWindow
 
-## Every column the window can show, in the order they appear. The View menu turns them
-## on and off; a new one only has to be named here and read in [method _cell_text].
+## In the order they appear. A new one is named here and read in [method _cell_text].
 const COLUMNS: Array[Dictionary] = [
 	{"id": "type", "title": "Type", "stretch": 2, "shown": true},
 	{"id": "property", "title": "Property", "stretch": 2, "shown": true},
@@ -59,8 +57,8 @@ func open() -> void:
 	search_bar.grab_focus()
 
 
-## Rereads the project. Cheap enough to do on every open, and that is the only way the
-## table can be trusted after the graph has been edited behind it.
+## Rereads the project. The only way the table can be trusted after the graph was edited
+## behind it.
 func reload() -> void:
 	var project: MonologueProject = ProjectManager.current_project
 	if project == null:
@@ -80,7 +78,7 @@ func is_column_visible(column_id: String) -> bool:
 
 
 func set_column_visible(column_id: String, shown: bool) -> void:
-	# The translation is the point of the window; hiding it would leave nothing to do.
+	# The translation is the point of the window. Hiding it would leave nothing to do.
 	if column_id == TARGET_COLUMN and not shown:
 		return
 	_visible_columns[column_id] = shown
@@ -216,7 +214,7 @@ func _build_label(entry: TranslationEntry, column_id: String) -> Control:
 	var label: Label = Label.new()
 	label.text = _cell_text(entry, column_id)
 	label.tooltip_text = label.text
-	# Only the text columns wrap; the narrow ones read better on one line.
+	# Only the text columns wrap. The narrow ones read better on one line.
 	if column_id in ["source", "key"]:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -424,7 +422,7 @@ func export_translations(format: TranslationIO.Format) -> void:
 	)
 
 
-## Portable Object holds one language against a source; the other two carry every
+## Portable Object holds one language against a source. The other two carry every
 ## language the project declares.
 func _export_to(path: String, format: TranslationIO.Format) -> void:
 	var languages: PackedStringArray = _languages

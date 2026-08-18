@@ -12,10 +12,10 @@ var _pending_expand_category: String = ""
 
 var current_objects: Array[InspectableObject] = []
 ## Selections the back button steps through, most recent last. Each entry is a whole
-## selection, not a single object.
+## selection.
 var history: Array[Array] = []
-## Objects currently listened to, so a property that decides whether others are shown
-## can be unsubscribed from when the selection moves on.
+## Objects currently listened to, so they can be unsubscribed from when the selection
+## moves on.
 var _watched_objects: Array[InspectableObject] = []
 
 
@@ -38,17 +38,17 @@ func _on_event_show_inspector(_visible: bool) -> void:
 	inspect(current_objects)
 
 
-## Called after every undo or redo. Re-resolves the inspection stack from the
-## root so stale CollectionItem references are replaced with fresh objects, then rebuilds.
+## Re-resolves the inspection stack from the root, replacing stale CollectionItem references
+## with fresh objects, then rebuilds. Called after every undo or redo.
 func _on_history_undo_redo() -> void:
 	rebuild()
 
 
-## Shows a selection. One object is not a special case here, just a selection of one.
+## Shows a selection. One object is a selection of one, not a special case.
 ##
-## The graph's highlight is left alone: the graph owns it, and reaching in to clear it
-## makes the graph announce a selection the user never made. Inspecting a collection
-## item keeps its owning node highlighted, which is where the back button leads.
+## The graph's highlight is left alone. The graph owns it, and clearing it from here makes the
+## graph announce a selection the user never made. Inspecting a collection item keeps its
+## owning node highlighted, which is where the back button leads.
 func inspect(objects: Array[InspectableObject], from_history: bool = false) -> void:
 	var previous: Array[InspectableObject] = current_objects
 	if not objects.is_empty() and not previous.is_empty() and previous != objects:
@@ -59,8 +59,7 @@ func inspect(objects: Array[InspectableObject], from_history: bool = false) -> v
 	current_objects = objects
 	_watch_gates(objects)
 
-	# Nothing selected means nothing to inspect. This used to hide the panel whenever
-	# both the old and the new selection were non-empty, which is the normal case.
+	# Nothing selected means nothing to inspect.
 	if objects.is_empty() or not ConfigManager.get_config("show_inspector"):
 		hide()
 		return
@@ -82,9 +81,9 @@ func rebuild() -> void:
 	_fields.clear()
 	await get_tree().process_frame
 
-	# Read the selection after the wait, not before: inspect() can run during that
-	# frame, and building fields from one selection while binding them to another is
-	# how a field ends up with no owner at all.
+	# Read the selection after the wait, not before. inspect() can run during that frame, and
+	# building fields from one selection while binding them to another leaves a field with no
+	# owner.
 	var inspected: Array[InspectableObject] = current_objects
 
 	var inspecting_nodes: bool = not inspected.is_empty()
@@ -131,14 +130,14 @@ func rebuild() -> void:
 	_pending_expand_category = ""
 
 
-## The object the inspector reads its context from: ports, exposure toggles, the run
-## button. Those are per-object, so with several selected they follow the first.
+## The object the inspector reads its context from, meaning ports, exposure toggles and the
+## run button. Those are per-object, so with several selected they follow the first.
 func _primary() -> InspectableObject:
 	return current_objects[0] if not current_objects.is_empty() else null
 
 
-## Follows the inspected objects so that changing a property which decides whether
-## others are shown redraws the panel around it.
+## Follows the inspected objects, so changing a property that gates others redraws the panel
+## around it.
 func _watch_gates(objects: Array[InspectableObject]) -> void:
 	for object: InspectableObject in _watched_objects:
 		if not is_instance_valid(object):
@@ -158,10 +157,10 @@ func _on_inspected_property_changed(property_name: String) -> void:
 			return
 
 
-## What the inspector shows for a selection. One object gives all its properties;
+## What the inspector shows for a selection. One object gives all its properties.
 ## several give only what they genuinely share, so editing is never ambiguous.
 ##
-## The returned properties belong to the first object -- that is what the fields read
+## The returned properties belong to the first object, which is what the fields read
 ## and display. Writing fans out to the rest, see [FieldBinding].
 func _get_common_properties(objects: Array[InspectableObject]) -> Array[Property]:
 	var common: Array[Property] = []
@@ -179,9 +178,9 @@ func _get_common_properties(objects: Array[InspectableObject]) -> Array[Property
 	return common
 
 
-## Unique properties -- ids, names -- exist to tell objects apart, so editing them
-## across a selection could only ever produce duplicates. Properties that own child
-## objects are per-object by nature and have nothing to merge.
+## Unique properties like ids and names exist to tell objects apart, so editing them across a
+## selection could only make duplicates. Properties owning child objects have nothing to
+## merge.
 func _is_shareable(candidate: Property) -> bool:
 	if candidate.get_settings_value(PropertySettings.KEY_UNIQUE, false):
 		return false
@@ -189,7 +188,7 @@ func _is_shareable(candidate: Property) -> bool:
 
 
 ## Shared means same name and same type everywhere. Two "text" properties can be
-## edited together; a text and a dropdown cannot.
+## edited together. A text and a dropdown cannot.
 func _every_object_declares(candidate: Property, objects: Array[InspectableObject]) -> bool:
 	for object: InspectableObject in objects:
 		var match_property: Property = object.get_property(candidate.name)
@@ -198,8 +197,8 @@ func _every_object_declares(candidate: Property, objects: Array[InspectableObjec
 	return true
 
 
-## A centred line of text. [param fill] makes it take the whole panel, which is what
-## the empty state wants; a heading above a property list does not.
+## A centred line of text. [param fill] makes it take the whole panel, which the empty state
+## wants and a heading above a property list does not.
 func _add_notice(text: String, fill: bool = false) -> void:
 	var label: Label = Label.new()
 	label.text = text
@@ -218,7 +217,6 @@ func _find_labels(node: Node, labels: Array) -> void:
 
 
 func _restore_focus_to_property(property_name: String) -> void:
-	# Walk into each category container and find the p_container tagged with property_name
 	for category: Node in field_container.get_children():
 		for p_container: Node in category.get_children():
 			if not p_container.has_meta("property_name"):
@@ -252,7 +250,6 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 	var groups: Dictionary[String, Array] = {}
 	var subject: InspectableObject = _primary()
 	for prop: Property in properties:
-		# Skip properties not visible in inspector
 		if not prop.get_settings_value("visible_in_inspector", true):
 			continue
 		if subject and not subject.is_property_shown(prop):
@@ -272,7 +269,6 @@ func _group_by_category(properties: Array[Property]) -> Dictionary:
 func _create_category_section(
 	category_name: String, properties: Array
 ) -> InspectorCategoryContainer:
-	# If the section only contains list properties.
 	var is_ghost_section: bool = (
 		properties.filter(func(p: Property) -> bool: return _is_list(p)).size() == properties.size()
 		and properties.size() != 0
@@ -434,8 +430,7 @@ func _create_property_editor(
 		)
 		list_section.add_control.call_deferred(p_container)
 
-	# The whole selection, so one edit reaches every object. A selection of one is the
-	# ordinary case and needs no special handling.
+	# The whole selection, so one edit reaches every object.
 	FieldWidgetFactory.bind_deferred(property, p_field, current_objects)
 	p_hbox.add_child(p_field)
 	return p_container if not is_list else null
@@ -475,7 +470,6 @@ func _on_inspect_connected_node(property: Property) -> void:
 
 	var node: InspectableNode = _primary() as InspectableNode
 
-	# Get the graph edit from the node's graph view
 	if not node.graph_view or not node.graph_view.get_parent():
 		return
 
@@ -486,7 +480,6 @@ func _on_inspect_connected_node(property: Property) -> void:
 	if not graph_edit.connection_manager:
 		return
 
-	# Get the connected node from the connection manager
 	var connected_node: InspectableNode = graph_edit.connection_manager.get_connected_node(
 		node, property.name
 	)

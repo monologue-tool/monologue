@@ -17,16 +17,13 @@ static var bg_primary_color: Color
 static var bg_surface_color: Color
 static var bg_elevated_color: Color
 static var bg_higher_color: Color
-## One step above whatever a control sits on, for the hover of a filled widget.
 static var bg_hover_color: Color
-## Behind what sits inside something else, and reads as being further away than the graph
-## the node it belongs to is drawn on.
+## Further away than the graph the node it belongs to is drawn on.
 static var bg_recessed_color: Color
 
 static var text_primary_color: Color
 static var text_muted_color: Color
-## The one border colour. Sits just above the surface it outlines, so an edge is felt
-## rather than drawn: a dark outline around a dark panel reads as a crack in the layout.
+## Sits just above the surface it outlines. A darker line would read as a crack.
 static var border_color: Color
 static var selection_color: Color
 static var disabled_selection_color: Color
@@ -36,8 +33,8 @@ static var fail_color: Color
 static var success_color: Color
 static var highlight_color: Color
 
-## Corners: square for what butts up against something else, [member radius_sm] for a
-## widget, [member radius_md] for a surface that floats.
+## Square for what butts up against something else, [member radius_sm] for a widget,
+## [member radius_md] for a surface that floats.
 static var radius_none: int = 0
 static var radius_sm: int = 4
 static var radius_md: int = 6
@@ -172,11 +169,10 @@ static func generate_and_apply_theme() -> void:
 	default_theme.merge_with(generated_theme)
 
 
-## Panels are the regions of the editor: docks, headers, the graph, dialogs.
+## Docks, headers, the graph, dialogs.
 ##
-## Only the surfaces that genuinely float -- a window body, a prompt -- carry an outline,
-## and it is [member border_color] rather than something darker: a near-black line around
-## a dark panel reads as a gap in the layout instead of an edge.
+## Only the surfaces that genuinely float carry an outline, in [member border_color]. A
+## near-black line around a dark panel reads as a gap rather than an edge.
 static func _setup_panel(theme: Theme) -> void:
 	theme.add_type("PanelContainer")
 	var stylebox: StyleBoxFlat = StyleBoxFlat.new()
@@ -490,8 +486,8 @@ static func _setup_button(theme: Theme) -> void:
 	_add_joined_variation(theme, "JoinedButtonRight", "PlainButton", false, true)
 
 
-## Declares [param variation] as a copy of [param base] with the rounding kept only on
-## the sides asked for. Every state the base holds is copied; a state it does not hold
+## A copy of [param base] with the rounding kept only on the sides asked for. Every state
+## the base holds is copied. A state it does not hold
 ## cannot be, so the base has to declare all of them.
 static func _add_joined_variation(
 	theme: Theme, variation: String, base: String, round_left: bool, round_right: bool
@@ -1229,7 +1225,7 @@ static func _setup_popupmenu(theme: Theme) -> void:
 	theme.set_stylebox("panel", "PopupMenu", panel_stylebox)
 
 	# Configures the hover box rather than the panel one, which is what the block here
-	# used to do -- taking the popup's own corner radius with it.
+	# used to do, taking the popup's own corner radius with it.
 	var hover_stylebox: StyleBoxFlat = StyleBoxFlat.new()
 	hover_stylebox.bg_color = bg_surface_color
 	hover_stylebox.set_corner_radius_all(radius_sm)

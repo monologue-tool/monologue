@@ -1,8 +1,7 @@
 ## Runs a function, then carries the story on from wherever that function ran out.
 ##
-## The exits are not written by hand. One is grown for each place the called function's
-## chain stops, so rewiring the function changes what a call to it offers, and a call
-## never claims a way out the function does not have.
+## The exits are not written by hand. One is grown for each place the called function's chain
+## stops, so a call never offers a way out the function does not have.
 class_name CallNode extends InspectableNode
 
 
@@ -35,7 +34,6 @@ func get_type() -> String:
 	return "call"
 
 
-## Which function runs before the story comes back here.
 func _build_preview(_language: String = "") -> Control:
 	var target: String = NodePreview.named(self, "target")
 	if target.is_empty():
@@ -43,16 +41,15 @@ func _build_preview(_language: String = "") -> Control:
 	return NodePreview.line("\u2192 %s" % NodePreview.plain(target))
 
 
-## The exits are computed rather than stored, so they arrive the same way a choice
-## node's connected options do: as external items nobody can edit in place.
+## Computed, not stored, so they arrive as external items nobody can edit in place.
 func get_external_list_items(property_name: String) -> Array[Dictionary]:
 	if property_name != "exits":
 		return []
 	return _list_exits()
 
 
-## A call naming no function runs nothing, and a function that never stops gives the
-## story nowhere to come back to.
+## A call naming no function runs nothing. A function that never stops gives the story
+## nowhere to come back to.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
 	if str(get_property_value("target")).is_empty():
 		result.add(
@@ -71,8 +68,7 @@ func validate_object(result: ValidationResult, _context: ValidationContext) -> v
 		)
 
 
-## One entry per place the called function's chain runs out. Empty while no function is
-## named, and while the project is still being built.
+## One entry per place the called function's chain runs out.
 func _list_exits() -> Array[Dictionary]:
 	var storyline: StorylineDocument = _get_storyline()
 	var target_id: String = str(get_property_value("target"))
@@ -87,8 +83,7 @@ func _list_exits() -> Array[Dictionary]:
 	return exits
 
 
-## How one exit is named: the label of the node the function stopped at, or that node's
-## type when it carries no label.
+## The label of the node the function stopped at, or its type when it carries none.
 func _exit_name(node: InspectableNode) -> String:
 	var project: MonologueProject = ProjectManager.current_project
 	var label: String = Util.to_label(
@@ -97,8 +92,7 @@ func _exit_name(node: InspectableNode) -> String:
 	return label if not label.is_empty() else Util.to_readable_name(node.get_type())
 
 
-## The storyline this call lives in, subscribing to it on the way so that rewiring the
-## function it calls redraws this node.
+## Subscribes on the way, so rewiring the called function redraws this node.
 func _get_storyline() -> StorylineDocument:
 	if storyline_id.is_empty() or ProjectManager.current_project == null:
 		return null

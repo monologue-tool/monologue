@@ -23,7 +23,6 @@ static func is_equal(a: Variant, b: Variant) -> bool:
 	return false
 
 
-## Check if any element of array_a is inside array_b.
 static func is_any_inside(array_a: Array, array_b: Array) -> bool:
 	for element: Variant in array_a:
 		if array_b.has(element):
@@ -31,7 +30,6 @@ static func is_any_inside(array_a: Array, array_b: Array) -> bool:
 	return false
 
 
-## Converts a snake_case name to JSON key format with capitalized "ID".
 static func to_key_name(snake_case_name: String, delimiter: String = "") -> String:
 	var words: PackedStringArray = snake_case_name.capitalize().split(" ")
 	var capitalized_list: PackedStringArray = PackedStringArray()
@@ -40,7 +38,6 @@ static func to_key_name(snake_case_name: String, delimiter: String = "") -> Stri
 	return delimiter.join(capitalized_list)
 
 
-## Converts a snake_case name to readable string with capitalized "ID".
 static func to_readable_name(snake_case_name: String) -> String:
 	return to_key_name(snake_case_name, " ")
 
@@ -72,7 +69,6 @@ static func to_label(value: Variant, language_code: String = "") -> String:
 	return str(value).strip_edges()
 
 
-## Left-truncate a filename string based on MAX_FILENAME_LENGTH.
 static func truncate_filename(filename: String) -> String:
 	var truncated: String = filename
 	if filename.length() > MAX_FILENAME_LENGTH:

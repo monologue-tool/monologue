@@ -1,14 +1,11 @@
-## The only place validation is orchestrated. Headless: no widgets, no scene tree.
+## The only place validation is orchestrated.
 ##
-## Validation never blocks. A value the user typed is always written; what comes back
-## from here is a description of what is wrong with it, shown on the field and listed
-## in the problems panel. That is how Articy, Twine, Ink and Godot's own editor behave,
-## and it is what lets you rename A to B and then B to C without the editor refusing
-## the halfway state.
+## Validation never blocks. A value the user typed is always written, and what comes back
+## from here describes what is wrong with it. That is what lets you rename A to B and then
+## B to C without the editor refusing the halfway state.
 class_name ValidationService
 
 
-## Runs every rule that applies to one candidate value.
 static func validate_value(context: ValidationContext) -> ValidationResult:
 	var result: ValidationResult = ValidationResult.ok()
 	if context.property == null:
@@ -20,8 +17,8 @@ static func validate_value(context: ValidationContext) -> ValidationResult:
 	return result
 
 
-## Validates a property's current value, and stores the outcome on the property so the
-## UI can render it without running the rules again.
+## Stores the outcome on the property, so the UI renders it without running the rules
+## again.
 static func validate_property(
 	property: Property,
 	object: InspectableObject,
@@ -37,7 +34,7 @@ static func validate_property(
 	return result
 
 
-## Validates every property of an object, then the object's own cross-property checks.
+## Every property, then the object's own cross-property checks.
 static func validate_object(
 	object: InspectableObject, project: MonologueProject = null
 ) -> ValidationResult:
@@ -69,7 +66,6 @@ static func validate_object(
 	return result
 
 
-## Sweeps a whole project. This is what the problems panel shows.
 static func validate_project(project: MonologueProject) -> ValidationResult:
 	var result: ValidationResult = ValidationResult.ok()
 	if project == null:
@@ -105,8 +101,7 @@ static func validate_document(
 	return result
 
 
-## The rules that apply to one property: whatever its field type demands of every
-## value, then what the property's own declaration adds.
+## Whatever its field type demands of every value, then what the declaration adds.
 static func rules_for(property: Property) -> Array[ValidationRule]:
 	var rules: Array[ValidationRule] = []
 

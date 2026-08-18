@@ -1,11 +1,9 @@
 extends GdUnitTestSuite
 
-## Wires live in one list on the storyline. Every property's connected_from and connected_to
-## is a view onto it, so there is no second copy to disagree with the first, and nothing to
-## leave behind when a wire or a node goes away.
+## Wires live in one list on the storyline. connected_from and connected_to are views onto
+## it, so there is no second copy to disagree with the first.
 ##
-## Undoing a node delete is checked in unit/references/, which also watches the mirrored
-## view come back.
+## Undoing a node delete is checked in unit/references/.
 
 var _project: MonologueProject
 var _storyline: StorylineDocument
@@ -93,8 +91,8 @@ func test_a_saved_storyline_comes_back_with_its_wires_and_says_what_is_broken() 
 	loaded._from_dict(data)
 	assert_array(_connection_keys(loaded)).contains_exactly_in_any_order(initial)
 
-	# A wire pointing at a node that is gone is kept and reported: dropping it silently
-	# would lose the author's intent along with the problem.
+	# A wire pointing at a node that is gone is kept and reported. Dropping it would lose the
+	# author's intent along with the problem.
 	var root: InspectableNode = _node("root")
 	(data["connections"] as Array).append(
 		NodeConnection.create(
@@ -111,7 +109,6 @@ func test_a_saved_storyline_comes_back_with_its_wires_and_says_what_is_broken() 
 	dangling.validate_object(result, ValidationContext.new())
 	assert_array(result.with_code(&"broken_connection")).is_not_empty()
 
-	# A file written before wires existed simply has none.
 	data.erase("connections")
 	var wireless: StorylineDocument = auto_free(
 		StorylineDocument.new("wireless", _project.command_manager)
@@ -129,8 +126,7 @@ func test_a_choice_shows_an_option_by_name_and_stops_when_unwired() -> void:
 
 	assert_int(externals.size()).is_equal(1)
 	assert_str(str(externals[0]["name"])).is_equal("Open the door")
-	# Drawing the choice is what makes it subscribe to what it shows. Without this it kept
-	# the name the option had at the moment it was wired.
+	# Drawing the choice is what makes it subscribe to what it shows.
 	assert_bool(option.property_changed.is_connected(choice._on_source_property_changed)).is_true()
 
 	for connection: NodeConnection in _storyline.get_outgoing(option.get_id()):
@@ -152,9 +148,8 @@ func test_an_empty_reroute_takes_anything_and_gives_back_anything() -> void:
 
 
 func test_a_reroute_gives_back_only_what_was_plugged_into_it() -> void:
-	# The whole of what a reroute is: it takes in anything, so it can always be rewired, and
-	# hands on only what it was given, so it cannot turn one kind of thing into another on
-	# the way past.
+	# A reroute takes in anything, so it can always be rewired, and hands on only what it was
+	# given, so it cannot turn one kind of thing into another.
 	var manager: ConnectionManager = ConnectionManager.new(_storyline)
 	var source: InspectableNode = _storyline.create_node("text")
 	var bend: InspectableNode = _storyline.create_node("reroute")
@@ -246,7 +241,7 @@ func _taken_in(node: InspectableNode) -> int:
 func test_two_waypoints_of_one_name_each_say_the_other_is_there() -> void:
 	# What nothing checking one property at a time can see: each of the two is perfectly fine
 	# on its own, and a jump aiming there reaches whichever comes first. The runtime notices
-	# it too, once, while playing; this is so it is known before anyone plays.
+	# it too, once, while playing. This is so it is known before anyone plays.
 	var first: InspectableNode = _storyline.create_node("waypoint")
 	var second: InspectableNode = _storyline.create_node("waypoint")
 	var alone: InspectableNode = _storyline.create_node("waypoint")

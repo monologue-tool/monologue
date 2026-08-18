@@ -113,7 +113,7 @@ func _parse_history(text: String) -> Array:
 
 
 ## An unpacked project is a folder, not a file, and FileAccess.file_exists() says no to a
-## folder -- which is what dropped every unpacked project out of the recent list.
+## folder, which is what dropped every unpacked project out of the recent list.
 static func _still_there(path: String) -> bool:
 	return FileAccess.file_exists(path) or DirAccess.dir_exists_absolute(path)
 

@@ -1,4 +1,4 @@
-## A named place in the storyline. Carries nothing and changes nothing; it exists so a
+## A named place in the storyline. Carries nothing and changes nothing. It exists so a
 ## jump has somewhere to aim at, and so that somewhere has a name in the graph.
 class_name WaypointNode extends InspectableNode
 

@@ -1,10 +1,7 @@
 ## Makes up a plausible person name, used as the default name of a new character.
 ##
-## The lists live in res://common/data/ as one name per line rather than in this file:
-## they are data, not code, and a text file can be corrected by someone who does not
-## write GDScript. Each list is read once, on the first call that needs it.
-##
-## 2000 names per list, sampled across the alphabet from
+## The lists live in res://common/data/, one name per line, read once on first use. 2000
+## names each, sampled across the alphabet from
 ## https://cerol.itch.io/godot-name-generator-class
 class_name NameGenerator
 
@@ -15,7 +12,7 @@ const LAST_NAMES_PATH: String = "res://common/data/last_names.txt"
 static var _cache: Dictionary[String, PackedStringArray] = {}
 
 
-## Returns a name such as "Ada Zysk", or "" when the lists could not be read.
+## A name such as "Ada Zysk", or "" when the lists could not be read.
 static func generate() -> String:
 	var first_names: PackedStringArray = get_names(
 		[FEMALE_FIRST_NAMES_PATH, MALE_FIRST_NAMES_PATH].pick_random()

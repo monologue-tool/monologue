@@ -1,26 +1,22 @@
 ## The pieces a node's preview is built from.
 ##
 ## A preview is any [Control] the node cares to build, so this is not the only way to make
-## one -- it is the set of parts most of them turn out to need: a line of text, a coloured
-## name, a strip showing where somebody stands.
+## one. It is the set of parts most of them need.
 ##
-## Everything that reads a value trims it, and everything that resolves a reference reads as
-## nothing when it points at nothing. Nothing here reports an id.
+## Everything that reads a value trims it. A reference pointing at nothing reads as nothing.
+## Nothing here reports an id.
 class_name NodePreview
 
-## How tall one line of preview is. The view will not draw a preview shorter than this, so a
-## piece meant to sit beside a line is measured against it.
+## How tall one line of preview is, and the shortest the view will draw one.
 const LINE_HEIGHT: float = 18.0
-## How much of one piece of free text survives, so that what frames it -- a speaker, an
-## arrow, a count -- is still there to read.
+## How much of one piece of free text survives, leaving room for what frames it.
 const MAX_PIECE: int = 26
 
 
 # --- controls ---------------------------------------------------------------------
 
 
-## One line of BBCode. Runs off its own edge rather than wrapping: the view clips it, and a
-## preview that grew a second line would make the node taller for no gain.
+## One line of BBCode. Runs off its own edge instead of wrapping, and the view clips it.
 static func line(bbcode: String) -> RichTextLabel:
 	var label: RichTextLabel = RichTextLabel.new()
 	label.bbcode_enabled = true
@@ -36,7 +32,6 @@ static func line(bbcode: String) -> RichTextLabel:
 	return label
 
 
-## Pieces laid side by side, which is how a preview mixes a picture and a word.
 static func row(pieces: Array) -> HBoxContainer:
 	var box: HBoxContainer = HBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -47,7 +42,7 @@ static func row(pieces: Array) -> HBoxContainer:
 	return box
 
 
-## Where somebody stands, as the stage seen from above: one mark per place, the taken one lit.
+## The stage seen from above. One mark per place, the taken one lit.
 static func stage(taken: String, places: Array, tint: Color) -> Control:
 	var strip: HBoxContainer = HBoxContainer.new()
 	strip.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -67,7 +62,7 @@ static func stage(taken: String, places: Array, tint: Color) -> Control:
 # --- text -------------------------------------------------------------------------
 
 
-## Text as text: a line the author wrote is not markup, however many brackets are in it.
+## A line the author wrote is not markup, however many brackets are in it.
 static func plain(text: String) -> String:
 	return text.replace("[", "[lb]")
 
@@ -80,9 +75,8 @@ static func trim(text: String, budget: int = MAX_PIECE) -> String:
 	return "%s…" % flat.substr(0, budget - 1).strip_edges(false, true)
 
 
-## What a reference property points at, by name. A property that points at nothing, or at
-## something that has since gone, reads as nothing. A property that is not a reference reads
-## as its own value, which is what a dropdown holding a name already is.
+## What a reference property points at, by name. Pointing at nothing, or at something gone,
+## reads as nothing. A property that is not a reference reads as its own value.
 static func named(node: InspectableNode, property_name: String) -> String:
 	var property: Property = node.get_property(property_name)
 	if property == null:
@@ -124,8 +118,7 @@ static func said(node: InspectableNode, property_name: String, language: String)
 	return trim(Util.to_label(node.get_property_value(property_name), language))
 
 
-## A condition as it reads: "gold >= 3". Empty when it names no variable, which is the same
-## condition that makes the node a detour rather than a decision.
+## A condition as it reads, such as "gold >= 3". Empty when it names no variable.
 static func condition(test: Variant) -> String:
 	if test is not Dictionary:
 		return ""
@@ -145,8 +138,7 @@ static func condition(test: Variant) -> String:
 	]
 
 
-## A stored value the way it would be written rather than the way it prints: a string in
-## quotes, a boolean as a word.
+## A stored value as it would be written. A string in quotes, a boolean as a word.
 static func literal(value: Variant) -> String:
 	if value is String:
 		return '"%s"' % trim(value)
@@ -155,7 +147,6 @@ static func literal(value: Variant) -> String:
 	return str(value)
 
 
-## A path as its file alone. A preview has no room for the folders it sits in.
 static func file(path: String) -> String:
 	return trim(path.get_file())
 

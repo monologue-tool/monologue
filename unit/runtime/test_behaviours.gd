@@ -2,9 +2,9 @@ extends GdUnitTestSuite
 
 ## What each node type does when the story reaches it.
 ##
-## Built with the editor, written to disk and read back by the addon, like every other
-## runtime suite: a behaviour reading a property the editor does not write is the mistake
-## worth catching, and only the round trip catches it.
+## Built with the editor, written to disk and read back by the addon. A behaviour reading a
+## property the editor does not write is the mistake worth catching, and only the round trip
+## catches it.
 
 var _project: MonologueProject
 var _path: String
@@ -42,7 +42,7 @@ func _root() -> InspectableNode:
 	return null
 
 
-## Wires by each end's own flow port, which is what a node type names after itself.
+## By each end's own flow port, which a node type names after itself.
 func _wire(from_node: InspectableNode, to_node: InspectableNode, from_port: String = "") -> void:
 	_storyline.add_connection(
 		NodeConnection.create(
@@ -54,14 +54,12 @@ func _wire(from_node: InspectableNode, to_node: InspectableNode, from_port: Stri
 	)
 
 
-## The id of the first record a collection ships with.
 func _first_record(collection_name: String) -> String:
 	var records: Array = _project.get_collection_value(collection_name)
 	return str((records[0] as Dictionary).get("id", "")) if not records.is_empty() else ""
 
 
-## Puts a picture on a character's default portrait, which is the one a node that names none
-## falls back to.
+## The default portrait is the one a node naming none falls back to.
 func _give_a_portrait(character_id: String, image: String) -> void:
 	var records: Array = _project.get_collection_value("characters").duplicate(true)
 	for record: Dictionary in records:
@@ -81,7 +79,6 @@ func _ease_named(ease_name: String) -> String:
 	return ""
 
 
-## Puts one record in a project collection and returns its id.
 func _add_record(collection_name: String, values: Dictionary) -> String:
 	var item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		collection_name, _project.command_manager
@@ -96,7 +93,6 @@ func _add_record(collection_name: String, values: Dictionary) -> String:
 	return str(item.get_property_value("id"))
 
 
-## Declares a variable in the project so the runtime knows what type to coerce it to.
 func _declare_variable(variable_name: String, type_name: String, initial: Variant) -> String:
 	return _add_record(
 		"variables", {"name": variable_name, "type": type_name, "value": initial}
@@ -112,7 +108,7 @@ func _play() -> MonologueSession:
 
 
 func test_a_variable_is_written_then_read_by_the_branch_that_follows() -> void:
-	# The pair that turns a story into a program: one node writes, the next one asks.
+	# The pair that turns a story into a program. One node writes, the next one asks.
 	var gold: String = _declare_variable("gold", "int", 1)
 
 	var give: InspectableNode = _node("variable")
@@ -180,8 +176,7 @@ func test_a_jump_that_names_nothing_says_so_rather_than_wandering_off() -> void:
 
 
 func test_the_inventory_counts_what_the_story_gave_and_took() -> void:
-	# Everyone carries their own: what one character is given is not in anybody else's
-	# pockets, which is the whole reason the count is filed under a name.
+	# What one character is given is not in anybody else's pockets.
 	var cast: String = _first_record("characters")
 
 	var give: InspectableNode = _node("inventory")
@@ -223,8 +218,7 @@ func test_an_action_reaches_the_game_with_what_was_written_beside_it() -> void:
 
 
 func test_a_call_runs_a_function_and_comes_back_by_the_way_it_stopped() -> void:
-	# The exits are not written by hand: one is grown per place the function's chain stops,
-	# keyed by the node it stopped at. This is the runtime end of that bargain.
+	# One exit per place the function's chain stops, keyed by the node it stopped at.
 	var entry: InspectableNode = _node("function")
 	var body: InspectableNode = _node("sentence")
 	body.get_property("line").set_value({"en": "Inside."})
@@ -257,8 +251,7 @@ func test_a_call_runs_a_function_and_comes_back_by_the_way_it_stopped() -> void:
 
 
 func test_an_event_takes_over_once_its_variable_matches() -> void:
-	# Nothing wires into an event: it is armed for the whole run and answers between two
-	# nodes, so the line that set the variable is read before the branch takes over.
+	# An event answers between two nodes, so the line setting the variable is read first.
 	var alarm: String = _declare_variable("alarm", "bool", false)
 
 	var watcher: InspectableNode = _node("event")
@@ -297,7 +290,7 @@ func test_a_storyline_node_leaves_for_another_and_drops_what_it_was_owed() -> vo
 
 	var session: MonologueSession = _play()
 
-	# Pointed at its own storyline, so it restarts it -- and the loop guard is what stops it
+	# Pointed at its own storyline, so it restarts it, and the loop guard is what stops it
 	# rather than anything crashing.
 	assert_str(str(session.state.ending["code"])).override_failure_message(
 		"Leaving for a storyline did not reach its beginning."
@@ -352,12 +345,11 @@ func test_asking_the_reader_holds_the_story_and_keeps_the_answer() -> void:
 
 
 func test_the_stage_nodes_reach_their_parts_and_leave_the_stage_behind_them() -> void:
-	# What is on screen is not a side effect: the state keeps it, so the same picture can be
-	# put back later without any of this being replayed.
+	# The state keeps what is on screen, so the picture comes back without replaying.
 	var cast: String = _first_record("characters")
 
-	# Everything a story names is written relative to where its art is kept, and every one of
-	# the three stage nodes has to go through the same resolution to find it.
+	# Everything is written relative to where the art is kept, and all three stage nodes go
+	# through the same resolution.
 	_player.asset_root = "art"
 	_give_a_portrait(cast, "faces/day.png")
 
@@ -410,8 +402,7 @@ func test_the_stage_nodes_reach_their_parts_and_leave_the_stage_behind_them() ->
 		"A sound was handed over as the story wrote it rather than as somewhere to open."
 	).is_equal("art/sound/theme.ogg")
 
-	# The other half of the same rule: what is kept is what the story wrote, never where it
-	# happened to be found this time.
+	# The other half. What is kept is what the story wrote, not where it was found.
 	assert_str(str(session.state.stage.get("background", ""))).override_failure_message(
 		"An absolute path was baked into the save."
 	).is_equal("room.png")
@@ -441,15 +432,14 @@ func test_a_restored_save_comes_back_to_the_picture_it_left() -> void:
 	var session: MonologueSession = _play()
 	var saved: Dictionary = session.snapshot()
 
-	# The save keeps the path the story wrote, so that moving one between machines still
-	# finds its art. Where that art is now is only ever a question about the here and now.
+	# The save keeps the path the story wrote, so it still finds its art on another machine.
 	var kept: Dictionary = session.state.stage["characters"][cast]
 	assert_bool(kept.has("image")).override_failure_message(
 		"An absolute path was baked into the save."
 	).is_false()
 
-	# Nobody replays anything: a second session is handed the save and has to put the stage
-	# together again out of what the state remembers.
+	# A second session is handed the save and rebuilds the stage from what the state
+	# remembers.
 	var reader: ScriptedPlayer = ScriptedPlayer.new()
 	add_child(reader)
 	var graph: MonologueStoryGraph = MonologueStoryGraph.of(MonologueSource.open(_path))
@@ -465,7 +455,6 @@ func test_a_restored_save_comes_back_to_the_picture_it_left() -> void:
 
 
 func test_a_location_moves_the_story_and_puts_the_place_on_screen() -> void:
-	# A place is one place all the way through, seen in whichever state the node asks for.
 	var place: String = _add_record("locations", {
 		"name": "Tavern",
 		"variations": [

@@ -292,7 +292,7 @@ func test_a_choice_offers_what_is_stored_and_what_is_wired_in() -> void:
 
 
 func test_the_indexer_finds_the_shipped_behaviours_and_walks_past_the_rest() -> void:
-	# Adding a node type is dropping a file in a folder; nothing declares it anywhere.
+	# Adding a node type is dropping a file in a folder. Nothing declares it anywhere.
 	var indexer: MonologueBehaviourIndexer = auto_free(MonologueBehaviourIndexer.new())
 
 	assert_array(indexer.names()).contains(["sentence", "wait", "end"])

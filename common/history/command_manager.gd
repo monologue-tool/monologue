@@ -122,7 +122,7 @@ func _on_version_changed() -> void:
 
 
 ## Superseded by begin() / CommandTransaction, which is reentrant and cannot be left
-## half-open. Kept only so nothing outside breaks; prefer begin().
+## half-open. Kept only so nothing outside breaks. Prefer begin().
 func begin_group(description: String = "Group") -> void:
 	begin(description)
 

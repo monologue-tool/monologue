@@ -203,7 +203,7 @@ func _wire(
 
 
 ## A wire can only land on a port that is open, and a property stays closed until something
-## asks for it. The editor opens one when an author drags a wire onto it; a template says so.
+## asks for it. The editor opens one when an author drags a wire onto it. A template says so.
 func _expose(node: InspectableNode, property_name: String) -> void:
 	node.set_property_settings_value(property_name, PropertySettings.KEY_EXPOSED, true)
 

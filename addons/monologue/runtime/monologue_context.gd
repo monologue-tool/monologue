@@ -1,8 +1,8 @@
 ## Everything a behaviour is given: its own data, its wires, the run so far, and the player.
 class_name MonologueContext extends RefCounted
 
-## Types that stand for a value rather than a moment. A wire out of one, into a property
-## port, replaces what the node had stored.
+## Types standing for a value instead of a moment. A wire out of one into a property port
+## replaces what the node had stored.
 const VALUE_TYPES: PackedStringArray = ["bool", "int", "float", "text"]
 const MAX_VALUE_DEPTH: int = 32
 
@@ -42,12 +42,12 @@ func value(key: String, fallback: Variant = null) -> Variant:
 	return fallback if stored == null else stored
 
 
-## A collection property: what the author stored in it, then whatever was wired into its
+## A collection property. What the author stored in it, then whatever was wired into its
 ## port. A choice's options come from both, and so do a call's exits.
 ##
-## An external item is a node of its own, and is handed back carrying the id its sub-port is
-## keyed by rather than its node id -- so a behaviour reads either kind the same way, and
-## leaves through [method next] the same way.
+## An external item is a node of its own. It comes back carrying the id its sub-port is keyed
+## by, not its node id, so a behaviour reads either kind and leaves through [method next] the
+## same way.
 func items(key: String) -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 
@@ -69,11 +69,9 @@ func items(key: String) -> Array[Dictionary]:
 	return found
 
 
-## One of this node's own properties, as the text a reader sees.
-## One record out of a list held inside another: the one named, or the one marked as the
-## fallback, or the first there is. A character's portrait and a location's variation are
-## both chosen this way, and a behaviour bringing its own kind of list should not have to
-## write it a third time.
+## One record out of a list held inside another. The one named, the one marked as the
+## fallback, or the first there is. A character's portrait and a location's variation are both
+## chosen this way.
 func pick(items_of: Variant, item_id: String) -> Dictionary:
 	var fallback: Dictionary = {}
 	if items_of is not Array:
@@ -93,9 +91,9 @@ func text(key: String) -> String:
 	return label(value(key))
 
 
-## Any stored value as the text a reader sees, in the language this run plays. What a
-## behaviour needs for text it dug out itself -- an option's, a character's -- since
-## [method text] only reaches this node's own properties.
+## Any stored value as the text a reader sees, in the language this run plays. For text a
+## behaviour dug out itself, such as an option's or a character's. [method text] only reaches
+## this node's own properties.
 func label(of_value: Variant) -> String:
 	return MonologueText.to_label(of_value, language)
 
@@ -103,9 +101,9 @@ func label(of_value: Variant) -> String:
 ## The single id behind a port, or empty. [param property] defaults to the port a node type
 ## names after itself.
 ##
-## The usual case, and only that: a behaviour wanting to choose among several exits reads
-## [method MonologueStoryGraph.successors] through [member graph], and one going somewhere it
-## worked out for itself hands [method BehaviourResult.progress] whatever id it likes.
+## Only the usual case. To choose among several exits, read
+## [method MonologueStoryGraph.successors] through [member graph]. To go somewhere worked out
+## for itself, hand [method BehaviourResult.progress] any id.
 func next(property: String = "", item: String = "") -> String:
 	var port: String = property if not property.is_empty() else type
 	var found: PackedStringArray = graph.successors(id, port, item)
@@ -121,8 +119,8 @@ func next(property: String = "", item: String = "") -> String:
 	return found[0]
 
 
-## Whatever the game brought under that name, or null. The deliberate hole in this class:
-## what a behaviour can do is bounded by what the game offers, not by the methods here.
+## Whatever the game brought under that name, or null. The deliberate hole in this class.
+## What a behaviour can do is bounded by what the game offers, not by the methods here.
 func service(service_name: String) -> Object:
 	return session.services.get_service(service_name)
 
@@ -132,7 +130,7 @@ func sources(property: String = "") -> Array:
 
 
 ## Falls back to what the project declared, so a variable added since a save was written
-## reads as its default rather than as null.
+## reads as its default instead of null.
 func get_var(variable_id: String) -> Variant:
 	if state.variables.has(variable_id):
 		return state.variables[variable_id]
@@ -170,8 +168,8 @@ func fault(code: StringName, message: String) -> void:
 	session.problems.append(MonologueProblem.error(code, message).at(id, storyline))
 
 
-## Null when the far end is not a value at all, and quietly: every flow port has wires into
-## it too, and asking one of those for a value is the normal case.
+## Null, and silently, when the far end is not a value. Flow ports have wires into them too,
+## and asking one of those for a value is normal.
 func _value_behind(source_id: String, depth: int) -> Variant:
 	if depth > MAX_VALUE_DEPTH:
 		note(&"value_cycle", "A value wire loops back on itself.")

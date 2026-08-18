@@ -15,8 +15,7 @@ var history: CommandManager
 var settings: Dictionary = {}
 var _parent_object: InspectableObject
 var _parent_property_name: String
-## True once _init() has finished declaring. Anything declared after that is frozen on
-## the spot, so a subclass adding properties after super._init() is still safe.
+## True once _init() has finished declaring. Later declarations freeze on the spot.
 var _is_sealed: bool = false
 
 
@@ -51,12 +50,11 @@ func _init(command_manager: CommandManager = null) -> void:
 	_seal_properties()
 
 
-## Closes the schema: from here a property's type, default, settings and rules are
-## fixed, and only its value and the user's own overrides may still change. That is
-## what stops one instance of a type from quietly diverging from every other instance.
+## Closes the schema. From here a property's type, default, settings and rules are fixed.
+## Only its value and the user's overrides still change.
 ##
-## A subclass may declare after calling super._init(), past this point;
-## [method define_property] freezes those on the spot, so declaration order is free.
+## A subclass may declare after calling super._init(). [method define_property] freezes those
+## on the spot, so declaration order is free.
 func _seal_properties() -> void:
 	for property: Property in _properties.values():
 		property.freeze()
@@ -70,17 +68,7 @@ func _load_settings() -> void:
 	settings = new_settings
 
 
-## Registers a property on this object. Build and configure it inline, one option per
-## line, and hand it over:
-## [codeblock]
-## define_property(Property.new("speaker/name")
-##     .set_type("reference")
-##     .required()
-##     .tooltip("Who says this line."))
-## [/codeblock]
-##
-## The path is "category/name"; see [Property] for the details. Returns the same
-## property, for the rare case a declaration needs to keep a reference to it.
+## The path is "category/name". See [Property]. Returns the property it was given.
 func define_property(property: Property) -> Property:
 	if property.type.is_empty():
 		push_error("Property '%s' on %s has no type; call set_type()." % [property.name, get_type()])
@@ -92,8 +80,7 @@ func define_property(property: Property) -> Property:
 		func(_old: Variant, _new: Variant) -> void: property_changed.emit(property.name)
 	)
 
-	# A subclass may declare after calling super._init(), which is past the freeze pass.
-	# Freezing here keeps the invariant regardless of declaration order.
+	# A subclass may declare past the freeze pass, so freeze here too.
 	if _is_sealed:
 		property.freeze()
 
@@ -149,20 +136,16 @@ func set_property_settings_value(pname: String, skey: String, svalue: Variant) -
 	history.execute(command)
 
 
-## Whether [param property] may currently be edited, given the property gating it.
-## True when nothing gates it. See [method Property.enabled_by].
 func is_property_enabled(property: Property) -> bool:
 	return _is_gate_open(property.get_gate(PropertySettings.KEY_ENABLED_BY))
 
 
-## Whether [param property] currently belongs in the inspector, given the property
-## gating it. True when nothing gates it. See [method Property.shown_by].
 func is_property_shown(property: Property) -> bool:
 	return _is_gate_open(property.get_gate(PropertySettings.KEY_SHOWN_BY))
 
 
-## True when some property is gated on [param property_name], so a change to it changes
-## what the inspector should be showing.
+## True when some property is gated on [param property_name], so changing it changes what
+## the inspector shows.
 func gates_other_properties(property_name: String) -> bool:
 	for property: Property in get_properties():
 		for key: StringName in [PropertySettings.KEY_ENABLED_BY, PropertySettings.KEY_SHOWN_BY]:
@@ -171,9 +154,9 @@ func gates_other_properties(property_name: String) -> bool:
 	return false
 
 
-## A gate is open when nothing was declared, and when the property it names holds one of
-## the values it lists. A gate pointing at a property this object does not have is open
-## too: a declaration typo should not silently freeze half the inspector.
+## A gate is open when nothing was declared, or when the property it names holds one of the
+## values it lists. A gate naming a property this object does not have is open too, so a typo
+## cannot silently freeze half the inspector.
 func _is_gate_open(gate: Dictionary) -> bool:
 	if gate.is_empty():
 		return true
@@ -197,8 +180,8 @@ func get_all_property_children() -> Array:
 	return _children.values()
 
 
-## Cross-property checks that no single property can express. Default is no-op;
-## override where one property's value constrains another:
+## Cross-property checks no single property can express. Override where one value
+## constrains another:
 ## [codeblock]
 ## func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
 ##     if get_property_value("enable_condition") and get_property_value("condition").is_empty():
@@ -267,9 +250,9 @@ func _on_property_children_property_change(
 	set_property_value(property_name, value)
 
 
-## Writes each property under its own name, holding its value and nothing else. The
-## user's port toggles and other overrides are gathered into one map beside them, so a
-## saved value never has to share its slot with editor bookkeeping.
+## Writes each property under its own name, holding its value and nothing else. The user's
+## overrides go in one map beside them, so a saved value never shares its slot with editor
+## bookkeeping.
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = {TYPE_KEY: get_type()}
 	var overrides: Dictionary = {}
@@ -298,8 +281,7 @@ func get_settings() -> Dictionary:
 	return {}
 
 
-## Returns external list items for a given list property (e.g. connected OptionNodes).
-## Override in subclasses that support externally-sourced list items.
+## List items coming from somewhere else, such as connected OptionNodes.
 func get_external_list_items(_property_name: String) -> Array[Dictionary]:
 	return []
 

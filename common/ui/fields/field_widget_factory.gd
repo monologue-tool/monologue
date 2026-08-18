@@ -1,13 +1,10 @@
 ## Creates and binds [Field] widgets from field type names.
 ##
-## This is the UI half of the field system: [MonologueRegistry] stays free of Control,
-## and everything that instantiates a scene lives here. Nothing under `common/` outside
-## `common/ui/` may call this.
+## The UI half of the field system. [MonologueRegistry] stays free of Control. Nothing under
+## `common/` outside `common/ui/` may call this.
 class_name FieldWidgetFactory
 
 
-## Returns a new widget for [param field_name], or null when the type is unknown or is
-## a port-only pseudo-type with no editor widget.
 static func create(field_name: String) -> Field:
 	var indexer: FieldIndexer = MonologueRegistry.get_instance().get_field(field_name)
 	if indexer == null:
@@ -21,8 +18,8 @@ static func create(field_name: String) -> Field:
 	return field
 
 
-## Never returns null: an unknown type degrades to a visible placeholder rather than an
-## empty row, so a typo in a property declaration is obvious in the inspector.
+## Never null. An unknown type degrades to a visible placeholder, so a typo in a property
+## declaration is obvious in the inspector.
 static func create_or_placeholder(field_name: String) -> Control:
 	var field: Field = create(field_name)
 	if field:
@@ -33,9 +30,8 @@ static func create_or_placeholder(field_name: String) -> Control:
 	return warn_label
 
 
-## Connects [param property] to every object in [param owners]. One owner is the
-## ordinary case; several means the field edits them together, as one undo step.
-## An empty list makes the widget detached -- see [method bind_detached].
+## Several owners means the field edits them together, as one undo step. An empty list makes
+## the widget detached. See [method bind_detached].
 ##
 ## The field must already be in the tree, since binding immediately pushes the current
 ## value into it. Use [method bind_deferred] when binding right after add_child().
@@ -66,7 +62,7 @@ static func bind_deferred(
 ## Convenience for the common single-object case.
 ##
 ## A null owner produces a detached binding, which for a list or collection field means
-## it has no children to read and silently shows nothing -- so say something.
+## it has no children to read and silently shows nothing, so say something.
 static func bind_one(property: Property, field: Field, owner: InspectableObject) -> void:
 	var owners: Array[InspectableObject] = []
 	if owner:
@@ -82,7 +78,7 @@ static func bind_one(property: Property, field: Field, owner: InspectableObject)
 ## Binds without any model owner: the widget will never write to an
 ## [InspectableObject] and never records an undo entry on its own.
 ##
-## Used by [ListField], whose items are throwaway view-model properties -- the parent
+## Used by [ListField], whose items are throwaway view-model properties. The parent
 ## list commits the whole array as one change instead.
 static func bind_detached(property: Property, field: Field) -> void:
 	FieldWidgetFactory.bind_deferred(property, field, [] as Array[InspectableObject])

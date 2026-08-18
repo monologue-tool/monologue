@@ -225,8 +225,7 @@ func test_a_reference_port_is_typed_and_labelled_by_what_it_accepts() -> void:
 	assert_str(ReferenceResolver.describe_scope("")).is_empty()
 	assert_str(ReferenceResolver.describe_scope("nothing_registered_here")).is_empty()
 
-	# Guessing an item type by trimming an "s" is what broke every option link when the
-	# collection was renamed; it is read off the item instead, for all of them at once.
+	# Read off the item rather than guessed by trimming an "s" from the collection name.
 	for indexer: MonologueIndexer in registry.list(MonologueObjectType.COLLECTION):
 		var collection: CollectionIndexer = indexer
 		var item: CollectionItem = collection.instantiate(_project.command_manager)

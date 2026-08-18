@@ -45,7 +45,7 @@ func _build_preview(_language: String = "") -> Control:
 	if target.is_empty():
 		return null
 
-	# "=" already is the assignment; the others are compounded onto one.
+	# "=" already is the assignment. The others are compounded onto one.
 	var operator: String = str(get_property_value("operator"))
 	return NodePreview.line(NodePreview.plain("%s %s= %s" % [
 		target, "" if operator == "=" else operator,

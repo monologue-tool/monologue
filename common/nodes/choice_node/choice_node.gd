@@ -1,15 +1,14 @@
 class_name ChoiceNode extends InspectableNode
 
 const MAX_CHOICES: int = 8
-## Properties of a connected option node that this choice shows a copy of. A change to
-## any of them has to redraw this node; anything else, position included, does not.
+## Properties of a connected option node this choice copies. A change to one redraws this
+## node. Anything else, position included, does not.
 const MIRRORED_PROPERTIES: Array[String] = [
 	"text", "label", "enabled", "one_shot", "condition"
 ]
 
 var _external_options: Array[Dictionary] = []
-## Option nodes currently mirrored here, kept so they can be unsubscribed from when the
-## wiring changes.
+## Kept so they can be unsubscribed from when the wiring changes.
 var _watched_sources: Array[InspectableNode] = []
 
 
@@ -43,7 +42,6 @@ func get_external_list_items(property_name: String) -> Array[Dictionary]:
 	return []
 
 
-## Returns the total number of choices (internal + external).
 func get_total_choice_count() -> int:
 	var internal_count: int = 0
 	var choices_val: Variant = get_property_value("choices")
@@ -53,7 +51,6 @@ func get_total_choice_count() -> int:
 	return internal_count + _external_options.size()
 
 
-## Returns the combined list of internal choice data + external option data.
 func get_all_choices() -> Array:
 	var result: Array = []
 	var choices_val: Variant = get_property_value("choices")
@@ -70,7 +67,6 @@ func _on_choices_connection_changed() -> void:
 	rebuild_preview()
 
 
-## Synchronize external (read-only) option items from connected OptionNodes.
 func _sync_external_options() -> void:
 	_external_options.clear()
 	var choices_prop: Property = get_property("choices")
@@ -82,7 +78,6 @@ func _sync_external_options() -> void:
 		var source_node_id: String = conn.get("node_id", "")
 		if source_node_id.is_empty():
 			continue
-		# Find the source node in the storyline
 		var source_node: InspectableNode = _find_node_by_id(source_node_id)
 		if not source_node or not (source_node is OptionNode):
 			continue
@@ -101,9 +96,8 @@ func _sync_external_options() -> void:
 	_watch_sources(sources)
 
 
-## Follows the option nodes this choice mirrors, so renaming one redraws this node too.
-## The copy shown here is built when the node is drawn, and nothing else would tell it
-## the original had changed.
+## The copy shown here is built when the node is drawn, so nothing else would notice the
+## original changing.
 func _watch_sources(sources: Array[InspectableNode]) -> void:
 	for watched: InspectableNode in _watched_sources:
 		if watched in sources or not is_instance_valid(watched):
@@ -123,9 +117,7 @@ func _on_source_property_changed(property_name: String) -> void:
 		rebuild_preview()
 
 
-## Looks a node up in the storyline this one belongs to. Returns null while the project
-## is still being built, which is when the default nodes get wired and no project is
-## current yet.
+## Null while the project is still being built, which is when the default nodes get wired.
 func _find_node_by_id(node_id: String) -> InspectableNode:
 	if storyline_id.is_empty() or ProjectManager.current_project == null:
 		return null
@@ -135,8 +127,7 @@ func _find_node_by_id(node_id: String) -> InspectableNode:
 	return storyline.get_node(node_id)
 
 
-## How a connected option node is named in this choice's list: the line it offers, or
-## its label when it has none. Never its id.
+## The line it offers, or its label when it has none. Never its id.
 func _get_option_node_name(node: InspectableNode) -> String:
 	var project: MonologueProject = ProjectManager.current_project
 	var language: String = project.active_language_code if project else ""

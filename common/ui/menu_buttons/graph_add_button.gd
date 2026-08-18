@@ -10,7 +10,7 @@ func _build_menu() -> void:
 		var submenu: PopupMenu = add_submenu_row(category, _on_add_node)
 
 		for node: MonologueIndexer in registry.list_by_category(MonologueObjectType.NODE, category):
-			# A storyline creates its own singletons; there is never a second one to add.
+			# A storyline creates its own singletons. There is never a second one to add.
 			if (node as NodeIndexer).is_singleton:
 				continue
 			submenu.add_item(node.get_display_name(), id)

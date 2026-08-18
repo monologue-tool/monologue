@@ -1,10 +1,9 @@
 ## A number that is both a slider and an input.
 ##
 ## Drag across it to change the value, click without dragging to type one. A bounded
-## number fills proportionally behind the text; an unbounded one just drags.
+## number fills proportionally behind the text. An unbounded one just drags.
 class_name SpinSlider extends Control
 
-## Emitted while the value is being dragged or typed. Not a result yet.
 signal value_changing(new_value: float)
 ## Emitted once the user is done: drag released, Enter pressed, or focus lost.
 signal value_submitted(new_value: float)
@@ -51,8 +50,7 @@ func _on_hover_changed(is_hovered: bool) -> void:
 	queue_redraw()
 
 
-## Reads the property settings this number was declared with. Bounded only when both
-## ends were given: a number with no declared range drags freely.
+## Bounded only when both ends were given. A number with no declared range drags freely.
 func configure(settings: Dictionary) -> void:
 	_minimum = float(settings.get(PropertySettings.KEY_MIN_VALUE, 0.0))
 	_maximum = float(settings.get(PropertySettings.KEY_MAX_VALUE, 0.0))
@@ -87,8 +85,7 @@ func get_display_text() -> String:
 	return "%s%s%s" % [_prefix, body, _suffix]
 
 
-## Clamps to the declared range and step, then redraws. Announces nothing: the caller
-## decides whether this is a live change or a result.
+## Clamps to the declared range and step, then redraws. Announces nothing.
 func set_value(new_value: float) -> void:
 	value = _clamp(new_value)
 	queue_redraw()
@@ -101,7 +98,6 @@ func _clamp(raw: float) -> float:
 	return round(result) if _rounded else result
 
 
-## Decimal places worth showing, taken from the step so 0.05 does not print as 0.1.
 func _decimals() -> int:
 	if _step >= 1.0:
 		return 0
@@ -147,9 +143,8 @@ func _handle_button(event: InputEventMouseButton) -> void:
 	accept_event()
 
 
-## Which nudge arrow [param position] is over: -1 for the left one, 1 for the right one,
-## 0 for the body in between. The arrows are only drawn on hover, and only answer here
-## when they are.
+## -1 for the left arrow, 1 for the right, 0 for the body between them. The arrows only
+## answer while they are drawn, which is on hover.
 func _arrow_at(position: Vector2) -> int:
 	if not _is_hovered or size.x < ARROW_WIDTH * 3.0:
 		return 0
@@ -216,7 +211,6 @@ func _on_editor_gui_input(event: InputEvent) -> void:
 		_line_edit.accept_event()
 
 
-## Which stylebox the number is currently wearing.
 func _current_state() -> String:
 	if not _editable:
 		return "disabled"
@@ -239,8 +233,7 @@ func _draw() -> void:
 	_draw_value(box)
 
 
-## The part of the range already covered, clipped to the widget so the rounded corners
-## of the box cut the fill rather than the fill overhanging them.
+## Clipped to the widget, so the box's rounded corners cut the fill.
 func _draw_fill(box: Rect2) -> void:
 	var filled: float = clampf(inverse_lerp(_minimum, _maximum, value), 0.0, 1.0)
 	if is_zero_approx(filled):
@@ -250,8 +243,7 @@ func _draw_fill(box: Rect2) -> void:
 	draw_style_box(get_theme_stylebox("fill", "SpinSlider"), fill_box)
 
 
-## The two nudge arrows, shown only under the pointer so a row of numbers stays quiet
-## until one of them is being aimed at.
+## Shown only under the pointer, so a row of numbers stays quiet.
 func _draw_arrows(box: Rect2) -> void:
 	var color: Color = Color(get_theme_color("font_color", "SpinSlider"), 0.6)
 	var decrease: Texture2D = get_theme_icon("decrease", "SpinSlider")

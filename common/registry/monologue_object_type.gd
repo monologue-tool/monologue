@@ -1,8 +1,7 @@
 ## The three kinds of thing a plugin can register with [MonologueRegistry].
 ##
-## Names are only unique *within* an object type: "text" is both a field type and a
-## node type, and "option" is both a field type and a node type. The registry keys
-## on (object_type, name) for exactly that reason.
+## Names are unique within an object type, not across them. "text" and "option" each name
+## both a field and a node, so the registry keys on (object_type, name).
 class_name MonologueObjectType
 
 ## An editable value type shown in the inspector and as a graph port.

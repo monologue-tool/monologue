@@ -11,18 +11,17 @@ const KEY_SEPARATOR: String = "/"
 
 ## Stable across exports and imports. Built from ids, so renaming anything keeps it.
 var key: String = ""
-## Shown to whoever is translating, so a line has some context to be translated in.
+## Shown to whoever is translating.
 var context: String = ""
 var document_name: String = ""
 var property_name: String = ""
 ## What holds this text: "sentence", "option", "character". Shown, and sorted on.
 var object_type: String = ""
-## Who says it, when anything does. Empty for text with no speaker.
 var speaker: String = ""
 ## {language_code: text}. The same dictionary shape the property itself holds.
 var translations: Dictionary = {}
 ## The declaring property's settings. Carried so an editor can honour what the property
-## asked for -- multiline, rows, placeholder -- rather than guess from the text.
+## asked for: multiline, rows, placeholder. Guessing from the text would be worse.
 var settings: Dictionary = {}
 
 ## The live object holding the root property this text lives under.

@@ -1,25 +1,18 @@
-## Describes one graph node type.
-##
-## A node type is little more than a script declaring properties; everything the graph
-## needs to draw it (title, colour, icon, category) lives here.
+## Describes one graph node type. The script declaring its properties, and everything the
+## graph needs to draw it.
 @abstract
 class_name NodeIndexer extends MonologueIndexer
 
-## Script extending [InspectableNode]. Safe to preload: node scripts are model code.
+## Safe to preload. Node scripts are model code.
 var node_script: GDScript
-## True for a node every storyline has exactly one of, and which the storyline itself
-## creates: it is not offered by the add menus and cannot be deleted, cut or pasted.
+## A node the storyline creates and keeps. Not offered by the add menus, and cannot be
+## deleted, cut or pasted.
 var is_singleton: bool = false
-## Whether the story can arrive at this node. False for the types that are read rather
-## than entered -- a value fed into another node's port, or an option a choice offers.
-## Those carry no runtime behaviour, and a wire into one is a mistake worth reporting.
+## Whether the story can arrive at this node. False for the types that are read instead of
+## entered, like a value fed into another node's port or an option a choice offers.
 var enterable: bool = true
-## Where the runtime addon keeps this type's behaviour: a "res://" or "uid://" path to a
-## script extending MonologueBehaviour.
-##
-## A path rather than a preload, and never resolved here: naming the behaviour must not
-## pull runtime code into the editor. It exists so that every type says in one place
-## where it is run, and so a test can tell an unimplemented type from a forgotten one.
+## "res://" or "uid://" of the MonologueBehaviour running this type. Never resolved here:
+## naming a behaviour must not pull runtime code into the editor.
 var runtime_uid: String = ""
 
 
@@ -36,7 +29,6 @@ func validate_registration() -> String:
 	return ""
 
 
-## True when [param node] is one the storyline owns rather than the user.
 static func is_permanent(node: InspectableNode) -> bool:
 	if node == null:
 		return false

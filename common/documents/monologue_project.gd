@@ -17,8 +17,7 @@ var manifest: ManifestDocument
 var settings: ProjectSettingsDocument
 var collections: Array[CollectionDocument]
 var storylines: Array[StorylineDocument]
-## True to write the project as a single .mnlp archive, false to write it as a folder of
-## JSON files that can be diffed and merged like source.
+## True for a single .mnlp archive, false for a folder that can be diffed like source.
 var compact: bool = true
 
 var command_manager: CommandManager = CommandManager.new()
@@ -44,10 +43,9 @@ func _init(template: ProjectTemplate = default_template) -> void:
 
 ## Builds the project out of its template, and only then starts listening to itself.
 ##
-## A template writes through the same commands an edit does. Listening while that happens
-## would have the project report changes nobody made -- and the window title is painted from
-## those reports, at the moment they arrive, so it would keep the star they left behind. The
-## undo history has to be let go of separately: UndoRedo records whether anyone listens or not.
+## A template writes through the same commands an edit does, so listening any earlier reports
+## changes nobody made. The undo history is cleared separately, since UndoRedo records
+## whether anyone listens or not.
 func _init_documents() -> void:
 	manifest = ManifestDocument.new(command_manager)
 	settings = ProjectSettingsDocument.new(command_manager)
@@ -71,9 +69,7 @@ func _create_storyline(
 	return storyline
 
 
-## Subscribes to every storyline so that adding a node, removing one, or rewiring the
-## graph marks the reference index for a rebuild. Safe to call again after storylines
-## are loaded or added.
+## Marks the reference index for a rebuild on every graph change. Safe to call again.
 func observe_storylines() -> void:
 	for storyline: StorylineDocument in storylines:
 		for signal_name: String in ["node_added", "node_removed", "connections_changed"]:
@@ -118,16 +114,13 @@ func get_project_structure() -> Dictionary[String, Variant]:
 	return structure
 
 
-## Sweeps the whole project for problems: broken values, suspicious combinations, and
-## whatever went wrong the last time it was read from disk.
-##
-## Nothing here stops the user working; it is what the problems panel lists.
+## Broken values, suspicious combinations, and whatever went wrong reading it from disk.
+## Nothing here stops the user working.
 func validate() -> ValidationResult:
 	return ValidationService.validate_project(self)
 
 
-## The project's identity map and reverse reference index, walked again whenever the
-## project has changed since it was last asked for.
+## Walked again whenever the project has changed since it was last asked for.
 func get_object_registry() -> ProjectObjectRegistry:
 	if _object_registry_is_stale:
 		_object_registry_is_stale = false
@@ -171,12 +164,10 @@ func delete_storyline(storyline: StorylineDocument) -> void:
 	EventBus.storyline_deleted.emit()
 
 
-## Renames a storyline. False when the name is taken or empty, and nothing is changed.
+## False when the name is taken or empty, and nothing is changed.
 ##
-## Refused rather than made unique: a document's name is the file it is written to, and two
-## of one name would leave whichever was written second as all there is. Somebody typing a
-## name that is already taken meant that name, and should be told so rather than given a
-## number they did not ask for.
+## A document's name is the file it is written to, so two of one name would leave only
+## whichever was written second.
 func rename_storyline(storyline: StorylineDocument, new_name: String) -> bool:
 	var wanted: String = new_name.strip_edges()
 	if wanted.is_empty() or wanted == storyline.name:

@@ -92,7 +92,7 @@ func supports_default_item() -> bool:
 	return false
 
 
-## Makes the item at [param index] the one the list falls back to. No-op by default.
+## No-op by default.
 func set_default_item(_index: int) -> void:
 	pass
 

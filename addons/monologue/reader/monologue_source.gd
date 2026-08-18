@@ -1,12 +1,12 @@
 ## A project's documents, parsed and named, wherever they came from.
 ##
-## The one place that knows what a Monologue project looks like: which four kinds of
-## document there are, where they sit, and how to get at them out of an archive, out of a
-## folder, or out of memory. Everything downstream asks this and never touches a file.
+## The one place that knows what a Monologue project looks like. Which four kinds of document
+## there are, where they sit, and how to read them out of an archive, a folder or memory.
+## Everything downstream asks this and never touches a file.
 class_name MonologueSource extends RefCounted
 
 const ARCHIVE_EXTENSION: String = "mnlp"
-## What one document inside a project is called. The content is JSON either way; the
+## What one document inside a project is called. The content is JSON either way. The
 ## extension says whose it is, so a folder project does not read as a pile of loose data.
 const DOCUMENT_EXTENSION: String = "mnlf"
 const MANIFEST: String = "manifest.%s" % DOCUMENT_EXTENSION
@@ -20,15 +20,15 @@ var problems: Array[MonologueProblem] = []
 var path: String = ""
 var is_archive: bool = false
 ## False only when there was nothing to open at all. One document failing to parse is
-## reported and skipped: a damaged storyline must not cost the reader the rest of the story.
+## reported and skipped, so a damaged storyline does not cost the reader the rest.
 var is_readable: bool = true
 
 ## entry path -> parsed document
 var _documents: Dictionary = {}
 
 
-## An archive, a folder, or any file inside one -- a file dialog lets the user point at the
-## last of those, and it means the folder it sits in.
+## An archive, a folder, or any file inside one. A file dialog lets the user point at a file,
+## which means the folder it sits in.
 static func open(project_path: String) -> MonologueSource:
 	var source: MonologueSource = MonologueSource.new()
 	source.path = project_path
@@ -50,8 +50,8 @@ static func open(project_path: String) -> MonologueSource:
 	return source._checked()
 
 
-## Documents already in memory, keyed by entry path the way an archive lists them. What
-## lets a story be played straight out of an editor, before it has ever been saved.
+## Documents already in memory, keyed by entry path the way an archive lists them. Lets a
+## story play straight out of an editor, before it has ever been saved.
 static func of(documents: Dictionary) -> MonologueSource:
 	var source: MonologueSource = MonologueSource.new()
 	source._documents = documents
@@ -59,7 +59,7 @@ static func of(documents: Dictionary) -> MonologueSource:
 
 
 ## Where one document sits inside a project, archive and folder alike. The only place the
-## layout is spelled out, so what is written and what is looked for cannot drift apart.
+## layout is spelled out, so writing and reading cannot drift apart.
 static func document_path(directory: String, document_name: String) -> String:
 	return "%s/%s.%s" % [directory, document_name, DOCUMENT_EXTENSION]
 
@@ -72,8 +72,7 @@ func settings() -> Dictionary:
 	return _documents.get(SETTINGS, {})
 
 
-## Collection name -> its document. A record array lives under the collection's own name
-## inside it, which is the collection document's shape and not this class's business.
+## Collection name -> its document.
 func collections() -> Dictionary:
 	return _under(COLLECTIONS)
 
@@ -82,8 +81,8 @@ func storylines() -> Dictionary:
 	return _under(STORYLINES)
 
 
-## A collection document holds its records under its own name. Unwrapping that is the last
-## thing about the format's shape that anyone downstream would otherwise have to know.
+## A collection document holds its records under its own name. Unwrapped here, so nothing
+## downstream has to know that.
 func records(collection_name: String) -> Array:
 	var document: Dictionary = collections().get(collection_name, {})
 	var found: Variant = document.get(collection_name, [])
@@ -105,15 +104,14 @@ func _fault(code: StringName, message: String, document: String = "") -> void:
 	problems.append(problem.in_document(document) if not document.is_empty() else problem)
 
 
-## Returns self so open() can report and return in one line.
 func _cannot_open(code: StringName, message: String) -> MonologueSource:
 	is_readable = false
 	_fault(code, message)
 	return self
 
 
-## A manifest is what makes a pile of documents a story, and a format from the future is one
-## this cannot be trusted to read. Both are refusals, not damage.
+## A manifest is what makes a pile of documents a story. A format from the future is one this
+## cannot be trusted to read. Both are refusals, not damage.
 func _checked() -> MonologueSource:
 	if not is_readable:
 		return self
@@ -173,9 +171,8 @@ func _walk(relative: String) -> void:
 		_walk(relative.path_join(directory_name))
 
 
-## Anything that is not a JSON object is named rather than guessed at, and the two ways of
-## not being one are told apart: a truncated file and a file holding a list are different
-## mistakes.
+## A truncated file and a file holding a list are different mistakes, and are reported as
+## such rather than guessed at.
 func _take(entry_path: String, raw: String) -> void:
 	if entry_path.get_extension().to_lower() != DOCUMENT_EXTENSION:
 		return

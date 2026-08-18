@@ -93,7 +93,7 @@ func test_no_node_ever_previews_an_id() -> void:
 
 func test_no_preview_decides_how_big_its_node_is() -> void:
 	# A preview is drawn in whatever room the ports above it already claimed. It may ask for
-	# height, up to a bound; it may never ask for width, or one long line would widen the
+	# height, up to a bound. It may never ask for width, or one long line would widen the
 	# node and every node would end up as wide as its wordiest neighbour.
 	var project: MonologueProject = await _opened_project()
 	var speaker: String = _first_record_id(project, "characters")

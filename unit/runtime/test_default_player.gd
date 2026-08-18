@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 
 ## The presentation the addon ships with: the pieces of it that can be answered without a
-## screen. What it looks like is not testable here and is not what these are for -- what is,
+## screen. What it looks like is not testable here and is not what these are for. What is,
 ## is that it reads what a story names wherever that happens to live, and that a curve an
 ## author drew is the curve a fade follows.
 

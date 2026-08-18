@@ -1,17 +1,8 @@
 ## Groups several commands into a single undo step.
 ##
-## Obtain one from [method CommandManager.begin]. Commands run through
-## [method CommandManager.execute] while a transaction is open join it automatically,
-## so existing code needs no change to take part:
-## [codeblock]
-## var transaction := history.begin("Edit 4 nodes")
-## for node in nodes:
-##     node.set_property_value("color", "#ff0000")
-## transaction.commit()
-## [/codeblock]
-##
-## Note that the commands only take effect on [method commit] -- that is what makes
-## them one step rather than several.
+## Obtain one from [method CommandManager.begin]. Anything run through
+## [method CommandManager.execute] while it is open joins it, and nothing takes effect until
+## [method commit].
 class_name CommandTransaction extends RefCounted
 
 var description: String

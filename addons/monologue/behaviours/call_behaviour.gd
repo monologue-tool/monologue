@@ -4,8 +4,7 @@
 ## [member MonologueState.ran_out_at], which the session fills in as it unwinds.
 extends MonologueBehaviour
 
-## Functions calling each other without end is an authoring mistake worth naming, rather
-## than one the loop guard reports as a story going round in circles.
+## Named here, so endless recursion does not read as the story going round in circles.
 const MAX_DEPTH: int = 64
 
 

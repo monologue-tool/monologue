@@ -1,12 +1,12 @@
 ## One playthrough, as a state machine ticked once a frame.
 ##
-## Every decision about what a node type means lives in a behaviour; nothing here names one.
+## Every decision about what a node type means lives in a behaviour. Nothing here names one.
 ## A node stays current across frames until its behaviour says otherwise, so an animation, a
-## line being typed and a menu waiting for a click are all the same thing to the loop.
+## line being typed and a menu waiting for a click are all the same to the loop.
 class_name MonologueSession extends Node
 
-## A story entering this many nodes inside one frame is looping rather than working. Counted
-## per frame rather than per run so a long story is not mistaken for a stuck one.
+## A story entering this many nodes in one frame is looping. Counted per frame, so a long
+## story is not mistaken for a stuck one.
 const MAX_STEPS_PER_FRAME: int = 10000
 
 signal node_entered(storyline_id: String, node_id: String)
@@ -28,12 +28,11 @@ var single_step: bool = false
 
 var _running: bool = false
 var _paused: bool = false
-## The node the player last answered for. An answer belongs to whoever asked: one arriving
-## after the story has moved on is stale, and is left where it lies rather than handed to a
-## node that never asked anything.
+## The node the player last answered for. An answer belongs to whoever asked, so one arriving
+## after the story has moved on is left where it lies.
 var _answered_for: String = ""
 ## Whether [method MonologueBehaviour.run] has already been called on the node the cursor is
-## at. The one bit that makes this a machine rather than a loop.
+## at. The one bit that makes this a machine and not a loop.
 var _busy: bool = false
 var _released: bool = false
 var _steps_this_frame: int = 0
@@ -81,8 +80,8 @@ func play(storyline_id: String = "", node_id: String = "") -> void:
 
 ## Carries on from wherever the state says the story is.
 ##
-## Returns as soon as the story settles on a node; it never blocks. A story nothing holds --
-## everything a headless test plays -- runs to its end inside this call, with no frame.
+## Never blocks. Returns as soon as the story settles on a node. A story nothing holds, which
+## is everything a headless test plays, runs to its end inside this call.
 func resume_here() -> void:
 	_running = true
 	_busy = false
@@ -96,8 +95,8 @@ func resume_here() -> void:
 	advance(0.0)
 
 
-## One frame's worth of story, however many nodes that turns out to be. A test with no scene
-## tree pumps this by hand to get past anything that counts down.
+## One frame of story, however many nodes that turns out to be. A test with no scene tree
+## pumps it by hand to get past anything that counts down.
 func advance(delta: float) -> void:
 	if _paused:
 		return
@@ -125,8 +124,8 @@ func advance(delta: float) -> void:
 		var ctx: MonologueContext = MonologueContext.new(self, node_id)
 		var result: BehaviourResult = _step(ctx, delta)
 		if result == null or result.is_waiting():
-			# A player with no parts answers inside run(), so the answer can arrive before
-			# the node has finished being entered. Going round again is what catches it.
+			# A player with no parts answers inside run(), so the answer can arrive before the
+			# node has finished being entered. Going round again catches it.
 			if _answered_for == node_id:
 				continue
 			return
@@ -154,8 +153,8 @@ func stop() -> void:
 
 
 ## Loading a save and the peering rewind are the same operation. Call [method resume_here]
-## afterwards to carry on: what was on screen comes back there, put together again by the
-## behaviours that put it up in the first place.
+## afterwards to carry on. What was on screen comes back there, rebuilt by the behaviours that
+## put it up.
 func restore(data: Dictionary) -> void:
 	_running = false
 	_busy = false
@@ -169,7 +168,7 @@ func snapshot() -> Dictionary:
 	return state.to_dict()
 
 
-## Freezes the story where it stands without ending it: the behaviour holding the node stops
+## Freezes the story where it stands without ending it. The behaviour holding the node stops
 ## being ticked, so a timer stops counting and a line stops typing.
 func pause() -> void:
 	_paused = true
@@ -192,7 +191,7 @@ func is_busy() -> bool:
 
 
 ## The type of the node holding the story, or nothing. What a game asks before deciding
-## whether a click is its own. A name and not an enum so an unknown type answers here too.
+## whether a click is its own. A name and not an enum, so an unknown type answers too.
 func current_activity() -> StringName:
 	if not _running or not _busy:
 		return &""
@@ -206,7 +205,7 @@ func has_errors() -> bool:
 	return false
 
 
-## The three things that can happen to a node: it is entered, the game answers it, or a frame
+## The three things that can happen to a node. It is entered, the game answers it, or a frame
 ## passes over it.
 func _step(ctx: MonologueContext, delta: float) -> BehaviourResult:
 	if not _busy:
@@ -236,7 +235,7 @@ func _enter(ctx: MonologueContext) -> BehaviourResult:
 	return behaviours.for_type(ctx.type).run(ctx)
 
 
-## The behaviour holding the story first, since the node is its business, then the watchers.
+## The behaviour holding the story first, then the watchers.
 func _tick(ctx: MonologueContext, delta: float) -> BehaviourResult:
 	var holder: MonologueBehaviour = behaviours.for_type(ctx.type)
 	var result: BehaviourResult = holder.process(ctx, delta)
@@ -255,7 +254,7 @@ func _tick(ctx: MonologueContext, delta: float) -> BehaviourResult:
 func _go(node_id: String) -> void:
 	var next: String = node_id
 	if next.is_empty():
-		# Whoever pushed the return address needs to know which of its ways out this is.
+		# Whoever pushed the return address needs to know which way out this is.
 		state.ran_out_at = state.current_node()
 		next = _unwind()
 
@@ -269,8 +268,8 @@ func _go(node_id: String) -> void:
 	state.move_to(graph.storyline_of(next), next)
 
 
-## Where the story goes when a chain runs out. The session only pops; what a node does when
-## the story comes back to it is that node's own business.
+## Where the story goes when a chain runs out. The session only pops. What a node does when
+## the story comes back to it is that node's business.
 func _unwind() -> String:
 	return str(state.call_stack.pop_back()) if not state.call_stack.is_empty() else ""
 

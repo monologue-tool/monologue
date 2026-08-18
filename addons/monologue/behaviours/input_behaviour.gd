@@ -1,4 +1,3 @@
-## Asks the reader for text and keeps it in a variable.
 extends MonologueBehaviour
 
 

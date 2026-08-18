@@ -1,10 +1,9 @@
-## Brings a character on stage, takes them off, or changes how they are shown, and keeps the
-## stage in the state so a restored save comes back to the same picture.
+## Brings a character on stage, takes them off, or changes how they are shown. Keeps the
+## stage in the state, so a restored save comes back to the same picture.
 extends MonologueBehaviour
 
 const SLOT: String = "characters"
 const LEAVING: String = "Leave"
-## What an ease falls back to when the project names none of its own.
 const DEFAULT_EASE: Array = [0.25, 0.1, 0.25, 1.0]
 
 
@@ -12,17 +11,16 @@ func handles() -> PackedStringArray:
 	return ["character"]
 
 
-## Called again after a save is put back, which is when the stage has to be rebuilt without
-## replaying the story that filled it.
+## Rebuilds the stage after a save is put back, without replaying the story.
 func setup(ctx: MonologueContext) -> void:
 	if ctx.player.characters == null:
 		return
 
 	var staged: Dictionary = ctx.state.stage.get(SLOT, {})
-	var shown: Dictionary = {}
+	var resolved: Dictionary = {}
 	for who: Variant in staged:
-		shown[who] = _shown(ctx, staged[who])
-	ctx.player.characters.restage(shown)
+		resolved[who] = _resolved(ctx, staged[who])
+	ctx.player.characters.restage(resolved)
 
 
 func run(ctx: MonologueContext) -> BehaviourResult:
@@ -43,27 +41,23 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 	var look: Dictionary = _look(ctx, who, duration)
 	staged[who] = look
 	if ctx.player.characters:
-		ctx.player.characters.apply(ctx.graph.record("characters", who), _shown(ctx, look))
+		ctx.player.characters.apply(ctx.graph.record("characters", who), _resolved(ctx, look))
 	return BehaviourResult.progress(ctx.next())
 
 
-## The same look with its picture found on disk.
-##
-## Kept apart from what is stored: a save holds the path the story wrote, so that moving one
-## between machines still finds its art. Where that art actually is, is only ever a question
-## about the here and now.
-func _shown(ctx: MonologueContext, look: Variant) -> Dictionary:
+## What is stored keeps the path the story wrote, so a save moved between machines still
+## finds its art.
+func _resolved(ctx: MonologueContext, look: Variant) -> Dictionary:
 	if look is not Dictionary:
 		return {}
 
-	var shown: Dictionary = (look as Dictionary).duplicate()
-	var portrait: Dictionary = shown.get("portrait", {})
-	shown["image"] = ctx.player.resolve(str(portrait.get("image", "")))
-	return shown
+	var found: Dictionary = (look as Dictionary).duplicate()
+	var portrait: Dictionary = found.get("portrait", {})
+	found["image"] = ctx.player.resolve(str(portrait.get("image", "")))
+	return found
 
 
-## Everything the part needs to draw, resolved here rather than there: a part is handed a
-## portrait and a curve, never an id it would have to go looking up.
+## A part is handed a portrait and a curve, never an id to go looking up.
 func _look(ctx: MonologueContext, who: String, duration: float) -> Dictionary:
 	var portraits: Variant = ctx.graph.record("characters", who).get("portraits", [])
 	return {
@@ -78,7 +72,6 @@ func _look(ctx: MonologueContext, who: String, duration: float) -> Dictionary:
 	}
 
 
-## The named ease, or the project's default one, as its four coordinates.
 func _curve(ctx: MonologueContext, chosen: String) -> Array:
 	var record: Dictionary = ctx.graph.record("eases", chosen)
 	if record.is_empty():
@@ -98,7 +91,6 @@ func _default_ease(ctx: MonologueContext) -> Dictionary:
 	return {}
 
 
-## A vector2 property is stored as its two numbers, which is not what anyone wants to draw with.
 func _vector(stored: Variant) -> Vector2:
 	if stored is Vector2:
 		return stored

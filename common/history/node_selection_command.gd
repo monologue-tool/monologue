@@ -1,11 +1,7 @@
 ## Makes changing the graph selection undoable.
 ##
-## Selections are Array[InspectableObject] throughout, even here where they only ever
-## hold nodes. GDScript's typed arrays are invariant: an Array[InspectableNode] cannot
-## be passed where an Array[InspectableObject] is expected, and `as` does not convert
-## between them. One element type for the whole selection path removes every one of
-## those conversions; the few places that need node-specific access cast the element,
-## which does work.
+## Selections are Array[InspectableObject] throughout, even here where they only hold nodes.
+## GDScript typed arrays are invariant, and `as` does not convert between them.
 class_name NodeSelectionCommand extends Command
 
 var storyline_id: String

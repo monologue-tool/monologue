@@ -1,14 +1,10 @@
-## What is behind everyone.
-##
-## Crossfades rather than cutting: two pictures of the same place swapped outright read as a
-## glitch, and the story rarely means one.
+## What is behind everyone. Crossfades, because two pictures of the same place swapped
+## outright read as a glitch.
 class_name MonologueDefaultScenery extends MonologueSceneryPart
 
-## How long one place takes to become another.
 const FADE: float = 0.35
 
-## What is on screen now, and what is arriving over it. They trade places once a fade lands,
-## so neither is the permanent one.
+## What is on screen now, and what is arriving over it. They trade places once a fade lands.
 @export var showing: TextureRect
 @export var arriving: TextureRect
 
@@ -32,9 +28,7 @@ func show_image(path: String) -> void:
 	_fade.tween_callback(_settle)
 
 
-## The picture that arrived becomes the one on screen, and the layer it came in on is emptied
-## ready for the next. Without this the two would swap roles every time and only one of them
-## would ever be underneath.
+## The arriving picture becomes the one on screen, and its layer is emptied for the next.
 func _settle() -> void:
 	showing.texture = arriving.texture
 	showing.modulate.a = 1.0

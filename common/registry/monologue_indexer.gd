@@ -1,38 +1,21 @@
 ## One registration record for one Monologue type.
 ##
-## An indexer is both the description of a type and the factory that creates it.
-## Subclass [FieldIndexer], [NodeIndexer] or [CollectionIndexer] -- never this class
-## directly -- and fill the members in [method _init]:
-## [codeblock]
-## extends FieldIndexer
-##
-## func _init() -> void:
-##     name = "text"
-##     display_name = "Text"
-##     color = Color("af85fd")
-##     scene_uid = "uid://be0xxn5gocqjo"
-## [/codeblock]
-##
-## Metadata lives in typed members rather than a Dictionary so the compiler checks it,
-## autocompletion lists it, and "find references" works on it.
+## Subclass [FieldIndexer], [NodeIndexer] or [CollectionIndexer], never this class, and fill
+## in the members from [method _init].
 @abstract
 class_name MonologueIndexer extends RefCounted
 
-## Machine name, unique within this indexer's object type.
-## Written into save files -- renaming one breaks existing projects.
+## Unique within this indexer's object type. Written into save files, so renaming one breaks
+## existing projects.
 var name: String = ""
-## Name shown in menus. Defaults to a readable form of [member name].
 var display_name: String = ""
 ## Menu grouping. A leading underscore hides the category from the add-node menu.
 var category: String = "General"
-## One-line description shown in tooltips and generated docs.
 var description: String = ""
 var tags: Array[String] = []
-## "res://" path or "uid://" of a Texture2D, loaded on first use.
-## A path (not a preloaded Texture2D) so the model layer stays free of resources.
+## "res://" or "uid://" of a Texture2D, loaded on first use.
 var icon_path: String = ""
 var color: Color = Color.WHITE
-## Set by the registry to the name of the plugin that registered this type.
 var source_plugin: String = ""
 
 var _icon_cache: Texture2D
@@ -45,16 +28,12 @@ func get_display_name() -> String:
 	return Util.to_readable_name(name)
 
 
-## The colour this type is drawn in: its own when it declares one, otherwise the colour
-## of the family its category names. Leaving [member color] alone is what keeps a whole
-## category reading as one thing.
 func get_color() -> Color:
 	if color != Color.WHITE:
 		return color
 	return MonologuePalette.for_category(category)
 
 
-## Loads [member icon_path] on first call and caches it. Null when unset or missing.
 func get_icon() -> Texture2D:
 	if _icon_loaded:
 		return _icon_cache
@@ -69,8 +48,7 @@ func get_icon() -> Texture2D:
 	return _icon_cache
 
 
-## Checked by the registry before accepting a registration.
-## Override to add type-specific requirements, calling super first.
+## Checked before a registration is accepted. Override with a super call first.
 func validate_registration() -> String:
 	if name.is_empty():
 		return "Indexer has no name."

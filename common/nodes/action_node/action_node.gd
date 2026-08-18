@@ -1,6 +1,6 @@
 ## Calls out to the game: a name the runtime recognises, and whatever it needs with it.
 ##
-## Monologue does not interpret either; it carries them across so the game can act on
+## Monologue interprets neither. It carries them across so the game can act on
 ## them. What the names mean is the game's business.
 class_name ActionNode extends InspectableNode
 

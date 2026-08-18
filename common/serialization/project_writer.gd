@@ -16,7 +16,7 @@ const STORYLINES: String = MonologueSource.STORYLINES
 
 ## Writes [param project] to [param path], as an archive or as a folder depending on
 ## [member MonologueProject.compact]. The returned result carries an error issue when
-## nothing was written; an archive on disk is untouched in that case.
+## nothing was written. An archive on disk is untouched in that case.
 static func write_project(project: MonologueProject, path: String) -> ValidationResult:
 	var result: ValidationResult = ValidationResult.ok()
 	if project == null:
@@ -92,22 +92,20 @@ static func _write_tree(project: MonologueProject, path: String) -> ValidationRe
 		written_storylines.append(entry.get_file())
 		_write_document(storyline, path.path_join(entry), result)
 
-	_sweep(path.path_join(COLLECTIONS), written_collections)
-	_sweep(path.path_join(STORYLINES), written_storylines)
+	_remove_stale_documents(path.path_join(COLLECTIONS), written_collections)
+	_remove_stale_documents(path.path_join(STORYLINES), written_storylines)
 	return result
 
 
-## Takes away the documents the project no longer has. A folder is written in place, so a
-## renamed storyline would otherwise leave the file it used to be behind it, and the next
-## read would find the same storyline twice.
+## A folder is written in place, so a renamed storyline would leave the file it used to be
+## behind and the next read would find it twice.
 ##
-## Only ever the project's own kind of file, and only in the two folders it manages: whatever
-## else somebody keeps in there is none of this function's business.
-static func _sweep(directory: String, keep: PackedStringArray) -> void:
+## Only the project's own kind of file, and only in the two folders it manages.
+static func _remove_stale_documents(directory: String, written: PackedStringArray) -> void:
 	for file_name: String in DirAccess.get_files_at(directory):
 		if file_name.get_extension().to_lower() != MonologueSource.DOCUMENT_EXTENSION:
 			continue
-		if file_name not in keep:
+		if file_name not in written:
 			DirAccess.remove_absolute(directory.path_join(file_name))
 
 

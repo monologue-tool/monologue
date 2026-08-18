@@ -250,7 +250,7 @@ static func _build_property_row(prop: Property, owner: InspectableNode) -> Graph
 	row._property_name = prop.name
 	row.port_size = prop.get_settings_value(PropertySettings.KEY_PORT_SIZE, "normal")
 
-	# What a node takes in is what it declares; what it gives back may be something it is
+	# What a node takes in is what it declares. What it gives back may be something it is
 	# only carrying. The two are one row for every node but a reroute.
 	var taken: Dictionary = NodePort.declared(owner, prop)
 	var given: Dictionary = NodePort.of(owner, prop)
@@ -326,7 +326,6 @@ static func _shorten(label: String) -> String:
 	return "%s…" % label.substr(0, MAX_LIST_LABEL - 1).strip_edges(false, true)
 
 
-## Extracts a string from a stored object.
 static func _extract_dict_string(data: Dictionary, key: String) -> String:
 	return str(data.get(key, ""))
 

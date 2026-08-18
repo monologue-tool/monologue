@@ -1,19 +1,18 @@
 ## Finds things in folders and hands them out by name.
 ##
-## Both of the addon's extension points work this way -- behaviours and services -- so the
-## folder scanning, the name claiming and the shadow warning live here once.
-##
-## A subclass says what it is looking for, where, and how a thing gives its names.
+## Both of the addon's extension points work this way, behaviours and services, so the folder
+## scanning, the name claiming and the shadow warning live here once. A subclass says what it
+## is looking for, where, and how a thing gives its names.
 @abstract class_name MonologueIndex extends Node
 
-## name -> the thing, which is not necessarily what was scanned for: anything handed in
-## through declare() counts too.
+## name -> the thing. Not necessarily something scanned for. Anything handed in through
+## declare() counts too.
 var _by_name: Dictionary = {}
 
 
-## The folder shipped with the addon, then whatever a game added under [param setting].
-## Read from ProjectSettings rather than from an editor plugin, so a game that never enabled
-## one still gets its own folders.
+## The folder shipped with the addon, then whatever a game added under [param setting]. Read
+## from ProjectSettings and not from an editor plugin, so a game that never enabled one still
+## gets its own folders.
 func _init(
 	built_in_folder: String, setting: String, problems: Array[MonologueProblem] = []
 ) -> void:
@@ -26,15 +25,15 @@ func _init(
 @abstract func wanted() -> Script
 
 
-## The names one thing answers to. Several is legal: a behaviour claims one per node type.
+## The names one thing answers to. Several is legal. A behaviour claims one per node type.
 @abstract func names_of(thing: Node) -> PackedStringArray
 
 
-## Builds every usable node a folder holds. A folder is allowed to hold a helper next to the
-## things that use it, so anything else is passed over in silence.
+## Builds every usable node a folder holds. A folder may hold a helper next to the things
+## that use it, so anything else is passed over in silence.
 ##
-## ResourceLoader.list_directory rather than DirAccess: it still answers in an exported game,
-## where a script is no longer a file sitting on disk.
+## ResourceLoader.list_directory and not DirAccess. It still answers in an exported game,
+## where a script is no longer a file on disk.
 func index(folder: String, problems: Array[MonologueProblem] = []) -> void:
 	var found: int = 0
 
@@ -62,8 +61,8 @@ func index(folder: String, problems: Array[MonologueProblem] = []) -> void:
 		)
 
 
-## Takes something already built. What a game uses when it would rather write the wiring than
-## fill a folder. False when the thing was refused, and the caller owns it again.
+## Takes something already built, for a game that would rather write the wiring than fill a
+## folder. False when it was refused, and the caller owns it again.
 func declare(thing: Node, problems: Array[MonologueProblem] = []) -> bool:
 	return adopt(thing, problems)
 
@@ -88,8 +87,8 @@ func adopt(thing: Node, problems: Array[MonologueProblem] = []) -> bool:
 	return true
 
 
-## Read off the inheritance chain rather than by building one and looking: a script's _init
-## can do anything, including scanning this very folder, so nothing unwanted is ever run.
+## Read off the inheritance chain instead of building one and looking. A script's _init can
+## do anything, including scanning this very folder.
 static func _descends_from(script: Script, base: Script) -> bool:
 	var current: Script = script
 	while current != null:

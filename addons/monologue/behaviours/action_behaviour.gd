@@ -7,7 +7,7 @@ func handles() -> PackedStringArray:
 
 
 func run(ctx: MonologueContext) -> BehaviourResult:
-	# Plain rather than translated: this names something in the game's code, not to a reader.
+	# Plain and not translated. This names something in the game's code.
 	var action_name: String = str(ctx.value("name", "")).strip_edges()
 	if action_name.is_empty():
 		ctx.note(&"action_without_name", "This node asks the game for nothing.")

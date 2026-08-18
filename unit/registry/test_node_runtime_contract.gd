@@ -3,10 +3,10 @@ extends GdUnitTestSuite
 ## What the runtime addon is allowed to assume about a node type, checked here so it is the
 ## editor that fails rather than a story that stops halfway.
 ##
-## Every check walks the registry instead of listing type names: a list is the contents of
+## Every check walks the registry instead of listing type names. A list is the contents of
 ## today, and adding a node type would break it without anything being wrong.
 ##
-## The addon is a separate product reading the same format; nothing here loads it.
+## The addon is a separate product reading the same format. Nothing here loads it.
 
 var _registry: MonologueRegistry
 var _history: CommandManager

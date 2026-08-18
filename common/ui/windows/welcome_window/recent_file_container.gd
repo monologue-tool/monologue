@@ -25,7 +25,6 @@ func create_button(filepath: String) -> Button:
 	return btn
 
 
-## Load the recent file history save and create buttons for it.
 func load_history() -> void:
 	var data: Array = ProjectManager.get_history()
 

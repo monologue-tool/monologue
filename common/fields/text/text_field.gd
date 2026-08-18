@@ -1,16 +1,16 @@
-## Edits text. The only text widget: `text` and `textarea` both use it, and it shows a
-## language selector exactly when the property it is bound to is translated.
+## The only text widget. `text` and `textarea` both use it, and it shows a language selector
+## exactly when the property it is bound to is translated.
 ##
-## A translated property holds {language_code: text}; a plain one holds a String. Which
-## of the two is never guessed from the value — the property says so.
+## A translated property holds {language_code: text}, a plain one a String. Never guessed
+## from the value. The property says so.
 class_name TextField
 extends Field
 
 var _is_multiline: bool = false
 var _is_preview: bool = false
 var _is_translatable: bool = false
-## Every translation of the current value. Holds one entry under "" when the property
-## is plain, so the rest of the widget has one shape to work with.
+## One entry under "" when the property is plain, so the widget has one shape to work
+## with.
 var _values: Dictionary = {}
 
 @onready var line_edit: LineEdit = %LineEdit
@@ -118,8 +118,7 @@ func prefers_vertical_layout(p_settings: Dictionary) -> bool:
 	return p_settings.get(PropertySettings.KEY_MULTILINE, false)
 
 
-## The slot the text is read from and written to: the project's active language for a
-## translated property, and the single unnamed slot for a plain one.
+## The project's active language, or the unnamed slot for a plain property.
 func _current_key() -> String:
 	if not _is_translatable:
 		return ""

@@ -2,7 +2,7 @@
 ##
 ## Unlike a condition node, which is tested once as the story passes through, this one
 ## stays armed: its branch runs as soon as the test is true, checked between two nodes.
-## Never inside one -- an event cutting a line off mid-sentence would be worse than late.
+## Never inside one. An event cutting a line off mid-sentence would be worse than late.
 class_name EventNode extends InspectableNode
 
 

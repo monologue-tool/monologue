@@ -18,7 +18,7 @@ func check(context: ValidationContext) -> ValidationResult:
 		return ValidationResult.ok()
 
 	# Without a project there is nothing to look the target up in, which is the case in
-	# unit tests for other rules; silence beats a false alarm.
+	# unit tests for other rules. Silence beats a false alarm.
 	if context.project == null:
 		return ValidationResult.ok()
 

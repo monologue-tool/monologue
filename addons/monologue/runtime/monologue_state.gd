@@ -1,10 +1,10 @@
 ## Everything about a story that changes while it plays. The graph is read-only, so this is
-## the whole of a save file: what moves and is not in here, a saved game forgets.
+## the whole of a save file. What moves and is not in here, a saved game forgets.
 class_name MonologueState extends RefCounted
 
 var variables: Dictionary = {}
-## character id -> item id -> how many are held. Nobody carries anything on behalf of
-## anybody else, so what is held is per character rather than one pile for the whole story.
+## character id -> item id -> how many are held. Per character, not one pile for the whole
+## story.
 var inventory: Dictionary = {}
 ## "<choice id>|<option key>" -> true, for options that only offer themselves once
 var consumed_options: Dictionary = {}
@@ -13,20 +13,19 @@ var fired_events: Dictionary = {}
 var visited: Dictionary = {}
 ## Node ids to come back to when a chain runs out, innermost last. What a call pushes.
 var call_stack: Array[String] = []
-## Where the chain ran out, for whatever pushed the return address it is unwinding to: a
-## call has one exit per place its function stops, and this is which one. Read and cleared
-## by the node that comes back to.
+## Where the chain ran out, for whatever pushed the return address it is unwinding to. A call
+## has one exit per place its function stops, and this says which. Read and cleared by the
+## node it comes back to.
 var ran_out_at: String = ""
 var cursor: Dictionary = {}
-## What is on screen, so a restored save can rebuild the picture without replaying. One slice
+## What is on screen, so a restored save rebuilds the picture without replaying. One slice
 ## per behaviour that puts something up, under a key of its own choosing.
 var stage: Dictionary = {}
-## The last checkpoint the story went through, for a game that offers to pick up there.
 var checkpoint: String = ""
 ## Why the story stopped, once it has.
 var ending: Dictionary = {}
 var step_index: int = 0
-## Kept here rather than on the session so a save replays its coin flips the same way.
+## Kept here and not on the session, so a save replays its coin flips the same way.
 var rng_seed: int = 0
 
 
@@ -46,7 +45,7 @@ func consume(choice_id: String, option_key: String) -> void:
 	consumed_options[_option_key(choice_id, option_key)] = true
 
 
-## How many of an item someone is carrying. Zero for anyone who has never met it.
+## Zero for anyone who has never met the item.
 func held(character_id: String, item_id: String) -> int:
 	return int((inventory.get(character_id, {}) as Dictionary).get(item_id, 0))
 

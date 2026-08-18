@@ -101,7 +101,7 @@ func test_an_entry_carries_what_an_editor_needs_to_draw_it() -> void:
 	assert_str(entry.object_type).is_equal("sentence")
 	assert_str(entry.property_name).is_equal("line")
 	assert_str(entry.speaker).is_equal("Narrator")
-	# A sentence line is declared multiline; an editor that ignored that would swallow every
+	# A sentence line is declared multiline. An editor that ignored that would swallow every
 	# line break the translator typed.
 	assert_bool(entry.is_multiline()).is_true()
 	assert_int(entry.get_rows()).is_greater(0)

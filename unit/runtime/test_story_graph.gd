@@ -2,10 +2,8 @@ extends GdUnitTestSuite
 
 ## The runtime reading what the editor writes.
 ##
-## Every case here goes through a real project and a real file: the point is not that the
-## builder works on hand-made dictionaries, it is that the two halves agree on a format
-## neither of them owns. A test that built the JSON by hand would keep passing after the
-## editor changed what it writes.
+## Every case goes through a real project and a real file. A test building the JSON by hand
+## would keep passing after the editor changed what it writes.
 
 var _project: MonologueProject
 var _path: String
@@ -22,7 +20,6 @@ func after_test() -> void:
 	MonologueRegistry.reset_instance()
 
 
-## Saves the project and reads it back the way a game would.
 func _round_trip() -> MonologueStoryGraph:
 	ProjectWriter.write_project(_project, _path)
 	return MonologueStoryGraph.of(MonologueSource.open(_path))
@@ -58,13 +55,12 @@ func test_a_saved_storyline_projects_whole() -> void:
 	assert_array(graph.languages).contains(["en"])
 	assert_str(str(graph.record("characters", narrator).get("name"))).is_equal("Narrator")
 
-	# Editor bookkeeping stops at the door; the node's own id is the author's data.
+	# Editor bookkeeping stops at the door. The node's own id is the author's data.
 	var props: Dictionary = graph.props(root.get_id())
 	assert_bool(props.has("$type")).is_false()
 	assert_bool(props.has("_editor_settings")).is_false()
 	assert_bool(props.has("id")).is_true()
 
-	# Asking about something nobody wrote answers empty rather than raising.
 	assert_array(graph.successors("nobody", "nothing")).is_empty()
 	assert_dict(graph.record("characters", "character-GONE")).is_empty()
 
@@ -103,11 +99,10 @@ func test_a_story_the_addon_cannot_play_is_reported_not_raised() -> void:
 
 
 func test_the_addon_reaches_for_nothing_the_editor_owns() -> void:
-	# The guarantee that a game can play a story with Monologue not installed, and what keeps
-	# the editor's own loading being able to route through the addon without entangling it.
+	# The guarantee that a game can play a story with Monologue not installed.
 	#
-	# Two constants are held together here rather than shared, because the addon cannot read
-	# the editor's: the external sub-port prefix, and the format version the two agree on.
+	# The addon cannot read the editor's constants, so two are held together here: the
+	# external sub-port prefix, and the format version.
 	assert_str(MonologueStoryGraph.EXTERNAL_PREFIX).is_equal(NodeConnection.EXTERNAL_PREFIX)
 	assert_int(MonologueSource.SUPPORTED_FORMAT_VERSION).override_failure_message(
 		"The addon reads up to format %d while the editor writes %d."
@@ -134,8 +129,8 @@ func test_the_addon_reaches_for_nothing_the_editor_owns() -> void:
 
 
 func test_a_sub_port_and_a_name_both_survive_into_the_graph() -> void:
-	# What a choice behaviour reads: each stored option's id is the item id on the wire
-	# leaving it, so answering with that id leads where it should.
+	# Each stored option's id is the item id on the wire leaving it, so answering with that
+	# id leads where it should.
 	var storyline: StorylineDocument = _storyline()
 	var choice: InspectableNode = _node_of_type(storyline, "choice")
 	var option_node: InspectableNode = _node_of_type(storyline, "option")
@@ -145,9 +140,8 @@ func test_a_sub_port_and_a_name_both_survive_into_the_graph() -> void:
 		NodeConnection.create(choice.get_id(), "choices", target.get_id(), "sentence", option_id)
 	)
 
-	# How a jump finds a waypoint: the editor stores the name, not an id. UniqueRule never
-	# fires for node labels, so finding both of a pair is what lets WaypointNode say so
-	# rather than one jump quietly going astray.
+	# A jump finds a waypoint by name, not by id. UniqueRule never fires for node labels, so
+	# finding both of a pair is what lets WaypointNode report it.
 	for _twin: int in 2:
 		storyline.create_node("waypoint").get_property("label").set_value("same")
 

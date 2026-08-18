@@ -9,7 +9,7 @@ func _build_menu() -> void:
 
 	for column: Dictionary in window.get_columns():
 		var column_id: String = str(column["id"])
-		# The translation column is what the window is for; it is not one to turn off.
+		# The translation column is what the window is for. Not one to turn off.
 		add_check_row(
 			str(column["title"]),
 			window.is_column_visible(column_id),

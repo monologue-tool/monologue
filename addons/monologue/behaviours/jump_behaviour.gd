@@ -1,7 +1,7 @@
 ## Continues at a waypoint named somewhere else in this storyline.
 ##
-## By name and not by id: that is what the editor stores, and what a label rewrites in every
-## jump that named it when it is renamed.
+## By name and not by id, which is what the editor stores. Renaming a waypoint rewrites every
+## jump that named it.
 extends MonologueBehaviour
 
 

@@ -1,14 +1,12 @@
 @abstract
 class_name Field extends VBoxContainer
 
-## Emitted on every real-time input change (keystroke, drag, slider move).
-## FieldBinding uses this for live validation and error feedback only.
-## The value is NOT persisted and does NOT create an undo/redo entry.
+## Every keystroke, drag and slider move. Nothing is persisted and no undo entry is made.
+## FieldBinding uses it for live validation only.
 signal value_changed(new_value: Variant)
 
-## Emitted when the user confirms the value (Enter, focus lost, item selected, drag end).
-## FieldBinding persists the value into the Property, creating an undo/redo entry.
-## This is the only signal that writes data to the model.
+## Enter, focus lost, item selected, drag end. The only signal that writes to the model, and
+## the one that makes an undo entry.
 signal value_committed(new_value: Variant)
 
 const ERROR_MODULATE: Color = Color(1, 0.85, 0.85, 1)
@@ -17,8 +15,8 @@ const WARNING_MODULATE: Color = Color(1, 0.95, 0.8, 1)
 var _binding: FieldBinding
 var _default_modulate: Color = Color(1, 1, 1, 1)
 
-## Merged settings for the bound property. Always stored as a copy: aliasing the field
-## type's shared defaults would let one widget's edit leak into every other instance.
+## Always a copy. Aliasing the field type's shared defaults would let one widget's edit leak
+## into every other instance.
 var settings: Dictionary = {}:
 	set(value):
 		settings = value.duplicate(true)
@@ -42,9 +40,8 @@ func _on_initialize() -> void:
 	pass
 
 
-## The property this widget edits, for the log. A field with no binding is one a
-## composite widget drives itself, such as the value inside a condition: it has no
-## property to name, and announcing what it does is still its job.
+## For the log. A field with no binding is one a composite widget drives itself, such as the
+## value inside a condition.
 func _bound_property_name() -> String:
 	return _binding.property.name if _binding and _binding.property else "<detached>"
 
@@ -59,11 +56,10 @@ func emit_value_committed(value: Variant) -> void:
 	value_committed.emit(value)
 
 
-## Shows what is currently wrong with the value. Errors tint red, warnings amber, an
-## empty list clears the marking. Override to render it better for a given widget.
+## Errors tint red, warnings amber, an empty list clears the marking. Override to render it
+## better for a given widget.
 ##
-## The value stays as the user typed it either way: validation annotates, it never
-## takes the input back.
+## The value stays as the user typed it. Validation annotates, it never takes input back.
 func display_issues(issues: Array[ValidationIssue]) -> void:
 	if issues.is_empty():
 		tooltip_text = ""
@@ -92,8 +88,8 @@ func prefers_vertical_layout(_settings: Dictionary) -> bool:
 	return false
 
 
-## Keeps a dropdown inside whatever width the inspector has. An [OptionButton] is as wide
-## as its longest entry by default, so one long name widens the panel for everything in it.
+## An [OptionButton] is as wide as its longest entry by default, so one long name widens the
+## whole panel.
 static func fit_dropdown(button: OptionButton) -> void:
 	if button == null:
 		return

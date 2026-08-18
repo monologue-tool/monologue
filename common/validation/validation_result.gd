@@ -50,7 +50,6 @@ func warnings() -> Array[ValidationIssue]:
 	return _by_severity(ValidationIssue.Severity.WARNING)
 
 
-## Every issue carrying [param code]. Mostly useful for asserting in tests.
 func with_code(code: StringName) -> Array[ValidationIssue]:
 	var matching: Array[ValidationIssue] = []
 	for issue: ValidationIssue in issues:

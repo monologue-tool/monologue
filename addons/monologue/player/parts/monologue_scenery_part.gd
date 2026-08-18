@@ -1,4 +1,3 @@
-## What is behind everyone.
 @abstract class_name MonologueSceneryPart extends Node
 
 
