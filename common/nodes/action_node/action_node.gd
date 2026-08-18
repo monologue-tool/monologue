@@ -28,3 +28,17 @@ func initialize_properties() -> void:
 
 func get_type() -> String:
 	return "action"
+
+
+## The call as the game receives it: name and what is passed with it.
+func _build_preview(_language: String = "") -> Control:
+	var action_name: String = str(get_property_value("name")).strip_edges()
+	if action_name.is_empty():
+		return null
+
+	var written: PackedStringArray = []
+	var arguments: Variant = get_property_value("arguments")
+	if arguments is Array:
+		for argument: Variant in arguments:
+			written.append(NodePreview.literal(argument))
+	return NodePreview.line(NodePreview.plain("%s(%s)" % [action_name, ", ".join(written)]))

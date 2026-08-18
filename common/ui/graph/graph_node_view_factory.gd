@@ -2,6 +2,11 @@ class_name GraphNodeViewFactory extends RefCounted
 
 const SLOT_IN_TEXTURE: Texture2D = preload("res://ui/assets/icons/slot_in.svg")
 const SLOT_OUT_TEXTURE: Texture2D = preload("res://ui/assets/icons/slot_out.svg")
+## The preview panel, named so that a value changing can replace it without the rest of the
+## view being torn down around it.
+const PREVIEW_NAME: StringName = &"Preview"
+## As tall as a preview is ever drawn, whatever it decided to build.
+const PREVIEW_MAX_HEIGHT: float = 96.0
 ## How much of a list item's name a node shows. A node is a diagram of the story, not the
 ## story itself: past this the name is cut and the whole of it read in the inspector.
 const MAX_LIST_LABEL: int = 28
@@ -126,10 +131,63 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		graph_node.set_slot_custom_icon_left(idx, SLOT_IN_TEXTURE)
 		graph_node.set_slot_custom_icon_right(idx, SLOT_OUT_TEXTURE)
 
+	_add_preview(graph_node, node)
+
 	# reset_size() shrinks to the minimum size directly. set_size(Vector2.ZERO) got
 	# there too, but left the node at zero until the next layout pass, and any port
 	# position read during that window was meaningless.
 	graph_node.reset_size()
+
+
+## Replaces the preview without touching anything else. The ports keep their indices, so
+## the wires hanging off them are never disturbed.
+static func refresh_preview(graph_node: GraphNode, node: InspectableNode) -> void:
+	if not is_instance_valid(graph_node):
+		return
+
+	var showing: Node = graph_node.get_node_or_null(NodePath(PREVIEW_NAME))
+	if showing:
+		graph_node.remove_child(showing)
+		showing.queue_free()
+
+	_add_preview(graph_node, node)
+	graph_node.reset_size()
+
+
+## Draws what the node holds under its ports, when it has anything to show.
+##
+## Clipped rather than fitted: the preview gets whatever width the ports above it already
+## gave the node and is cut where that runs out, so no node is ever made wider by one, nor
+## taller than [constant PREVIEW_MAX_HEIGHT] however much its preview decided to draw.
+static func _add_preview(graph_node: GraphNode, node: InspectableNode) -> void:
+	var preview: Control = node._build_preview(_language())
+	if preview == null:
+		return
+
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = PREVIEW_NAME
+	panel.theme_type_variation = "GraphNodeViewPreviewPanel"
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+
+	# A plain Control rather than a container: it does not grow to hold what is inside it,
+	# which is the whole of how a preview is kept from deciding how big its node is.
+	var window: Control = Control.new()
+	window.clip_contents = true
+	window.mouse_filter = Control.MOUSE_FILTER_PASS
+	window.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	window.custom_minimum_size.y = clampf(
+		preview.custom_minimum_size.y, NodePreview.LINE_HEIGHT, PREVIEW_MAX_HEIGHT
+	)
+
+	preview.set_anchors_preset(Control.PRESET_FULL_RECT)
+	window.add_child(preview)
+	panel.add_child(window)
+	graph_node.add_child(panel)
+
+
+static func _language() -> String:
+	var project: MonologueProject = ProjectManager.current_project
+	return project.active_language_code if project else ""
 
 
 ## Names the view after the node's id and titles it with the node's own title,

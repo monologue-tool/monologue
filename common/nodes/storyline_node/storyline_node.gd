@@ -21,6 +21,14 @@ func get_type() -> String:
 	return "storyline"
 
 
+## Which storyline the reader leaves for.
+func _build_preview(_language: String = "") -> Control:
+	var target: String = NodePreview.named(self, "target")
+	if target.is_empty():
+		return null
+	return NodePreview.line("\u2192 %s" % NodePreview.plain(target))
+
+
 ## Pointing at the storyline this node already lives in restarts it. Legitimate for a
 ## loop, surprising by accident, so it is said rather than refused.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:

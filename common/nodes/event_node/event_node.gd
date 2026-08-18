@@ -31,6 +31,14 @@ func get_type() -> String:
 	return "event"
 
 
+## What has to become true for this to fire.
+func _build_preview(_language: String = "") -> Control:
+	var test: String = NodePreview.condition(get_property_value("test"))
+	if test.is_empty():
+		return null
+	return NodePreview.line("[i]when[/i] %s" % NodePreview.plain(test))
+
+
 ## An event with nothing to watch never fires, which is worth saying out loud.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
 	var test: Variant = get_property_value("test")

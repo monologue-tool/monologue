@@ -35,6 +35,18 @@ func get_type() -> String:
 	return "location"
 
 
+## Where the story moves to, and in which of that place own states.
+func _build_preview(_language: String = "") -> Control:
+	var target: String = NodePreview.named(self, "target")
+	if target.is_empty():
+		return null
+
+	var variation: String = NodePreview.named(self, "variation")
+	if variation.is_empty() or get_property_value("show_image") != true:
+		return NodePreview.line(NodePreview.plain(target))
+	return NodePreview.line(NodePreview.plain("%s \u00b7 %s" % [target, variation]))
+
+
 ## A variation belongs to one place, so naming another one leaves the node pointing at a
 ## picture its place does not have.
 func validate_object(result: ValidationResult, context: ValidationContext) -> void:

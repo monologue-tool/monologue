@@ -44,6 +44,19 @@ func get_type() -> String:
 	return "inventory"
 
 
+## Who ends up carrying how many of what.
+func _build_preview(_language: String = "") -> Control:
+	var item: String = NodePreview.named(self, "item")
+	if item.is_empty() or NodePreview.named(self, "who").is_empty():
+		return null
+
+	var change: String = {"Take": "-", "Set": "="}.get(str(get_property_value("operation")), "+")
+	return NodePreview.line("%s  %s" % [
+		NodePreview.tinted(self, "who"),
+		NodePreview.plain("%s%d %s" % [change, int(get_property_value("quantity")), item])
+	])
+
+
 ## Giving or taking nothing is a node that runs and changes nothing, which reads as if
 ## it worked.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:

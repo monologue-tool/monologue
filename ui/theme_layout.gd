@@ -19,6 +19,9 @@ static var bg_elevated_color: Color
 static var bg_higher_color: Color
 ## One step above whatever a control sits on, for the hover of a filled widget.
 static var bg_hover_color: Color
+## Behind what sits inside something else, and reads as being further away than the graph
+## the node it belongs to is drawn on.
+static var bg_recessed_color: Color
 
 static var text_primary_color: Color
 static var text_muted_color: Color
@@ -70,6 +73,7 @@ static func recalculate_colors() -> void:
 	bg_elevated_color = Color("323232") if is_theme_dark else Color("d6d6d6")
 	bg_higher_color = Color("424242") if is_theme_dark else Color("c8c8c8")
 	bg_hover_color = Color("3d3d3d") if is_theme_dark else Color("cdcdcd")
+	bg_recessed_color = Color("101010") if is_theme_dark else Color("dcdcdc")
 
 	text_primary_color = Color("d3d3d3") if is_theme_dark else Color("2c2c2c")
 	text_muted_color = Color("777777") if is_theme_dark else Color("888888")
@@ -845,6 +849,26 @@ static func _setup_label(theme: Theme) -> void:
 	theme.set_type_variation("GraphNodeViewListLabel", "Label")
 	theme.set_color("font_color", "GraphNodeViewListLabel", text_muted_color)
 	theme.set_font_size("font_size", "GraphNodeViewListLabel", font_size_md)
+
+
+	# What a node holds, drawn under its ports: further back than the node, and further back
+	# than the graph the node is drawn on, so it reads as being inside something.
+	theme.add_type("GraphNodeViewPreviewPanel")
+	theme.set_type_variation("GraphNodeViewPreviewPanel", "PanelContainer")
+
+	var preview_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	preview_panel_stylebox.bg_color = bg_recessed_color
+	preview_panel_stylebox.set_corner_radius_all(radius_sm)
+	preview_panel_stylebox.content_margin_top = margin_sm.y
+	preview_panel_stylebox.content_margin_bottom = margin_sm.y
+	preview_panel_stylebox.content_margin_left = margin_sm.x
+	preview_panel_stylebox.content_margin_right = margin_sm.x
+	theme.set_stylebox("panel", "GraphNodeViewPreviewPanel", preview_panel_stylebox)
+
+	theme.add_type("GraphNodeViewPreviewLabel")
+	theme.set_type_variation("GraphNodeViewPreviewLabel", "RichTextLabel")
+	theme.set_color("default_color", "GraphNodeViewPreviewLabel", text_muted_color)
+	theme.set_stylebox("normal", "GraphNodeViewPreviewLabel", StyleBoxEmpty.new())
 
 	theme.add_type("HeaderSmall")
 	theme.set_type_variation("HeaderSmall", "Label")

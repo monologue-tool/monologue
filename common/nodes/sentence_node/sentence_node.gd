@@ -28,3 +28,14 @@ func initialize_properties() -> void:
 
 func get_type() -> String:
 	return "sentence"
+
+
+## The line as it will be read, behind whoever says it.
+func _build_preview(language: String = "") -> Control:
+	var line: String = NodePreview.said(self, "line", language)
+	var speaker: String = NodePreview.tinted(self, "speaker")
+	if line.is_empty() and speaker.is_empty():
+		return null
+	if speaker.is_empty():
+		return NodePreview.line(NodePreview.plain(line))
+	return NodePreview.line("%s  %s" % [speaker, NodePreview.plain(line)])

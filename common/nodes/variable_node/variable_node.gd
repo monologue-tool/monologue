@@ -39,6 +39,20 @@ func get_type() -> String:
 	return "variable"
 
 
+## The assignment as it would be written: "gold += 3".
+func _build_preview(_language: String = "") -> Control:
+	var target: String = NodePreview.named(self, "target")
+	if target.is_empty():
+		return null
+
+	# "=" already is the assignment; the others are compounded onto one.
+	var operator: String = str(get_property_value("operator"))
+	return NodePreview.line(NodePreview.plain("%s %s= %s" % [
+		target, "" if operator == "=" else operator,
+		NodePreview.literal(get_property_value("value"))
+	]))
+
+
 ## Mirrors the types a variable can declare, in [constant
 ## VariableCollectionItem.VALUE_TYPES].
 func _value_cases() -> Dictionary:

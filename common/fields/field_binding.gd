@@ -123,6 +123,7 @@ func _on_field_value_changed(value: Variant) -> void:
 		ValidationContext.for_property(property, owner, value, ValidationContext.Phase.LIVE)
 	)
 	field.display_issues(result.issues)
+	_refresh_owner_preview_from_typing(value)
 
 
 ## The user confirmed. The value is always written; validation only annotates it.
@@ -185,6 +186,20 @@ func _format(value: Variant) -> Variant:
 	if indexer and indexer.formatter and indexer.formatter.is_valid():
 		return indexer.formatter.call(value)
 	return value
+
+
+## The preview alone, from a value that is not written yet: it is handed the candidate so
+## that what is on screen is what is being typed, and nothing else in the view is disturbed.
+func _refresh_owner_preview_from_typing(value: Variant) -> void:
+	if _is_syncing or _is_released:
+		return
+
+	var stored: Variant = property.get_value()
+	property.value = _format(value)
+	for target: InspectableObject in owners:
+		if is_instance_valid(target):
+			target.refresh_preview()
+	property.value = stored
 
 
 func _refresh_owner_preview_from_change() -> void:

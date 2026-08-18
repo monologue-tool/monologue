@@ -10,6 +10,17 @@ func get_type() -> String:
 	return "option"
 
 
+## The option as it will be offered, behind whoever offers it.
+func _build_preview(language: String = "") -> Control:
+	var text: String = NodePreview.said(self, "text", language)
+	var speaker: String = NodePreview.tinted(self, "speaker")
+	if text.is_empty() and speaker.is_empty():
+		return null
+	if speaker.is_empty():
+		return NodePreview.line(NodePreview.plain(text))
+	return NodePreview.line("%s  %s" % [speaker, NodePreview.plain(text)])
+
+
 ## Cross-property check: no single property can see that the condition switch is on
 ## while the condition itself is blank.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:

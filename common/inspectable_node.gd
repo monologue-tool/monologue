@@ -91,6 +91,24 @@ func rebuild_preview() -> void:
 		graph_edit.refresh_node(self)
 
 
+## What this node shows under its ports: any [Control] at all, so that a preview can be a
+## line of text, a picture, a diagram of where somebody stands. [NodePreview] holds the pieces
+## most of them are built out of.
+##
+## Null means none, which is right for a node whose ports already say everything. The view
+## owns whatever comes back: it is clipped to the width the ports already gave the node,
+## capped in height, freed with it, and asked for again every time a value changes.
+func _build_preview(_language: String = "") -> Control:
+	return null
+
+
+## Redraws the preview alone. What a value still being typed needs: rebuilding the whole view
+## would take the ports and their wires with it, on every keystroke.
+func refresh_preview() -> void:
+	if is_instance_valid(graph_view):
+		GraphNodeViewFactory.refresh_preview(graph_view, self)
+
+
 @abstract func get_type() -> String
 
 

@@ -24,6 +24,14 @@ func get_type() -> String:
 	return "jump"
 
 
+## Where the story carries on.
+func _build_preview(_language: String = "") -> Control:
+	var waypoint: String = NodePreview.named(self, "waypoint")
+	if waypoint.is_empty():
+		return null
+	return NodePreview.line("\u2192 %s" % NodePreview.plain(waypoint))
+
+
 ## A jump aimed at a name no label carries goes nowhere, and reads as if it worked.
 func validate_object(result: ValidationResult, context: ValidationContext) -> void:
 	var target: String = str(get_property_value("waypoint")).strip_edges()

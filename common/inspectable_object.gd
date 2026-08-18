@@ -308,6 +308,10 @@ func rebuild_preview() -> void:
 	pass
 
 
+func refresh_preview() -> void:
+	pass
+
+
 @warning_ignore("native_method_override")
 func duplicate(deep: bool = false) -> Resource:
 	var duplicated: InspectableNode = super.duplicate(deep)

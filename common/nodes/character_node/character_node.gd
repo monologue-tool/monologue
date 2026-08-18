@@ -93,6 +93,26 @@ func get_type() -> String:
 	return "character"
 
 
+## Who this is about and what happens to them, over a strip of the stage seen from above.
+func _build_preview(_language: String = "") -> Control:
+	if NodePreview.named(self, "who").is_empty():
+		return null
+
+	var what: String = str(get_property_value("action"))
+	var said: RichTextLabel = NodePreview.line(
+		"[i]%s[/i]  %s" % [NodePreview.plain(what), NodePreview.tinted(self, "who")]
+	)
+	if what not in SHOWING_ACTIONS:
+		return said
+
+	return NodePreview.row([
+		NodePreview.stage(
+			str(get_property_value("position")), POSITIONS, NodePreview.tint(self, "who")
+		),
+		said,
+	])
+
+
 ## A portrait belongs to one character, so naming another one leaves the node pointing
 ## at a face its character does not have.
 func validate_object(result: ValidationResult, context: ValidationContext) -> void:

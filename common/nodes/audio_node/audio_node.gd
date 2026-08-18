@@ -36,3 +36,13 @@ func initialize_properties() -> void:
 
 func get_type() -> String:
 	return "audio"
+
+
+## What plays, and whether it keeps playing.
+func _build_preview(_language: String = "") -> Control:
+	var stream: String = NodePreview.file(str(get_property_value("stream")))
+	if stream.is_empty():
+		return null
+	if get_property_value("loop") != true:
+		return NodePreview.line(NodePreview.plain(stream))
+	return NodePreview.line("%s [i]loop[/i]" % NodePreview.plain(stream))

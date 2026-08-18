@@ -31,6 +31,12 @@ func get_type() -> String:
 	return "condition"
 
 
+## The test as it reads, which is the whole of what this node decides on.
+func _build_preview(_language: String = "") -> Control:
+	var test: String = NodePreview.condition(get_property_value("test"))
+	return NodePreview.line(NodePreview.plain(test)) if not test.is_empty() else null
+
+
 ## A condition with no variable always takes the same branch, which makes the node a
 ## detour rather than a decision.
 func validate_object(result: ValidationResult, _context: ValidationContext) -> void:

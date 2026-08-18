@@ -35,6 +35,14 @@ func get_type() -> String:
 	return "call"
 
 
+## Which function runs before the story comes back here.
+func _build_preview(_language: String = "") -> Control:
+	var target: String = NodePreview.named(self, "target")
+	if target.is_empty():
+		return null
+	return NodePreview.line("\u2192 %s" % NodePreview.plain(target))
+
+
 ## The exits are computed rather than stored, so they arrive the same way a choice
 ## node's connected options do: as external items nobody can edit in place.
 func get_external_list_items(property_name: String) -> Array[Dictionary]:

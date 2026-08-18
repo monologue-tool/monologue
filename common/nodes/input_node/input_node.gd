@@ -31,3 +31,14 @@ func initialize_properties() -> void:
 
 func get_type() -> String:
 	return "input"
+
+
+## What is asked, and where the answer lands.
+func _build_preview(language: String = "") -> Control:
+	var into: String = NodePreview.named(self, "variable")
+	var prompt: String = NodePreview.said(self, "text", language)
+	if into.is_empty() and prompt.is_empty():
+		return null
+	if into.is_empty():
+		return NodePreview.line(NodePreview.plain(prompt))
+	return NodePreview.line(NodePreview.plain("%s \u2192 %s" % [prompt, into]).strip_edges())
