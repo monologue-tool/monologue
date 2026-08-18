@@ -16,6 +16,12 @@ func initialize_properties() -> void:
 		.required()
 		.tooltip("Where the story moves to."))
 
+	define_property(Property.new("show_image")
+		.set_type("bool")
+		.default(true)
+		.hidden_in_graph()
+		.tooltip("Whether the place's own picture replaces the background."))
+
 	define_property(Property.new("variation")
 		.set_type("reference")
 		.reference_scope("ref:target:variations")

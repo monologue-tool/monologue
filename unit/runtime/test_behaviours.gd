@@ -67,20 +67,26 @@ func _ease_named(ease_name: String) -> String:
 	return ""
 
 
-## Declares a variable in the project so the runtime knows what type to coerce it to.
-func _declare_variable(variable_name: String, type_name: String, initial: Variant) -> String:
+## Puts one record in a project collection and returns its id.
+func _add_record(collection_name: String, values: Dictionary) -> String:
 	var item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		"variables", _project.command_manager
+		collection_name, _project.command_manager
 	)
-	item.set_property_value("name", variable_name)
-	item.set_property_value("type", type_name)
-	item.set_property_value("value", initial)
+	for property_name: String in values:
+		item.set_property_value(property_name, values[property_name])
 
-	var document: CollectionDocument = _project.get_collection("variables")
+	var document: CollectionDocument = _project.get_collection(collection_name)
 	var records: Array = document.get_value().duplicate(true)
 	records.append(item._to_dict())
-	document.set_property_value("variables", records)
+	document.set_property_value(collection_name, records)
 	return str(item.get_property_value("id"))
+
+
+## Declares a variable in the project so the runtime knows what type to coerce it to.
+func _declare_variable(variable_name: String, type_name: String, initial: Variant) -> String:
+	return _add_record(
+		"variables", {"name": variable_name, "type": type_name, "value": initial}
+	)
 
 
 func _play() -> MonologueSession:
@@ -418,3 +424,42 @@ func test_a_restored_save_comes_back_to_the_picture_it_left() -> void:
 	assert_int(reader.audio.played.size()).override_failure_message(
 		"The music that was still playing did not start again."
 	).is_equal(1)
+
+
+func test_a_location_moves_the_story_and_puts_the_place_on_screen() -> void:
+	# A place is one place all the way through, seen in whichever state the node asks for.
+	var place: String = _add_record("locations", {
+		"name": "Tavern",
+		"variations": [
+			{"id": "variation-DAY", "name": "day", "image": "art/day.png", "is_default": true},
+			{"id": "variation-NIGHT", "name": "night", "image": "art/night.png"},
+		],
+	})
+
+	var dusk: InspectableNode = _node("location")
+	dusk.get_property("target").set_value(place)
+	dusk.get_property("variation").set_value("variation-NIGHT")
+
+	var dawn: InspectableNode = _node("location")
+	dawn.get_property("target").set_value(place)
+
+	var elsewhere: InspectableNode = _node("location")
+	elsewhere.get_property("target").set_value(place)
+	elsewhere.get_property("show_image").set_value(false)
+
+	_wire(_root(), dusk)
+	_wire(dusk, dawn)
+	_wire(dawn, elsewhere)
+
+	var session: MonologueSession = _play()
+
+	assert_array(_player.backdrop.images).override_failure_message(
+		"The named variation did not come up, the default did not stand in for the one nobody"
+		+ " named, or a node told not to show a picture showed one."
+	).is_equal(["art/night.png", "art/day.png"])
+
+	var here: Dictionary = session.state.stage["location"]
+	assert_str(str(here["location"])).is_equal(place)
+	assert_str(str(session.state.stage["background"])).override_failure_message(
+		"A place and a background node do not share the one thing behind everyone."
+	).is_equal("art/day.png")
