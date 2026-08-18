@@ -171,6 +171,30 @@ func delete_storyline(storyline: StorylineDocument) -> void:
 	EventBus.storyline_deleted.emit()
 
 
+## Renames a storyline. False when the name is taken or empty, and nothing is changed.
+##
+## Refused rather than made unique: a document's name is the file it is written to, and two
+## of one name would leave whichever was written second as all there is. Somebody typing a
+## name that is already taken meant that name, and should be told so rather than given a
+## number they did not ask for.
+func rename_storyline(storyline: StorylineDocument, new_name: String) -> bool:
+	var wanted: String = new_name.strip_edges()
+	if wanted.is_empty() or wanted == storyline.name:
+		return false
+
+	var taken: Array[String] = _get_all_document_names(storylines)
+	taken.append_array(_get_all_document_names(collections))
+	if wanted in taken:
+		Log.warn("'%s' is already the name of a document in this project." % wanted)
+		return false
+
+	storyline.name = wanted
+	is_dirty = true
+	content_changed.emit()
+	ProjectManager._update_window_title()
+	return true
+
+
 func add_new_storyline() -> void:
 	var base_name: String = "new_storyline"
 	var attempt: int = 1

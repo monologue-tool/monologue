@@ -77,20 +77,38 @@ static func _write_tree(project: MonologueProject, path: String) -> ValidationRe
 
 	_write_document(project.manifest, path.path_join(MANIFEST), result)
 	_write_document(project.settings, path.path_join(SETTINGS), result)
-	for collection: CollectionDocument in project.collections:
-		_write_document(
-			collection,
-			path.path_join(MonologueSource.document_path(COLLECTIONS, collection.name)),
-			result
-		)
-	for storyline: StorylineDocument in project.storylines:
-		_write_document(
-			storyline,
-			path.path_join(MonologueSource.document_path(STORYLINES, storyline.name)),
-			result
-		)
 
+	# Collected as they are written rather than walked again: what was written is exactly
+	# what may stay, and one list cannot fall behind the other.
+	var written_collections: PackedStringArray = []
+	for collection: CollectionDocument in project.collections:
+		var entry: String = MonologueSource.document_path(COLLECTIONS, collection.name)
+		written_collections.append(entry.get_file())
+		_write_document(collection, path.path_join(entry), result)
+
+	var written_storylines: PackedStringArray = []
+	for storyline: StorylineDocument in project.storylines:
+		var entry: String = MonologueSource.document_path(STORYLINES, storyline.name)
+		written_storylines.append(entry.get_file())
+		_write_document(storyline, path.path_join(entry), result)
+
+	_sweep(path.path_join(COLLECTIONS), written_collections)
+	_sweep(path.path_join(STORYLINES), written_storylines)
 	return result
+
+
+## Takes away the documents the project no longer has. A folder is written in place, so a
+## renamed storyline would otherwise leave the file it used to be behind it, and the next
+## read would find the same storyline twice.
+##
+## Only ever the project's own kind of file, and only in the two folders it manages: whatever
+## else somebody keeps in there is none of this function's business.
+static func _sweep(directory: String, keep: PackedStringArray) -> void:
+	for file_name: String in DirAccess.get_files_at(directory):
+		if file_name.get_extension().to_lower() != MonologueSource.DOCUMENT_EXTENSION:
+			continue
+		if file_name not in keep:
+			DirAccess.remove_absolute(directory.path_join(file_name))
 
 
 static func _write_document(

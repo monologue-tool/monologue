@@ -193,3 +193,51 @@ func test_a_file_from_another_version_of_monologue_is_refused_by_name() -> void:
 			"A file %d version away was accepted." % case[0]
 		).is_false()
 		assert_array(result.with_code(case[1] as StringName)).is_not_empty()
+
+
+func test_a_renamed_storyline_does_not_leave_the_one_it_used_to_be_behind() -> void:
+	# A folder is written in place, so nothing takes away a file that stopped being written.
+	# Left alone, renaming would read back as two storylines: the new one, and the old one
+	# still sitting there under its old name.
+	var folder: String = "%s/unpacked" % create_temp_dir("tree")
+	_project.compact = false
+	_project.add_new_storyline()
+	assert_bool(ProjectWriter.write_project(_project, folder).is_valid()).is_true()
+
+	var renamed: StorylineDocument = _project.storylines[1]
+	assert_bool(_project.rename_storyline(renamed, "chapter_two")).is_true()
+	assert_bool(ProjectWriter.write_project(_project, folder).is_valid()).is_true()
+
+	var written: PackedStringArray = DirAccess.get_files_at(
+		folder.path_join(MonologueSource.STORYLINES)
+	)
+	assert_int(written.size()).override_failure_message(
+		"The folder holds %s; the storyline it used to be was left behind." % str(written)
+	).is_equal(2)
+	assert_array(written).contains(["chapter_two.mnlf"])
+
+	var loaded: MonologueProject = await MonologueProject.from_path(folder)
+	auto_free(loaded)
+	assert_int(loaded.storylines.size()).is_equal(2)
+
+
+func test_a_name_another_document_already_has_is_refused_rather_than_made_unique() -> void:
+	# Two documents of one name write to one file, and whichever went second would be all
+	# there was left of the two.
+	var storyline: StorylineDocument = _project.storylines[0]
+	var was: String = storyline.name
+
+	assert_bool(_project.rename_storyline(storyline, "characters")).override_failure_message(
+		"A storyline took the name of a collection."
+	).is_false()
+	assert_bool(_project.rename_storyline(storyline, "   ")).is_false()
+	assert_str(storyline.name).is_equal(was)
+
+	_project.add_new_storyline()
+	assert_bool(
+		_project.rename_storyline(_project.storylines[1], was)
+	).override_failure_message("Two storylines ended up with one name.").is_false()
+
+	assert_bool(_project.rename_storyline(storyline, "prologue")).is_true()
+	assert_str(storyline.name).is_equal("prologue")
+	assert_bool(_project.is_dirty).is_true()

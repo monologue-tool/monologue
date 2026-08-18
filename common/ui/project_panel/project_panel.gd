@@ -86,6 +86,9 @@ func _rebuild_explorer() -> void:
 		storyline_btn.pressed.connect(_on_storyline_button_pressed.bind(storyline))
 		storyline_btn.set_meta("document", storyline)
 		storylines_container.add_child(storyline_btn)
+		InlineRename.attach(storyline_btn).committed.connect(
+			_on_storyline_renamed.bind(storyline)
+		)
 
 	_show_open_storyline()
 
@@ -125,6 +128,13 @@ func _on_collection_button_pressed(collection: CollectionDocument) -> void:
 
 func _on_storyline_button_pressed(storyline: StorylineDocument) -> void:
 	EventBus.request_storyline_inspection.emit(storyline)
+
+
+## A refused name leaves the button showing the old one, which is already what the rename
+## put back: nothing to undo, and the reason is in the log.
+func _on_storyline_renamed(new_name: String, storyline: StorylineDocument) -> void:
+	if ProjectManager.current_project.rename_storyline(storyline, new_name):
+		_rebuild_explorer()
 
 
 func _on_add_storyline_button_pressed() -> void:
