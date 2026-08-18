@@ -128,12 +128,6 @@ text = "Example"
 icon = ExtResource("3_myesc")
 alignment = 0
 
-[node name="NewExample2" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/ExampleContainer/VBox" unique_id=536851165]
-layout_mode = 2
-text = "Example 2"
-icon = ExtResource("3_myesc")
-alignment = 0
-
 [node name="RecentProjectsContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop" unique_id=75757695 node_paths=PackedStringArray("button_container")]
 unique_name_in_owner = true
 layout_mode = 2
