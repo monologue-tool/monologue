@@ -146,7 +146,7 @@ func test_a_sub_port_and_a_name_both_survive_into_the_graph() -> void:
 	)
 
 	# How a jump finds a waypoint: the editor stores the name, not an id. UniqueRule never
-	# fires for node labels, so finding both of a pair is what lets the preflight say so
+	# fires for node labels, so finding both of a pair is what lets WaypointNode say so
 	# rather than one jump quietly going astray.
 	for _twin: int in 2:
 		storyline.create_node("waypoint").get_property("label").set_value("same")

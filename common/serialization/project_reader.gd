@@ -68,6 +68,8 @@ static func read_into(
 
 ## The addon reports in its own currency, since it knows nothing of the editor. This is the
 ## exchange, and the only place the two vocabularies meet.
+## One of the runtime's problems as one of the editor's issues. The two say the same thing
+## in two vocabularies, and this is the only place they are translated.
 static func _as_issue(problem: MonologueProblem) -> ValidationIssue:
 	var issue: ValidationIssue = (
 		ValidationIssue.error(problem.message, problem.code)

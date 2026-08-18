@@ -242,3 +242,36 @@ func _given_back(node: InspectableNode) -> int:
 func _taken_in(node: InspectableNode) -> int:
 	return MonologueRegistry.get_instance().get_field_type_id(node.get_main_property().type)
 
+
+func test_two_waypoints_of_one_name_each_say_the_other_is_there() -> void:
+	# What nothing checking one property at a time can see: each of the two is perfectly fine
+	# on its own, and a jump aiming there reaches whichever comes first. The runtime notices
+	# it too, once, while playing; this is so it is known before anyone plays.
+	var first: InspectableNode = _storyline.create_node("waypoint")
+	var second: InspectableNode = _storyline.create_node("waypoint")
+	var alone: InspectableNode = _storyline.create_node("waypoint")
+	first.get_property("label").set_value("hub")
+	second.get_property("label").set_value("hub")
+	alone.get_property("label").set_value("elsewhere")
+
+	assert_array(_named_twice(first)).override_failure_message(
+		"A waypoint sharing its name with another did not say so."
+	).is_not_empty()
+	assert_array(_named_twice(second)).override_failure_message(
+		"Only one of the pair was named, so the author sees half the problem."
+	).is_not_empty()
+	assert_array(_named_twice(alone)).override_failure_message(
+		"A waypoint nobody shares a name with was complained about."
+	).is_empty()
+
+
+func _named_twice(waypoint: InspectableNode) -> Array[ValidationIssue]:
+	var context: ValidationContext = ValidationContext.new()
+	context.object = waypoint
+	context.project = _project
+	context.phase = ValidationContext.Phase.AUDIT
+
+	var result: ValidationResult = ValidationResult.ok()
+	waypoint.validate_object(result, context)
+	return result.with_code(&"waypoints_share_a_name")
+

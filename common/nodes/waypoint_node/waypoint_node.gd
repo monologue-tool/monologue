@@ -61,11 +61,39 @@ func _retarget_jumps(old_name: String, new_name: String) -> void:
 
 
 ## An unnamed waypoint is unreachable in practice: the jump dropdown lists them by name.
-func validate_object(result: ValidationResult, _context: ValidationContext) -> void:
-	if str(get_property_value("label")).strip_edges().is_empty():
+##
+## Two of them sharing a name is worse, and nothing checking one property at a time can see
+## it: each of the two is perfectly fine on its own, and a jump aiming there quietly reaches
+## whichever comes first. Both are named, so the author can see the pair.
+func validate_object(result: ValidationResult, context: ValidationContext) -> void:
+	var written: String = str(get_property_value("label")).strip_edges()
+	if written.is_empty():
 		result.add(
 			ValidationIssue.warning(
 				"This waypoint has no name, so a jump cannot tell it from another.",
 				&"unnamed_waypoint"
 			).at(self, "label")
 		)
+		return
+
+	if context.project == null:
+		return
+
+	var storyline: StorylineDocument = context.project.get_storyline(storyline_id)
+	if storyline == null:
+		return
+
+	for node: InspectableNode in storyline.nodes:
+		if node == self or node.get_type() != "waypoint":
+			continue
+		if str(node.get_property_value("label")).strip_edges() != written:
+			continue
+
+		result.add(
+			ValidationIssue.error(
+				"Another waypoint here is also called '%s'; a jump cannot tell them apart."
+				% written,
+				&"waypoints_share_a_name"
+			).at(self, "label")
+		)
+		return
