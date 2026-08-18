@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Monologue"
 config/description="Dialogue Editor for Narrative Games"
-config/version="3.0.0-dev3"
+config/version="3.0.0-beta1"
 config/tags=PackedStringArray("monologue")
 run/main_scene="res://scenes/splash/splash.tscn"
 run/print_header=false
