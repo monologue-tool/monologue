@@ -18,7 +18,10 @@ var _config := {
 		TESTS : Array([], TYPE_OBJECT, "RefCounted", GdUnitTestCase),
 
 		# the port of running test server for this session
-		SERVER_PORT : -1
+		SERVER_PORT : -1,
+
+		# Exit on first failure
+		EXIT_FAIL_FAST : false
 	}
 
 
@@ -40,6 +43,15 @@ func server_port() -> int:
 	return _config.get(SERVER_PORT, -1)
 
 
+func do_fail_fast(fail_fast: bool) -> GdUnitRunnerConfig:
+	_config[EXIT_FAIL_FAST] = fail_fast
+	return self
+
+
+func is_fail_fast() -> bool:
+	return _config.get(EXIT_FAIL_FAST, false)
+
+
 func add_test_cases(tests: Array[GdUnitTestCase]) -> GdUnitRunnerConfig:
 	test_cases().append_array(tests)
 	return self
@@ -57,7 +69,8 @@ func save_config(path: String = CONFIG_FILE) -> GdUnitResult:
 
 	var to_save := {
 		VERSION : CONFIG_VERSION,
-		SERVER_PORT : _config.get(SERVER_PORT),
+		EXIT_FAIL_FAST : is_fail_fast(),
+		SERVER_PORT : server_port(),
 		TESTS : Array()
 	}
 
@@ -70,7 +83,7 @@ func save_config(path: String = CONFIG_FILE) -> GdUnitResult:
 
 func load_config(path: String = CONFIG_FILE) -> GdUnitResult:
 	if not FileAccess.file_exists(path):
-		return GdUnitResult.error("Can't find test runner configuration '%s'! Please select a test to run." % path)
+		return GdUnitResult.warn("Can't find test runner configuration '%s'! Please select a test to run." % path)
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		var error := FileAccess.get_open_error()

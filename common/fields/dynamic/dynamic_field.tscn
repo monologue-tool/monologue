@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://bmpb6yh0x0sup"]
+
+[ext_resource type="Script" uid="uid://6vwlwawmd6qw" path="res://common/fields/dynamic/dynamic_field.gd" id="1_g3o7u"]
+
+[node name="DynamicField" type="VBoxContainer" unique_id=1740638762]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_g3o7u")
+
+[node name="FieldContainer" type="HBoxContainer" parent="." unique_id=1639750187]
+unique_name_in_owner = true
+layout_mode = 2

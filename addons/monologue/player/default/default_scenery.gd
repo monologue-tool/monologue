@@ -1,0 +1,36 @@
+## What is behind everyone. Crossfades, because two pictures of the same place swapped
+## outright read as a glitch.
+class_name MonologueDefaultScenery extends MonologueSceneryPart
+
+const FADE: float = 0.35
+
+## What is on screen now, and what is arriving over it. They trade places once a fade lands.
+@export var showing: TextureRect
+@export var arriving: TextureRect
+
+var _showing: String = ""
+var _fade: Tween
+
+
+func show_image(path: String) -> void:
+	if path == _showing or showing == null or arriving == null:
+		return
+	_showing = path
+
+	if _fade and _fade.is_valid():
+		_fade.kill()
+
+	arriving.texture = MonologueAssets.picture(path)
+	arriving.modulate.a = 0.0
+
+	_fade = create_tween()
+	_fade.tween_property(arriving, "modulate:a", 1.0, FADE)
+	_fade.tween_callback(_settle)
+
+
+## The arriving picture becomes the one on screen, and its layer is emptied for the next.
+func _settle() -> void:
+	showing.texture = arriving.texture
+	showing.modulate.a = 1.0
+	arriving.texture = null
+	arriving.modulate.a = 0.0

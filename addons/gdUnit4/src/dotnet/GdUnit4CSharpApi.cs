@@ -1,100 +1,59 @@
+// Copyright (c) 2025 Mike Schulze
+// MIT License - See LICENSE file in the repository root for full license text
+#pragma warning disable IDE1006
 namespace gdUnit4.addons.gdUnit4.src.dotnet;
+#pragma warning restore IDE1006
 
+#if GDUNIT4NET_API_V5
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using GdUnit4;
 using GdUnit4.Api;
-using GdUnit4.Core.Discovery;
 
 using Godot;
 using Godot.Collections;
 
-// GdUnit4 GDScript - C# API wrapper
-// ReSharper disable once CheckNamespace
+/// <summary>
+///     The GdUnit4 GDScript - C# API wrapper.
+/// </summary>
 public partial class GdUnit4CSharpApi : RefCounted
 {
+    /// <summary>
+    ///     The signal to be emitted when the execution is completed.
+    /// </summary>
     [Signal]
+#pragma warning disable CA1711
     public delegate void ExecutionCompletedEventHandler();
+#pragma warning restore CA1711
 
-    private static readonly object LockObject = new();
-
-    private static Type? apiType;
-    private static Assembly? gdUnit4Api;
+#pragma warning disable CA2213, SA1201
     private CancellationTokenSource? executionCts;
+#pragma warning restore CA2213, SA1201
 
-    public override void _Notification(int what)
-    {
-        if (what != NotificationPredelete)
-            return;
-        executionCts?.Dispose();
-        executionCts = null;
-    }
+    /// <summary>
+    ///     Indicates if the API loaded.
+    /// </summary>
+    /// <returns>Returns true if the API already loaded.</returns>
+    public static bool IsApiLoaded()
+        => true;
 
-    private static Assembly GetApi()
-    {
-        if (gdUnit4Api != null)
-            return gdUnit4Api;
-        lock (LockObject)
-            return gdUnit4Api ??= Assembly.Load("gdUnit4Api");
-    }
-
-    private static Type? GetApiType()
-    {
-        if (apiType != null)
-            return apiType;
-        apiType = GetApi().GetType("GdUnit4.GdUnit4NetApiGodotBridge");
-        return apiType;
-    }
-
-    private static Version? GdUnit4NetVersion()
-    {
-        try
-        {
-            return GetApi().GetName().Version;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
-
-    private static T? InvokeApiMethod<T>(string methodName, params object[] args)
-    {
-        var method = GetApiType()?.GetMethod(methodName) ??
-                     throw new MethodAccessException($"Can't invoke method {methodName}");
-        return (T?)method.Invoke(null, args);
-    }
-
-    public static bool FindGdUnit4NetAssembly()
-    {
-        try
-        {
-            return GetApi().GetType("GdUnit4.GdUnit4NetApiGodotBridge") != null;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
-    public static string Version()
-        => GdUnit4NetVersion()?.ToString()
-           ?? "Unknown";
-
-    public static bool IsTestSuite(CSharpScript script)
-        => InvokeApiMethod<bool>("IsTestSuite", script);
-
+    /// <summary>
+    ///     Runs test discovery on the given script.
+    /// </summary>
+    /// <param name="sourceScript">The script to be scanned.</param>
+    /// <returns>The list of tests discovered as dictionary.</returns>
     public static Array<Dictionary> DiscoverTests(CSharpScript sourceScript)
     {
         try
         {
             // Get the list of test case descriptors from the API
-            var testCaseDescriptors = InvokeApiMethod<ImmutableList<TestCaseDescriptor>>("DiscoverTestsFromScript", sourceScript)!;
+            var testCaseDescriptors = GdUnit4NetApiGodotBridge.DiscoverTestsFromScript(sourceScript);
+
             // Convert each TestCaseDescriptor to a Dictionary
             return testCaseDescriptors
                 .Select(descriptor => new Dictionary
@@ -106,24 +65,61 @@ public partial class GdUnit4CSharpApi : RefCounted
                     ["line_number"] = descriptor.LineNumber,
                     ["attribute_index"] = descriptor.AttributeIndex,
                     ["require_godot_runtime"] = descriptor.RequireRunningGodotEngine,
-                    ["code_file_path"] = descriptor.CodeFilePath ?? "",
+                    ["code_file_path"] = descriptor.CodeFilePath ?? string.Empty,
                     ["simple_name"] = descriptor.SimpleName,
                     ["fully_qualified_name"] = descriptor.FullyQualifiedName,
                     ["assembly_location"] = descriptor.AssemblyPath
                 })
-                .Aggregate(new Array<Dictionary>(), (array, dict) =>
-                {
-                    array.Add(dict);
-                    return array;
-                });
+                .Aggregate(
+                    new Array<Dictionary>(),
+                    (array, dict) =>
+                        {
+                            array.Add(dict);
+                            return array;
+                        });
         }
+#pragma warning disable CA1031
         catch (Exception e)
+#pragma warning restore CA1031
         {
             GD.PrintErr($"Error discovering tests: {e.Message}\n{e.StackTrace}");
+#pragma warning disable IDE0028 // Do not catch general exception types
             return new Array<Dictionary>();
+#pragma warning restore IDE0028 // Do not catch general exception types
         }
     }
 
+    /// <summary>
+    /// Creates a test suite based on the specified source path and line number.
+    /// </summary>
+    /// <param name="sourcePath">The path to the source file from which to create the test suite.</param>
+    /// <param name="lineNumber">The line number in the source file where the method to test is defined.</param>
+    /// <param name="testSuitePath">The path where the test suite should be created.</param>
+    /// <returns>A dictionary containing information about the created test suite.</returns>
+    public static Dictionary CreateTestSuite(string sourcePath, int lineNumber, string testSuitePath)
+        => GdUnit4NetApiGodotBridge.CreateTestSuite(sourcePath, lineNumber, testSuitePath);
+
+    /// <summary>
+    /// Gets the version of the GdUnit4 assembly.
+    /// </summary>
+    /// <returns>The version string of the GdUnit4 assembly.</returns>
+    public static string Version()
+        => GdUnit4NetApiGodotBridge.Version();
+
+    /// <inheritdoc />
+    public override void _Notification(int what)
+    {
+        if (what != NotificationPredelete)
+            return;
+        executionCts?.Dispose();
+        executionCts = null;
+    }
+
+    /// <summary>
+    ///     Executes the tests and using the listener for reporting the results.
+    /// </summary>
+    /// <param name="tests">A list of tests to be executed.</param>
+    /// <param name="listener">The listener to report the results.</param>
     public void ExecuteAsync(Array<Dictionary> tests, Callable listener)
     {
         try
@@ -135,33 +131,37 @@ public partial class GdUnit4CSharpApi : RefCounted
             // Create new cancellation token source
             executionCts = new CancellationTokenSource();
 
+            Debug.Assert(tests != null, nameof(tests) + " != null");
             var testSuiteNodes = new List<TestSuiteNode> { BuildTestSuiteNodeFrom(tests) };
-            InvokeApiMethod<Task>("ExecuteAsync", testSuiteNodes, listener, executionCts.Token)?
+            GdUnit4NetApiGodotBridge.ExecuteAsync(testSuiteNodes, listener, executionCts.Token)
                 .GetAwaiter()
                 .OnCompleted(() => EmitSignal(SignalName.ExecutionCompleted));
         }
+#pragma warning disable CA1031
         catch (Exception e)
+#pragma warning restore CA1031
         {
             GD.PrintErr($"Error executing tests: {e.Message}\n{e.StackTrace}");
             Task.Run(() => { }).GetAwaiter().OnCompleted(() => EmitSignal(SignalName.ExecutionCompleted));
         }
     }
 
+    /// <summary>
+    ///     Will cancel the current test execution.
+    /// </summary>
     public void CancelExecution()
     {
         try
         {
             executionCts?.Cancel();
         }
+#pragma warning disable CA1031
         catch (Exception e)
+#pragma warning restore CA1031
         {
             GD.PrintErr($"Error cancelling execution: {e.Message}");
         }
     }
-
-    public static Dictionary CreateTestSuite(string sourcePath, int lineNumber, string testSuitePath)
-        => InvokeApiMethod<Dictionary>("CreateTestSuite", sourcePath, lineNumber, testSuitePath)!;
-
 
     // Convert a set of Tests stored as Dictionaries to TestSuiteNode
     // all tests are assigned to a single test suit
@@ -180,15 +180,14 @@ public partial class GdUnit4CSharpApi : RefCounted
         // Create TestCaseNodes for each test in the suite
         var testCaseNodes = tests
             .Select(test => new TestCaseNode
-                {
-                    Id = Guid.Parse(test["guid"].AsString()),
-                    ParentId = suiteId,
-                    ManagedMethod = test["test_name"].AsString(),
-                    LineNumber = test["line_number"].AsInt32(),
-                    AttributeIndex = test["attribute_index"].AsInt32(),
-                    RequireRunningGodotEngine = test["require_godot_runtime"].AsBool()
-                }
-            )
+            {
+                Id = Guid.Parse(test["guid"].AsString()),
+                ParentId = suiteId,
+                ManagedMethod = test["test_name"].AsString(),
+                LineNumber = test["line_number"].AsInt32(),
+                AttributeIndex = test["attribute_index"].AsInt32(),
+                RequireRunningGodotEngine = test["require_godot_runtime"].AsBool()
+            })
             .ToList();
 
         return new TestSuiteNode
@@ -202,3 +201,35 @@ public partial class GdUnit4CSharpApi : RefCounted
         };
     }
 }
+#else
+using Godot;
+using Godot.Collections;
+
+public partial class GdUnit4CSharpApi : RefCounted
+{
+	[Signal]
+	public delegate void ExecutionCompletedEventHandler();
+
+	public static bool IsApiLoaded()
+	{
+		GD.PushWarning("No `gdunit4.api` dependency found, check your project dependencies.");
+		return false;
+	}
+
+
+	public static string Version()
+		=> "Unknown";
+
+	public static Array<Dictionary> DiscoverTests(CSharpScript sourceScript) => new();
+
+	public void ExecuteAsync(Array<Dictionary> tests, Callable listener)
+	{
+	}
+
+	public static bool IsTestSuite(CSharpScript script)
+		=> false;
+
+	public static Dictionary CreateTestSuite(string sourcePath, int lineNumber, string testSuitePath)
+		=> new();
+}
+#endif

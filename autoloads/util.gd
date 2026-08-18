@@ -1,30 +1,19 @@
-extends Node
+class_name Util
 
-const MAX_FILENAME_LENGTH = 48
-
-
-func check_config_file(path: String) -> void:
-	assert(FileAccess.file_exists(path))
-	var raw_text = FileAccess.open(path, FileAccess.READ).get_as_text()
-	var data: Dictionary = JSON.parse_string(raw_text)
-	assert(data.has("ProjectName"))
-	assert(data.has("VersionProject"))
-	assert(data.has("VersionEditor"))
-	assert(data.has("DefaultStart"))
-	assert(data.has("ListSpeakers"))
+const MAX_FILENAME_LENGTH: int = 48
 
 
-func is_equal(a: Variant, b: Variant) -> bool:
-	var type_a = typeof(a)
-	var type_b = typeof(b)
+static func is_equal(a: Variant, b: Variant) -> bool:
+	var type_a: int = typeof(a)
+	var type_b: int = typeof(b)
 	if type_a == type_b:
 		match type_a:
 			TYPE_DICTIONARY, TYPE_OBJECT:
 				return a.hash() == b.hash()
 			TYPE_ARRAY:
 				if a.size() == b.size():
-					var i = 0
-					var premise = true
+					var i: int = 0
+					var premise: bool = true
 					while i < a.size() and premise:
 						premise = is_equal(a[i], b[i])
 						i += 1
@@ -34,26 +23,54 @@ func is_equal(a: Variant, b: Variant) -> bool:
 	return false
 
 
-## Check if any element of array_a is inside array_b.
-func is_any_inside(array_a: Array, array_b: Array) -> bool:
-	for element in array_a:
+static func is_any_inside(array_a: Array, array_b: Array) -> bool:
+	for element: Variant in array_a:
 		if array_b.has(element):
 			return true
 	return false
 
 
-## Converts a snake_case name to JSON key format with capitalized "ID".
-func to_key_name(snake_case_name: String, delimiter: String = "") -> String:
-	var words = snake_case_name.capitalize().split(" ")
-	var capitalized_list = PackedStringArray()
-	for word in words:
+static func to_key_name(snake_case_name: String, delimiter: String = "") -> String:
+	var words: PackedStringArray = snake_case_name.capitalize().split(" ")
+	var capitalized_list: PackedStringArray = PackedStringArray()
+	for word: String in words:
 		capitalized_list.append("ID" if word.to_lower() == "id" else word)
 	return delimiter.join(capitalized_list)
 
 
-## Left-truncate a filename string based on MAX_FILENAME_LENGTH.
-func truncate_filename(filename: String) -> String:
-	var truncated = filename
+static func to_readable_name(snake_case_name: String) -> String:
+	return to_key_name(snake_case_name, " ")
+
+
+## Renders a stored property value as text a person can read.
+##
+## A translatable value is a {language_code: text} dictionary: it shows the requested
+## language, or the first language that has anything in it, so an item labelled only in
+## French still reads as something. Returns "" when there is nothing to show, which is
+## the caller's cue to fall back to a placeholder rather than an id.
+static func to_label(value: Variant, language_code: String = "") -> String:
+	if value is String:
+		return (value as String).strip_edges()
+
+	if value is Dictionary:
+		var translations: Dictionary = value
+		var preferred: String = str(translations.get(language_code, "")).strip_edges()
+		if not preferred.is_empty():
+			return preferred
+		for key: Variant in translations:
+			var text: String = str(translations[key]).strip_edges()
+			if not text.is_empty():
+				return text
+		return ""
+
+	if value == null or value is Array:
+		return ""
+
+	return str(value).strip_edges()
+
+
+static func truncate_filename(filename: String) -> String:
+	var truncated: String = filename
 	if filename.length() > MAX_FILENAME_LENGTH:
 		truncated = "..." + filename.right(MAX_FILENAME_LENGTH - 3)
 	return truncated

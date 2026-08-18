@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://bm7pyxhgln22j"]
+
+[ext_resource type="Script" uid="uid://bg5qi01l20iph" path="res://common/fields/vector2/vector2_field.gd" id="1_tvllh"]
+
+[node name="Vector2" type="VBoxContainer" unique_id=318006966]
+script = ExtResource("1_tvllh")
+
+[node name="HBox" type="HBoxContainer" parent="." unique_id=1706315426]
+layout_mode = 2
+
+[node name="SpinBoxX" type="SpinBox" parent="HBox" unique_id=152250429]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+step = 0.1
+allow_greater = true
+allow_lesser = true
+alignment = 3
+suffix = "x"
+
+[node name="SpinBoxY" type="SpinBox" parent="HBox" unique_id=1669371096]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+step = 0.1
+allow_greater = true
+allow_lesser = true
+alignment = 3
+suffix = "y"

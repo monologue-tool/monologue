@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://d2s4kv1234abc"]
+
+[ext_resource type="Script" uid="uid://bcb45yus8vyd4" path="res://common/fields/list/list_field.gd" id="1_list"]
+
+[node name="ListField" type="VBoxContainer" unique_id=1282527206]
+offset_right = 300.0
+offset_bottom = 35.0
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("1_list")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1918604036]
+layout_mode = 2
+theme_type_variation = &"ListFieldPanel"
+
+[node name="ItemsContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1665726569]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"VBoxContainerCompact"
+
+[node name="AddButton" type="Button" parent="." unique_id=1510650974]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PlainButton"
+text = "Add Item"
+text_overrun_behavior = 5

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dspmmme0jspdx"]
+
+[ext_resource type="Texture2D" uid="uid://kk5em170gn2b" path="res://ui/assets/icons/ui_close.svg" id="1_ai8vd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tlp5i"]
+
+[node name="Button" type="Button"]
+anchors_preset = -1
+anchor_right = 0.017
+anchor_bottom = 0.03
+offset_right = 0.199999
+theme_override_constants/icon_max_width = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tlp5i")
+icon = ExtResource("1_ai8vd")
+flat = true

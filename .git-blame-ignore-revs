@@ -1,0 +1,11 @@
+# Commits listed here are skipped by `git blame`, so that whole-file reformats do not
+# hide the author of the surrounding code.
+#
+# Enable it once per clone:
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# Add a commit here only when it is a pure, no-behaviour-change reformat.
+# One full-length SHA per line, with a comment saying what it was.
+
+# TODO: add the SHA of the "style: run gdformat over the whole project" commit here
+# once it is committed. Until then this file is only a placeholder.

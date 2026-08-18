@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://b6bfebqeejpsg"]
+
+[ext_resource type="Script" uid="uid://laytxf3j7qlf" path="res://common/fields/condition/condition_field.gd" id="1_eppmo"]
+
+[node name="Condition" type="VBoxContainer" unique_id=2114152170]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_eppmo")
+metadata/_custom_type_script = "uid://r0ajxbf3ci1n"
+
+[node name="SourceContainer" type="HBoxContainer" parent="." unique_id=109487292]
+layout_mode = 2
+
+[node name="IfLabel" type="Label" parent="SourceContainer" unique_id=617804244]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "If"
+
+[node name="VariableDropdown" type="OptionButton" parent="SourceContainer" unique_id=2010088278]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OperatorContainer" type="HBoxContainer" parent="." unique_id=1279684541]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="OperatorDropdown" type="OptionButton" parent="OperatorContainer" unique_id=124404139]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+fit_to_longest_item = false

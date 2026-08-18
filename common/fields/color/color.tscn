@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://dywxnyncdf55t"]
+
+[ext_resource type="Script" uid="uid://cwkwnc22br2nn" path="res://common/fields/color/color.gd" id="1_fkepi"]
+[ext_resource type="Texture2D" uid="uid://cweh5vxhmobip" path="res://ui/assets/icons/arrow_down.svg" id="2_7aqwf"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fkepi"]
+
+[node name="Color" type="VBoxContainer" unique_id=164474158]
+anchors_preset = -1
+anchor_right = 0.029000001
+anchor_bottom = 0.025
+offset_right = 3.3999977
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_fkepi")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1010819063]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"ColorPanel"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer" unique_id=1579367488]
+layout_mode = 2
+theme_type_variation = &"HBoxContainerCompact"
+
+[node name="ColorPreview" type="ColorRect" parent="PanelContainer/HBoxContainer" unique_id=831859225]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ColorPickerButton" type="Button" parent="PanelContainer/HBoxContainer" unique_id=1033632256]
+unique_name_in_owner = true
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ToggleIconButton"
+toggle_mode = true
+icon = ExtResource("2_7aqwf")
+
+[node name="ColorPopup" type="PopupPanel" parent="PanelContainer/HBoxContainer/ColorPickerButton" unique_id=1318626126]
+unique_name_in_owner = true
+oversampling_override = 1.0
+size = Vector2i(8, 8)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_fkepi")
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/HBoxContainer/ColorPickerButton/ColorPopup" unique_id=1474133410]
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="ColorSelector" type="GridContainer" parent="PanelContainer/HBoxContainer/ColorPickerButton/ColorPopup/PanelContainer" unique_id=492361297]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 4
+
+[connection signal="resized" from="." to="." method="_on_resized"]
+[connection signal="pressed" from="PanelContainer/HBoxContainer/ColorPickerButton" to="." method="_on_color_picker_button_pressed"]
+[connection signal="popup_hide" from="PanelContainer/HBoxContainer/ColorPickerButton/ColorPopup" to="." method="_on_color_popup_popup_hide"]

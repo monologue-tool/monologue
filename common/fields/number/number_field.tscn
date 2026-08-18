@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dnq7v2mk8xr4c"]
+
+[ext_resource type="Script" path="res://common/fields/number/number_field.gd" id="1_number"]
+[ext_resource type="Script" path="res://common/ui/counter/spin_slider.gd" id="2_spin"]
+
+[node name="NumberField" type="VBoxContainer"]
+size_flags_horizontal = 3
+script = ExtResource("1_number")
+
+[node name="SpinSlider" type="Control" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_spin")

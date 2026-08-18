@@ -1,35 +1,36 @@
-[gd_scene load_steps=7 format=3 uid="uid://bakm53e6ecbk8"]
+[gd_scene format=3 uid="uid://bakm53e6ecbk8"]
 
 [ext_resource type="Script" uid="uid://c0nc2j7o3qbfe" path="res://scenes/splash/splash.gd" id="1_pl0ug"]
-[ext_resource type="Texture2D" uid="uid://bddodmw1pm42r" path="res://title_banner@0.5x.png" id="2_rikux"]
-[ext_resource type="Texture2D" uid="uid://cbfudkvndq872" path="res://scenes/splash/monologue_eye/frame_1.png" id="3_qdaos"]
-[ext_resource type="Texture2D" uid="uid://dp3p88mc7f4k4" path="res://scenes/splash/monologue_eye/frame_3.png" id="5_783yv"]
-[ext_resource type="Texture2D" uid="uid://dea6b1sjaitkq" path="res://scenes/splash/monologue_eye/frame_2.png" id="7_ueewa"]
+[ext_resource type="Texture2D" uid="uid://cm2jva4mjfmbd" path="res://scenes/splash/dino/Render0013.png" id="14_wk58s"]
+[ext_resource type="Texture2D" uid="uid://bp1pq3d3nohvw" path="res://scenes/splash/dino/Render0014.png" id="15_pacsv"]
+[ext_resource type="Texture2D" uid="uid://ba87aujsth7cl" path="res://scenes/splash/dino/Render0015.png" id="16_tm5oe"]
+[ext_resource type="Texture2D" uid="uid://cnllmukyrs07o" path="res://scenes/splash/dino/Render0017.png" id="18_7g2nk"]
+[ext_resource type="Texture2D" uid="uid://bysgspu1uklaj" path="res://scenes/splash/dino/Render0018.png" id="19_hgma0"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_tj644"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("3_qdaos")
+"texture": ExtResource("14_wk58s")
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_ueewa")
-}, {
-"duration": 2.0,
-"texture": ExtResource("5_783yv")
+"texture": ExtResource("15_pacsv")
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_ueewa")
+"texture": ExtResource("16_tm5oe")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_qdaos")
+"texture": ExtResource("18_7g2nk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_hgma0")
 }],
 "loop": false,
 "name": &"blink",
 "speed": 25.0
 }]
 
-[node name="Splash" type="Control"]
+[node name="Splash" type="Control" unique_id=1687460055]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -39,16 +40,7 @@ grow_vertical = 2
 script = ExtResource("1_pl0ug")
 load_scene = "res://scenes/main/app.tscn"
 
-[node name="ColorRect" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.117647, 0.117647, 0.129412, 1)
-
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=986209254]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -56,18 +48,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="CenterContainer"]
-custom_minimum_size = Vector2(768, 0)
-layout_mode = 2
-texture = ExtResource("2_rikux")
-expand_mode = 5
-stretch_mode = 5
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CenterContainer/TextureRect"]
-position = Vector2(142, 40)
-scale = Vector2(0.263, 0.26)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=877560656]
+scale = Vector2(0.5, 0.5)
 sprite_frames = SubResource("SpriteFrames_tj644")
 animation = &"blink"
-
-[node name="tMinDisplayTime" type="Timer" parent="."]
-one_shot = true
+frame = 4
+frame_progress = 1.0

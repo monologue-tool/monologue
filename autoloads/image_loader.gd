@@ -35,11 +35,13 @@ func _get_thumbnail(image_path: String) -> ImageTexture:
 	var tx: ImageTexture = ImageTexture.new()
 
 	if _cache.has(image_path):
-		tx = _cache[image_path].get("thumbnail_128", tx)
+		var cache_entry: Dictionary = _cache[image_path]
+		tx = cache_entry.get("thumbnail_128", tx)
 	elif not image_path.is_empty():
 		_load_image_to_cache(image_path)
 		if _cache.has(image_path):
-			tx = _cache[image_path].get("thumbnail_128", tx)
+			var cache_entry2: Dictionary = _cache[image_path]
+			tx = cache_entry2.get("thumbnail_128", tx)
 
 	return tx
 
@@ -48,10 +50,12 @@ func _get_image(image_path: String) -> ImageTexture:
 	var tx: ImageTexture = ImageTexture.new()
 
 	if _cache.has(image_path):
-		tx = _cache[image_path].get("raw", tx)
+		var cache_entry: Dictionary = _cache[image_path]
+		tx = cache_entry.get("raw", tx)
 	elif not image_path.is_empty():
 		_load_image_to_cache(image_path)
 		if _cache.has(image_path):
-			tx = _cache[image_path].get("raw", tx)
+			var cache_entry2: Dictionary = _cache[image_path]
+			tx = cache_entry2.get("raw", tx)
 
 	return tx

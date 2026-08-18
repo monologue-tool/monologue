@@ -4,7 +4,7 @@ extends RefCounted
 
 const GdUnitTools := preload("res://addons/gdUnit4/src/core/GdUnitTools.gd")
 const UNDEFINED: String = "<-NO_ARG->"
-const ARG_PARAMETERIZED_TEST := "test_parameters"
+const ARG_PARAMETERIZED_TEST := ["test_parameters", "_test_parameters"]
 
 static var _fuzzer_regex: RegEx
 static var _cleanup_leading_spaces: RegEx
@@ -22,7 +22,7 @@ func _init(p_name: String, p_type: int, value: Variant = UNDEFINED, p_type_hint:
 	_name = p_name
 	_type = p_type
 	_type_hint = p_type_hint
-	if value != null and p_name == ARG_PARAMETERIZED_TEST:
+	if value != null and p_name in ARG_PARAMETERIZED_TEST:
 		_parameter_sets = _parse_parameter_set(str(value))
 	_default_value = value
 	# is argument a fuzzer?
@@ -42,7 +42,7 @@ func name() -> String:
 
 
 func default() -> Variant:
-	return GodotVersionFixures.convert(_default_value, _type)
+	return type_convert(_default_value, _type)
 
 
 func set_value(value: String) -> void:
@@ -50,14 +50,14 @@ func set_value(value: String) -> void:
 	if _type == GdObjects.TYPE_FUZZER:
 		_default_value = value
 		return
-	if _name == ARG_PARAMETERIZED_TEST:
+	if _name in ARG_PARAMETERIZED_TEST:
 		_parameter_sets = _parse_parameter_set(value)
 		_default_value = value
 		return
 
 	if _type == TYPE_NIL or _type == GdObjects.TYPE_VARIANT:
 		_type = _extract_value_type(value)
-		if _type == GdObjects.TYPE_VARIANT:
+		if _type == GdObjects.TYPE_VARIANT and _default_value == null:
 			_default_value = value
 	if _default_value == null:
 		match _type:
@@ -111,7 +111,7 @@ func is_typed_array() -> bool:
 
 
 func is_parameter_set() -> bool:
-	return _name == ARG_PARAMETERIZED_TEST
+	return _name in ARG_PARAMETERIZED_TEST
 
 
 func parameter_sets() -> PackedStringArray:
@@ -131,7 +131,7 @@ func _to_string() -> String:
 		s += ": " + GdObjects.type_as_string(_type)
 	if _type_hint != TYPE_NIL:
 		s += "[%s]" % GdObjects.type_as_string(_type_hint)
-	if typeof(_default_value) != TYPE_STRING:
+	if has_default():
 		s += "=" + value_as_string()
 	return s
 

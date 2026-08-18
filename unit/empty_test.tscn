@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dg6mqgx8xwcm6"]
 
-[node name="EmptyTest" type="Control"]
+[node name="EmptyTest" type="Control" unique_id=1001060751]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

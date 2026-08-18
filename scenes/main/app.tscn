@@ -1,24 +1,14 @@
-[gd_scene load_steps=14 format=3 uid="uid://bim51g1aibuw0"]
+[gd_scene format=3 uid="uid://bim51g1aibuw0"]
 
-[ext_resource type="Texture2D" uid="uid://dd8v3hpxxk33d" path="res://ui/assets/icons/logo_white.svg" id="1_1u5fg"]
-[ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/main/graph.tscn" id="1_kiov6"]
-[ext_resource type="Texture2D" uid="uid://hlck6y4i3l5q" path="res://ui/assets/icons/plus.svg" id="3_gcdaj"]
-[ext_resource type="Script" uid="uid://m1wxne1g6kju" path="res://scenes/main/main_menu.gd" id="4_f1t0i"]
-[ext_resource type="Shader" uid="uid://de1ql8ahad2ts" path="res://common/blur.gdshader" id="5_1u5fg"]
-[ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/layouts/expanded_text_edit/expanded_text_edit_container.tscn" id="6_cqyrh"]
-[ext_resource type="Script" uid="uid://d0xgy6gflipxs" path="res://common/layouts/dimmer/dimmer.gd" id="6_nw038"]
-[ext_resource type="PackedScene" uid="uid://c7cf7rfwnhf77" path="res://common/layouts/character_edit/character_edit.tscn" id="7_7qdje"]
-[ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/windows/graph_node_picker/graph_node_picker.tscn" id="7_nw038"]
-[ext_resource type="PackedScene" uid="uid://d3f7d4bb40iht" path="res://common/windows/preview_window/preview_window.tscn" id="8_7qdje"]
-[ext_resource type="PackedScene" uid="uid://bqqcww601rcx5" path="res://common/windows/welcome_window/welcome_window.tscn" id="9_fp7qq"]
-[ext_resource type="Script" uid="uid://b2l7hjfyrnr3x" path="res://common/windows/file_dialog/file_dialog.gd" id="10_r77hi"]
+[ext_resource type="PackedScene" uid="uid://bqjfdabrxujp7" path="res://scenes/editor/editor.tscn" id="1_kiov6"]
+[ext_resource type="Script" uid="uid://ck2cqoxpk1mto" path="res://scenes/main/dimmer.gd" id="2_y0d3j"]
+[ext_resource type="PackedScene" uid="uid://bcs6s2yuf374j" path="res://common/ui/expanded_text_edit/expanded_text_edit_container.tscn" id="6_cqyrh"]
+[ext_resource type="PackedScene" uid="uid://bkreq3xdr7gxw" path="res://common/ui/windows/prompt_window/prompt_window.tscn" id="7_k15gm"]
+[ext_resource type="PackedScene" uid="uid://d3f7d4bb40iht" path="res://common/ui/windows/preview_window/preview_window.tscn" id="8_7qdje"]
+[ext_resource type="PackedScene" uid="uid://bqqcww601rcx5" path="res://common/ui/windows/welcome_window/welcome_window.tscn" id="9_fp7qq"]
+[ext_resource type="Script" uid="uid://b2l7hjfyrnr3x" path="res://common/ui/windows/file_dialog/file_dialog.gd" id="10_r77hi"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_7ks4x"]
-shader = ExtResource("5_1u5fg")
-shader_parameter/lod = 1.0
-shader_parameter/darkness = 0.25
-
-[node name="App" type="Control"]
+[node name="App" type="Control" unique_id=934936997]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,9 +18,8 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Frame" type="PanelContainer" parent="."]
+[node name="Frame" type="PanelContainer" parent="." unique_id=1777561432]
 clip_children = 2
-z_index = 1
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -40,94 +29,47 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"EditorBackground"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Frame"]
+[node name="MonologueEditor" parent="Frame" unique_id=1963406996 node_paths=PackedStringArray("welcome_window", "file_dialog") instance=ExtResource("1_kiov6")]
 layout_mode = 2
-theme_override_constants/separation = 0
+welcome_window = NodePath("../../WelcomeWindow")
+file_dialog = NodePath("../../FileDialog")
 
-[node name="CustomTitleBar" type="HBoxContainer" parent="Frame/VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="MainPopupMenu" type="MenuButton" parent="Frame/VBoxContainer/CustomTitleBar"]
-custom_minimum_size = Vector2(43, 0)
-layout_mode = 2
-icon = ExtResource("1_1u5fg")
-icon_alignment = 1
-expand_icon = true
-script = ExtResource("4_f1t0i")
-
-[node name="VSeparator" type="VSeparator" parent="Frame/VBoxContainer/CustomTitleBar"]
-layout_mode = 2
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="Frame/VBoxContainer/CustomTitleBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="TabBar" type="TabBar" parent="Frame/VBoxContainer/CustomTitleBar/HBoxContainer2"]
-layout_mode = 2
-current_tab = 0
-clip_tabs = false
-tab_count = 1
-tab_0/icon = ExtResource("3_gcdaj")
-
-[node name="HSeparator" type="HSeparator" parent="Frame/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 1
-
-[node name="MonologueControl" parent="Frame/VBoxContainer" node_paths=PackedStringArray("welcome_window", "graph_node_picker") instance=ExtResource("1_kiov6")]
-layout_mode = 2
-welcome_window = NodePath("../../../WelcomeWindow")
-graph_node_picker = NodePath("../../../GraphNodePicker")
-
-[node name="GraphEditSwitcher" parent="Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea" index="0" node_paths=PackedStringArray("tab_bar")]
-tab_bar = NodePath("../../../../CustomTitleBar/HBoxContainer2/TabBar")
-
-[node name="Dimmer" type="ColorRect" parent="."]
+[node name="Dimmer" type="ColorRect" parent="." unique_id=522317776]
 visible = false
-z_index = 2
-material = SubResource("ShaderMaterial_7ks4x")
+z_index = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("6_nw038")
+color = Color(1, 1, 1, 0.019607844)
+script = ExtResource("2_y0d3j")
 
-[node name="CharacterEditContainer" parent="." instance=ExtResource("7_7qdje")]
+[node name="ExpandedTextEditContainer" parent="." unique_id=881659617 instance=ExtResource("6_cqyrh")]
 visible = false
 z_index = 2
 layout_mode = 1
 
-[node name="ExpandedTextEditContainer" parent="." instance=ExtResource("6_cqyrh")]
-visible = false
-z_index = 2
-layout_mode = 1
-
-[node name="GraphNodePicker" parent="." node_paths=PackedStringArray("switcher") instance=ExtResource("7_nw038")]
-visible = false
-keep_title_visible = false
-content_scale_mode = 2
-content_scale_aspect = 1
-switcher = NodePath("../Frame/VBoxContainer/MonologueControl/MainContainer/GraphEditsArea/GraphEditSwitcher")
-
-[node name="PreviewWindow" parent="." instance=ExtResource("8_7qdje")]
+[node name="PreviewWindow" parent="." unique_id=1909948793 instance=ExtResource("8_7qdje")]
+oversampling_override = 1.0
 visible = false
 
-[node name="WelcomeWindow" parent="." instance=ExtResource("9_fp7qq")]
-size = Vector2i(450, 300)
+[node name="WelcomeWindow" parent="." unique_id=979035935 instance=ExtResource("9_fp7qq")]
+
+[node name="PromptWindow" parent="." unique_id=2120395406 instance=ExtResource("7_k15gm")]
 visible = false
 
-[node name="FileDialog" type="FileDialog" parent="."]
-auto_translate_mode = 1
-size = Vector2i(419, 201)
+[node name="FileDialog" type="FileDialog" parent="." unique_id=1731826877]
+oversampling_override = 1.0
+display_mode = 1
 access = 2
 use_native_dialog = true
 script = ExtResource("10_r77hi")
 
-[connection signal="visibility_changed" from="CharacterEditContainer" to="CharacterEditContainer" method="_on_visibility_changed"]
+[connection signal="dir_selected" from="FileDialog" to="FileDialog" method="_on_dir_selected"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
+[connection signal="files_selected" from="FileDialog" to="FileDialog" method="_on_files_selected"]
 
-[editable path="Frame/VBoxContainer/MonologueControl"]
+[editable path="Frame/MonologueEditor"]
+[editable path="Frame/MonologueEditor/VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector"]

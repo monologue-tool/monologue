@@ -20,6 +20,13 @@ addons/script-ide
 *.exe
 *.x86_*
 *.tmp
+/builds/
+
+# Test reports (gdUnit4 regenerates these locally; CI publishes its own artifacts)
+reports/
+
+# Written by `gdlint --dump-default-config`; the checked-in config is .gdlintrc
+gdlintrc
 
 # VSCode
 .vscode/

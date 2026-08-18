@@ -1,15 +1,16 @@
 name: test
 
-on: 
+on:
   push:
-    branches: '**'
-  pull_request:
+
+env:
+  GODOT_VERSION: '4.7'
 
 jobs:
   unit-test:
     name: "gdUnit4 Automated Test"
     runs-on: 'ubuntu-22.04'
-    timeout-minutes: 10 # overall timeout
+    timeout-minutes: 15
     permissions:
       actions: write
       checks: write
@@ -18,9 +19,9 @@ jobs:
       statuses: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: MikeSchulze/gdUnit4-action@v1
         with:
-          godot-version: '4.4.1'
+          godot-version: ${{ env.GODOT_VERSION }}
           paths: |
             res://unit

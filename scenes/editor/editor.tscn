@@ -1,0 +1,233 @@
+[gd_scene format=3 uid="uid://bqjfdabrxujp7"]
+
+[ext_resource type="Script" uid="uid://q6eg6rid6xqd" path="res://scenes/editor/editor.gd" id="1_ovo1o"]
+[ext_resource type="Script" uid="uid://rb4fwghqhreo" path="res://common/ui/menu_buttons/main_view_button.gd" id="2_hg2ka"]
+[ext_resource type="Script" uid="uid://0vqgemjkhdc2" path="res://common/ui/menu_buttons/main_file_button.gd" id="2_oljq2"]
+[ext_resource type="PackedScene" uid="uid://cb3se7h7akt47" path="res://common/ui/language_switcher/language_switcher.tscn" id="2_p4u40"]
+[ext_resource type="Script" uid="uid://cate5mgxkgmlh" path="res://common/ui/menu_buttons/main_edit_button.gd" id="3_oljq2"]
+[ext_resource type="Texture2D" uid="uid://b272tbdmvxj20" path="res://ui/assets/icons/play.svg" id="3_syr16"]
+[ext_resource type="Script" uid="uid://creja611rnsop" path="res://common/ui/project_panel/project_panel.gd" id="4_syr16"]
+[ext_resource type="Script" uid="uid://b8tpwk6h2qmhc" path="res://common/ui/menu_buttons/main_help_button.gd" id="5_j530m"]
+[ext_resource type="Script" uid="uid://bw5hfxuolu4p3" path="res://common/ui/search_bar.gd" id="6_hg2ka"]
+[ext_resource type="Script" uid="uid://boag5gmomlm3" path="res://common/ui/ratio_split_container.gd" id="6_syr16"]
+[ext_resource type="PackedScene" uid="uid://dqdrf7wtegye6" path="res://common/ui/console/console.tscn" id="9_oljq2"]
+[ext_resource type="Script" uid="uid://dvcbv5akqxtp5" path="res://common/ui/tooltip_label.gd" id="9_pq70c"]
+[ext_resource type="PackedScene" uid="uid://c8525nhvwt1y0" path="res://common/ui/graph/graph_container.tscn" id="9_qd5yd"]
+[ext_resource type="Script" uid="uid://bi4poj4ni2xba" path="res://common/ui/label_memory_usage.gd" id="9_qnluh"]
+[ext_resource type="Script" uid="uid://db0p0vwsnoa06" path="res://common/ui/version_label.gd" id="10_i3ywb"]
+[ext_resource type="PackedScene" uid="uid://dgvhvxdrd58qp" path="res://common/ui/inspector/inspector_panel.tscn" id="14_craj7"]
+[ext_resource type="Script" uid="uid://cd5ku56gijql7" path="res://common/ui/status_bar/status_bar.gd" id="14_ja8tm"]
+[ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/ui/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
+[ext_resource type="PackedScene" uid="uid://c8k4wq2vn7xrm" path="res://common/ui/windows/localization_window/localization_window.tscn" id="16_local"]
+
+[sub_resource type="GDScript" id="GDScript_qnluh"]
+script/source = "extends Button
+
+
+func _on_pressed() -> void:
+	EventBus.test_trigger.emit()
+"
+
+[node name="MonologueEditor" type="Control" unique_id=1841160578 node_paths=PackedStringArray("graph_container")]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_ovo1o")
+graph_container = NodePath("VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer/Graph")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=212421522]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"VBoxContainerCompact"
+
+[node name="Header" type="PanelContainer" parent="VBox" unique_id=906026547]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+theme_type_variation = &"EditorHeader"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/Header" unique_id=4725878]
+layout_mode = 2
+theme_type_variation = &"VBoxContainerMedium"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/Header/HBoxContainer" unique_id=1514409931]
+layout_mode = 2
+
+[node name="FileButton" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1902954852]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "File"
+script = ExtResource("2_oljq2")
+
+[node name="EditButton" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1206611088]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Edit"
+script = ExtResource("3_oljq2")
+
+[node name="ViewButton" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=608330261]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "View"
+script = ExtResource("2_hg2ka")
+
+[node name="HelpButton" type="Button" parent="VBox/Header/HBoxContainer/HBoxContainer" unique_id=1637718995]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Help"
+script = ExtResource("5_j530m")
+
+[node name="VSeparator" type="VSeparator" parent="VBox/Header/HBoxContainer" unique_id=372438984]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SmallVSeparator"
+
+[node name="LanguageSwitcher" parent="VBox/Header/HBoxContainer" unique_id=348986612 instance=ExtResource("2_p4u40")]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "Switch language"
+
+[node name="RunButton" type="Button" parent="VBox/Header/HBoxContainer" unique_id=927762726]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "Run project"
+theme_type_variation = &"IconButton"
+icon = ExtResource("3_syr16")
+script = SubResource("GDScript_qnluh")
+
+[node name="MarginContainer" type="MarginContainer" parent="VBox" unique_id=1332047674]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"MediumMarginContainer"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/MarginContainer" unique_id=1373149190]
+layout_mode = 2
+theme_type_variation = &"HBoxContainerLarge"
+
+[node name="ProjectPanel" type="PanelContainer" parent="VBox/MarginContainer/HBoxContainer" unique_id=1336539805]
+custom_minimum_size = Vector2(200, 0)
+clip_contents = true
+layout_mode = 2
+theme_type_variation = &"EditorPanel"
+script = ExtResource("4_syr16")
+
+[node name="VBox" type="VBoxContainer" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel" unique_id=1441810060]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox" unique_id=1375920705]
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox/Header" unique_id=1007037601]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("6_hg2ka")
+
+[node name="ProjectExplorer" type="VBoxContainer" parent="VBox/MarginContainer/HBoxContainer/ProjectPanel/VBox" unique_id=375721155]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBox/MarginContainer/HBoxContainer" unique_id=109031884]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/minimum_grab_thickness = 18
+split_offsets = PackedInt32Array(902)
+drag_area_highlight_in_editor = true
+split_offset = 902
+script = ExtResource("6_syr16")
+
+[node name="VSplitContainer" type="VSplitContainer" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=1564704533]
+layout_mode = 2
+split_offsets = PackedInt32Array(510)
+split_offset = 510
+script = ExtResource("6_syr16")
+
+[node name="Graph" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer" unique_id=116496835 node_paths=PackedStringArray("inspector_panel") instance=ExtResource("9_qd5yd")]
+layout_mode = 2
+inspector_panel = NodePath("../../Inspector")
+
+[node name="Console" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/VSplitContainer" unique_id=588975871 instance=ExtResource("9_oljq2")]
+layout_mode = 2
+
+[node name="Inspector" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer" unique_id=667809004 instance=ExtResource("14_craj7")]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"EditorPanel"
+
+[node name="RunButton" parent="VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector/VBox/Header/SearchBar" parent_id_path=PackedInt32Array(667809004, 711294994) index="2" unique_id=62143223]
+tooltip_text = "Run project from this node"
+theme_type_variation = &"IconButton"
+
+[node name="StatusBar" type="PanelContainer" parent="VBox" unique_id=1614990059]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+theme_type_variation = &"EditorHeader"
+script = ExtResource("14_ja8tm")
+
+[node name="Left" type="HBoxContainer" parent="VBox/StatusBar" unique_id=246129797]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="TooltipLabel" type="Label" parent="VBox/StatusBar/Left" unique_id=1184545247]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"NoteLabel"
+script = ExtResource("9_pq70c")
+
+[node name="Right" type="HBoxContainer" parent="VBox/StatusBar" unique_id=27361139]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+theme_type_variation = &"EditorHeader"
+alignment = 2
+
+[node name="MemoryUsageLabel" type="Label" parent="VBox/StatusBar/Right" unique_id=2113438421]
+layout_mode = 2
+mouse_filter = 0
+theme_type_variation = &"NoteLabel"
+text = "Memory: 40.0 MB"
+script = ExtResource("9_qnluh")
+
+[node name="VSeparator" type="VSeparator" parent="VBox/StatusBar/Right" unique_id=1516301607]
+layout_mode = 2
+theme_type_variation = &"SmallVSeparator"
+
+[node name="VersionLabel" type="Label" parent="VBox/StatusBar/Right" unique_id=2049826380]
+layout_mode = 2
+theme_type_variation = &"NoteLabel"
+text = "3.0.0"
+script = ExtResource("10_i3ywb")
+
+[node name="GraphNodePicker" parent="." unique_id=1110402275 instance=ExtResource("15_q62vd")]
+unique_name_in_owner = true
+visible = false
+keep_title_visible = false
+content_scale_mode = 2
+content_scale_aspect = 1
+
+[node name="LocalizationWindow" parent="." unique_id=718010171 instance=ExtResource("16_local")]
+unique_name_in_owner = true
+visible = false
+
+[connection signal="pressed" from="VBox/Header/HBoxContainer/RunButton" to="VBox/Header/HBoxContainer/RunButton" method="_on_pressed"]
+
+[editable path="VBox/MarginContainer/HBoxContainer/HSplitContainer/Inspector"]

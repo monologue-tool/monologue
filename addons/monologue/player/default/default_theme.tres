@@ -1,0 +1,110 @@
+[gd_resource type="Theme" format=3 uid="uid://d3q1qftuv8sc"]
+
+[ext_resource type="FontFile" uid="uid://mut6o3sigqoo" path="res://addons/monologue/player/default/assets/Montserrat-ExtraBold.ttf" id="1_6kf18"]
+[ext_resource type="FontFile" uid="uid://c74i52xc3qgeq" path="res://addons/monologue/player/default/assets/Montserrat-ExtraBoldItalic.ttf" id="2_rbg3x"]
+[ext_resource type="FontFile" uid="uid://s0ggv4n2f2jf" path="res://addons/monologue/player/default/assets/Montserrat-MediumItalic.ttf" id="3_me1ga"]
+[ext_resource type="FontFile" uid="uid://dvploltpibjaw" path="res://addons/monologue/player/default/assets/Montserrat-Medium.ttf" id="4_tex0k"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rbg3x"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.7490196, 0.6509804, 0.62352943, 1)
+skew = Vector2(0.15, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 5
+border_color = Color(0.4, 0.272, 0.28906664, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_me1ga"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.7490196, 0.6509804, 0.62352943, 1)
+skew = Vector2(0.15, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 5
+border_color = Color(0.4, 0.272, 0.28906664, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tex0k"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.4, 0.27058825, 0.2901961, 1)
+skew = Vector2(0.15, 0)
+border_width_left = 1
+border_width_top = 5
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.29803923, 0.18431373, 0.24313726, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_re56b"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.4, 0.27058825, 0.2901961, 1)
+border_width_left = 1
+border_width_top = 5
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.186, 0.24300002, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g4v7s"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 14.0
+bg_color = Color(0.7490196, 0.6509804, 0.62352943, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 5
+border_color = Color(0.4, 0.27058825, 0.2901961, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yf5fn"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.7490196, 0.6509804, 0.62352943, 1)
+skew = Vector2(0.15, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 5
+border_color = Color(0.4, 0.272, 0.28906664, 1)
+
+[resource]
+default_font = ExtResource("1_6kf18")
+Button/colors/font_color = Color(0.4, 0.27058825, 0.2901961, 1)
+Button/colors/font_hover_color = Color(0.4, 0.27058825, 0.2901961, 1)
+Button/colors/font_hover_pressed_color = Color(0.7490196, 0.6509804, 0.62352943, 1)
+Button/colors/font_pressed_color = Color(0.7490196, 0.6509804, 0.62352943, 1)
+Button/font_sizes/font_size = 18
+Button/styles/hover = SubResource("StyleBoxFlat_rbg3x")
+Button/styles/normal = SubResource("StyleBoxFlat_me1ga")
+Button/styles/pressed = SubResource("StyleBoxFlat_tex0k")
+Label/colors/font_color = Color(0.4, 0.27058825, 0.2901961, 1)
+LineEdit/styles/normal = SubResource("StyleBoxFlat_re56b")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_g4v7s")
+RichTextLabel/colors/default_color = Color(0.4, 0.27058825, 0.2901961, 1)
+RichTextLabel/font_sizes/bold_font_size = 21
+RichTextLabel/font_sizes/bold_italics_font_size = 21
+RichTextLabel/font_sizes/italics_font_size = 21
+RichTextLabel/font_sizes/mono_font_size = 21
+RichTextLabel/font_sizes/normal_font_size = 21
+RichTextLabel/fonts/bold_font = ExtResource("1_6kf18")
+RichTextLabel/fonts/bold_italics_font = ExtResource("2_rbg3x")
+RichTextLabel/fonts/italics_font = ExtResource("3_me1ga")
+RichTextLabel/fonts/normal_font = ExtResource("4_tex0k")
+SpeakerContainer/base_type = &"PanelContainer"
+SpeakerContainer/styles/panel = SubResource("StyleBoxFlat_yf5fn")
+SpeakerLabel/base_type = &"Label"
+SpeakerLabel/font_sizes/font_size = 24

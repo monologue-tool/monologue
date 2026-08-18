@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cb3se7h7akt47"]
+
+[ext_resource type="Script" uid="uid://bd5c0hwweht6a" path="res://common/ui/language_switcher/language_switcher.gd" id="2_mi5fl"]
+
+[node name="LanguageSwitcher" type="OptionButton" unique_id=348986612]
+custom_minimum_size = Vector2(160, 0)
+script = ExtResource("2_mi5fl")

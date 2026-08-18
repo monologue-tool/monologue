@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://cmpsaafag7cwl"]
+
+[ext_resource type="Script" uid="uid://bcagysl3b0ncf" path="res://common/ui/windows/graph_node_picker/graph_node_picker.gd" id="1_5oqa8"]
+[ext_resource type="Script" uid="uid://dqy8aovapnh5h" path="res://common/ui/windows/graph_node_picker/graph_node_tree.gd" id="2_5kkcj"]
+
+[node name="GraphNodePicker" type="Window" unique_id=1073528209]
+auto_translate_mode = 1
+oversampling_override = 1.0
+title = "Add a node"
+position = Vector2i(0, 36)
+size = Vector2i(460, 520)
+transient = true
+transient_to_focused = true
+exclusive = true
+popup_window = true
+extend_to_title = true
+min_size = Vector2i(360, 320)
+keep_title_visible = true
+content_scale_mode = 1
+script = ExtResource("1_5oqa8")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=913745854]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_type_variation = &"EditorPanel"
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer" unique_id=275582391]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"VBoxContainerMedium"
+
+[node name="SearchBar" type="LineEdit" parent="PanelContainer/VBox" unique_id=2034907761]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search nodes"
+clear_button_enabled = true
+
+[node name="Tree" type="Tree" parent="PanelContainer/VBox" unique_id=598794160]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+script = ExtResource("2_5kkcj")
+
+[node name="DescriptionPanel" type="PanelContainer" parent="PanelContainer/VBox" unique_id=411920733]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_type_variation = &"DarkerPanel"
+
+[node name="Description" type="RichTextLabel" parent="PanelContainer/VBox/DescriptionPanel" unique_id=1836604215]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="HBox" type="HBoxContainer" parent="PanelContainer/VBox" unique_id=1295967926]
+layout_mode = 2
+theme_type_variation = &"HBoxContainerMedium"
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="PanelContainer/VBox/HBox" unique_id=1371885642]
+layout_mode = 2
+theme_type_variation = &"PlainButton"
+text = "Cancel"
+
+[node name="CreateButton" type="Button" parent="PanelContainer/VBox/HBox" unique_id=1474710004]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Add"
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="text_changed" from="PanelContainer/VBox/SearchBar" to="PanelContainer/VBox/Tree" method="_on_search_bar_text_changed"]
+[connection signal="text_submitted" from="PanelContainer/VBox/SearchBar" to="." method="_on_search_submitted"]
+[connection signal="item_activated" from="PanelContainer/VBox/Tree" to="PanelContainer/VBox/Tree" method="_on_item_activated"]
+[connection signal="item_selected" from="PanelContainer/VBox/Tree" to="PanelContainer/VBox/Tree" method="_on_item_selected"]
+[connection signal="pressed" from="PanelContainer/VBox/HBox/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="PanelContainer/VBox/HBox/CreateButton" to="." method="_on_create_button_pressed"]
