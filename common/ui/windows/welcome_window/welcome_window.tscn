@@ -184,5 +184,6 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
 
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom/VBoxOpen/OpenFileBtn" to="." method="_on_open_file_btn_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom/VBoxLink/GitHubBtn" to="." method="_on_github_btn_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBox/VBox/HBoxBottom/VBoxLink/BugReportBtn" to="." method="_on_bug_report_btn_pressed"]
