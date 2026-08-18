@@ -1,8 +1,8 @@
 extends GdUnitTestSuite
 
-## A property can be gated on the value of a sibling: greyed out with enabled_by, taken
-## out of the inspector with shown_by. The decision is the object's, since a property on
-## its own cannot see what its siblings hold.
+## A property can be gated on the value of a sibling: greyed out with enabled_by, taken out
+## of the inspector with shown_by. The decision is the object's, since a property on its own
+## cannot see what its siblings hold.
 
 
 class GatedObject extends InspectableObject:
@@ -35,56 +35,37 @@ func _object() -> GatedObject:
 	return GatedObject.new(CommandManager.new())
 
 
-func test_an_ungated_property_is_always_enabled_and_shown() -> void:
+func test_a_gate_follows_what_it_names_and_the_two_gates_stay_apart() -> void:
 	var object: GatedObject = _object()
-	var duration: Property = object.get_property("duration")
+	var ungated: Property = object.get_property("duration")
+	var enabled_gate: Property = object.get_property("max_stack")
+	var shown_gate: Property = object.get_property("editor_position")
 
-	assert_bool(object.is_property_enabled(duration)).is_true()
-	assert_bool(object.is_property_shown(duration)).is_true()
-
-
-func test_a_gated_property_follows_the_property_it_names() -> void:
-	var object: GatedObject = _object()
-	var max_stack: Property = object.get_property("max_stack")
-
-	assert_bool(object.is_property_enabled(max_stack)).is_true()
+	for property: Property in [ungated, enabled_gate, shown_gate]:
+		assert_bool(object.is_property_enabled(property)).is_true()
+		assert_bool(object.is_property_shown(property)).is_true()
 
 	object.get_property("stackable").set_value(false)
-
-	assert_bool(object.is_property_enabled(max_stack)).is_false()
-
-
-func test_shown_by_accepts_any_of_the_values_it_lists() -> void:
-	var object: GatedObject = _object()
-	var position: Property = object.get_property("editor_position")
-
-	assert_bool(object.is_property_shown(position)).is_true()
-
 	object.get_property("mode").set_value("Leave")
 
-	assert_bool(object.is_property_shown(position)).is_false()
+	assert_bool(object.is_property_enabled(enabled_gate)).is_false()
+	assert_bool(object.is_property_shown(shown_gate)).is_false()
+
+	# The gates answer different questions: hidden does not mean disabled, and the ungated
+	# property is untouched by either.
+	assert_bool(object.is_property_shown(enabled_gate)).is_true()
+	assert_bool(object.is_property_enabled(shown_gate)).is_true()
+	assert_bool(object.is_property_enabled(ungated)).is_true()
+	assert_bool(object.is_property_shown(ungated)).is_true()
 
 
-func test_the_two_gates_are_independent() -> void:
-	var object: GatedObject = _object()
-	object.get_property("mode").set_value("Leave")
-
-	# Hidden, but nothing says it is disabled: the gates answer different questions.
-	assert_bool(object.is_property_shown(object.get_property("editor_position"))).is_false()
-	assert_bool(object.is_property_enabled(object.get_property("editor_position"))).is_true()
-
-
-func test_an_object_knows_which_properties_decide_for_others() -> void:
+func test_an_object_knows_who_decides_and_shrugs_at_a_gate_naming_nothing() -> void:
 	var object: GatedObject = _object()
 
 	assert_bool(object.gates_other_properties("stackable")).is_true()
 	assert_bool(object.gates_other_properties("mode")).is_true()
 	assert_bool(object.gates_other_properties("duration")).is_false()
 
-
-func test_a_gate_naming_nothing_leaves_the_property_alone() -> void:
 	# A typo in a declaration must not quietly freeze half the inspector.
-	var property: Property = Property.new("orphan").set_type("text").enabled_by("nonexistent")
-	var object: GatedObject = _object()
-
-	assert_bool(object.is_property_enabled(property)).is_true()
+	var orphan: Property = Property.new("orphan").set_type("text").enabled_by("nonexistent")
+	assert_bool(object.is_property_enabled(orphan)).is_true()

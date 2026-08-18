@@ -5,16 +5,26 @@ func _ready() -> void:
 	EventBus.window_out.connect(_on_window_out)
 
 	get_parent().connect("resized", _on_resized)
-	update_size.call_deferred()
 	visibility_changed.connect(_on_visibility_changed)
+	# wrap_controls settles the size after initial_position has already placed the window, so
+	# whatever it grew by has to be given back on both sides.
+	size_changed.connect(_recenter)
 	_on_visibility_changed()
-
-	App._update_window(get_window(), false)
+	update_size.call_deferred()
 
 
 func update_size() -> void:
+	if popup_window: # FIXME I'm not sure it's right test
+		App._update_window(self, false)
 	size.x = size.x
-	App._update_window(get_window(), false)
+	_recenter()
+
+
+## Only for a window that asked to be centred. A picker placing itself at the mouse says
+## ABSOLUTE, and must be left where it put itself.
+func _recenter() -> void:
+	if initial_position != Window.WINDOW_INITIAL_POSITION_ABSOLUTE:
+		move_to_center()
 
 
 func _on_resized() -> void:
@@ -23,6 +33,7 @@ func _on_resized() -> void:
 
 func _on_visibility_changed() -> void:
 	if visible:
+		_recenter()
 		EventBus.show_dimmer.emit()
 		return
 	EventBus.hide_dimmer.emit()

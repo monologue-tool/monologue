@@ -1,9 +1,7 @@
 class_name ManifestDocument extends InspectableDocument
 
-## 2: ids carry a type prefix and are immutable, references store an id instead of a
-## display name, and a storyline writes one "connections" list instead of a copy on
-## each property. Version 1 files are refused rather than half-read.
-const FORMAT_VERSION: int = 2
+
+const FORMAT_VERSION: int = 1
 
 
 func initialize_properties() -> void:

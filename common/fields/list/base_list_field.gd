@@ -19,6 +19,7 @@ func _ready() -> void:
 		add_button.pressed.connect(_on_add_button)
 	if default_option and not default_option.item_selected.is_connected(set_default_item):
 		default_option.item_selected.connect(set_default_item)
+	Field.fit_dropdown(default_option)
 	# Stays out of the way until there is a list behind it to name.
 	if default_container:
 		default_container.hide()

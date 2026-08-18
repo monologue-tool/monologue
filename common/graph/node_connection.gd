@@ -11,6 +11,12 @@ class_name NodeConnection extends RefCounted
 
 ## Separates a property name from the list item it belongs to.
 const ITEM_SEPARATOR: String = ":"
+## Marks a sub-port standing for something computed rather than stored: an option node
+## wired into a choice's list, or the exit a called function ran out at.
+##
+## Declared here because it is part of a saved wire's identity. It used to be spelled out
+## in the graph view, which left a widget defining a persisted format.
+const EXTERNAL_PREFIX: String = "ext_"
 
 var from_node_id: String = ""
 var from_property: String = ""

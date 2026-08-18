@@ -23,7 +23,7 @@ func initialize_properties() -> void:
 	var choices: Property = define_property(Property.new("choices")
 		.set_type("collection")
 		.collection("options")
-		.exposed(false))
+		.exposed())
 
 	choices.connection_changed.connect(_on_choices_connection_changed)
 

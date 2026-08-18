@@ -9,6 +9,8 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var inspector_panel_node: InspectorPanel = %Inspector
 
+var _run_window: MonologueRunWindow
+
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -129,9 +131,23 @@ func load_project(path: String) -> void:
 	ProjectManager.load_project_from_path(path)
 
 
-func test_project(_from_node: Variant = null) -> void:
-	# TODO: Implement run/test functionality
-	pass
+## Plays the project as it stands, unsaved edits included. One window, reused: pressing Run
+## again restarts the story rather than stacking another copy of it.
+func test_project(from_node: Variant = null) -> void:
+	var project: MonologueProject = ProjectManager.current_project
+	if project == null:
+		Log.error("There is no project to run.")
+		return
+
+	if _run_window == null or not is_instance_valid(_run_window):
+		_run_window = MonologueRunWindow.new()
+		add_child(_run_window)
+
+	var storyline_id: String = ""
+	if graph_container and graph_container.graph:
+		storyline_id = graph_container.graph.storyline_id
+
+	_run_window.play(project, storyline_id, str(from_node) if from_node != null else "")
 
 
 func _notification(what: int) -> void:

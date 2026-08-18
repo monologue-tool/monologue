@@ -1,8 +1,9 @@
 class_name MonologueProject extends Resource
 
-const FILE_FORMAT: String = "mnlp"
+const FILE_FORMAT: String = MonologueSource.ARCHIVE_EXTENSION
+const DOCUMENT_FORMAT: String = MonologueSource.DOCUMENT_EXTENSION
 const FORMAT_FILTER: Array = [
-	"*.mnlp;Monologue Project", "*.%s;Monologue File" % InspectableDocument.FILE_FORMAT
+	"*.%s;Monologue Project" % FILE_FORMAT, "*.%s;Monologue File" % DOCUMENT_FORMAT
 ]
 ## Name of the save dialog's checkbox, and the key its answer comes back under.
 const COMPACT_OPTION: String = "Compact"
@@ -27,12 +28,15 @@ var is_dirty: bool = false
 var active_language_code: String = "en"
 ## Whatever went wrong while reading this project from disk. Empty for a new project.
 var load_issues: ValidationResult = ValidationResult.ok()
+var default_template: ProjectTemplate = DefaultTemplate.new()
+var project_template: ProjectTemplate
 
 var _object_registry: ProjectObjectRegistry = ProjectObjectRegistry.new()
 var _object_registry_is_stale: bool = true
 
 
-func _init() -> void:
+func _init(template: ProjectTemplate = default_template) -> void:
+	project_template = template
 	_init_documents.call_deferred()
 
 	command_manager.command_executed.connect(_on_command_executed)
@@ -44,11 +48,19 @@ func _init() -> void:
 func _init_documents() -> void:
 	manifest = ManifestDocument.new(command_manager)
 	settings = ProjectSettingsDocument.new(command_manager)
-	storylines.append(StorylineDocument.new("main", command_manager))
-	_init_collections()
+	storylines.append(_create_storyline("main", project_template))
+	project_template.setup_collection(self)
 	observe_storylines()
 
 	ready.emit()
+
+
+func _create_storyline(
+	sname: String, template: ProjectTemplate = default_template
+) -> StorylineDocument:
+	var storyline: StorylineDocument = StorylineDocument.new(sname, command_manager)
+	template.setup_default_storyline(storyline)
+	return storyline
 
 
 ## Subscribes to every storyline so that adding a node, removing one, or rewiring the
@@ -82,64 +94,20 @@ func get_documents() -> Array[InspectableDocument]:
 
 func get_project_structure() -> Dictionary[String, Variant]:
 	var structure: Dictionary[String, Variant] = {}
-	structure["manifest.json"] = manifest
-	structure["settings.json"] = settings
+	structure[MonologueSource.MANIFEST] = manifest
+	structure[MonologueSource.SETTINGS] = settings
 
 	var collections_map: Dictionary = {}
 	for collection: CollectionDocument in collections:
-		collections_map["%s.json" % collection.name] = collection
-	structure["collections"] = collections_map
+		collections_map["%s.%s" % [collection.name, DOCUMENT_FORMAT]] = collection
+	structure[MonologueSource.COLLECTIONS] = collections_map
 
 	var storylines_map: Dictionary = {}
 	for storyline: StorylineDocument in storylines:
-		storylines_map["%s.json" % storyline.name] = storyline
-	structure["storylines"] = storylines_map
+		storylines_map["%s.%s" % [storyline.name, DOCUMENT_FORMAT]] = storyline
+	structure[MonologueSource.STORYLINES] = storylines_map
 
 	return structure
-
-
-func _init_collections() -> void:
-	var default_narrator: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		"characters", command_manager
-	)
-	default_narrator.set_property_value("name", "Narrator")
-	default_narrator.set_property_value("protected", true)
-
-	var default_language: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		"languages", command_manager
-	)
-	default_language.set_property_value("name", "English")
-	default_language.set_property_value("code", "en")
-	default_language.set_property_value("protected", true)
-
-	var default_beziers: Dictionary = {
-		"Ease": [0.25, 0.10, 0.25, 1.0],
-		"Linear": [0.0, 0.0, 1.0, 1.0],
-		"Ease-In": [0.42, 0.0, 1.0, 1.0],
-		"Ease-Out": [0.0, 0.0, 0.58, 1.0],
-		"Ease-In-Out": [0.42, 0.0, 0.58, 1.0]
-	}
-	var beziers_data: Array = []
-	for bezier_name: String in default_beziers:
-		var bezier_item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-			"beziers", command_manager
-		)
-		bezier_item.set_property_value("name", bezier_name)
-		bezier_item.set_property_value("bezier", default_beziers.get(bezier_name))
-		# Ease is what an animation asking for no particular curve gets.
-		bezier_item.set_property_value("is_default", bezier_name == "Ease")
-		beziers_data.append(bezier_item._to_dict())
-
-	collections.append(
-		CollectionDocument.new("characters", [default_narrator._to_dict()], command_manager)
-	)
-	collections.append(CollectionDocument.new("variables", [], command_manager))
-	collections.append(CollectionDocument.new("items", [], command_manager))
-	collections.append(CollectionDocument.new("locations", [], command_manager))
-	collections.append(
-		CollectionDocument.new("languages", [default_language._to_dict()], command_manager)
-	)
-	collections.append(CollectionDocument.new("beziers", beziers_data, command_manager))
 
 
 ## Sweeps the whole project for problems: broken values, suspicious combinations, and
@@ -205,7 +173,7 @@ func add_new_storyline() -> void:
 		storyline_name = "%s_%d" % [base_name, attempt]
 		attempt += 1
 
-	storylines.append(StorylineDocument.new(storyline_name, command_manager))
+	storylines.append(_create_storyline(storyline_name, default_template))
 	observe_storylines()
 
 
@@ -266,6 +234,9 @@ func save() -> void:
 
 	is_dirty = false
 	Log.info("Project saved at path '%s'" % project_path)
+	# A project saved for the first time was opened before it had a path, so this is the
+	# only moment it can be remembered as one to reopen.
+	ProjectManager.add_path_to_history(project_path)
 	ProjectManager._update_window_title()
 
 
@@ -279,47 +250,25 @@ func _open_file_request_callback(path: String, options: Dictionary = {}) -> void
 	project_path_changed.emit()
 
 
-static func from_file_path(path: String) -> MonologueProject:
-	if not path.ends_with(".%s" % FILE_FORMAT) or not FileAccess.file_exists(path):
-		Log.error("Can't load project from an invalid path.")
+## An archive, the folder an unpacked project lives in, or any file inside that folder --
+## [method MonologueSource.open] is what tells the three apart.
+static func from_path(path: String) -> MonologueProject:
+	var source: MonologueSource = MonologueSource.open(path)
+	if not source.is_readable:
+		for problem: MonologueProblem in source.problems:
+			Log.error(problem.message)
 		return null
 
-	var reader: ZIPReader = ZIPReader.new()
-	if reader.open(path) != OK:
-		Log.error("Can't open '%s' as a Monologue project." % path)
-		return null
-
-	var project: MonologueProject = await _from_path_core(reader, path)
-	reader.close()
-	if project:
-		project.compact = true
-	return project
-
-
-static func from_dir_path(path: String) -> MonologueProject:
-	if not DirAccess.dir_exists_absolute(path):
-		Log.error("Can't load project from an invalid path.")
-		return null
-
-	var reader: ProjectDirectoryReader = ProjectDirectoryReader.new(path)
-
-	var project: MonologueProject = await _from_path_core(reader, path)
-	if project:
-		project.compact = false
-	return project
-
-
-## 'reader' can be either a 'ZIPReader' or a 'ProjectDirectoryReader'.
-static func _from_path_core(reader: Variant, path: String) -> MonologueProject:
 	var project: MonologueProject = MonologueProject.new()
 	await project.ready
 
-	project.project_path = path
-	project.name = path.get_file()
+	project.compact = source.is_archive
+	project.project_path = source.path
+	project.name = source.path.get_file()
 	project.is_dirty = false
 
 	var result: ValidationResult = ValidationResult.ok()
-	var is_usable: bool = ProjectReader.read_into(project, reader, result)
+	var is_usable: bool = ProjectReader.read_into(project, source, result)
 	project.load_issues = result
 	project.observe_storylines()
 

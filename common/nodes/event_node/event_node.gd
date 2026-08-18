@@ -1,7 +1,8 @@
 ## Watches a variable while the story runs elsewhere, and takes over when it matches.
 ##
 ## Unlike a condition node, which is tested once as the story passes through, this one
-## stays armed: its branch runs the moment the test becomes true, wherever the story is.
+## stays armed: its branch runs as soon as the test is true, checked between two nodes.
+## Never inside one -- an event cutting a line off mid-sentence would be worse than late.
 class_name EventNode extends InspectableNode
 
 

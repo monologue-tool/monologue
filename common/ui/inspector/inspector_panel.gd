@@ -250,12 +250,12 @@ func _find_focusable_fields(node: Node, fields: Array) -> void:
 
 func _group_by_category(properties: Array[Property]) -> Dictionary:
 	var groups: Dictionary[String, Array] = {}
-	var owner: InspectableObject = _primary()
+	var subject: InspectableObject = _primary()
 	for prop: Property in properties:
 		# Skip properties not visible in inspector
 		if not prop.get_settings_value("visible_in_inspector", true):
 			continue
-		if owner and not owner.is_property_shown(prop):
+		if subject and not subject.is_property_shown(prop):
 			continue
 
 		var category: String = "General"

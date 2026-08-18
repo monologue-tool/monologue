@@ -2,6 +2,11 @@ class_name GraphNodeViewFactory extends RefCounted
 
 const SLOT_IN_TEXTURE: Texture2D = preload("res://ui/assets/icons/slot_in.svg")
 const SLOT_OUT_TEXTURE: Texture2D = preload("res://ui/assets/icons/slot_out.svg")
+## How much of a list item's name a node shows. A node is a diagram of the story, not the
+## story itself: past this the name is cut and the whole of it read in the inspector.
+const MAX_LIST_LABEL: int = 28
+## How far a list item's type is faded behind the properties framing it.
+const LIST_LABEL_ALPHA: float = 0.5
 
 
 static func build(node: InspectableNode) -> GraphNode:
@@ -88,6 +93,12 @@ static func populate(graph_node: GraphNode, node: InspectableNode) -> void:
 		if idx == 0:
 			key_label.theme_type_variation = "GraphNodeViewTitleLabel"
 		value_label.theme_type_variation = "GraphNodeViewValueLabel"
+
+		# What a list holds is the node's contents rather than its shape, so it reads
+		# behind the properties that frame it.
+		if not row.sub_property_id.is_empty():
+			key_label.theme_type_variation = "GraphNodeViewListLabel"
+			value_label.label_settings.font_color = Color(slot_color, LIST_LABEL_ALPHA)
 
 		container.add_child(key_label)
 		container.add_child(value_label)
@@ -212,8 +223,8 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 			var item_id: String = _extract_dict_string(item_data, "id")
 			if item_id.is_empty():
 				continue
-			var sub_label: String = "  %s" % _item_label(
-				item_data, label_property, probe.get_type(), item_index
+			var sub_label: String = "  %s" % _shorten(
+				_item_label(item_data, label_property, probe.get_type(), item_index)
 			)
 			var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
 			sub_row.sub_property_id = "%s%s%s" % [
@@ -231,12 +242,22 @@ static func _build_list_sub_rows(node: InspectableNode, prop: Property) -> Array
 			continue
 		if ext_name.is_empty():
 			ext_name = "%s %d" % [Util.to_readable_name(probe.get_type()), ext_index + 1]
-		var sub_label: String = "  %s" % ext_name
+		var sub_label: String = "  %s" % _shorten(ext_name)
 		var sub_row: GraphNodeRow = GraphNodeRow.new(sub_label, "context", false, true)
-		sub_row.sub_property_id = "%s:ext_%s" % [prop.name, ext_src_id]
+		sub_row.sub_property_id = "%s%s%s%s" % [
+			prop.name, NodeConnection.ITEM_SEPARATOR, NodeConnection.EXTERNAL_PREFIX, ext_src_id
+		]
 		sub_rows.append(sub_row)
 
 	return sub_rows
+
+
+## Cuts a list item's name down to what a node has room for, since the name is written
+## with no thought for how wide the node it lands in is.
+static func _shorten(label: String) -> String:
+	if label.length() <= MAX_LIST_LABEL:
+		return label
+	return "%s…" % label.substr(0, MAX_LIST_LABEL - 1).strip_edges(false, true)
 
 
 ## Extracts a string from a stored object.

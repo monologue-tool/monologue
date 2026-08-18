@@ -7,6 +7,13 @@ var file_callback: Callable = func(path: String) -> void: EventBus.load_project.
 @onready var recent_files: RecentFilesContainer = %RecentProjectsContainer
 @onready var version_label: Label = %VersionLabel
 
+@onready var _templates_binding: Dictionary = {
+	%NewDefault: DefaultTemplate.new(),
+	%NewEmpty: EmptyTemplate.new(),
+	%NewAdvanced: AdvancedTemplate.new(),
+	%NewExample: ExampleTemplate.new(),
+}
+
 var is_startup: bool = false
 
 
@@ -17,6 +24,10 @@ func _ready() -> void:
 	EventBus.show_welcome.connect(show)
 	EventBus.hide_welcome.connect(_on_hide)
 	EventBus.window_out.connect(_on_hide)
+
+	for template_button: Button in _templates_binding.keys():
+		var template: ProjectTemplate = _templates_binding[template_button]
+		template_button.pressed.connect(_on_template_pressed.bind(template))
 
 
 func _input(_event: InputEvent) -> void:
@@ -29,12 +40,17 @@ func _on_hide() -> void:
 	hide()
 
 
+func _on_template_pressed(template: ProjectTemplate) -> void:
+	var new_project: MonologueProject = MonologueProject.new(template)
+	ProjectManager.load_project(new_project, true)
+
+
 func _on_new_file_btn_pressed() -> void:
-	EventBus.save_file_request.emit(load_callback, ["*.json"])
+	EventBus.save_file_request.emit(load_callback, MonologueProject.FORMAT_FILTER)
 
 
 func _on_open_file_btn_pressed() -> void:
-	EventBus.open_file_request.emit(load_callback, ["*.json"])
+	EventBus.open_file_request.emit(load_callback, MonologueProject.FORMAT_FILTER)
 
 
 func load_callback(path: String) -> void:

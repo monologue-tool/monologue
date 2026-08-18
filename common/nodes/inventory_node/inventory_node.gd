@@ -1,4 +1,4 @@
-## Gives the player an item, takes one away, or sets how many they hold.
+## Gives a character an item, takes one away, or sets how many they hold.
 class_name InventoryNode extends InspectableNode
 
 const OPERATIONS: Array = ["Give", "Take", "Set"]
@@ -10,6 +10,13 @@ func initialize_properties() -> void:
 		.main_property()
 		.exposed()
 		.exported())
+
+	define_property(Property.new("who")
+		.set_type("reference")
+		.reference_scope("characters")
+		.label_property("name")
+		.required()
+		.tooltip("Whose pockets this is about. Everyone carries their own."))
 
 	define_property(Property.new("item")
 		.set_type("reference")

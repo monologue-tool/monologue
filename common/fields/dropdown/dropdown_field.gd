@@ -9,6 +9,7 @@ var _static_options: Array = []
 func _ready() -> void:
 	super._ready()
 	option_button.item_selected.connect(_on_item_selected)
+	Field.fit_dropdown(option_button)
 
 
 func set_value(value: Variant) -> void:

@@ -92,6 +92,16 @@ func prefers_vertical_layout(_settings: Dictionary) -> bool:
 	return false
 
 
+## Keeps a dropdown inside whatever width the inspector has. An [OptionButton] is as wide
+## as its longest entry by default, so one long name widens the panel for everything in it.
+static func fit_dropdown(button: OptionButton) -> void:
+	if button == null:
+		return
+	button.fit_to_longest_item = false
+	button.clip_text = true
+	button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+
+
 @abstract func set_value(value: Variant) -> void
 @abstract func get_value() -> Variant
 @abstract func set_editable(is_editable: bool) -> void

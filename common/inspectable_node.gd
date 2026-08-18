@@ -35,8 +35,13 @@ func _init(command_manager: CommandManager = null) -> void:
 		.hidden_in_inspector()
 		.not_exposable())
 
-	if not _main_property_defined:
-		push_error("%s does not declare a main property." % get_type())
+	# Asked of the properties rather than of the flag: a node redeclaring one of the names
+	# above overwrites its own main property here, and the flag would still say it had one.
+	if get_main_property() == null:
+		push_error(
+			"%s has no main property; check it does not redeclare id, color, label, notes "
+			% get_type() + "or editor_position."
+		)
 
 
 ## Tracks the main property as it is declared, so a node cannot end up with two.

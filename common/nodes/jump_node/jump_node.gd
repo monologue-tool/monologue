@@ -2,7 +2,7 @@
 ## story carries on over there, so there is nothing to wire out of.
 ##
 ## The target is the label's name, not its id. Names are unique among the nodes of a
-## storyline, and [LabelNode] rewrites the jumps that named it whenever it is renamed.
+## storyline, and [WaypointNode] rewrites the jumps that named it whenever it is renamed.
 class_name JumpNode extends InspectableNode
 
 
@@ -13,9 +13,9 @@ func initialize_properties() -> void:
 		.exposed()
 		.exported(false))
 
-	define_property(Property.new("target")
+	define_property(Property.new("waypoint")
 		.set_type("dropdown")
-		.source("node:*:label")
+		.source("node:waypoint")
 		.required()
 		.tooltip("Waypoint to continue from."))
 
@@ -35,7 +35,7 @@ func validate_object(result: ValidationResult, context: ValidationContext) -> vo
 		return
 
 	for node: InspectableNode in storyline.nodes:
-		if node.get_type() == "label" and str(node.get_property_value("label")) == target:
+		if node.get_type() == "waypoint" and str(node.get_property_value("label")) == target:
 			return
 
 	result.add(

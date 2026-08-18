@@ -89,4 +89,8 @@ static func populate_external_item_view(content: PanelContainer, name: String) -
 	ext_label.theme_type_variation = "NoteLabel"
 	ext_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ext_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The name is written with no thought for how wide the inspector is, and a Label with
+	# nothing said about it is as wide as its text, panel or no panel.
+	ext_label.clip_text = true
+	ext_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	row.add_child(ext_label)

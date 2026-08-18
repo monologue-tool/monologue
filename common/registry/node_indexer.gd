@@ -10,6 +10,17 @@ var node_script: GDScript
 ## True for a node every storyline has exactly one of, and which the storyline itself
 ## creates: it is not offered by the add menus and cannot be deleted, cut or pasted.
 var is_singleton: bool = false
+## Whether the story can arrive at this node. False for the types that are read rather
+## than entered -- a value fed into another node's port, or an option a choice offers.
+## Those carry no runtime behaviour, and a wire into one is a mistake worth reporting.
+var enterable: bool = true
+## Where the runtime addon keeps this type's behaviour: a "res://" or "uid://" path to a
+## script extending MonologueBehaviour.
+##
+## A path rather than a preload, and never resolved here: naming the behaviour must not
+## pull runtime code into the editor. It exists so that every type says in one place
+## where it is run, and so a test can tell an unimplemented type from a forgotten one.
+var runtime_uid: String = ""
 
 
 func get_object_type() -> StringName:

@@ -10,6 +10,9 @@ var collections_container: VBoxContainer
 var storylines_fc: FoldableContainer
 var storylines_container: VBoxContainer
 
+## The storyline the graph is showing, so a rebuild puts the highlight back where it was.
+var _open_storyline: StorylineDocument
+
 
 func _ready() -> void:
 	ProjectManager.project_loaded.connect(_rebuild_explorer)
@@ -84,6 +87,28 @@ func _rebuild_explorer() -> void:
 		storyline_btn.set_meta("document", storyline)
 		storylines_container.add_child(storyline_btn)
 
+	_show_open_storyline()
+
+
+## A project always has a storyline open, so the explorer always has one highlighted: the
+## one that was, or the first, which is the one the graph opens a project on.
+func _show_open_storyline() -> void:
+	var project: MonologueProject = ProjectManager.current_project
+	if not project or project.storylines.is_empty():
+		return
+
+	if not is_instance_valid(_open_storyline) or not project.storylines.has(_open_storyline):
+		var was_showing_one: bool = _open_storyline != null
+		_open_storyline = project.storylines[0]
+		# The storyline that was open has just gone; the graph is still on it. Deferred
+		# because a rebuild also happens while a project is still being opened, before
+		# the graph is in any state to be handed one.
+		if was_showing_one:
+			EventBus.request_storyline_inspection.emit.call_deferred(_open_storyline)
+
+	for button: Button in storylines_container.get_children():
+		button.set_pressed_no_signal(button.get_meta("document") == _open_storyline)
+
 
 func _create_foldable_container(title: String) -> FoldableContainer:
 	var container: FoldableContainer = FoldableContainer.new()
@@ -117,6 +142,7 @@ func _on_request_objects_inspection(objects: Array[InspectableObject]) -> void:
 
 
 func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
+	_open_storyline = storyline
 	if not storylines_container:
 		return
 

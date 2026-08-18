@@ -56,5 +56,3 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_type_variation = &"HBoxContainerCompact"
-
-[connection signal="pressed" from="VBox/Header/SearchBar/RunButton" to="." method="_on_rfh_button_pressed"]

@@ -75,7 +75,7 @@ func initialize_properties() -> void:
 
 	define_property(Property.new("animation/curve")
 		.set_type("reference")
-		.reference_scope("beziers")
+		.reference_scope("eases")
 		.label_property("name")
 		.hidden_in_graph()
 		.tooltip("How the move eases. Falls back to the project's default curve."))

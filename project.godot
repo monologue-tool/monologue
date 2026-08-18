@@ -15,11 +15,13 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Monologue"
-config/version="3.0.0-dev2"
+config/description="Dialogue Editor for Narrative Games"
+config/version="3.0.0-dev3"
 config/tags=PackedStringArray("monologue")
 run/main_scene="res://scenes/splash/splash.tscn"
 run/print_header=false
 run/enable_alt_space_menu=true
+config/use_custom_user_dir=true
 config/features=PackedStringArray("4.7")
 boot_splash/bg_color=Color(0.117647, 0.117647, 0.129412, 1)
 boot_splash/show_image=false

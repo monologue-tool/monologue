@@ -841,6 +841,11 @@ static func _setup_label(theme: Theme) -> void:
 	theme.set_color("font_color", "GraphNodeViewValueLabel", text_primary_color)
 	theme.set_font_size("font_size", "GraphNodeViewValueLabel", font_size_md)
 
+	theme.add_type("GraphNodeViewListLabel")
+	theme.set_type_variation("GraphNodeViewListLabel", "Label")
+	theme.set_color("font_color", "GraphNodeViewListLabel", text_muted_color)
+	theme.set_font_size("font_size", "GraphNodeViewListLabel", font_size_md)
+
 	theme.add_type("HeaderSmall")
 	theme.set_type_variation("HeaderSmall", "Label")
 	theme.set_font_size("font_size", "HeaderSmall", font_size_lg)

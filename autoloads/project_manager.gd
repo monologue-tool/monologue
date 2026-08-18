@@ -36,8 +36,8 @@ func close_current_project() -> bool:
 	return true
 
 
-func load_project(project: MonologueProject) -> void:
-	if not await close_current_project():
+func load_project(project: MonologueProject, skip_dialog: bool = false) -> void:
+	if not skip_dialog and not await close_current_project():
 		return
 
 	Log.info("Project loaded!")
@@ -55,28 +55,22 @@ func save_project(project: MonologueProject) -> void:
 	project.save()
 
 
-## Opens a project from an archive, from the folder an unpacked one lives in, or from
-## any file inside that folder, since that is what a file dialog lets the user point at.
+## Opens a project from an archive, from the folder an unpacked one lives in, or from any
+## file inside that folder, since that is what a file dialog lets the user point at.
 func load_project_from_path(path: String) -> void:
-	var new_project: MonologueProject
-	if FileAccess.file_exists(path) and path.ends_with(".%s" % MonologueProject.FILE_FORMAT):
-		new_project = await MonologueProject.from_file_path(path)
-	elif DirAccess.dir_exists_absolute(path):
-		new_project = await MonologueProject.from_dir_path(path)
-	elif FileAccess.file_exists(path):
-		new_project = await MonologueProject.from_dir_path(path.get_base_dir())
-
+	var new_project: MonologueProject = await MonologueProject.from_path(path)
 	if not new_project:
-		Log.error("Can't load project from an invalid path.")
+		Log.error("Can't load project from '%s'." % path)
 		return
 
 	load_project(new_project)
 
 
 func add_path_to_history(path: String) -> void:
+	var entry: String = path.simplify_path()
 	var paths: Array = get_history() as Array
-	paths.erase(path.simplify_path())
-	paths.push_front(path)
+	paths.erase(entry)
+	paths.push_front(entry)
 
 	_ensure_history_file()
 	var file: FileAccess = FileAccess.open(Constants.HISTORY_PATH, FileAccess.WRITE)
@@ -104,11 +98,24 @@ func get_history() -> PackedStringArray:
 	return paths as PackedStringArray
 
 
+## A history file that is empty or unreadable is one to start over from rather than an
+## error to report: an empty one is what a first run leaves behind, and this is read on
+## every input event, so JSON.parse_string() printed a failure on every keystroke.
 func _parse_history(text: String) -> Array:
-	var data: Variant = JSON.parse_string(text)
+	var reader: JSON = JSON.new()
+	if text.strip_edges().is_empty() or reader.parse(text) != OK:
+		return []
+
+	var data: Variant = reader.data
 	if data is Array:
-		return data.filter(func(p: Variant) -> bool: return FileAccess.file_exists(p))
+		return data.filter(func(p: Variant) -> bool: return _still_there(str(p)))
 	return []
+
+
+## An unpacked project is a folder, not a file, and FileAccess.file_exists() says no to a
+## folder -- which is what dropped every unpacked project out of the recent list.
+static func _still_there(path: String) -> bool:
+	return FileAccess.file_exists(path) or DirAccess.dir_exists_absolute(path)
 
 
 func _ensure_history_file() -> void:

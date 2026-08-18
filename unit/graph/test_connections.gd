@@ -1,9 +1,11 @@
-# gdlint: disable=max-public-methods
 extends GdUnitTestSuite
 
-## Wires live in one list on the storyline. Every property's connected_from and
-## connected_to is a view onto it, so there is no second copy to disagree with the
-## first, and nothing to leave behind when a wire or a node goes away.
+## Wires live in one list on the storyline. Every property's connected_from and connected_to
+## is a view onto it, so there is no second copy to disagree with the first, and nothing to
+## leave behind when a wire or a node goes away.
+##
+## Undoing a node delete is checked in unit/references/, which also watches the mirrored
+## view come back.
 
 var _project: MonologueProject
 var _storyline: StorylineDocument
@@ -27,43 +29,14 @@ func _node(node_type: String) -> InspectableNode:
 	return null
 
 
-func _connection_keys() -> Array[String]:
+func _connection_keys(document: StorylineDocument) -> Array[String]:
 	var keys: Array[String] = []
-	for connection: NodeConnection in _storyline.connections:
+	for connection: NodeConnection in document.connections:
 		keys.append(connection.to_key())
 	return keys
 
 
-func _issue_codes(document: StorylineDocument) -> Array[StringName]:
-	var result: ValidationResult = ValidationResult.ok()
-	document.validate_object(result, ValidationContext.new())
-	var codes: Array[StringName] = []
-	for issue: ValidationIssue in result.issues:
-		codes.append(issue.code)
-	return codes
-
-
-func test_connect_then_disconnect_leaves_no_trace() -> void:
-	var manager: ConnectionManager = ConnectionManager.new(_storyline)
-	var first: InspectableNode = _storyline.create_node("text")
-	var second: InspectableNode = _storyline.create_node("text")
-	var from_name: String = first.get_main_property().name
-	var to_name: String = second.get_main_property().name
-	var initial: int = _storyline.connections.size()
-
-	manager.register_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
-	assert_int(_storyline.connections.size()).is_equal(initial + 1)
-	assert_array(first.get_main_property().connected_to).is_not_empty()
-	assert_array(second.get_main_property().connected_from).is_not_empty()
-
-	manager.unregister_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
-
-	assert_int(_storyline.connections.size()).is_equal(initial)
-	assert_array(first.get_main_property().connected_to).is_empty()
-	assert_array(second.get_main_property().connected_from).is_empty()
-
-
-func test_the_same_wire_is_never_stored_twice() -> void:
+func test_a_wire_appears_once_in_one_list_and_in_both_views() -> void:
 	var manager: ConnectionManager = ConnectionManager.new(_storyline)
 	var first: InspectableNode = _storyline.create_node("text")
 	var second: InspectableNode = _storyline.create_node("text")
@@ -72,25 +45,24 @@ func test_the_same_wire_is_never_stored_twice() -> void:
 	var initial: int = _storyline.connections.size()
 
 	for _attempt: int in range(3):
-		manager.register_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
+		manager.register_connection_by_property(
+			first.get_id(), from_name, second.get_id(), to_name
+		)
 
-	assert_int(_storyline.connections.size()).is_equal(initial + 1)
+	assert_int(_storyline.connections.size()).override_failure_message(
+		"The same wire was stored more than once."
+	).is_equal(initial + 1)
+	assert_str(str(first.get_main_property().connected_to[0]["node_id"])).is_equal(second.get_id())
+	assert_str(str(second.get_main_property().connected_from[0]["node_id"])).is_equal(first.get_id())
+
+	manager.unregister_connection_by_property(first.get_id(), from_name, second.get_id(), to_name)
+
+	assert_int(_storyline.connections.size()).is_equal(initial)
+	assert_array(first.get_main_property().connected_to).is_empty()
+	assert_array(second.get_main_property().connected_from).is_empty()
 
 
-func test_both_views_agree_because_there_is_only_one_list() -> void:
-	var root: InspectableNode = _node("root")
-	var sentence: InspectableNode = _node("sentence")
-
-	var outgoing: Array[Dictionary] = root.get_main_property().connected_to
-	var incoming: Array[Dictionary] = sentence.get_main_property().connected_from
-
-	assert_int(outgoing.size()).is_equal(1)
-	assert_int(incoming.size()).is_equal(1)
-	assert_str(str(outgoing[0]["node_id"])).is_equal(sentence.get_id())
-	assert_str(str(incoming[0]["node_id"])).is_equal(root.get_id())
-
-
-func test_deleting_a_node_removes_exactly_its_connections() -> void:
+func test_deleting_a_node_takes_exactly_its_own_wires() -> void:
 	var root: InspectableNode = _node("root")
 	var root_id: String = root.get_id()
 	var initial: int = _storyline.connections.size()
@@ -111,95 +83,58 @@ func test_deleting_a_node_removes_exactly_its_connections() -> void:
 		).is_false()
 
 
-func test_undoing_a_node_delete_restores_its_connections() -> void:
-	var initial: Array[String] = _connection_keys()
-	var command: DeleteNodesCommand = DeleteNodesCommand.new(_storyline.id, [_node("root")])
-
-	_project.command_manager.execute(command)
-	assert_int(_storyline.connections.size()).is_less(initial.size())
-
-	_project.command_manager.undo()
-
-	assert_array(_connection_keys()).contains_exactly_in_any_order(initial)
-
-
-func test_connections_survive_a_dictionary_round_trip() -> void:
-	var initial: Array[String] = _connection_keys()
-
-	var loaded: StorylineDocument = auto_free(
-		StorylineDocument.new("loaded", _project.command_manager)
-	)
-	loaded._from_dict(_storyline._to_dict())
-
-	var keys: Array[String] = []
-	for connection: NodeConnection in loaded.connections:
-		keys.append(connection.to_key())
-	assert_array(keys).contains_exactly_in_any_order(initial)
-
-
-func test_a_dangling_connection_in_a_loaded_file_is_reported_not_dropped() -> void:
+func test_a_saved_storyline_comes_back_with_its_wires_and_says_what_is_broken() -> void:
+	var initial: Array[String] = _connection_keys(_storyline)
 	var data: Dictionary = _storyline._to_dict()
-	var wires: Array = data["connections"]
-	wires.append(
-		NodeConnection.create(
-			_node("root").get_id(), _node("root").get_main_property().name, "sentence-GONE", "sentence"
-		)._to_dict()
-	)
 
 	var loaded: StorylineDocument = auto_free(
 		StorylineDocument.new("loaded", _project.command_manager)
 	)
 	loaded._from_dict(data)
+	assert_array(_connection_keys(loaded)).contains_exactly_in_any_order(initial)
 
-	assert_int(loaded.connections.size()).is_equal(wires.size())
-	assert_array(_issue_codes(loaded)).contains([&"broken_connection"])
+	# A wire pointing at a node that is gone is kept and reported: dropping it silently
+	# would lose the author's intent along with the problem.
+	var root: InspectableNode = _node("root")
+	(data["connections"] as Array).append(
+		NodeConnection.create(
+			root.get_id(), root.get_main_property().name, "sentence-GONE", "sentence"
+		)._to_dict()
+	)
+	var dangling: StorylineDocument = auto_free(
+		StorylineDocument.new("dangling", _project.command_manager)
+	)
+	dangling._from_dict(data)
+
+	assert_int(dangling.connections.size()).is_equal((data["connections"] as Array).size())
+	var result: ValidationResult = ValidationResult.ok()
+	dangling.validate_object(result, ValidationContext.new())
+	assert_array(result.with_code(&"broken_connection")).is_not_empty()
+
+	# A file written before wires existed simply has none.
+	data.erase("connections")
+	var wireless: StorylineDocument = auto_free(
+		StorylineDocument.new("wireless", _project.command_manager)
+	)
+	wireless._from_dict(data)
+	assert_array(wireless.connections).is_empty()
 
 
-func test_a_choice_mirrors_the_name_of_the_option_wired_into_it() -> void:
+func test_a_choice_shows_an_option_by_name_and_stops_when_unwired() -> void:
 	var choice: InspectableNode = _node("choice")
-	_node("option").set_property_value("text", {"en": "Open the door"})
+	var option: InspectableNode = _node("option")
+	option.set_property_value("text", {"en": "Open the door"})
 
 	var externals: Array[Dictionary] = choice.get_external_list_items("choices")
 
 	assert_int(externals.size()).is_equal(1)
 	assert_str(str(externals[0]["name"])).is_equal("Open the door")
-
-
-func test_a_choice_follows_the_option_it_mirrors() -> void:
-	var choice: InspectableNode = _node("choice")
-	var option: InspectableNode = _node("option")
-
-	# Drawing the choice is what makes it subscribe to what it shows.
-	choice.get_external_list_items("choices")
-
-	# The redraw itself needs a graph view, so what is checked here is that the choice
-	# is listening at all. Without this it kept the name the option had when wired.
-	assert_bool(
-		option.property_changed.is_connected(choice._on_source_property_changed)
-	).is_true()
-
-
-func test_a_choice_stops_following_an_option_once_it_is_unwired() -> void:
-	var choice: InspectableNode = _node("choice")
-	var option: InspectableNode = _node("option")
-	choice.get_external_list_items("choices")
+	# Drawing the choice is what makes it subscribe to what it shows. Without this it kept
+	# the name the option had at the moment it was wired.
+	assert_bool(option.property_changed.is_connected(choice._on_source_property_changed)).is_true()
 
 	for connection: NodeConnection in _storyline.get_outgoing(option.get_id()):
 		_storyline.remove_connection(connection)
 	choice.get_external_list_items("choices")
 
-	assert_bool(
-		option.property_changed.is_connected(choice._on_source_property_changed)
-	).is_false()
-
-
-func test_a_storyline_without_a_connection_list_loads_with_no_wires() -> void:
-	var data: Dictionary = _storyline._to_dict()
-	data.erase("connections")
-
-	var loaded: StorylineDocument = auto_free(
-		StorylineDocument.new("wireless", _project.command_manager)
-	)
-	loaded._from_dict(data)
-
-	assert_array(loaded.connections).is_empty()
+	assert_bool(option.property_changed.is_connected(choice._on_source_property_changed)).is_false()

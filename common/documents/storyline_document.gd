@@ -21,11 +21,9 @@ func _init(sname: String, command_manager: CommandManager) -> void:
 	name = sname
 	super._init(command_manager)
 
-	_create_default_nodes()
-
 
 func add_node(node: InspectableNode) -> void:
-	_register_node(node)
+	register_node(node)
 
 
 ## Removes a node and every wire that touched it, and returns those wires so that
@@ -50,10 +48,6 @@ func remove_node(node: InspectableNode) -> Array[NodeConnection]:
 	rebuild_connection_views()
 	node_removed.emit()
 	return removed
-
-
-# --- connections ----------------------------------------------------------------
-
 
 ## Adds a wire, ignoring one that is already there. Returns whether anything changed.
 func add_connection(connection: NodeConnection) -> bool:
@@ -108,11 +102,16 @@ func get_outgoing(node_id: String, property_name: String = "") -> Array[NodeConn
 	return found
 
 
-## Where the chain starting at [param start_node_id] runs out: the nodes it reaches
-## that lead nowhere further. A call node grows one exit per answer.
+## Where the chain starting at [param start_node_id] runs out: the nodes it reaches that
+## lead nowhere further, and from which the story could carry on. A call node grows one
+## exit per answer.
 ##
-## Walks forward through the wires, remembering where it has been, so a chain that
-## loops back on itself is followed once rather than for ever.
+## Walks forward through the wires, remembering where it has been, so a chain that loops
+## back on itself is followed once rather than for ever.
+##
+## A node that stops the story on purpose is not an answer: an end ends it, a jump and a
+## storyline continue it elsewhere. Counting them grew exits nothing could ever come back
+## through.
 func find_terminations(start_node_id: String) -> Array[InspectableNode]:
 	var terminations: Array[InspectableNode] = []
 	var visited: Dictionary[String, bool] = {start_node_id: true}
@@ -124,7 +123,7 @@ func find_terminations(start_node_id: String) -> Array[InspectableNode]:
 
 		if outgoing.is_empty():
 			var node: InspectableNode = get_node(node_id)
-			if node and node_id != start_node_id:
+			if node and node_id != start_node_id and not is_terminal_by_design(node):
 				terminations.append(node)
 			continue
 
@@ -135,6 +134,24 @@ func find_terminations(start_node_id: String) -> Array[InspectableNode]:
 			pending.append(connection.to_node_id)
 
 	return terminations
+
+
+## True when the node declares no output port at all, so the flow stops here because the
+## type says so rather than because a wire is missing.
+##
+## Read off the schema instead of a list of type names, so a plugin's own terminal node
+## is recognised without this file knowing it exists.
+##
+## A collection property counts as an output even though it is not exported: each of its
+## items grows its own sub-port. That is where a choice's answers and a call's exits come
+## from, and both of them very much lead somewhere.
+static func is_terminal_by_design(node: InspectableNode) -> bool:
+	for property: Property in node.get_properties():
+		if property.get_settings_value(PropertySettings.KEY_EXPORT, false) == true:
+			return false
+		if property.type == "collection":
+			return false
+	return true
 
 
 ## Refills every property's connected_from / connected_to from [member connections].
@@ -174,7 +191,7 @@ static func _view_key(node_id: String, property_name: String) -> String:
 
 func create_node(node_type: String) -> InspectableNode:
 	var node: InspectableNode = MonologueRegistry.get_instance().create_node(node_type, history)
-	_register_node(node)
+	register_node(node)
 	return node
 
 
@@ -264,54 +281,7 @@ func _get_id() -> String:
 	return get_property_value("id")
 
 
-func _create_default_nodes() -> void:
-	var root_node: InspectableNode = MonologueRegistry.get_instance().create_node("root", history)
-	var root_mp: Property = root_node.get_main_property()
-
-	var sent_node: InspectableNode = MonologueRegistry.get_instance().create_node(
-		"sentence", history
-	)
-	var sent_mp: Property = sent_node.get_main_property()
-
-	var option_node: InspectableNode = MonologueRegistry.get_instance().create_node(
-		"option", history
-	)
-	var option_mp: Property = option_node.get_main_property()
-
-	var choice_node: InspectableNode = MonologueRegistry.get_instance().create_node(
-		"choice", history
-	)
-	var choice_mp: Property = choice_node.get_main_property()
-	var choice_opt: Array[Dictionary] = []
-	for _i: int in range(2):
-		var choice_item: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-			"options", history
-		)
-		choice_opt.append(choice_item._to_dict())
-
-	sent_node.get_property("editor_position").set_value([240.0, 0])
-	option_node.get_property("editor_position").set_value([240.0, 120.0])
-	choice_node.get_property("editor_position").set_value([480.0, 0])
-	choice_node.get_property("choices").set_value(choice_opt)
-	choice_node.get_property("choices").set_settings_value("exposed", true)
-
-	_register_node(root_node)
-	_register_node(sent_node)
-	_register_node(option_node)
-	_register_node(choice_node)
-
-	add_connection(
-		NodeConnection.create(root_node.get_id(), root_mp.name, sent_node.get_id(), sent_mp.name)
-	)
-	add_connection(
-		NodeConnection.create(sent_node.get_id(), sent_mp.name, choice_node.get_id(), choice_mp.name)
-	)
-	add_connection(
-		NodeConnection.create(option_node.get_id(), option_mp.name, choice_node.get_id(), "choices")
-	)
-
-
-func _register_node(node: InspectableNode) -> void:
+func register_node(node: InspectableNode) -> void:
 	if not node:
 		return
 
@@ -378,7 +348,7 @@ func _from_dict(dict: Dictionary) -> void:
 			)
 			continue
 		node._from_dict(node_data)
-		_register_node(node)
+		register_node(node)
 
 	for entry: Variant in dict.get("connections", []):
 		if entry is Dictionary:

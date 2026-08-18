@@ -27,6 +27,8 @@ var _variables_source: Array = []
 
 
 func _on_initialize() -> void:
+	Field.fit_dropdown(variable_dropdown)
+	Field.fit_dropdown(operator_dropdown)
 	_load_variables()
 
 	if not variable_dropdown.item_selected.is_connected(_on_variable_item_selected):

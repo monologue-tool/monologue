@@ -1,4 +1,4 @@
-## Writes a project to a .mnlp archive, or to a folder of JSON files.
+## Writes a project to a .mnlp archive, or to a folder of documents.
 ##
 ## The archive write is atomic: everything goes into a temporary file first, and the
 ## real archive is only replaced once that succeeded. Two things fall out of that.
@@ -6,8 +6,12 @@ class_name ProjectWriter
 
 const TEMP_SUFFIX: String = ".saving"
 const BACKUP_SUFFIX: String = ".previous"
-const COLLECTIONS_DIR: String = "collections"
-const STORYLINES_DIR: String = "storylines"
+
+# Aliases, not a second definition: what a project looks like on disk is MonologueSource's.
+const MANIFEST: String = MonologueSource.MANIFEST
+const SETTINGS: String = MonologueSource.SETTINGS
+const COLLECTIONS: String = MonologueSource.COLLECTIONS
+const STORYLINES: String = MonologueSource.STORYLINES
 
 
 ## Writes [param project] to [param path], as an archive or as a folder depending on
@@ -32,6 +36,24 @@ static func write_project(project: MonologueProject, path: String) -> Validation
 	return result.merge(_swap_into_place(temp_path, path))
 
 
+## The documents a project would be written as, laid out the way an archive is, without
+## writing anything. What lets the editor play a story that has never been saved.
+static func documents_of(project: MonologueProject) -> Dictionary:
+	var documents: Dictionary = {
+		MANIFEST: project.manifest._to_dict(),
+		SETTINGS: project.settings._to_dict(),
+	}
+	for collection: CollectionDocument in project.collections:
+		documents[MonologueSource.document_path(COLLECTIONS, collection.name)] = (
+			collection._to_dict()
+		)
+	for storyline: StorylineDocument in project.storylines:
+		documents[MonologueSource.document_path(STORYLINES, storyline.name)] = (
+			storyline._to_dict()
+		)
+	return documents
+
+
 ## Serializes one document into an already-open archive.
 static func pack_document(
 	writer: ZIPPacker, document: InspectableDocument, path: String
@@ -42,26 +64,30 @@ static func pack_document(
 	writer.close_file()
 
 
-## Writes the project as a folder, one JSON file per document, laid out the way the
-## archive is so that either form reads back through the same reader.
+## Writes the project as a folder, one file per document, laid out the way the archive
+## is so that either form reads back through the same reader.
 ##
 ## Written in place rather than swapped: with the documents in separate files there is
 ## no single thing to move, and no old copy to roll back to.
 static func _write_tree(project: MonologueProject, path: String) -> ValidationResult:
 	var result: ValidationResult = ValidationResult.ok()
-	for directory: String in [path, path.path_join(COLLECTIONS_DIR), path.path_join(STORYLINES_DIR)]:
+	for directory: String in [path, path.path_join(COLLECTIONS), path.path_join(STORYLINES)]:
 		if DirAccess.make_dir_recursive_absolute(directory) != OK:
 			return result.add_error("Could not create '%s'." % directory, &"write_failed")
 
-	_write_document(project.manifest, path.path_join("manifest.json"), result)
-	_write_document(project.settings, path.path_join("settings.json"), result)
+	_write_document(project.manifest, path.path_join(MANIFEST), result)
+	_write_document(project.settings, path.path_join(SETTINGS), result)
 	for collection: CollectionDocument in project.collections:
 		_write_document(
-			collection, path.path_join("%s/%s.json" % [COLLECTIONS_DIR, collection.name]), result
+			collection,
+			path.path_join(MonologueSource.document_path(COLLECTIONS, collection.name)),
+			result
 		)
 	for storyline: StorylineDocument in project.storylines:
 		_write_document(
-			storyline, path.path_join("%s/%s.json" % [STORYLINES_DIR, storyline.name]), result
+			storyline,
+			path.path_join(MonologueSource.document_path(STORYLINES, storyline.name)),
+			result
 		)
 
 	return result
@@ -90,12 +116,16 @@ static func _pack_documents(project: MonologueProject, temp_path: String) -> Val
 			"Could not open '%s' for writing (error %d)." % [temp_path, error], &"write_failed"
 		)
 
-	pack_document(writer, project.manifest, "manifest.json")
-	pack_document(writer, project.settings, "settings.json")
+	pack_document(writer, project.manifest, MANIFEST)
+	pack_document(writer, project.settings, SETTINGS)
 	for collection: CollectionDocument in project.collections:
-		pack_document(writer, collection, "collections/%s.json" % collection.name)
+		pack_document(
+			writer, collection, MonologueSource.document_path(COLLECTIONS, collection.name)
+		)
 	for storyline: StorylineDocument in project.storylines:
-		pack_document(writer, storyline, "storylines/%s.json" % storyline.name)
+		pack_document(
+			writer, storyline, MonologueSource.document_path(STORYLINES, storyline.name)
+		)
 
 	writer.close()
 	return result

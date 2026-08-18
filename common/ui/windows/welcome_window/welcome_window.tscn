@@ -13,7 +13,7 @@ auto_translate_mode = 1
 transparent_bg = true
 oversampling_override = 1.0
 initial_position = 2
-size = Vector2i(400, 300)
+size = Vector2i(400, 397)
 wrap_controls = true
 transient = true
 transient_to_focused = true
@@ -64,50 +64,89 @@ text = "v.X.X.X"
 [node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox" unique_id=1914830556]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_type_variation = &"HBoxContainerMedium"
 
-[node name="HBoxTop" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox" unique_id=2030833797]
+[node name="HBoxTop" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox" unique_id=1624508474]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_vertical = 2
 
-[node name="NewProjectContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop" unique_id=333831418]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop" unique_id=1219653252]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer" unique_id=1290412333]
+[node name="NewProjectContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer" unique_id=1013876271]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/NewProjectContainer" unique_id=45743240]
 layout_mode = 2
 theme_type_variation = &"NoteLabel"
 text = "New Project"
 
-[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer" unique_id=979534612]
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/NewProjectContainer" unique_id=1674050091]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="NewDefaultBtn" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer/VBox" unique_id=1461901955]
+[node name="NewDefault" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/NewProjectContainer/VBox" unique_id=1695654081]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Default"
 icon = ExtResource("3_myesc")
 alignment = 0
 
-[node name="New" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/NewProjectContainer/VBox" unique_id=565168940]
+[node name="NewEmpty" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/NewProjectContainer/VBox" unique_id=542951792]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Empty"
+icon = ExtResource("3_myesc")
+alignment = 0
+
+[node name="NewAdvanced" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/NewProjectContainer/VBox" unique_id=714120165]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Advanced"
 icon = ExtResource("3_myesc")
 alignment = 0
 
-[node name="RecentProjectsContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop" unique_id=1536484239 node_paths=PackedStringArray("button_container")]
+[node name="ExampleContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer" unique_id=989712191]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/ExampleContainer" unique_id=258290525]
+layout_mode = 2
+theme_type_variation = &"NoteLabel"
+text = "Examples"
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/ExampleContainer" unique_id=639442774]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NewExample" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/ExampleContainer/VBox" unique_id=1567047453]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Example"
+icon = ExtResource("3_myesc")
+alignment = 0
+
+[node name="NewExample2" type="Button" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/VBoxContainer/ExampleContainer/VBox" unique_id=536851165]
+layout_mode = 2
+text = "Example 2"
+icon = ExtResource("3_myesc")
+alignment = 0
+
+[node name="RecentProjectsContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop" unique_id=75757695 node_paths=PackedStringArray("button_container")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("5_kbbyc")
 button_container = NodePath("RecentFilesContainer")
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/RecentProjectsContainer" unique_id=1144685476]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/RecentProjectsContainer" unique_id=1023151670]
 layout_mode = 2
 theme_type_variation = &"NoteLabel"
 text = "Recent Projects"
 
-[node name="RecentFilesContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/RecentProjectsContainer" unique_id=895787872]
+[node name="RecentFilesContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox/VBox/HBoxTop/RecentProjectsContainer" unique_id=1816157227]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3

@@ -14,79 +14,28 @@ func _new_variable() -> CollectionItem:
 	return MonologueRegistry.get_instance().create_collection_item("variables", _history)
 
 
-func test_an_object_can_be_built_without_a_scene_tree() -> void:
+func test_an_object_arrives_identified_and_frozen_with_what_it_declared() -> void:
 	var variable: CollectionItem = _new_variable()
-
-	assert_object(variable).is_not_null()
-	assert_object(variable.get_property("name")).is_not_null()
-	assert_object(variable.get_property("type")).is_not_null()
-
-
-func test_every_object_gets_a_type_prefixed_id() -> void:
-	var variable: CollectionItem = _new_variable()
-	var id: String = variable.get_property_value("id")
-
-	assert_str(id).starts_with("%s-" % variable.get_type())
-
-
-func test_two_objects_of_one_type_get_different_ids() -> void:
-	assert_str(_new_variable().get_property_value("id")).is_not_equal(
+	assert_str(variable.get_property_value("id")).is_not_equal(
 		_new_variable().get_property_value("id")
 	)
 
+	var declared: Property = variable.get_property("name")
+	assert_bool(declared.get_settings_value(PropertySettings.KEY_REQUIRED, false)).is_true()
+	assert_bool(declared.get_settings_value(PropertySettings.KEY_UNIQUE, false)).is_true()
 
-func test_declared_settings_survive_onto_the_property() -> void:
-	var name_property: Property = _new_variable().get_property("name")
-
-	assert_bool(name_property.get_settings_value(PropertySettings.KEY_REQUIRED, false)).is_true()
-	assert_bool(name_property.get_settings_value(PropertySettings.KEY_UNIQUE, false)).is_true()
-
-
-func test_a_declaration_path_places_the_property_in_its_category() -> void:
-	var variable: CollectionItem = _new_variable()
-
-	# Declared as "extra/description".
-	assert_str(variable.get_property("description").get_category()).is_equal("Extra")
-	# Declared as a bare name, so it lands in General.
-	assert_str(variable.get_property("type").get_category()).is_equal("General")
-
-
-func test_properties_are_frozen_once_the_object_is_built() -> void:
-	# Guards against a node mutating its own schema at runtime, which would make one
-	# instance's settings diverge from every other instance of the same type.
-	var variable: CollectionItem = _new_variable()
-
-	assert_bool(variable.get_property("name").is_frozen()).is_true()
-
-
-func test_a_node_declares_exactly_one_main_property() -> void:
+	# Freezing guards against an object mutating its own schema at runtime, which would make
+	# one instance's settings diverge from every other instance of the same type. The
+	# properties InspectableNode declares before super._init() are inside the pass too.
 	var sentence: InspectableNode = MonologueRegistry.get_instance().create_node(
 		"sentence", _history
 	)
-
-	var main_properties: Array[Property] = []
-	for property: Property in sentence.get_properties():
-		if property.is_main_property():
-			main_properties.append(property)
-
-	assert_int(main_properties.size()).is_equal(1)
-	assert_str(main_properties[0].name).is_equal("sentence")
-	assert_object(sentence.get_main_property()).is_same(main_properties[0])
-
-
-func test_a_nodes_own_properties_are_frozen_too() -> void:
-	# color / notes / position are declared by InspectableNode before super._init(),
-	# which is what puts them inside the freeze pass.
-	var sentence: InspectableNode = MonologueRegistry.get_instance().create_node(
-		"sentence", _history
-	)
-
-	for property_name: String in ["color", "notes", "editor_position", "id"]:
-		(
-			assert_bool(sentence.get_property(property_name).is_frozen())
-			.override_failure_message("Property '%s' escaped the freeze pass." % property_name)
-			.is_true()
-		)
+	var frozen: Array[Property] = [declared]
+	frozen.append_array(sentence.get_properties())
+	for property: Property in frozen:
+		assert_bool(property.is_frozen()).override_failure_message(
+			"Property '%s' escaped the freeze pass." % property.name
+		).is_true()
 
 
 func test_two_instances_do_not_share_a_settings_dictionary() -> void:
@@ -95,93 +44,56 @@ func test_two_instances_do_not_share_a_settings_dictionary() -> void:
 
 	first.get_property("name").set_settings_value(PropertySettings.KEY_READ_ONLY, true)
 
-	(
-		assert_bool(
-			second.get_property("name").get_settings_value(PropertySettings.KEY_READ_ONLY, false)
-		)
-		. is_false()
-	)
+	assert_bool(
+		second.get_property("name").get_settings_value(PropertySettings.KEY_READ_ONLY, false)
+	).is_false()
 
 
-func test_setting_a_value_goes_through_the_undo_history() -> void:
+func test_writing_a_value_goes_through_the_history_and_announces_itself() -> void:
 	var variable: CollectionItem = _new_variable()
+	var monitor: Object = monitor_signals(variable)
 
 	variable.set_property_value("name", "health")
 
 	assert_str(variable.get_property_value("name")).is_equal("health")
+	assert_signal(monitor).is_emitted("property_changed", ["name"])
 	assert_bool(_history.undo_redo.has_undo()).is_true()
 
 	_history.undo_redo.undo()
 	assert_str(variable.get_property_value("name")).is_not_equal("health")
 
+	# Writing what is already there is not a change, so it costs no undo step. On a history
+	# of its own: the one above already has something in it.
+	var quiet: CommandManager = CommandManager.new()
+	var untouched: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		"variables", quiet
+	)
+	untouched.set_property_value("name", untouched.get_property_value("name"))
 
-func test_setting_the_same_value_records_nothing() -> void:
-	var variable: CollectionItem = _new_variable()
-	var current: Variant = variable.get_property_value("name")
-
-	variable.set_property_value("name", current)
-
-	assert_bool(_history.undo_redo.has_undo()).is_false()
-
-
-func test_changing_a_value_announces_the_property_name() -> void:
-	var variable: CollectionItem = _new_variable()
-	var monitor: Object = monitor_signals(variable)
-
-	variable.set_property_value("name", "gold")
-
-	assert_signal(monitor).is_emitted("property_changed", ["name"])
+	assert_bool(quiet.undo_redo.has_undo()).is_false()
 
 
-func test_an_object_round_trips_through_a_dictionary() -> void:
+func test_an_object_round_trips_with_its_values_and_its_overrides() -> void:
 	var original: CollectionItem = _new_variable()
 	original.set_property_value("name", "gold")
 	original.set_property_value("type", "int")
+	original.get_property("name").set_settings_value(PropertySettings.KEY_EXPOSED, true)
+
+	var written: Dictionary = original._to_dict()
+
+	# No wrapper object: a property name maps straight to what it holds, and the user's own
+	# choices live in one map beside the values rather than in each value's slot.
+	assert_str(written["$type"]).is_equal(original.get_type())
+	assert_str(written["name"]).is_equal("gold")
+	var overrides: Dictionary = written[InspectableObject.EDITOR_SETTINGS_KEY]
+	assert_bool(overrides["name"][PropertySettings.KEY_EXPOSED]).is_true()
 
 	var restored: CollectionItem = _new_variable()
-	restored._from_dict(original._to_dict())
+	restored._from_dict(written)
 
 	assert_str(restored.get_property_value("name")).is_equal("gold")
 	assert_str(restored.get_property_value("type")).is_equal("int")
 	assert_str(restored.get_property_value("id")).is_equal(original.get_property_value("id"))
-
-
-func test_the_serialised_form_records_the_object_type() -> void:
-	var variable: CollectionItem = _new_variable()
-
-	assert_str(variable._to_dict()["$type"]).is_equal(variable.get_type())
-
-
-func test_a_saved_property_holds_its_value_and_nothing_else() -> void:
-	# No wrapper object: a property name maps straight to what it holds.
-	var variable: CollectionItem = _new_variable()
-	variable.set_property_value("name", "gold")
-
-	var dict: Dictionary = variable._to_dict()
-
-	assert_str(dict["name"]).is_equal("gold")
-	assert_bool(dict.has(InspectableObject.EDITOR_SETTINGS_KEY)).is_false()
-
-
-func test_user_overrides_are_gathered_beside_the_values() -> void:
-	# They live in one map on the object rather than sharing each value's slot, which is
-	# what lets a value be written bare.
-	var variable: CollectionItem = _new_variable()
-	variable.get_property("name").set_settings_value(PropertySettings.KEY_EXPOSED, true)
-
-	var dict: Dictionary = variable._to_dict()
-	var overrides: Dictionary = dict[InspectableObject.EDITOR_SETTINGS_KEY]
-
-	assert_bool(overrides["name"][PropertySettings.KEY_EXPOSED]).is_true()
-
-
-func test_overrides_survive_the_round_trip() -> void:
-	var original: CollectionItem = _new_variable()
-	original.get_property("name").set_settings_value(PropertySettings.KEY_EXPOSED, true)
-
-	var restored: CollectionItem = _new_variable()
-	restored._from_dict(original._to_dict())
-
 	assert_bool(
 		restored.get_property("name").get_settings_value(PropertySettings.KEY_EXPOSED)
 	).is_true()

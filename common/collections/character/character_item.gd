@@ -31,10 +31,6 @@ func initialize_properties() -> void:
 		.collection("portraits")
 		.warn_if(_has_no_portrait, &"no_portraits"))
 
-	define_property(Property.new("voice/voice_line_folder")
-		.set_type("file")
-		.tooltip("Where this character's recorded lines are kept."))
-
 	define_property(Property.new("extra/description")
 		.set_type("textarea"))
 

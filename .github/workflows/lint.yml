@@ -54,10 +54,10 @@ jobs:
       - name: Collect project scripts
         id: files
         run: |
-          # addons/ is vendored. The name lists used to be excluded here too, back
-          # when they were 29k lines of GDScript; they are text files now.
+          # gdUnit4 is vendored, so it is skipped. addons/monologue is ours -- it is
+          # the runtime, and it is held to the same bar as the editor.
           echo "list=$(git ls-files '*.gd' \
-            | grep -v '^addons/' \
+            | grep -v '^addons/gdUnit4/' \
             | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
       # No gdformat --check here on purpose. Property declarations are written one

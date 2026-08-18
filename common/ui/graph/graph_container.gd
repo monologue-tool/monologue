@@ -36,6 +36,9 @@ func _on_project_loaded() -> void:
 
 	var storyline: StorylineDocument = ProjectManager.current_project.storylines[0]
 	load_storyline(storyline)
+	# Nothing else knows which storyline the graph opened on its own, and the explorer
+	# has one to highlight.
+	EventBus.request_storyline_inspection.emit(storyline)
 
 
 func load_storyline(storyline: StorylineDocument) -> void:

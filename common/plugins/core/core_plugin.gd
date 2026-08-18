@@ -10,7 +10,7 @@ const PLUGIN_NAME: String = "monologue.core"
 
 const FIELDS: Array[GDScript] = [
 	preload("res://common/fields/any/index.gd"),
-	preload("res://common/fields/bezier/index.gd"),
+	preload("res://common/fields/ease/index.gd"),
 	preload("res://common/fields/bool/index.gd"),
 	preload("res://common/fields/collection/index.gd"),
 	preload("res://common/fields/color/index.gd"),
@@ -53,7 +53,7 @@ const NODES: Array[GDScript] = [
 	preload("res://common/nodes/bool_node/index.gd"),
 	preload("res://common/nodes/int_node/index.gd"),
 	preload("res://common/nodes/float_node/index.gd"),
-	preload("res://common/nodes/label_node/index.gd"),
+	preload("res://common/nodes/waypoint_node/index.gd"),
 	preload("res://common/nodes/variable_node/index.gd"),
 	preload("res://common/nodes/inventory_node/index.gd"),
 	preload("res://common/nodes/location_node/index.gd"),
@@ -67,7 +67,8 @@ const COLLECTIONS: Array[GDScript] = [
 	preload("res://common/collections/location/index.gd"),
 	preload("res://common/collections/language/index.gd"),
 	preload("res://common/collections/portrait/index.gd"),
-	preload("res://common/collections/bezier/index.gd"),
+	preload("res://common/collections/variation/index.gd"),
+	preload("res://common/collections/ease/index.gd"),
 	preload("res://common/collections/option/index.gd"),
 	preload("res://common/collections/exit/index.gd"),
 ]

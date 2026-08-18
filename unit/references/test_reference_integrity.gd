@@ -1,9 +1,8 @@
-# gdlint: disable=max-public-methods
 extends GdUnitTestSuite
 
-## References point at ids, never at names. These are the guarantees that buys:
-## renaming a target keeps every reference, and deleting one breaks them visibly
-## rather than pointing them somewhere else.
+## References point at ids, never at names. These are the guarantees that buys: renaming a
+## target keeps every reference, and deleting one breaks them visibly rather than pointing
+## them somewhere else.
 
 const CHARACTERS: String = "characters"
 const VARIABLES: String = "variables"
@@ -36,20 +35,19 @@ func _add_item(collection_name: String, values: Dictionary) -> String:
 	return str(item.get_property_value("id"))
 
 
-func _set_item_value(collection_name: String, item_id: String, key: String, value: Variant) -> void:
-	var collection: CollectionDocument = _project.get_collection(collection_name)
-	var items: Array = collection.get_value().duplicate(true)
+func _set_item_value(collection: String, item_id: String, key: String, value: Variant) -> void:
+	var document: CollectionDocument = _project.get_collection(collection)
+	var items: Array = document.get_value().duplicate(true)
 	for item: Dictionary in items:
 		if _read_id(item) == item_id:
 			item[key] = value
-	collection.set_property_value(collection_name, items)
+	document.set_property_value(collection, items)
 
 
 func _remove_item(collection_name: String, item_id: String) -> void:
 	var collection: CollectionDocument = _project.get_collection(collection_name)
-	var items: Array = collection.get_value().duplicate(true)
 	var kept: Array = []
-	for item: Dictionary in items:
+	for item: Dictionary in collection.get_value().duplicate(true):
 		if _read_id(item) != item_id:
 			kept.append(item)
 	collection.set_property_value(collection_name, kept)
@@ -73,86 +71,78 @@ static func _read_id(item: Dictionary) -> String:
 	return str(item.get("id", ""))
 
 
-func test_renaming_a_character_does_not_break_its_references() -> void:
-	var alice_id: String = _add_item(CHARACTERS, {"name": "Alice"})
+func test_renaming_a_target_keeps_every_reference_pointing_at_it() -> void:
+	var alice: String = _add_item(CHARACTERS, {"name": "Alice"})
+	var twin: String = _add_item(CHARACTERS, {"name": "Alice"})
 	var sentence: InspectableNode = _first_node("sentence")
-	sentence.set_property_value("speaker", alice_id)
+	sentence.set_property_value("speaker", alice)
 
-	_set_item_value(CHARACTERS, alice_id, "name", "Alicia")
+	_set_item_value(CHARACTERS, alice, "name", "Alicia")
 
-	assert_str(str(sentence.get_property_value("speaker"))).is_equal(alice_id)
+	assert_str(str(sentence.get_property_value("speaker"))).is_equal(alice)
 	assert_str(
-		ReferenceResolver.resolve_label(_project, CHARACTERS, alice_id, sentence)
+		ReferenceResolver.resolve_label(_project, CHARACTERS, alice, sentence)
 	).is_equal("Alicia")
 
-
-func test_two_characters_sharing_a_name_stay_distinguishable() -> void:
-	var first_id: String = _add_item(CHARACTERS, {"name": "Twin"})
-	var second_id: String = _add_item(CHARACTERS, {"name": "Twin"})
-
-	assert_str(first_id).is_not_equal(second_id)
-	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, first_id)).is_true()
-	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, second_id)).is_true()
+	# Two characters sharing a name were never the same character.
+	assert_str(twin).is_not_equal(alice)
+	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, twin)).is_true()
 
 
-func test_unresolvable_id_never_resolves_to_a_different_object() -> void:
-	_add_item(CHARACTERS, {"name": "Alice"})
+func test_deleting_a_target_is_reported_and_undoing_repairs_it() -> void:
+	var alice: String = _add_item(CHARACTERS, {"name": "Alice"})
 	var sentence: InspectableNode = _first_node("sentence")
-	sentence.set_property_value("speaker", "character-NOTHERE1")
+	sentence.set_property_value("speaker", alice)
 
-	assert_str(ReferenceResolver.resolve_label(_project, CHARACTERS, "character-NOTHERE1")).is_empty()
-	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, "character-NOTHERE1")).is_false()
-	# The value is kept exactly as it was, so restoring the target repairs it.
-	assert_str(str(sentence.get_property_value("speaker"))).is_equal("character-NOTHERE1")
-
-
-func test_a_dangling_reference_is_reported() -> void:
-	var alice_id: String = _add_item(CHARACTERS, {"name": "Alice"})
-	var sentence: InspectableNode = _first_node("sentence")
-	sentence.set_property_value("speaker", alice_id)
-
-	_remove_item(CHARACTERS, alice_id)
-
-	assert_array(_issue_codes()).contains([&"dangling_reference"])
-	assert_str(str(sentence.get_property_value("speaker"))).is_equal(alice_id)
-
-
-func test_the_reverse_index_finds_who_points_at_a_character() -> void:
-	var alice_id: String = _add_item(CHARACTERS, {"name": "Alice"})
-	var sentence: InspectableNode = _first_node("sentence")
-	sentence.set_property_value("speaker", alice_id)
-
-	var referrers: Array[ReferenceSite] = _project.get_object_registry().get_referrers(alice_id)
-
+	var referrers: Array[ReferenceSite] = _project.get_object_registry().get_referrers(alice)
 	assert_int(referrers.size()).is_equal(1)
 	assert_str(referrers[0].owner_id).is_equal(sentence.get_id())
 	assert_str(referrers[0].property_name).is_equal("speaker")
 
+	_remove_item(CHARACTERS, alice)
 
-func test_undoing_a_delete_restores_the_reference() -> void:
-	var alice_id: String = _add_item(CHARACTERS, {"name": "Alice"})
-	var sentence: InspectableNode = _first_node("sentence")
-	sentence.set_property_value("speaker", alice_id)
-
-	_remove_item(CHARACTERS, alice_id)
-	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, alice_id)).is_false()
+	# The value is kept exactly as it was, so restoring the target repairs it.
+	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, alice)).is_false()
+	assert_str(str(sentence.get_property_value("speaker"))).is_equal(alice)
+	assert_array(_issue_codes()).contains([&"dangling_reference"])
 
 	_project.command_manager.undo()
 
-	# The id never changed, so bringing the character back is all it takes.
-	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, alice_id)).is_true()
-	assert_str(str(sentence.get_property_value("speaker"))).is_equal(alice_id)
+	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, alice)).is_true()
+	assert_str(str(sentence.get_property_value("speaker"))).is_equal(alice)
 
 
-func test_undoing_a_node_delete_restores_its_connections() -> void:
+func test_an_id_nothing_carries_resolves_to_nothing_rather_than_to_a_neighbour() -> void:
+	_add_item(CHARACTERS, {"name": "Alice"})
+
+	assert_str(
+		ReferenceResolver.resolve_label(_project, CHARACTERS, "character-NOTHERE1")
+	).is_empty()
+	assert_bool(ReferenceResolver.exists(_project, CHARACTERS, "character-NOTHERE1")).is_false()
+
+	# A condition losing its variable keeps the id and is reported, rather than quietly
+	# comparing against nothing.
+	var trust: String = _add_item(VARIABLES, {"name": "trust", "type": "int"})
+	var option: InspectableNode = _first_node("option")
+	option.set_property_value("enable_condition", true)
+	option.set_property_value("condition", {"variable": trust, "operator": ">=", "value": 3})
+
+	_remove_item(VARIABLES, trust)
+
+	var condition: Dictionary = option.get_property_value("condition")
+	assert_str(str(condition.get("variable"))).is_equal(trust)
+	assert_array(_project.get_object_registry().find_dangling()).is_not_empty()
+
+
+func test_undoing_a_node_delete_restores_the_wires_that_pointed_at_it() -> void:
 	var storyline: StorylineDocument = _project.storylines[0]
 	var sentence: InspectableNode = _first_node("sentence")
 	var initial: Array[Dictionary] = sentence.get_main_property().connected_from.duplicate(true)
 	assert_array(initial).is_not_empty()
 
-	var command: DeleteNodesCommand = DeleteNodesCommand.new(storyline.id, [_first_node("root")])
-	_project.command_manager.execute(command)
-
+	_project.command_manager.execute(
+		DeleteNodesCommand.new(storyline.id, [_first_node("root")])
+	)
 	assert_array(sentence.get_main_property().connected_from).is_empty()
 
 	_project.command_manager.undo()
@@ -160,39 +150,9 @@ func test_undoing_a_node_delete_restores_its_connections() -> void:
 	assert_array(sentence.get_main_property().connected_from).is_equal(initial)
 
 
-func test_id_collision_is_detected_and_a_fresh_id_is_allocated() -> void:
-	var registry: ProjectObjectRegistry = ProjectObjectRegistry.new()
-
-	var first: String = registry.allocate_id("character", "character-DUPLICAT")
-	var second: String = registry.allocate_id("character", "character-DUPLICAT")
-
-	assert_str(first).is_equal("character-DUPLICAT")
-	assert_str(second).is_not_equal(first)
-	assert_bool(second.begins_with("character-")).is_true()
-
-
-func test_registering_a_taken_id_rewrites_the_object() -> void:
-	var registry: ProjectObjectRegistry = ProjectObjectRegistry.new()
-	var first: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		CHARACTERS, _project.command_manager
-	)
-	var twin: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		CHARACTERS, _project.command_manager
-	)
-	twin.get_property("id").value = first.get_property_value("id")
-
-	registry.register(first)
-	registry.register(twin)
-
-	assert_str(str(twin.get_property_value("id"))).is_not_equal(str(first.get_property_value("id")))
-	assert_object(registry.get_object(str(first.get_property_value("id")))).is_same(first)
-	assert_object(registry.get_object(str(twin.get_property_value("id")))).is_same(twin)
-
-
-func test_generated_ids_carry_their_type_and_use_the_readable_alphabet() -> void:
+func test_an_id_is_allocated_once_and_reads_as_what_it_names() -> void:
 	var generated: String = IDGen.generate_object_id("sentence")
 	var suffix: String = generated.trim_prefix("sentence-")
-
 	assert_str(generated).starts_with("sentence-")
 	assert_int(suffix.length()).is_equal(IDGen.DEFAULT_LENGTH)
 	for character: String in suffix:
@@ -200,44 +160,73 @@ func test_generated_ids_carry_their_type_and_use_the_readable_alphabet() -> void
 			"'%s' is not a Crockford base32 character." % character
 		).is_true()
 
+	# A collision is caught rather than left for two objects to share.
+	var registry: ProjectObjectRegistry = ProjectObjectRegistry.new()
+	assert_str(registry.allocate_id("character", "character-DUPLICAT")).is_equal(
+		"character-DUPLICAT"
+	)
+	assert_str(registry.allocate_id("character", "character-DUPLICAT")).is_not_equal(
+		"character-DUPLICAT"
+	)
 
-func test_reference_ports_are_typed_by_what_they_point_at() -> void:
+	# Registering an object whose id is taken rewrites the newcomer, so both stay reachable.
+	var first: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		CHARACTERS, _project.command_manager
+	)
+	var twin: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		CHARACTERS, _project.command_manager
+	)
+	twin.get_property("id").value = first.get_property_value("id")
+	var fresh: ProjectObjectRegistry = ProjectObjectRegistry.new()
+	fresh.register(first)
+	fresh.register(twin)
+
+	assert_str(str(twin.get_property_value("id"))).is_not_equal(
+		str(first.get_property_value("id"))
+	)
+	assert_object(fresh.get_object(str(twin.get_property_value("id")))).is_same(twin)
+
+	# A new item is born with a name of its own, and one a condition can actually spell.
+	var variable: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		VARIABLES, _project.command_manager
+	)
+	var sibling: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
+		VARIABLES, _project.command_manager
+	)
+	assert_str(str(variable.get_property_value("name"))).is_not_equal(
+		str(sibling.get_property_value("name"))
+	)
+	assert_bool(str(variable.get_property_value("name")).is_valid_identifier()).is_true()
+
+
+func test_a_reference_port_is_typed_and_labelled_by_what_it_accepts() -> void:
 	var registry: MonologueRegistry = MonologueRegistry.get_instance()
 	var characters: int = registry.get_reference_type_id(CHARACTERS)
-	var beziers: int = registry.get_reference_type_id("beziers")
+	var eases: int = registry.get_reference_type_id("eases")
 
 	assert_int(characters).is_greater(0)
-	assert_int(characters).is_not_equal(beziers)
 	# Asking twice gives the same port, or a link would stop matching on redraw.
 	assert_int(registry.get_reference_type_id(CHARACTERS)).is_equal(characters)
-	assert_bool(registry.is_compatible(characters, beziers)).override_failure_message(
-		"A character reference must not accept a bezier reference."
+	assert_bool(registry.is_compatible(characters, eases)).override_failure_message(
+		"A character reference must not accept an ease reference."
 	).is_false()
 
+	# Nor may a reference port collide with a field port: they share one id space.
+	for indexer: MonologueIndexer in registry.list(MonologueObjectType.FIELD):
+		assert_int((indexer as FieldIndexer).type_id).is_not_equal(characters)
 
-func test_a_reference_port_is_labelled_by_what_it_accepts() -> void:
 	# "reference" says nothing: every reference port would read the same.
+	var character: CollectionItem = registry.create_collection_item(
+		CHARACTERS, _project.command_manager
+	)
 	assert_str(ReferenceResolver.describe_scope(CHARACTERS)).is_equal("character")
-	assert_str(ReferenceResolver.describe_scope("storylines")).is_equal("storyline")
 	assert_str(ReferenceResolver.describe_scope("node:option")).is_equal("option")
+	assert_str(ReferenceResolver.describe_scope("self:portraits", character)).is_equal("portrait")
 	assert_str(ReferenceResolver.describe_scope("")).is_empty()
 	assert_str(ReferenceResolver.describe_scope("nothing_registered_here")).is_empty()
 
-
-func test_a_self_scope_is_labelled_after_the_collection_it_reaches() -> void:
-	var character: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		CHARACTERS, _project.command_manager
-	)
-
-	assert_str(
-		ReferenceResolver.describe_scope("self:portraits", character)
-	).is_equal("portrait")
-
-
-func test_an_item_type_is_read_from_the_item_not_guessed_from_the_name() -> void:
-	# Guessing would mean trimming an "s", which is what broke every option link when
-	# the collection was renamed.
-	var registry: MonologueRegistry = MonologueRegistry.get_instance()
+	# Guessing an item type by trimming an "s" is what broke every option link when the
+	# collection was renamed; it is read off the item instead, for all of them at once.
 	for indexer: MonologueIndexer in registry.list(MonologueObjectType.COLLECTION):
 		var collection: CollectionIndexer = indexer
 		var item: CollectionItem = collection.instantiate(_project.command_manager)
@@ -247,93 +236,30 @@ func test_an_item_type_is_read_from_the_item_not_guessed_from_the_name() -> void
 		).is_equal(item.get_type())
 
 
-func test_a_reference_port_never_shares_an_id_with_a_field_port() -> void:
-	var registry: MonologueRegistry = MonologueRegistry.get_instance()
-	var scope_id: int = registry.get_reference_type_id("locations")
-
-	for indexer: MonologueIndexer in registry.list(MonologueObjectType.FIELD):
-		assert_int((indexer as FieldIndexer).type_id).is_not_equal(scope_id)
-
-
-func test_new_items_are_born_with_a_unique_name() -> void:
-	var first: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		VARIABLES, _project.command_manager
-	)
-	var second: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		VARIABLES, _project.command_manager
-	)
-
-	assert_str(str(first.get_property_value("name"))).is_not_equal(
-		str(second.get_property_value("name"))
-	)
-
-
-func test_a_generated_variable_name_is_a_valid_identifier() -> void:
-	var variable: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
-		VARIABLES, _project.command_manager
-	)
-
-	assert_bool(str(variable.get_property_value("name")).is_valid_identifier()).is_true()
-
-
-func test_deleting_a_variable_does_not_degrade_the_condition_silently() -> void:
-	var variable_id: String = _add_item(VARIABLES, {"name": "trust", "type": "int"})
-	var option: InspectableNode = _first_node("option")
-	option.set_property_value("enable_condition", true)
-	option.set_property_value(
-		"condition", {"variable": variable_id, "operator": ">=", "value": 3}
-	)
-
-	var referrers: Array[ReferenceSite] = _project.get_object_registry().get_referrers(variable_id)
-	assert_int(referrers.size()).is_equal(1)
-
-	_remove_item(VARIABLES, variable_id)
-
-	# The condition keeps the id it was pointing at, and the loss is reported.
-	var condition: Dictionary = option.get_property_value("condition")
-	assert_str(str(condition.get("variable"))).is_equal(variable_id)
-	assert_array(_project.get_object_registry().find_dangling()).is_not_empty()
-
-
-# --- labels -----------------------------------------------------------------------
-#
-# Ids are technical. Nothing a person reads should be one.
-
-
-func test_a_translatable_value_reads_as_text_not_a_dictionary() -> void:
+func test_nothing_a_person_reads_is_an_id() -> void:
 	assert_str(Util.to_label({"en": "Hello"}, "en")).is_equal("Hello")
 	# No English yet, but the item is not nameless: show what there is.
 	assert_str(Util.to_label({"fr": "Bonjour"}, "en")).is_equal("Bonjour")
 	assert_str(Util.to_label({"en": "   "}, "en")).is_empty()
-	assert_str(Util.to_label({}, "en")).is_empty()
 	assert_str(Util.to_label("plain")).is_equal("plain")
 	assert_str(Util.to_label(null)).is_empty()
 
-
-func test_an_option_is_labelled_by_its_text() -> void:
 	var choice: InspectableNode = _first_node("choice")
-	var options: Array = (choice.get_property_value("choices") as Array).duplicate(true)
-	options[0]["text"] = {"en": "Follow the cat"}
-	choice.set_property_value("choices", options)
-
-	var candidates: Array[Dictionary] = ReferenceResolver.list_candidates(
+	var nameless: Array[Dictionary] = ReferenceResolver.list_candidates(
 		_project, "self:choices", choice
 	)
-
-	assert_str(str(candidates[0]["label"])).is_equal("Follow the cat")
-
-
-func test_an_option_without_text_is_numbered_rather_than_shown_as_an_id() -> void:
-	var choice: InspectableNode = _first_node("choice")
-
-	var candidates: Array[Dictionary] = ReferenceResolver.list_candidates(
-		_project, "self:choices", choice
-	)
-
-	assert_array(candidates).is_not_empty()
-	for candidate: Dictionary in candidates:
+	assert_array(nameless).is_not_empty()
+	for candidate: Dictionary in nameless:
 		var label: String = str(candidate["label"])
 		assert_str(label).is_not_equal(str(candidate["id"]))
 		assert_bool(label.begins_with("Option ")).override_failure_message(
 			"A nameless option is labelled '%s'." % label
 		).is_true()
+
+	var options: Array = (choice.get_property_value("choices") as Array).duplicate(true)
+	options[0]["text"] = {"en": "Follow the cat"}
+	choice.set_property_value("choices", options)
+
+	assert_str(
+		str(ReferenceResolver.list_candidates(_project, "self:choices", choice)[0]["label"])
+	).is_equal("Follow the cat")

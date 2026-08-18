@@ -26,9 +26,11 @@ max-returns: 10
 disable:
   - class-definitions-order
 
+# Directory names, not paths. gdUnit4 rather than addons: the Monologue addon is ours and
+# is linted like the rest, which excluding all of addons/ silently prevented.
 excluded_directories: !!set
   .git: null
   .godot: null
   .claude: null
-  addons: null
+  gdUnit4: null
   reports: null

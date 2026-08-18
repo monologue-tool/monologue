@@ -233,7 +233,7 @@ func get_field_type_id(field_name: String) -> int:
 ## Port type id for references aimed at [param scope], allocated on first use.
 ##
 ## Every reference field shares one field type, so without this a character reference
-## and a bezier reference would look interchangeable to the graph. Two ports match only
+## and an ease reference would look interchangeable to the graph. Two ports match only
 ## when they point at the same kind of thing.
 func get_reference_type_id(scope: String) -> int:
 	if scope.is_empty():
