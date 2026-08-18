@@ -1,8 +1,6 @@
 name: test build
 
 on:
-  push:
-    branches: '**'
   pull_request:
 
 env:
