@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://c3dmudgwmwoqt" path="res://addons/monologue/player/default/default_choices.gd" id="2_choices"]
 [ext_resource type="Theme" uid="uid://d3q1qftuv8sc" path="res://addons/monologue/player/default/default_theme.tres" id="2_re56b"]
 [ext_resource type="Script" uid="uid://5h0y54qd4sr1" path="res://addons/monologue/player/default/default_text_box.gd" id="3_text_box"]
+[ext_resource type="Script" path="res://addons/monologue/player/default/default_scenery.gd" id="6_scenery"]
+[ext_resource type="Script" path="res://addons/monologue/player/default/default_characters.gd" id="7_chars"]
+[ext_resource type="Script" path="res://addons/monologue/player/default/default_sound.gd" id="8_sound"]
 [ext_resource type="Texture2D" uid="uid://bv5revv8a72j7" path="res://addons/monologue/player/default/assets/spritesheet.png" id="5_rue4p"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_yf5fn"]
@@ -1571,10 +1574,13 @@ animations = [{
 "speed": 24.0
 }]
 
-[node name="MonologueDefaultPlayer" type="Node" unique_id=310363491 node_paths=PackedStringArray("text_box", "choices")]
+[node name="MonologueDefaultPlayer" type="Node" unique_id=310363491 node_paths=PackedStringArray("text_box", "choices", "characters", "scenery", "sound")]
 script = ExtResource("1_player")
 text_box = NodePath("CanvasLayer/Control/Margin/TextBox")
 choices = NodePath("CanvasLayer/Control/Margin/Choices")
+characters = NodePath("CanvasLayer/Characters")
+scenery = NodePath("CanvasLayer/Scenery")
+sound = NodePath("Sound")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=647227030]
 layer = 100
@@ -1617,6 +1623,96 @@ sprite_frames = SubResource("SpriteFrames_g4v7s")
 autoplay = "default"
 frame_progress = 0.5246865
 centered = false
+
+[node name="Scenery" type="Control" parent="CanvasLayer" unique_id=1400000001 node_paths=PackedStringArray("showing", "arriving")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_scenery")
+showing = NodePath("Showing")
+arriving = NodePath("Arriving")
+
+[node name="Showing" type="TextureRect" parent="CanvasLayer/Scenery" unique_id=1400000002]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Arriving" type="TextureRect" parent="CanvasLayer/Scenery" unique_id=1400000003]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Characters" type="Control" parent="CanvasLayer" unique_id=1400000004 node_paths=PackedStringArray("left", "center", "right")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("7_chars")
+left = NodePath("Left")
+center = NodePath("Center")
+right = NodePath("Right")
+
+[node name="Left" type="TextureRect" parent="CanvasLayer/Characters" unique_id=1400000005]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.043
+anchor_right = 0.043
+anchor_bottom = 1.0
+offset_right = 300.0
+grow_vertical = 0
+mouse_filter = 2
+expand_mode = 5
+stretch_mode = 4
+
+[node name="Center" type="TextureRect" parent="CanvasLayer/Characters" unique_id=1400000006]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_right = 150.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+expand_mode = 5
+stretch_mode = 5
+
+[node name="Right" type="TextureRect" parent="CanvasLayer/Characters" unique_id=1400000007]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.957
+anchor_right = 0.957
+anchor_bottom = 1.0
+offset_left = -300.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+expand_mode = 5
+stretch_mode = 4
 
 [node name="Control" type="Control" parent="CanvasLayer" unique_id=1685582946]
 layout_mode = 3
@@ -1711,3 +1807,16 @@ offset_transform_position = Vector2(25, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "→"
+
+[node name="Sound" type="Node" parent="." unique_id=1400000008 node_paths=PackedStringArray("music", "effects", "voice")]
+script = ExtResource("8_sound")
+music = NodePath("Music")
+effects = NodePath("Effects")
+voice = NodePath("Voice")
+
+[node name="Music" type="AudioStreamPlayer" parent="Sound" unique_id=1400000009]
+
+[node name="Effects" type="AudioStreamPlayer" parent="Sound" unique_id=1400000010]
+
+[node name="Voice" type="AudioStreamPlayer" parent="Sound" unique_id=1400000011]
+

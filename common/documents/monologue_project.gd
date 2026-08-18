@@ -29,6 +29,7 @@ var active_language_code: String = "en"
 ## Whatever went wrong while reading this project from disk. Empty for a new project.
 var load_issues: ValidationResult = ValidationResult.ok()
 var default_template: ProjectTemplate = DefaultTemplate.new()
+var empty_template: ProjectTemplate = EmptyTemplate.new()
 var project_template: ProjectTemplate
 
 var _object_registry: ProjectObjectRegistry = ProjectObjectRegistry.new()
@@ -38,19 +39,26 @@ var _object_registry_is_stale: bool = true
 func _init(template: ProjectTemplate = default_template) -> void:
 	project_template = template
 	_init_documents.call_deferred()
-
-	command_manager.command_executed.connect(_on_command_executed)
-	command_manager.undone.connect(_on_undo)
-	command_manager.redone.connect(_on_redo)
 	content_changed.connect(_on_content_changed)
 
 
+## Builds the project out of its template, and only then starts listening to itself.
+##
+## A template writes through the same commands an edit does. Listening while that happens
+## would have the project report changes nobody made -- and the window title is painted from
+## those reports, at the moment they arrive, so it would keep the star they left behind. The
+## undo history has to be let go of separately: UndoRedo records whether anyone listens or not.
 func _init_documents() -> void:
 	manifest = ManifestDocument.new(command_manager)
 	settings = ProjectSettingsDocument.new(command_manager)
 	storylines.append(_create_storyline("main", project_template))
 	project_template.setup_collection(self)
 	observe_storylines()
+
+	command_manager.clear()
+	command_manager.command_executed.connect(_on_command_executed)
+	command_manager.undone.connect(_on_undo)
+	command_manager.redone.connect(_on_redo)
 
 	ready.emit()
 
@@ -173,7 +181,7 @@ func add_new_storyline() -> void:
 		storyline_name = "%s_%d" % [base_name, attempt]
 		attempt += 1
 
-	storylines.append(_create_storyline(storyline_name, default_template))
+	storylines.append(_create_storyline(storyline_name, empty_template))
 	observe_storylines()
 
 

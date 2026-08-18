@@ -54,3 +54,40 @@ func test_a_transaction_closes_once_however_deep_it_was_opened() -> void:
 	assert_bool(_history.is_in_transaction()).is_false()
 	assert_bool(outer.is_open()).is_false()
 	assert_int(_history.get_history_count()).is_equal(1)
+
+
+func test_a_project_nobody_has_touched_has_nothing_to_undo() -> void:
+	# A template builds through the same commands an edit does. Left as it lands, a new
+	# project reads as unsaved work and its first Ctrl+Z takes apart what it was born with.
+	var project: MonologueProject = auto_free(MonologueProject.new())
+
+	# Counted rather than only checked at the end: the window title is painted from each of
+	# these as it arrives, so one reported during construction leaves a star behind whatever
+	# the flag says afterwards.
+	var reported: Array[int] = [0]
+	project.undo_redo_changed.connect(func() -> void: reported[0] += 1)
+	await project.ready
+
+	assert_int(reported[0]).override_failure_message(
+		"Building the project reported %d edits nobody made." % reported[0]
+	).is_equal(0)
+	assert_bool(project.is_dirty).override_failure_message(
+		"A project arrived with changes nobody made."
+	).is_false()
+	assert_bool(project.command_manager.can_undo()).override_failure_message(
+		"A new project's first undo would take apart its own template."
+	).is_false()
+
+	# And the first real edit is still one step, undoable back to how the project arrived.
+	var born_with: Variant = project.manifest.get_property_value("entry_point")
+	project.manifest.set_property_value("entry_point", "storyline-ELSEWHERE")
+
+	assert_bool(project.is_dirty).override_failure_message(
+		"An edit did not mark the project as changed."
+	).is_true()
+	assert_bool(project.command_manager.undo()).is_true()
+	assert_that(project.manifest.get_property_value("entry_point")).is_equal(born_with)
+	assert_bool(project.command_manager.can_undo()).override_failure_message(
+		"Undoing the one edit made left something behind it."
+	).is_false()
+

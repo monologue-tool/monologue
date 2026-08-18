@@ -42,7 +42,7 @@ func _on_hide() -> void:
 
 func _on_template_pressed(template: ProjectTemplate) -> void:
 	var new_project: MonologueProject = MonologueProject.new(template)
-	ProjectManager.load_project(new_project, true)
+	ProjectManager.load_project(new_project)
 
 
 func _on_new_file_btn_pressed() -> void:

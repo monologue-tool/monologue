@@ -60,6 +60,20 @@ func _first_record(collection_name: String) -> String:
 	return str((records[0] as Dictionary).get("id", "")) if not records.is_empty() else ""
 
 
+## Puts a picture on a character's default portrait, which is the one a node that names none
+## falls back to.
+func _give_a_portrait(character_id: String, image: String) -> void:
+	var records: Array = _project.get_collection_value("characters").duplicate(true)
+	for record: Dictionary in records:
+		if str(record.get("id", "")) != character_id:
+			continue
+		for portrait: Variant in record.get("portraits", []):
+			if portrait is Dictionary:
+				(portrait as Dictionary)["image"] = image
+
+	_project.get_collection("characters").get_property("characters").set_value(records)
+
+
 func _ease_named(ease_name: String) -> String:
 	for record: Variant in _project.get_collection_value("eases"):
 		if record is Dictionary and str(record.get("name", "")) == ease_name:
@@ -342,8 +356,13 @@ func test_the_stage_nodes_reach_their_parts_and_leave_the_stage_behind_them() ->
 	# put back later without any of this being replayed.
 	var cast: String = _first_record("characters")
 
+	# Everything a story names is written relative to where its art is kept, and every one of
+	# the three stage nodes has to go through the same resolution to find it.
+	_player.asset_root = "art"
+	_give_a_portrait(cast, "faces/day.png")
+
 	var scenery: InspectableNode = _node("background")
-	scenery.get_property("image").set_value("art/room.png")
+	scenery.get_property("image").set_value("room.png")
 
 	var join: InspectableNode = _node("character")
 	join.get_property("who").set_value(cast)
@@ -381,10 +400,21 @@ func test_the_stage_nodes_reach_their_parts_and_leave_the_stage_behind_them() ->
 		"The character's default portrait did not stand in for the one nobody named."
 	).is_equal("default")
 
+	assert_str(str(look["image"])).override_failure_message(
+		"The part was handed a stored path rather than somewhere it could open."
+	).is_equal("art/faces/day.png")
+
 	assert_int(_player.audio.played.size()).is_equal(1)
 	assert_bool(_player.audio.played[0]["loop"]).is_true()
+	assert_str(str(_player.audio.played[0]["path"])).override_failure_message(
+		"A sound was handed over as the story wrote it rather than as somewhere to open."
+	).is_equal("art/sound/theme.ogg")
 
-	assert_str(str(session.state.stage.get("background", ""))).is_equal("art/room.png")
+	# The other half of the same rule: what is kept is what the story wrote, never where it
+	# happened to be found this time.
+	assert_str(str(session.state.stage.get("background", ""))).override_failure_message(
+		"An absolute path was baked into the save."
+	).is_equal("room.png")
 	assert_dict(session.state.stage.get("characters", {})).override_failure_message(
 		"Leaving did not take the character off the stage."
 	).is_empty()
@@ -408,16 +438,24 @@ func test_a_restored_save_comes_back_to_the_picture_it_left() -> void:
 	_wire(join, music)
 	_wire(music, _node("end"))
 
-	var saved: Dictionary = _play().snapshot()
+	var session: MonologueSession = _play()
+	var saved: Dictionary = session.snapshot()
+
+	# The save keeps the path the story wrote, so that moving one between machines still
+	# finds its art. Where that art is now is only ever a question about the here and now.
+	var kept: Dictionary = session.state.stage["characters"][cast]
+	assert_bool(kept.has("image")).override_failure_message(
+		"An absolute path was baked into the save."
+	).is_false()
 
 	# Nobody replays anything: a second session is handed the save and has to put the stage
 	# together again out of what the state remembers.
 	var reader: ScriptedPlayer = ScriptedPlayer.new()
 	add_child(reader)
 	var graph: MonologueStoryGraph = MonologueStoryGraph.of(MonologueSource.open(_path))
-	var session: MonologueSession = auto_free(MonologueSession.new(graph, reader, "en"))
-	session.restore(saved)
-	session.resume_here()
+	var reading: MonologueSession = auto_free(MonologueSession.new(graph, reader, "en"))
+	reading.restore(saved)
+	reading.resume_here()
 
 	assert_array(reader.backdrop.images).contains(["art/room.png"])
 	assert_dict(reader.staged.restaged).contains_keys([cast])

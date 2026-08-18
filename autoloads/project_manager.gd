@@ -36,8 +36,8 @@ func close_current_project() -> bool:
 	return true
 
 
-func load_project(project: MonologueProject, skip_dialog: bool = false) -> void:
-	if not skip_dialog and not await close_current_project():
+func load_project(project: MonologueProject) -> void:
+	if not await close_current_project():
 		return
 
 	Log.info("Project loaded!")

@@ -15,9 +15,14 @@ func handles() -> PackedStringArray:
 ## Called again after a save is put back, which is when the stage has to be rebuilt without
 ## replaying the story that filled it.
 func setup(ctx: MonologueContext) -> void:
-	if ctx.player.characters:
-		var staged: Dictionary = ctx.state.stage.get(SLOT, {})
-		ctx.player.characters.restage(staged)
+	if ctx.player.characters == null:
+		return
+
+	var staged: Dictionary = ctx.state.stage.get(SLOT, {})
+	var shown: Dictionary = {}
+	for who: Variant in staged:
+		shown[who] = _shown(ctx, staged[who])
+	ctx.player.characters.restage(shown)
 
 
 func run(ctx: MonologueContext) -> BehaviourResult:
@@ -38,8 +43,23 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 	var look: Dictionary = _look(ctx, who, duration)
 	staged[who] = look
 	if ctx.player.characters:
-		ctx.player.characters.apply(ctx.graph.record("characters", who), look)
+		ctx.player.characters.apply(ctx.graph.record("characters", who), _shown(ctx, look))
 	return BehaviourResult.progress(ctx.next())
+
+
+## The same look with its picture found on disk.
+##
+## Kept apart from what is stored: a save holds the path the story wrote, so that moving one
+## between machines still finds its art. Where that art actually is, is only ever a question
+## about the here and now.
+func _shown(ctx: MonologueContext, look: Variant) -> Dictionary:
+	if look is not Dictionary:
+		return {}
+
+	var shown: Dictionary = (look as Dictionary).duplicate()
+	var portrait: Dictionary = shown.get("portrait", {})
+	shown["image"] = ctx.player.resolve(str(portrait.get("image", "")))
+	return shown
 
 
 ## Everything the part needs to draw, resolved here rather than there: a part is handed a
