@@ -66,6 +66,13 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 		Log.error("Unable to create node of type '%s'." % node_type)
 		return
 
+	# A section node with nothing to run does nothing, and making the document it runs by
+	# hand is a second step with no decision in it. One gesture makes both.
+	if node_type == "section":
+		var section: StorylineDocument = ProjectManager.current_project.add_section(storyline_id)
+		if section:
+			node.get_property("target").set_value(section.id)
+
 	var graph_edit: MonologueGraphEdit = graph_container.graph
 	var target_position: Vector2 = Vector2.ZERO
 	if picker and picker.graph_release is Vector2:

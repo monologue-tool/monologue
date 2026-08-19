@@ -1,10 +1,6 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
+
 signal node_view_selected(node: InspectableNode)
-## Emitted once per selection change, after the frame settles, so rubber-banding over
-## ten nodes reports one selection of ten rather than ten selections of one.
-##
-## Typed on InspectableObject though it only ever carries nodes. GDScript typed arrays are
-## invariant, so the narrower type would need converting at every boundary.
 signal selection_changed(nodes: Array[InspectableObject])
 
 var storyline_id: String
@@ -42,6 +38,7 @@ func _ready() -> void:
 
 	EventBus.refresh_graph.connect(refresh)
 	connection_drag_ended.connect(_flush_deferred_refresh)
+	popup_request.connect(_on_popup_request)
 
 
 func get_storyline() -> StorylineDocument:
@@ -103,12 +100,33 @@ func add_graph_node_view(node: InspectableNode) -> GraphNode:
 	):
 		graph_node.position_offset_changed.connect(_on_graph_node_position_changed.bind(graph_node))
 
+	if node is SectionNode and not graph_node.gui_input.is_connected(_on_section_view_input):
+		graph_node.gui_input.connect(_on_section_view_input.bind(node))
+
 	add_child(graph_node)
 	if not node.property_changed.is_connected(_on_inspectable_node_property_changed):
 		node.property_changed.connect(_on_inspectable_node_property_changed.bind(node))
 
 	_sync_position_from_property(node)
 	return graph_node
+
+
+func _on_section_view_input(event: InputEvent, node: InspectableNode) -> void:
+	var click: InputEventMouseButton = event as InputEventMouseButton
+	if click == null or not click.double_click or click.button_index != MOUSE_BUTTON_LEFT:
+		return
+
+	var project: MonologueProject = ProjectManager.current_project
+	var section: StorylineDocument = (
+		project.get_storyline(str(node.get_property_value("target"))) if project else null
+	)
+	if section == null:
+		return
+
+	# GraphElement starts dragging in its own _gui_input, which runs after this signal. Taking
+	# the event here means opening a section does not also pick it up and carry it.
+	accept_event()
+	EventBus.request_storyline_inspection.emit.call_deferred(section)
 
 
 func _on_inspectable_node_property_changed(property_name: String, node: InspectableNode) -> void:
@@ -449,6 +467,36 @@ func _on_disconnection_request(
 		true
 	)
 	storyline.history.execute(command)
+
+
+## Built each time and freed with the popup, since what it offers depends on the selection.
+func _on_popup_request(at_position: Vector2) -> void:
+	var selection: Array[InspectableNode] = _user_owned(_selected_model_nodes())
+	if selection.is_empty():
+		return
+
+	var menu: PopupMenu = PopupMenu.new()
+	menu.add_item("Extract into a Section")
+	menu.id_pressed.connect(func(_id: int) -> void: _extract_into_section(selection))
+	menu.popup_hide.connect(menu.queue_free)
+	add_child(menu)
+
+	menu.position = Vector2i(get_screen_position() + at_position)
+	menu.popup()
+
+
+func _extract_into_section(selection: Array[InspectableNode]) -> void:
+	var storyline: StorylineDocument = get_storyline()
+	if storyline == null:
+		return
+
+	var refused: String = ExtractSectionCommand.refuse_reason(storyline, selection)
+	if not refused.is_empty():
+		Log.warn(refused)
+		return
+
+	storyline.history.execute(ExtractSectionCommand.new(storyline_id, selection))
+	refresh()
 
 
 ## The nodes of a selection the user actually owns. A storyline creates its own root and

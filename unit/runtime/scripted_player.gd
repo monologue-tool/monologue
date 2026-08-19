@@ -15,6 +15,8 @@ var offered: Array = []
 var answers: Array[String] = []
 ## Every action the story asked the game for.
 var acted: Array[Dictionary] = []
+## What to answer waiting actions with, taken in order. Empty answers with nothing.
+var action_answers: Array = []
 ## How many times the story waited for the reader without showing anything new.
 var acknowledged: int = 0
 
@@ -70,8 +72,17 @@ func acknowledge() -> void:
 
 
 func act(action_name: String, arguments: Array) -> Variant:
-	acted.append({"name": action_name, "arguments": arguments})
+	acted.append({"name": action_name, "arguments": arguments, "waited": false})
 	return super(action_name, arguments)
+
+
+## Answers with the next of [member action_answers]. Set [member silent] to hold instead.
+func await_act(action_name: String, arguments: Array) -> void:
+	acted.append({"name": action_name, "arguments": arguments, "waited": true})
+	asking = true
+	if silent:
+		return
+	finish_action(action_answers.pop_front() if not action_answers.is_empty() else null)
 
 
 ## Answers whatever is outstanding. What a test calls in place of a reader clicking.

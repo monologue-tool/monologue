@@ -16,6 +16,8 @@ signal request_nodes_selection(
 signal request_objects_inspection(objects: Array[InspectableObject])
 signal request_storyline_inspection(storyline: StorylineDocument)
 signal select_new_node
+## A document was added or renamed, so anything drawing the tree is out of date.
+signal storylines_changed
 signal storyline_deleted
 
 signal save_file_request(

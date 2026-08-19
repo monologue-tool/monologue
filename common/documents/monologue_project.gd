@@ -16,6 +16,7 @@ signal project_path_changed
 var manifest: ManifestDocument
 var settings: ProjectSettingsDocument
 var collections: Array[CollectionDocument]
+## Storylines and sections together. A section is one of these with a parent.
 var storylines: Array[StorylineDocument]
 ## True for a single .mnlp archive, false for a folder that can be diffed like source.
 var compact: bool = true
@@ -96,24 +97,6 @@ func get_documents() -> Array[InspectableDocument]:
 	return documents
 
 
-func get_project_structure() -> Dictionary[String, Variant]:
-	var structure: Dictionary[String, Variant] = {}
-	structure[MonologueSource.MANIFEST] = manifest
-	structure[MonologueSource.SETTINGS] = settings
-
-	var collections_map: Dictionary = {}
-	for collection: CollectionDocument in collections:
-		collections_map["%s.%s" % [collection.name, DOCUMENT_FORMAT]] = collection
-	structure[MonologueSource.COLLECTIONS] = collections_map
-
-	var storylines_map: Dictionary = {}
-	for storyline: StorylineDocument in storylines:
-		storylines_map["%s.%s" % [storyline.name, DOCUMENT_FORMAT]] = storyline
-	structure[MonologueSource.STORYLINES] = storylines_map
-
-	return structure
-
-
 ## Broken values, suspicious combinations, and whatever went wrong reading it from disk.
 ## Nothing here stops the user working.
 func validate() -> ValidationResult:
@@ -155,13 +138,69 @@ func get_storyline(storyline_id: String) -> StorylineDocument:
 	return null
 
 
+func top_level_storylines() -> Array[StorylineDocument]:
+	var found: Array[StorylineDocument] = []
+	for storyline: StorylineDocument in storylines:
+		if not storyline.is_section():
+			found.append(storyline)
+	return found
+
+
+## Every section in the project, at any depth.
+func sections() -> Array[StorylineDocument]:
+	var found: Array[StorylineDocument] = []
+	for storyline: StorylineDocument in storylines:
+		if storyline.is_section():
+			found.append(storyline)
+	return found
+
+
+## The sections sitting directly inside [param document_id], in stored order.
+func get_sections_of(document_id: String) -> Array[StorylineDocument]:
+	var found: Array[StorylineDocument] = []
+	for storyline: StorylineDocument in storylines:
+		if storyline.parent == document_id:
+			found.append(storyline)
+	return found
+
+
+## Named so as not to collide with any other document.
+func add_section(parent_id: String, section_name: String = "") -> StorylineDocument:
+	if get_storyline(parent_id) == null:
+		Log.error("Can't add a section to '%s', which is not a document here." % parent_id)
+		return null
+
+	var wanted: String = section_name.strip_edges()
+	var section: StorylineDocument = _create_storyline(
+		_free_document_name(wanted if not wanted.is_empty() else "new_section"), empty_template
+	)
+	section.parent = parent_id
+	storylines.append(section)
+	observe_storylines()
+	content_changed.emit()
+	EventBus.storylines_changed.emit()
+	return section
+
+
+## Takes whatever sits inside it down with it.
 func delete_storyline(storyline: StorylineDocument) -> void:
-	if storylines.size() <= 1:
+	if not storyline.is_section() and top_level_storylines().size() <= 1:
 		Log.warn("The storyline couldn't be removed, it's the only one left.")
 		return
 
-	storylines.erase(storyline)
+	for document: StorylineDocument in _subtree_of(storyline):
+		storylines.erase(document)
 	EventBus.storyline_deleted.emit()
+	content_changed.emit()
+
+
+func _subtree_of(root: StorylineDocument) -> Array[StorylineDocument]:
+	var found: Array[StorylineDocument] = [root]
+	var index: int = 0
+	while index < found.size():
+		found.append_array(get_sections_of(found[index].id))
+		index += 1
+	return found
 
 
 ## False when the name is taken or empty, and nothing is changed.
@@ -182,22 +221,28 @@ func rename_storyline(storyline: StorylineDocument, new_name: String) -> bool:
 	storyline.name = wanted
 	is_dirty = true
 	content_changed.emit()
+	EventBus.storylines_changed.emit()
 	ProjectManager._update_window_title()
 	return true
 
 
 func add_new_storyline() -> void:
-	var base_name: String = "new_storyline"
-	var attempt: int = 1
-	var storyline_name: String = base_name
-	var existing_names: Array[String] = _get_all_document_names(storylines)
-
-	while storyline_name in existing_names:
-		storyline_name = "%s_%d" % [base_name, attempt]
-		attempt += 1
-
-	storylines.append(_create_storyline(storyline_name, empty_template))
+	storylines.append(_create_storyline(_free_document_name("new_storyline"), empty_template))
 	observe_storylines()
+	EventBus.storylines_changed.emit()
+
+
+## [param wanted], or the first numbered variant of it that is free.
+func _free_document_name(wanted: String) -> String:
+	var taken: Array[String] = _get_all_document_names(storylines)
+	taken.append_array(_get_all_document_names(collections))
+	if wanted not in taken:
+		return wanted
+
+	var attempt: int = 1
+	while "%s_%d" % [wanted, attempt] in taken:
+		attempt += 1
+	return "%s_%d" % [wanted, attempt]
 
 
 func _get_all_document_names(documents: Array) -> Array[String]:
@@ -273,7 +318,7 @@ func _open_file_request_callback(path: String, options: Dictionary = {}) -> void
 	project_path_changed.emit()
 
 
-## An archive, the folder an unpacked project lives in, or any file inside that folder --
+## An archive, the folder an unpacked project lives in, or any file inside that folder.
 ## [method MonologueSource.open] is what tells the three apart.
 static func from_path(path: String) -> MonologueProject:
 	var source: MonologueSource = MonologueSource.open(path)

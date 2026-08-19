@@ -55,7 +55,11 @@ static func read_into(
 	for storyline_name: String in storylines:
 		_read_storyline(project, storyline_name, storylines[storyline_name], result)
 
-	if project.storylines.is_empty():
+	var sections: Dictionary = source.sections()
+	for section_name: String in sections:
+		_read_storyline(project, section_name, sections[section_name], result)
+
+	if project.top_level_storylines().is_empty():
 		result.add_warning("This project has no readable storyline.", &"no_storyline")
 	return true
 

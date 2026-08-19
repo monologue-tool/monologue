@@ -140,10 +140,10 @@ func test_a_sub_port_and_a_name_both_survive_into_the_graph() -> void:
 		NodeConnection.create(choice.get_id(), "choices", target.get_id(), "sentence", option_id)
 	)
 
-	# A jump finds a waypoint by name, not by id. UniqueRule never fires for node labels, so
-	# finding both of a pair is what lets WaypointNode report it.
+	# What a node type of the game's own uses to find its own kind, by a property it wrote
+	# and the runtime knows nothing about.
 	for _twin: int in 2:
-		storyline.create_node("waypoint").get_property("label").set_value("same")
+		storyline.create_node("sentence").get_property("label").set_value("same")
 
 	var graph: MonologueStoryGraph = _round_trip()
 

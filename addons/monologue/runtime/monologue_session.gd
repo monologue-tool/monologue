@@ -15,6 +15,7 @@ signal stepped()
 
 var graph: MonologueStoryGraph
 var state: MonologueState = MonologueState.new()
+var session_name: String = ""
 var player: MonologuePlayer
 var language: String = ""
 var problems: Array[MonologueProblem] = []
@@ -66,16 +67,38 @@ func _process(delta: float) -> void:
 
 
 func play(storyline_id: String = "", node_id: String = "") -> void:
-	var target: String = storyline_id if not storyline_id.is_empty() else graph.entry_storyline
-	var start: String = node_id if not node_id.is_empty() else graph.entry_of(target)
-	if not graph.has_node(start):
-		_fail(&"no_entry_node", "There is nowhere to start: '%s' is not a node." % start)
+	var start: String = _start_of(storyline_id, node_id)
+	if start.is_empty():
 		return
 
 	state = MonologueState.new()
 	_seed_variables()
 	state.move_to(graph.storyline_of(start), start)
 	resume_here()
+
+
+## Keeps the variables, the inventory, what has been visited and what is on screen.
+## Drops the return addresses: nothing will come back through them from here.
+func go_to(storyline_id: String = "", node_id: String = "") -> void:
+	var start: String = _start_of(storyline_id, node_id)
+	if start.is_empty():
+		return
+
+	state.call_stack.clear()
+	state.ran_out_at = ""
+	state.ending.clear()
+	state.move_to(graph.storyline_of(start), start)
+	resume_here()
+
+
+## "" when there is nowhere to start, having said so.
+func _start_of(storyline_id: String, node_id: String) -> String:
+	var target: String = storyline_id if not storyline_id.is_empty() else graph.entry_storyline
+	var start: String = node_id if not node_id.is_empty() else graph.entry_of(target)
+	if not graph.has_node(start):
+		_fail(&"no_entry_node", "There is nowhere to start: '%s' is not a node." % start)
+		return ""
+	return start
 
 
 ## Carries on from wherever the state says the story is.

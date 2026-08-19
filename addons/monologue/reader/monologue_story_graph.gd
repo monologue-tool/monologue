@@ -15,7 +15,8 @@ const RESERVED_KEYS: PackedStringArray = ["$type", "_editor_settings"]
 
 ## node_id -> {"type": String, "storyline": String, "props": Dictionary}
 var nodes: Dictionary = {}
-## storyline_id -> {"name": String, "entry": node_id}
+## document_id -> {"name": String, "entry": node_id, "parent": document_id}. Sections are
+## in here too: nothing about walking one differs from walking a storyline.
 var storylines: Dictionary = {}
 ## edge key -> PackedStringArray of the node ids it leads to
 var out_edges: Dictionary = {}
@@ -23,6 +24,8 @@ var out_edges: Dictionary = {}
 var in_edges: Dictionary = {}
 ## collection name -> {record id: record}
 var collections: Dictionary = {}
+## collection name -> {record name: record id}
+var _named: Dictionary = {}
 
 var entry_storyline: String = ""
 var languages: PackedStringArray = []
@@ -75,13 +78,26 @@ func record(collection: String, record_id: String) -> Dictionary:
 	return (collections.get(collection, {}) as Dictionary).get(record_id, {})
 
 
+## "" when nothing carries that name, and the first of any duplicates.
+func id_of(collection: String, record_name: String) -> String:
+	return str((_named.get(collection, {}) as Dictionary).get(record_name, ""))
+
+
 func entry_of(storyline_id: String) -> String:
 	return str((storylines.get(storyline_id, {}) as Dictionary).get("entry", ""))
 
 
-## How a jump finds a waypoint, since the editor stores the name written on the node and not
-## its id. Walked and not indexed. An index would have to be told which properties are worth
-## indexing, which is the runtime deciding things about node types.
+func parent_of(document_id: String) -> String:
+	return str((storylines.get(document_id, {}) as Dictionary).get("parent", ""))
+
+
+func is_section(document_id: String) -> bool:
+	return not parent_of(document_id).is_empty()
+
+
+## Nodes carrying a given value under a given property. Walked and not indexed: an index
+## would have to be told which properties are worth indexing, which is the runtime
+## deciding things about node types.
 func find_by(storyline_id: String, key_name: String, value: Variant) -> PackedStringArray:
 	var found: PackedStringArray = []
 	for node_id: String in nodes:
@@ -103,23 +119,40 @@ func _index(source: MonologueSource) -> void:
 	languages = _languages_of(source)
 	for collection_name: String in source.collections():
 		var by_id: Dictionary = {}
+		var by_name: Dictionary = {}
 		for record_data: Variant in source.records(collection_name):
 			if record_data is not Dictionary:
 				continue
-			var record_id: String = str((record_data as Dictionary).get("id", ""))
-			if not record_id.is_empty():
-				by_id[record_id] = record_data
-		collections[collection_name] = by_id
+			var record: Dictionary = record_data
+			var record_id: String = str(record.get("id", ""))
+			if record_id.is_empty():
+				continue
+			by_id[record_id] = record
 
-	var documents: Dictionary = source.storylines()
+			var record_name: String = str(record.get("name", ""))
+			if not record_name.is_empty() and not by_name.has(record_name):
+				by_name[record_name] = record_id
+		collections[collection_name] = by_id
+		_named[collection_name] = by_name
+
+	var documents: Dictionary = source.graphs()
 	for document_name: String in documents:
 		_index_storyline(document_name, documents[document_name])
 
-	if storylines.is_empty():
+	if _top_level().is_empty():
 		problems.append(
 			MonologueProblem.warning(&"no_storyline", "This story has no readable storyline.")
 		)
 	entry_storyline = _resolve_entry(source)
+
+
+## Where a story is allowed to begin.
+func _top_level() -> PackedStringArray:
+	var found: PackedStringArray = []
+	for document_id: String in storylines:
+		if not is_section(document_id):
+			found.append(document_id)
+	return found
 
 
 ## In the order the project stores them. The first is what a story falls back to.
@@ -144,7 +177,9 @@ func _index_storyline(document_name: String, document: Dictionary) -> void:
 		return
 
 	storylines[storyline_id] = {
-		"name": document_name, "entry": str(document.get("root_node_id", ""))
+		"name": document_name,
+		"entry": str(document.get("root_node_id", "")),
+		"parent": str(document.get("parent", "")),
 	}
 
 	for node: Dictionary in _nodes_of(document, document_name):
@@ -227,10 +262,11 @@ func _resolve_entry(source: MonologueSource) -> String:
 	if storylines.has(declared):
 		return declared
 
-	if storylines.is_empty():
+	var candidates: PackedStringArray = _top_level()
+	if candidates.is_empty():
 		return ""
 
-	var first: String = str(storylines.keys()[0])
+	var first: String = candidates[0]
 	if not declared.is_empty():
 		problems.append(
 			MonologueProblem.warning(
@@ -239,7 +275,7 @@ func _resolve_entry(source: MonologueSource) -> String:
 				% [declared, storylines[first]["name"]]
 			)
 		)
-	elif storylines.size() > 1:
+	elif candidates.size() > 1:
 		problems.append(
 			MonologueProblem.warning(
 				&"no_entry_point",

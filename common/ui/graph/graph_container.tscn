@@ -31,10 +31,11 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 
-[node name="EditButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=312964398]
+[node name="EditButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=312964398 node_paths=PackedStringArray("graph_container")]
 layout_mode = 2
 text = "Edit"
 script = ExtResource("2_juqgi")
+graph_container = NodePath("../../../..")
 
 [node name="ViewButton" type="Button" parent="VBoxContainer/Header/HeaderLeft" unique_id=548572994]
 layout_mode = 2
@@ -95,4 +96,17 @@ icon = ExtResource("3_3el0f")
 [node name="GraphEdit" parent="VBoxContainer" unique_id=2027188591 instance=ExtResource("8_qfao8")]
 unique_name_in_owner = true
 layout_mode = 2
-scroll_offset = Vector2(0, -35)
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/GraphEdit" unique_id=451589395]
+layout_mode = 1
+mouse_filter = 2
+
+[node name="TrailContainer" type="PanelContainer" parent="VBoxContainer/GraphEdit/MarginContainer" unique_id=1500785659]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="Trail" type="HBoxContainer" parent="VBoxContainer/GraphEdit/MarginContainer/TrailContainer" unique_id=928573799]
+unique_name_in_owner = true
+layout_mode = 2

@@ -241,3 +241,88 @@ func test_a_name_another_document_already_has_is_refused_rather_than_made_unique
 	assert_bool(_project.rename_storyline(storyline, "prologue")).is_true()
 	assert_str(storyline.name).is_equal("prologue")
 	assert_bool(_project.is_dirty).is_true()
+
+
+func test_a_section_comes_back_inside_the_document_it_sat_in() -> void:
+	# Sections are stored flat, so where one sits is a field and not a folder. Losing that
+	# field turns the tree into a pile without anything failing to load.
+	var main: StorylineDocument = _project.storylines[0]
+	var detour: StorylineDocument = _project.add_section(main.id, "detour")
+	var deeper: StorylineDocument = _project.add_section(detour.id, "deeper")
+	detour.create_node("sentence").get_property("line").set_value({"en": "Inside."})
+
+	assert_bool(_save().is_valid()).is_true()
+	var loaded: MonologueProject = await _load()
+
+	assert_int(loaded.sections().size()).override_failure_message(
+		"The sections did not come back."
+	).is_equal(2)
+	assert_int(loaded.top_level_storylines().size()).override_failure_message(
+		"A section came back as a storyline of its own."
+	).is_equal(1)
+
+	var back: StorylineDocument = loaded.get_storyline(detour.id)
+	assert_object(back).is_not_null()
+	assert_str(back.name).is_equal("detour")
+	assert_str(back.parent).override_failure_message(
+		"The section came back sitting nowhere."
+	).is_equal(main.id)
+	assert_str(loaded.get_storyline(deeper.id).parent).override_failure_message(
+		"A section nested in a section came back at the top."
+	).is_equal(detour.id)
+	assert_object(back.get_root()).override_failure_message(
+		"The section came back with nowhere to start."
+	).is_not_null()
+
+
+func test_a_section_is_written_inside_the_storyline_that_holds_it() -> void:
+	# One file per storyline, read in one go. A section of its own would be a second file to
+	# keep in step with the first, and a rename would leave the old one behind.
+	var folder: String = "%s/unpacked" % create_temp_dir("tree")
+	_project.compact = false
+	var main: StorylineDocument = _project.storylines[0]
+	var detour: StorylineDocument = _project.add_section(main.id, "detour")
+	_project.add_section(detour.id, "deeper")
+
+	assert_bool(ProjectWriter.write_project(_project, folder).is_valid()).is_true()
+
+	var written: PackedStringArray = DirAccess.get_files_at(
+		folder.path_join(MonologueSource.STORYLINES)
+	)
+	assert_array(written).override_failure_message(
+		"The storylines folder holds %s, so a section was written beside its storyline."
+		% str(written)
+	).is_equal(["%s.mnlf" % main.name])
+
+	var stored: Dictionary = ProjectWriter.written_with_sections(_project, main)
+	var nested: Array = stored[MonologueSource.SECTIONS]
+	assert_int(nested.size()).override_failure_message(
+		"A section nested two deep was not written with its storyline."
+	).is_equal(2)
+
+
+func test_a_renamed_section_comes_back_under_its_new_name() -> void:
+	var detour: StorylineDocument = _project.add_section(_project.storylines[0].id, "detour")
+	assert_bool(_project.rename_storyline(detour, "the_long_way_round")).is_true()
+	assert_bool(_save().is_valid()).is_true()
+
+	var loaded: MonologueProject = await _load()
+
+	assert_int(loaded.sections().size()).is_equal(1)
+	assert_str(loaded.sections()[0].name).is_equal("the_long_way_round")
+	assert_str(loaded.get_storyline(detour.id).parent).is_equal(_project.storylines[0].id)
+
+
+func test_deleting_a_section_takes_what_was_nested_in_it() -> void:
+	# An orphan shows up in no tree and nothing reaches it, so leaving one behind hides it
+	# rather than keeping it.
+	var main: StorylineDocument = _project.storylines[0]
+	var detour: StorylineDocument = _project.add_section(main.id, "detour")
+	_project.add_section(detour.id, "deeper")
+
+	_project.delete_storyline(detour)
+
+	assert_array(_project.sections()).override_failure_message(
+		"Deleting a section left something nested inside it behind."
+	).is_empty()
+	assert_int(_project.top_level_storylines().size()).is_equal(1)

@@ -8,8 +8,11 @@ var prompt_scene: PackedScene = preload("uid://bkreq3xdr7gxw")
 @onready var graph: MonologueGraphEdit = %GraphEdit
 @onready var snap_button: Button = %SnapButton
 @onready var grid_button: Button = %GridButton
+@onready var trail_container: PanelContainer = %TrailContainer
+@onready var trail: HBoxContainer = %Trail
 
-var _selected_nodes: Dictionary = {}  # storyline_id -> Array[InspectableObject]
+var _selected_nodes: Dictionary = {}
+var _graph_offset: Dictionary = {}
 var _is_applying_selection: bool = false
 var _current_lang_prop: Property = null  # tracked to disconnect on storyline switch
 
@@ -25,6 +28,7 @@ func _ready() -> void:
 
 	EventBus.request_nodes_selection.connect(_on_request_nodes_selection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
+	EventBus.storylines_changed.connect(_refresh_trail)
 	EventBus.graph_snap.connect(_on_event_graph_snap)
 	EventBus.graph_show_grid.connect(_on_event_show_grid)
 
@@ -34,19 +38,20 @@ func _ready() -> void:
 func _on_project_loaded() -> void:
 	await get_tree().process_frame
 
-	var storyline: StorylineDocument = ProjectManager.current_project.storylines[0]
+	var storyline: StorylineDocument = ProjectManager.current_project.top_level_storylines()[0]
 	load_storyline(storyline)
-	# Nothing else knows which storyline the graph opened on its own, and the explorer
-	# has one to highlight.
 	EventBus.request_storyline_inspection.emit(storyline)
 
 
 func load_storyline(storyline: StorylineDocument) -> void:
+	_graph_offset[graph.storyline_id] = graph.scroll_offset
+	
+	_show_trail(storyline)
 	graph.storyline_id = storyline.id
 	graph.connection_manager = ConnectionManager.new(storyline)
 	graph.refresh()
+	graph.scroll_offset = _graph_offset.get(storyline.id, Vector2.ZERO)
 
-	# Disconnect from the previous storyline's languages property
 	if (
 		is_instance_valid(_current_lang_prop)
 		and _current_lang_prop.value_changed.is_connected(_on_languages_changed)
@@ -58,7 +63,6 @@ func load_storyline(storyline: StorylineDocument) -> void:
 		_current_lang_prop.value_changed.connect(_on_languages_changed)
 		EventBus.load_languages.emit(storyline.get_property_value("languages"), graph)
 
-	# Restore the previously selected nodes (and inspector) for this storyline
 	var selection: Array[InspectableObject] = []
 	selection.assign(_selected_nodes.get(storyline.id, []))
 
@@ -70,6 +74,60 @@ func load_storyline(storyline: StorylineDocument) -> void:
 			restored.append(node)
 
 	EventBus.request_objects_inspection.emit(restored)
+
+
+func _refresh_trail() -> void:
+	var project: MonologueProject = ProjectManager.current_project
+	var open_document: StorylineDocument = (
+		project.get_storyline(graph.storyline_id) if project else null
+	)
+	if open_document:
+		_show_trail(open_document)
+
+
+func is_section() -> bool:
+	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(graph.storyline_id)
+	var path: Array[StorylineDocument] = _path_to(storyline)
+	return path.size() > 1
+
+
+## Hidden for a storyline at the top, which has nowhere to go back to.
+func _show_trail(document: StorylineDocument) -> void:
+	for child: Node in trail.get_children():
+		trail.remove_child(child)
+		child.queue_free()
+
+	var path: Array[StorylineDocument] = _path_to(document)
+	trail_container.visible = path.size() > 1
+	if not trail.visible:
+		return
+
+	for step: StorylineDocument in path:
+		if trail.get_child_count() > 0:
+			var separator: Label = Label.new()
+			separator.text = "/"
+			trail.add_child(separator)
+
+		var crumb: Control
+		crumb = Button.new()
+		crumb.text = step.name
+		crumb.disabled = step == document
+		crumb.pressed.connect(EventBus.request_storyline_inspection.emit.bind(step))
+		trail.add_child(crumb)
+
+
+## Remembers where it has been, so a parent pointing back down the tree stops the walk.
+func _path_to(document: StorylineDocument) -> Array[StorylineDocument]:
+	var project: MonologueProject = ProjectManager.current_project
+	var path: Array[StorylineDocument] = []
+	var walked: Dictionary[String, bool] = {}
+	var step: StorylineDocument = document
+
+	while step != null and not walked.has(step.id):
+		walked[step.id] = true
+		path.push_front(step)
+		step = project.get_storyline(step.parent) if project else null
+	return path
 
 
 func _on_languages_changed(_old: Variant, new_value: Variant) -> void:

@@ -1,3 +1,4 @@
+# gdlint: disable=max-public-methods
 ## The one thing a game talks to.
 ##
 ## Written for a game that is not only a story. A run starts, ends, and the game carries on
@@ -24,6 +25,12 @@ var problems: Array[MonologueProblem] = []
 var language: String = ""
 
 var behaviours: MonologueBehaviourIndexer
+## Saved playthroughs are filed under it.
+var story_path: String = ""
+## The story advances one node per [method step_once] instead of freely.
+var single_step: bool = false:
+	set = _set_single_step,
+	get = _get_single_step
 
 
 func _ready() -> void:
@@ -59,6 +66,7 @@ func _adopt(source: MonologueSource) -> bool:
 		return false
 
 	graph = built
+	story_path = source.path
 	return not built.has_errors()
 
 
@@ -100,6 +108,27 @@ func resume() -> void:
 		session.resume()
 
 
+## A move inside the playthrough being played, where [method start] is a new one.
+func go_to(storyline_id: String = "", node_id: String = "") -> void:
+	if session == null or not session.is_running():
+		start(storyline_id, node_id)
+		return
+	session.go_to(storyline_id, node_id)
+
+
+## False when the story has passed no checkpoint.
+func resume_at_checkpoint() -> bool:
+	if session == null or session.state.checkpoint.is_empty():
+		return false
+	session.go_to("", session.state.checkpoint)
+	return true
+
+
+func step_once() -> void:
+	if session:
+		session.step_once()
+
+
 func is_idle() -> bool:
 	return session == null or not session.is_running()
 
@@ -112,6 +141,49 @@ func is_paused() -> bool:
 ##         return  # the click belongs to the story, not to the map
 func activity() -> StringName:
 	return session.current_activity() if session else &""
+
+
+## By name, not by the id the story is wired with.
+func get_var(variable_name: String, fallback: Variant = null) -> Variant:
+	var variable_id: String = _variable_id(variable_name)
+	if variable_id.is_empty() or session == null:
+		return fallback
+	return session.state.variables.get(variable_id, fallback)
+
+
+## False when no variable carries that name.
+func set_var(variable_name: String, of_value: Variant) -> bool:
+	var variable_id: String = _variable_id(variable_name)
+	if variable_id.is_empty() or session == null:
+		_complain(
+			&"unknown_variable",
+			"There is no variable called '%s' to write." % variable_name
+		)
+		return false
+
+	session.state.variables[variable_id] = of_value
+	return true
+
+
+## Every variable in the playthrough, by name.
+func variables() -> Dictionary:
+	var held: Dictionary = {}
+	if session == null:
+		return held
+
+	for variable_id: String in session.state.variables:
+		var named: String = str(graph.record("variables", variable_id).get("name", ""))
+		if not named.is_empty():
+			held[named] = session.state.variables[variable_id]
+	return held
+
+
+func has_visited(node_id: String) -> bool:
+	return session != null and session.state.times_visited(node_id) > 0
+
+
+func _variable_id(variable_name: String) -> String:
+	return graph.id_of("variables", variable_name) if graph else ""
 
 
 func service(service_name: String) -> Object:
@@ -156,11 +228,65 @@ func restore(data: Dictionary) -> void:
 	session.resume_here()
 
 
+## The playthrough and what every service kept, under a name to find it by again.
+func save_session(session_name: String) -> bool:
+	var saved: Dictionary = save()
+	saved["name"] = session_name
+	saved["saved_at"] = int(Time.get_unix_time_from_system())
+	saved["where"] = _current_document_name()
+
+	if not MonologueSessionStore.write(story_path, session_name, saved):
+		_complain(&"session_not_saved", "Could not save the session '%s'." % session_name)
+		return false
+
+	if session:
+		session.session_name = session_name
+	return true
+
+
+func load_session(session_name: String) -> bool:
+	var saved: Dictionary = MonologueSessionStore.read(story_path, session_name)
+	if saved.is_empty():
+		_complain(&"no_such_session", "There is no session called '%s'." % session_name)
+		return false
+
+	restore(saved)
+	if session:
+		session.session_name = session_name
+	return true
+
+
+## Newest first.
+func list_sessions() -> Array[Dictionary]:
+	return MonologueSessionStore.list(story_path)
+
+
+func delete_session(session_name: String) -> bool:
+	return MonologueSessionStore.erase(story_path, session_name)
+
+
+func _current_document_name() -> String:
+	if session == null or graph == null:
+		return ""
+
+	var document: Dictionary = graph.storylines.get(session.state.current_storyline(), {})
+	return str(document.get("name", ""))
+
+
 func has_errors() -> bool:
 	for problem: MonologueProblem in problems:
 		if problem.is_error():
 			return true
 	return false
+
+
+func _set_single_step(one_at_a_time: bool) -> void:
+	if session:
+		session.single_step = one_at_a_time
+
+
+func _get_single_step() -> bool:
+	return session != null and session.single_step
 
 
 func _new_session() -> MonologueSession:

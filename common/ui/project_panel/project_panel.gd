@@ -1,5 +1,8 @@
 extends PanelContainer
 
+## How far a section is pushed in from whatever it sits inside.
+const INDENT: int = 14
+
 @onready var project_explorer: VBoxContainer = %ProjectExplorer
 
 @onready var delete_icon: DPITexture = preload("res://ui/assets/icons/trash.svg")
@@ -19,6 +22,7 @@ func _ready() -> void:
 	EventBus.request_objects_inspection.connect(_on_request_objects_inspection)
 	EventBus.request_storyline_inspection.connect(_on_request_storyline_inspection)
 	EventBus.show_project_explorer.connect(_on_event_show_project_panel)
+	EventBus.storylines_changed.connect(_rebuild_explorer)
 	EventBus.storyline_deleted.connect(_rebuild_explorer)
 
 	visible = ConfigManager.get_config("show_project_explorer")
@@ -75,41 +79,65 @@ func _rebuild_explorer() -> void:
 		collection_btn.set_meta("document", collection)
 		collections_container.add_child(collection_btn)
 
-	var storyline_button_group: ButtonGroup = ButtonGroup.new()
-	for storyline: StorylineDocument in project.storylines:
-		var storyline_btn: Button = Button.new()
-		storyline_btn.text = storyline.name
-		storyline_btn.toggle_mode = true
-		storyline_btn.theme_type_variation = "ToggleButton"
-		storyline_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		storyline_btn.button_group = storyline_button_group
-		storyline_btn.pressed.connect(_on_storyline_button_pressed.bind(storyline))
-		storyline_btn.set_meta("document", storyline)
-		storylines_container.add_child(storyline_btn)
-		InlineRename.attach(storyline_btn).committed.connect(
-			_on_storyline_renamed.bind(storyline)
-		)
+	_add_document_rows(project.top_level_storylines(), 0, ButtonGroup.new())
 
 	_show_open_storyline()
 
 
-## A project always has a storyline open, so the explorer always has one highlighted: the
-## one that was, or the first, which is the one the graph opens a project on.
+## One row per document, with whatever sits inside it underneath and pushed in.
+func _add_document_rows(
+	documents: Array[StorylineDocument], depth: int, group: ButtonGroup
+) -> void:
+	for document: StorylineDocument in documents:
+		var row: MarginContainer = MarginContainer.new()
+		row.add_theme_constant_override("margin_top", 0)
+		row.add_theme_constant_override("margin_right", 0)
+		row.add_theme_constant_override("margin_bottom", 0)
+		row.add_theme_constant_override("margin_left", depth * INDENT)
+
+		var button: Button = Button.new()
+		button.text = document.name
+		button.toggle_mode = true
+		button.theme_type_variation = "ToggleButton"
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.button_group = group
+		button.pressed.connect(_on_storyline_button_pressed.bind(document))
+		button.set_meta("document", document)
+
+		row.add_child(button)
+		storylines_container.add_child(row)
+		InlineRename.attach(button).committed.connect(_on_storyline_renamed.bind(document))
+
+		_add_document_rows(
+			ProjectManager.current_project.get_sections_of(document.id), depth + 1, group
+		)
+
+
+func _document_buttons() -> Array[Button]:
+	var found: Array[Button] = []
+	if not storylines_container:
+		return found
+
+	for row: Node in storylines_container.get_children():
+		for child: Node in row.get_children():
+			if child is Button:
+				found.append(child)
+	return found
+
+
 func _show_open_storyline() -> void:
 	var project: MonologueProject = ProjectManager.current_project
-	if not project or project.storylines.is_empty():
+	var top_level_storylines: Array[StorylineDocument] = project.top_level_storylines() if project else []
+	if top_level_storylines.is_empty():
 		return
 
 	if not is_instance_valid(_open_storyline) or not project.storylines.has(_open_storyline):
 		var was_showing_one: bool = _open_storyline != null
-		_open_storyline = project.storylines[0]
-		# The storyline that was open has just gone, and the graph is still on it. Deferred
-		# because a rebuild also happens while a project is still being opened, before
-		# the graph is in any state to be handed one.
+		_open_storyline = top_level_storylines[0]
 		if was_showing_one:
 			EventBus.request_storyline_inspection.emit.call_deferred(_open_storyline)
 
-	for button: Button in storylines_container.get_children():
+	for button: Button in _document_buttons():
 		button.set_pressed_no_signal(button.get_meta("document") == _open_storyline)
 
 
@@ -130,16 +158,13 @@ func _on_storyline_button_pressed(storyline: StorylineDocument) -> void:
 	EventBus.request_storyline_inspection.emit(storyline)
 
 
-## A refused name leaves the button showing the old one, which is already what the rename
-## put back: nothing to undo, and the reason is in the log.
+## A refused name leaves the button showing the old one, and the reason in the log.
 func _on_storyline_renamed(new_name: String, storyline: StorylineDocument) -> void:
-	if ProjectManager.current_project.rename_storyline(storyline, new_name):
-		_rebuild_explorer()
+	ProjectManager.current_project.rename_storyline(storyline, new_name)
 
 
 func _on_add_storyline_button_pressed() -> void:
 	ProjectManager.current_project.add_new_storyline()
-	_rebuild_explorer()
 
 
 func _on_request_objects_inspection(objects: Array[InspectableObject]) -> void:
@@ -153,9 +178,5 @@ func _on_request_objects_inspection(objects: Array[InspectableObject]) -> void:
 
 func _on_request_storyline_inspection(storyline: StorylineDocument) -> void:
 	_open_storyline = storyline
-	if not storylines_container:
-		return
-
-	for button: Button in storylines_container.get_children():
-		var btn_storyline: StorylineDocument = button.get_meta("document")
-		button.set_pressed_no_signal(btn_storyline == storyline)
+	for button: Button in _document_buttons():
+		button.set_pressed_no_signal(button.get_meta("document") == storyline)

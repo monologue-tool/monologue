@@ -6,7 +6,8 @@
 ## "characters"         a project collection, by name
 ## "self:portraits"     a collection property of the object holding the reference
 ## "ref:who:portraits"  a collection held by whatever another property points at
-## "storylines"         the project's storylines
+## "storylines"         the project's storylines, the ones at the top of the tree
+## "sections"           every section in the project, at any depth
 ## "node:option"        nodes of one type, in the storyline the owner belongs to
 ## [/codeblock]
 ##
@@ -21,6 +22,7 @@ const SELF_PREFIX: String = "self:"
 const NODE_PREFIX: String = "node:"
 const REF_PREFIX: String = "ref:"
 const STORYLINES_SCOPE: String = "storylines"
+const SECTIONS_SCOPE: String = "sections"
 const DEFAULT_LABEL_PROPERTY: String = "name"
 ## Property a collection item marks itself with when it is the one to fall back to.
 const DEFAULT_FLAG_PROPERTY: String = "is_default"
@@ -37,7 +39,9 @@ static func list_candidates(
 		return []
 
 	if scope == STORYLINES_SCOPE:
-		return _list_storylines(project)
+		return _list_documents(project.top_level_storylines())
+	if scope == SECTIONS_SCOPE:
+		return _list_documents(project.sections())
 	if scope.begins_with(NODE_PREFIX):
 		return _list_nodes(project, scope.trim_prefix(NODE_PREFIX), owner)
 	if scope.begins_with(SELF_PREFIX):
@@ -74,6 +78,8 @@ static func describe_scope(scope: String, owner: InspectableObject = null) -> St
 		return ""
 	if scope == STORYLINES_SCOPE:
 		return "storyline"
+	if scope == SECTIONS_SCOPE:
+		return "section"
 	if scope.begins_with(NODE_PREFIX):
 		return scope.trim_prefix(NODE_PREFIX)
 
@@ -272,10 +278,10 @@ static func _resolve_label_property(collection_name: String, declared: String) -
 	return declared if not declared.is_empty() else DEFAULT_LABEL_PROPERTY
 
 
-static func _list_storylines(project: MonologueProject) -> Array[Dictionary]:
+static func _list_documents(documents: Array[StorylineDocument]) -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
-	for storyline: StorylineDocument in project.storylines:
-		candidates.append({"id": storyline.id, "label": storyline.name})
+	for document: StorylineDocument in documents:
+		candidates.append({"id": document.id, "label": document.name})
 	return candidates
 
 

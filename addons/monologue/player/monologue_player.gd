@@ -15,6 +15,8 @@ signal answered
 ## What an `action` node named, for a game that would rather listen than override
 ## [method act].
 signal action_requested(action_name: String, arguments: Array)
+## For an action the story is holding on. Whoever listens owes it a [method finish_action].
+signal action_awaited(action_name: String, arguments: Array)
 
 @export var text_box: MonologueTextBoxPart
 @export var choices: MonologueChoicePart
@@ -28,6 +30,8 @@ signal action_requested(action_name: String, arguments: Array)
 ## The option last taken, as the item id its wire leaves the choice node by.
 var picked: String = ""
 var answer: String = ""
+## What the game answered the last waiting `action` with.
+var action_result: Variant = null
 
 ## True between a question and its answer. A click landing on a line still on screen while
 ## another node holds the story is not an answer.
@@ -96,10 +100,26 @@ func acknowledge() -> void:
 		_answer()
 
 
-## What an `action` node asks for. Override to do it. The default announces it and carries on.
+## What an `action` node asks for. Override to do it. The default announces it and carries
+## on. Whatever comes back is what the node keeps.
 func act(action_name: String, arguments: Array) -> Variant:
 	action_requested.emit(action_name, arguments)
 	return null
+
+
+## The same call with the story held until [method finish_action] answers it.
+func await_act(action_name: String, arguments: Array) -> void:
+	asking = true
+	action_awaited.emit(action_name, arguments)
+
+	# Nobody is listening, so nobody will ever answer.
+	if action_awaited.get_connections().is_empty():
+		finish_action(null)
+
+
+func finish_action(result: Variant = null) -> void:
+	action_result = result
+	_answer()
 
 
 ## A path as the story wrote it, made absolute.
