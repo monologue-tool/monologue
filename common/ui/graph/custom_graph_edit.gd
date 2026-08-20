@@ -39,9 +39,8 @@ func _hide_default_scrollbars() -> void:
 
 
 func _on_connection_to_empty(node: String, port: int, release: Vector2) -> void:
-	var center: Vector2 = (get_local_mouse_position() + scroll_offset) / zoom
 	var graph_release: Vector2 = (release + scroll_offset) / zoom
-	EventBus.enable_picker_mode.emit(node, port, release, graph_release, center, false)
+	EventBus.enable_picker_mode.emit(node, port, graph_release)
 
 
 func _on_gui_input(event: InputEvent) -> void:

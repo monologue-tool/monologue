@@ -81,12 +81,18 @@ static func pack_document(
 
 static func pack_data(writer: ZIPPacker, data: Dictionary, path: String) -> void:
 	writer.start_file(path)
-	writer.write_file(written(data).to_utf8_buffer())
+	writer.write_file(compacted(data).to_utf8_buffer())
 	writer.close_file()
 
 
-static func written(data: Dictionary) -> String:
+## For an archive, which is compressed and which nobody opens by hand.
+static func compacted(data: Dictionary) -> String:
 	return JSON.stringify(MonologueCompactor.pack(data))
+
+
+## For a folder, which exists to be read and diffed.
+static func laid_out(data: Dictionary) -> String:
+	return JSON.stringify(MonologueCompactor.pack(data), "\t")
 
 
 ## Writes the project as a folder, one file per document, laid out the way the archive
@@ -152,7 +158,7 @@ static func _write_data(data: Dictionary, path: String, result: ValidationResult
 	if file == null:
 		result.add_error("Could not write '%s'." % path, &"write_failed")
 		return
-	file.store_string(written(data))
+	file.store_string(laid_out(data))
 	file.close()
 
 
@@ -161,8 +167,6 @@ static func _pack_documents(project: MonologueProject, temp_path: String) -> Val
 	DirAccess.remove_absolute(temp_path)
 
 	var writer: ZIPPacker = ZIPPacker.new()
-	# Deflated. The documents are JSON that repeats itself, so this is most of what an
-	# archive saves over a folder.
 	writer.compression_level = ZIPPacker.COMPRESSION_DEFAULT
 	var error: Error = writer.open(temp_path, ZIPPacker.APPEND_CREATE)
 	if error != OK:

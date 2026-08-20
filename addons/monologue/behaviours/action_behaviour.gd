@@ -28,7 +28,7 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 
 
 func input(ctx: MonologueContext) -> BehaviourResult:
-	_keep(ctx, ctx.player.action_result)
+	_keep(ctx, ctx.player.action_result())
 	return BehaviourResult.progress(ctx.next())
 
 

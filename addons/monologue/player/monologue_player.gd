@@ -30,8 +30,8 @@ signal action_awaited(action_name: String, arguments: Array)
 ## The option last taken, as the item id its wire leaves the choice node by.
 var picked: String = ""
 var answer: String = ""
-## What the game answered the last waiting `action` with.
-var action_result: Variant = null
+## What the game answered the last waiting `action` with, under "value".
+var _action_answer: Dictionary = {}
 
 ## True between a question and its answer. A click landing on a line still on screen while
 ## another node holds the story is not an answer.
@@ -118,8 +118,12 @@ func await_act(action_name: String, arguments: Array) -> void:
 
 
 func finish_action(result: Variant = null) -> void:
-	action_result = result
+	_action_answer = {"value": result}
 	_answer()
+
+
+func action_result() -> Variant:
+	return _action_answer.get("value")
 
 
 ## A path as the story wrote it, made absolute.

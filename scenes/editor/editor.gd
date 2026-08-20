@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 func _select_new_node() -> void:
-	graph_node_picker.open_for_node("", -1, null, null, null, true)
+	graph_node_picker.open_for_node()
 
 
 #func _input(event: InputEvent) -> void:
@@ -75,7 +75,7 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 
 	var graph_edit: MonologueGraphEdit = graph_container.graph
 	var target_position: Vector2 = Vector2.ZERO
-	if picker and picker.graph_release is Vector2:
+	if picker and picker.has_source_port():
 		target_position = picker.graph_release
 	else:
 		target_position = graph_edit.scroll_offset / graph_edit.zoom

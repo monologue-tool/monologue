@@ -50,17 +50,9 @@ signal show_welcome
 signal hide_welcome
 ## Opens the window listing every translatable line in the project.
 signal open_localization
-## Opens the node picker. [param node] is a graph view name, empty when the picker was
-## not dragged out of a port. The three positions are null in that case, and
-## [param center_window] puts the picker in the middle of the screen instead.
-signal enable_picker_mode(
-	node: String,
-	port: int,
-	release: Variant,
-	graph_release: Variant,
-	center: Variant,
-	center_window: bool
-)
+## Opens the node picker. [param node] is a graph view name, empty when the picker was not
+## dragged out of a port, in which case [param graph_release] means nothing.
+signal enable_picker_mode(node: String, port: int, graph_release: Vector2)
 signal show_inspector(visible: bool)
 signal show_project_explorer(visible: bool)
 signal show_console(visible: bool)

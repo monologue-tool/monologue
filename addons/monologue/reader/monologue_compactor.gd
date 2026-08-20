@@ -1,9 +1,4 @@
 ## Makes a saved document smaller.
-##
-## [method pack] and [method unpack] are inverses over any document.
-##
-## It walks the whole tree rather than the top level, so an option inside a choice and a
-## record inside a collection are shortened the same way a node is.
 class_name MonologueCompactor
 
 const ALIASES_KEY: String = "_aliases"
@@ -131,18 +126,18 @@ static func _carried_by_all(instances: Array, key: Variant) -> bool:
 
 static func _most_common(instances: Array, key: Variant) -> Dictionary:
 	var tally: Dictionary = {}
-	var best: String = ""
+	var best: Variant = null
 	var hits: int = 0
 
 	for one: Variant in instances:
-		var token: String = JSON.stringify((one as Dictionary)[key])
-		var seen: int = 1 + int(tally.get(token, 0))
-		tally[token] = seen
+		var held: Variant = (one as Dictionary)[key]
+		var seen: int = 1 + int(tally.get(JSON.stringify(held), 0))
+		tally[JSON.stringify(held)] = seen
 		if seen > hits:
-			best = token
+			best = held
 			hits = seen
 
-	return {"value": JSON.parse_string(best), "hits": hits}
+	return {"value": best, "hits": hits}
 
 
 static func _shrink(value: Variant, prototypes: Dictionary, shortened: Dictionary) -> Variant:
@@ -160,10 +155,14 @@ static func _shrink(value: Variant, prototypes: Dictionary, shortened: Dictionar
 	var packed: Dictionary = {}
 
 	for key: Variant in held_dict:
-		if shared.has(key) and JSON.stringify(shared[key]) == JSON.stringify(held_dict[key]):
+		if shared.has(key) and _same(shared[key], held_dict[key]):
 			continue
 		packed[shortened.get(key, key)] = _shrink(held_dict[key], prototypes, shortened)
 	return packed
+
+
+static func _same(first: Variant, second: Variant) -> bool:
+	return typeof(first) == typeof(second) and first == second
 
 
 static func _grow(value: Variant, prototypes: Dictionary, aliases: Dictionary) -> Variant:

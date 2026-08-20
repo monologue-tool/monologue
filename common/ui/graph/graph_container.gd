@@ -219,7 +219,7 @@ func _apply_selection(nodes: Array[InspectableObject], storyline_id: String) -> 
 
 
 func _on_add_node_btn_pressed() -> void:
-	EventBus.enable_picker_mode.emit("", -1, null, null, null, true)
+	EventBus.enable_picker_mode.emit("", -1, Vector2.ZERO)
 
 
 func _on_snap_button_pressed() -> void:
