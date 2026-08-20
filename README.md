@@ -54,4 +54,4 @@ Monologue was originally a fork of [Amberlim's GodotDialogSystem](https://github
 
 ## License
 
-This project is licensed under the terms of the [MIT license](https://github.com/atomic-junky/Monologue/blob/main/LICENSE).
+This project is licensed under the terms of the [MIT license](https://github.com/monologue-tool/monologue/blob/main/LICENSE).
