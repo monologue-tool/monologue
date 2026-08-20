@@ -7,12 +7,6 @@ var _main_property_defined: bool = false
 
 
 func _init(command_manager: CommandManager = null) -> void:
-	define_property(Property.new("color")
-		.set_type("color")
-		.default("000000")
-		.header()
-		.no_expand())
-
 	super._init(command_manager)
 
 	define_property(Property.new("label")
@@ -35,12 +29,9 @@ func _init(command_manager: CommandManager = null) -> void:
 		.hidden_in_inspector()
 		.not_exposable())
 
-	# Asked of the properties, not the flag. A node redeclaring one of the names above
-	# overwrites its own main property, and the flag would still say it had one.
 	if get_main_property() == null:
 		push_error(
-			"%s has no main property; check it does not redeclare id, color, label, notes "
-			% get_type() + "or editor_position."
+			"%s has no main property" % get_type() + "or editor_position."
 		)
 
 

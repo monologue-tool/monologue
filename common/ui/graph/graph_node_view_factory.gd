@@ -20,39 +20,9 @@ static func build(node: InspectableNode) -> GraphNode:
 	graph_node.draggable = true
 	graph_node.selectable = true
 	graph_node.resizable = false
-	modulate_stylebox(graph_node, node)
 	apply_metadata(graph_node, node)
 	populate(graph_node, node)
 	return graph_node
-
-
-static func modulate_stylebox(graph_node: GraphNode, node: InspectableNode) -> void:
-	var color_prop: Property = node.get_property("color")
-	if not color_prop:
-		return
-
-	var node_color: Color = Color(str(color_prop.get_value()))
-	var sb_names: Array = ["panel", "panel_selected"]
-
-	for sb_name: String in sb_names:
-		graph_node.remove_theme_stylebox_override(sb_name)
-
-	if node_color == Color.BLACK:
-		return
-
-	for sb_name: String in sb_names:
-		var base_sb: StyleBox = graph_node.get_theme_stylebox(sb_name)
-
-		if base_sb is StyleBoxFlat:
-			var flat_sb: StyleBoxFlat = base_sb as StyleBoxFlat
-			var new_sb: StyleBoxFlat = flat_sb.duplicate()
-			var new_bg_color: Color = Color(node_color, 0.35)
-			var new_border_color: Color = Color(node_color, 0.35)
-			new_bg_color = flat_sb.bg_color.blend(new_bg_color)
-			new_border_color = flat_sb.border_color.blend(new_border_color)
-			new_sb.bg_color = new_bg_color
-			new_sb.border_color = new_border_color
-			graph_node.add_theme_stylebox_override(sb_name, new_sb)
 
 
 static func populate(graph_node: GraphNode, node: InspectableNode) -> void:

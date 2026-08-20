@@ -82,7 +82,6 @@ func refresh_node(node: InspectableNode) -> void:
 		return
 
 	clear_connections()
-	GraphNodeViewFactory.modulate_stylebox(node.graph_view, node)
 	GraphNodeViewFactory.apply_metadata(node.graph_view, node)
 	GraphNodeViewFactory.populate(node.graph_view, node)
 	_sync_position_from_property(node)
