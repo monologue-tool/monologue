@@ -120,8 +120,11 @@ func set_property_value(pname: String, pvalue: Variant) -> void:
 	if typeof(pvalue) == typeof(old_value) and pvalue == old_value:
 		return
 
-	var command: PropertyChangeCommand = PropertyChangeCommand.new(self, pname, old_value, pvalue)
-	history.execute(command)
+	if not history:
+		Log.error("A '%s' has no history, so '%s' was not changed." % [get_type(), pname])
+		return
+
+	history.execute(PropertyChangeCommand.new(self, pname, old_value, pvalue))
 
 
 func set_property_settings_value(pname: String, skey: String, svalue: Variant) -> void:
@@ -130,10 +133,13 @@ func set_property_settings_value(pname: String, skey: String, svalue: Variant) -
 
 	var old_value: Variant = get_property_settings_value(pname, skey)
 
-	var command: PropertySettingsChangeCommand = PropertySettingsChangeCommand.new(
-		self, pname, skey, old_value, svalue
+	if not history:
+		Log.error("A '%s' has no history, so '%s' was not changed." % [get_type(), skey])
+		return
+
+	history.execute(
+		PropertySettingsChangeCommand.new(self, pname, skey, old_value, svalue)
 	)
-	history.execute(command)
 
 
 func is_property_enabled(property: Property) -> bool:

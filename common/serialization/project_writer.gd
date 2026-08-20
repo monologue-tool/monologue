@@ -12,6 +12,7 @@ const MANIFEST: String = MonologueSource.MANIFEST
 const SETTINGS: String = MonologueSource.SETTINGS
 const COLLECTIONS: String = MonologueSource.COLLECTIONS
 const STORYLINES: String = MonologueSource.STORYLINES
+const SECTIONS: String = MonologueSource.SECTIONS
 
 
 ## Writes [param project] to [param path], as an archive or as a folder depending on
@@ -47,21 +48,51 @@ static func documents_of(project: MonologueProject) -> Dictionary:
 		documents[MonologueSource.document_path(COLLECTIONS, collection.name)] = (
 			collection._to_dict()
 		)
-	for storyline: StorylineDocument in project.storylines:
-		documents[MonologueSource.document_path(STORYLINES, storyline.name)] = (
-			storyline._to_dict()
+	for storyline: StorylineDocument in project.top_level_storylines():
+		documents[MonologueSource.document_path(STORYLINES, storyline.name)] = written_with_sections(
+			project, storyline
 		)
 	return documents
+
+
+## A storyline with its sections, at any depth, as the one document they are written as.
+static func written_with_sections(
+	project: MonologueProject, storyline: StorylineDocument
+) -> Dictionary:
+	var data: Dictionary = storyline._to_dict()
+	var nested: Array = []
+	var pending: Array[String] = [storyline.id]
+
+	while not pending.is_empty():
+		for section: StorylineDocument in project.get_sections_of(pending.pop_front()):
+			nested.append(section._to_dict())
+			pending.append(section.id)
+
+	data[SECTIONS] = nested
+	return data
 
 
 ## Serializes one document into an already-open archive.
 static func pack_document(
 	writer: ZIPPacker, document: InspectableDocument, path: String
 ) -> void:
-	var data: String = JSON.stringify(document._to_dict(), "\t")
+	pack_data(writer, document._to_dict(), path)
+
+
+static func pack_data(writer: ZIPPacker, data: Dictionary, path: String) -> void:
 	writer.start_file(path)
-	writer.write_file(data.to_utf8_buffer())
+	writer.write_file(compacted(data).to_utf8_buffer())
 	writer.close_file()
+
+
+## For an archive, which is compressed and which nobody opens by hand.
+static func compacted(data: Dictionary) -> String:
+	return JSON.stringify(MonologueCompactor.pack(data))
+
+
+## For a folder, which exists to be read and diffed.
+static func laid_out(data: Dictionary) -> String:
+	return JSON.stringify(MonologueCompactor.pack(data), "\t")
 
 
 ## Writes the project as a folder, one file per document, laid out the way the archive
@@ -71,7 +102,12 @@ static func pack_document(
 ## no single thing to move, and no old copy to roll back to.
 static func _write_tree(project: MonologueProject, path: String) -> ValidationResult:
 	var result: ValidationResult = ValidationResult.ok()
-	for directory: String in [path, path.path_join(COLLECTIONS), path.path_join(STORYLINES)]:
+	var folders: Array[String] = [
+		path,
+		path.path_join(COLLECTIONS),
+		path.path_join(STORYLINES),
+	]
+	for directory: String in folders:
 		if DirAccess.make_dir_recursive_absolute(directory) != OK:
 			return result.add_error("Could not create '%s'." % directory, &"write_failed")
 
@@ -87,10 +123,12 @@ static func _write_tree(project: MonologueProject, path: String) -> ValidationRe
 		_write_document(collection, path.path_join(entry), result)
 
 	var written_storylines: PackedStringArray = []
-	for storyline: StorylineDocument in project.storylines:
+	for storyline: StorylineDocument in project.top_level_storylines():
 		var entry: String = MonologueSource.document_path(STORYLINES, storyline.name)
 		written_storylines.append(entry.get_file())
-		_write_document(storyline, path.path_join(entry), result)
+		_write_data(
+			written_with_sections(project, storyline), path.path_join(entry), result
+		)
 
 	_remove_stale_documents(path.path_join(COLLECTIONS), written_collections)
 	_remove_stale_documents(path.path_join(STORYLINES), written_storylines)
@@ -100,7 +138,7 @@ static func _write_tree(project: MonologueProject, path: String) -> ValidationRe
 ## A folder is written in place, so a renamed storyline would leave the file it used to be
 ## behind and the next read would find it twice.
 ##
-## Only the project's own kind of file, and only in the two folders it manages.
+## Only the project's own kind of file, and only in the folders it manages.
 static func _remove_stale_documents(directory: String, written: PackedStringArray) -> void:
 	for file_name: String in DirAccess.get_files_at(directory):
 		if file_name.get_extension().to_lower() != MonologueSource.DOCUMENT_EXTENSION:
@@ -112,11 +150,15 @@ static func _remove_stale_documents(directory: String, written: PackedStringArra
 static func _write_document(
 	document: InspectableDocument, path: String, result: ValidationResult
 ) -> void:
+	_write_data(document._to_dict(), path, result)
+
+
+static func _write_data(data: Dictionary, path: String, result: ValidationResult) -> void:
 	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		result.add_error("Could not write '%s'." % path, &"write_failed")
 		return
-	file.store_string(JSON.stringify(document._to_dict(), "\t"))
+	file.store_string(laid_out(data))
 	file.close()
 
 
@@ -125,7 +167,7 @@ static func _pack_documents(project: MonologueProject, temp_path: String) -> Val
 	DirAccess.remove_absolute(temp_path)
 
 	var writer: ZIPPacker = ZIPPacker.new()
-	writer.compression_level = 0
+	writer.compression_level = ZIPPacker.COMPRESSION_DEFAULT
 	var error: Error = writer.open(temp_path, ZIPPacker.APPEND_CREATE)
 	if error != OK:
 		return result.add_error(
@@ -138,9 +180,11 @@ static func _pack_documents(project: MonologueProject, temp_path: String) -> Val
 		pack_document(
 			writer, collection, MonologueSource.document_path(COLLECTIONS, collection.name)
 		)
-	for storyline: StorylineDocument in project.storylines:
-		pack_document(
-			writer, storyline, MonologueSource.document_path(STORYLINES, storyline.name)
+	for storyline: StorylineDocument in project.top_level_storylines():
+		pack_data(
+			writer,
+			written_with_sections(project, storyline),
+			MonologueSource.document_path(STORYLINES, storyline.name)
 		)
 
 	writer.close()

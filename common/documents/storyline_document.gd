@@ -7,6 +7,9 @@ signal connections_changed
 var id: String:
 	get = _get_id
 var name: String = ""
+## The document this one sits inside, by id. Empty for a storyline. Sections are stored
+## flat and this field is the whole of the tree.
+var parent: String = ""
 var nodes: Array[InspectableNode] = []
 ## Every wire in this storyline, and the only place they are stored. Each property's
 ## connected_from / connected_to are views onto this list.
@@ -194,6 +197,17 @@ func get_node(node_id: String) -> InspectableNode:
 	return _node_index.get(node_id)
 
 
+func get_root() -> InspectableNode:
+	for node: InspectableNode in nodes:
+		if node is RootNode:
+			return node
+	return null
+
+
+func is_section() -> bool:
+	return not parent.is_empty()
+
+
 func initialize_properties() -> void:
 	pass
 
@@ -293,15 +307,15 @@ func register_node(node: InspectableNode) -> void:
 
 func _to_dict() -> Dictionary:
 	var dict: Dictionary = super._to_dict()
-	dict["nodes"] = []
-	var root_node_id: String = ""
+	var written: Array = []
 	for node: InspectableNode in nodes:
-		if node is RootNode:
-			root_node_id = node.get_property("id").get_value()
-		var nodes_arr: Array = dict["nodes"]
-		nodes_arr.append(node._to_dict())
+		written.append(node._to_dict())
+	dict["nodes"] = written
 
-	dict["root_node_id"] = root_node_id
+	var root: InspectableNode = get_root()
+	dict["root_node_id"] = root.get_id() if root else ""
+	dict["parent"] = parent
+	dict["name"] = name
 
 	var connection_list: Array = []
 	for connection: NodeConnection in connections:
@@ -321,8 +335,8 @@ func _from_dict(dict: Dictionary) -> void:
 	load_issues.clear()
 
 	super._from_dict(dict)
+	parent = str(dict.get("parent", ""))
 
-	# Reconstruct graph nodes
 	var node_list: Array = dict.get("nodes", [])
 	for node_data: Dictionary in node_list:
 		var node_type: String = node_data.get("$type", "")

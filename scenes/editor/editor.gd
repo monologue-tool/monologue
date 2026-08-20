@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 func _select_new_node() -> void:
-	graph_node_picker.open_for_node("", -1, null, null, null, true)
+	graph_node_picker.open_for_node()
 
 
 #func _input(event: InputEvent) -> void:
@@ -66,16 +66,25 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 		Log.error("Unable to create node of type '%s'." % node_type)
 		return
 
+	# A section node with nothing to run does nothing, and making the document it runs by
+	# hand is a second step with no decision in it. One gesture makes both.
+	if node_type == "section":
+		var section: StorylineDocument = ProjectManager.current_project.add_section(storyline_id)
+		if section:
+			node.get_property("target").set_value(section.id)
+
 	var graph_edit: MonologueGraphEdit = graph_container.graph
 	var target_position: Vector2 = Vector2.ZERO
-	if picker and picker.graph_release is Vector2:
+	if picker and picker.has_source_port():
 		target_position = picker.graph_release
 	else:
 		target_position = graph_edit.scroll_offset / graph_edit.zoom
 
+	# A pair of numbers and not a Vector2, which is what every other writer stores and the only
+	# shape JSON can carry.
 	var position_property: Property = node.get_property("editor_position")
 	if position_property:
-		position_property.set_value(target_position)
+		position_property.set_value([target_position.x, target_position.y])
 
 	# One transaction, so a node dragged out of a port and its wire are undone together
 	# rather than in two steps.

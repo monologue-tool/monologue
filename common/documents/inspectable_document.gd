@@ -1,7 +1,6 @@
 @abstract
 class_name InspectableDocument extends InspectableObject
 
-# An alias, not a second definition: what a document is called on disk is MonologueSource's.
 const FILE_FORMAT: String = MonologueSource.DOCUMENT_EXTENSION
 
 signal content_changed

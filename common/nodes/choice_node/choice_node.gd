@@ -2,9 +2,9 @@ class_name ChoiceNode extends InspectableNode
 
 const MAX_CHOICES: int = 8
 ## Properties of a connected option node this choice copies. A change to one redraws this
-## node. Anything else, position included, does not.
+## node. Position is in here because it decides the order the options are offered in.
 const MIRRORED_PROPERTIES: Array[String] = [
-	"text", "label", "enabled", "one_shot", "condition"
+	"text", "label", "enabled", "one_shot", "condition", "editor_position"
 ]
 
 var _external_options: Array[Dictionary] = []
@@ -79,19 +79,23 @@ func _sync_external_options() -> void:
 		if source_node_id.is_empty():
 			continue
 		var source_node: InspectableNode = _find_node_by_id(source_node_id)
-		if not source_node or not (source_node is OptionNode):
-			continue
-		sources.append(source_node)
-		var ext_option: Dictionary = {
+		if source_node and source_node is OptionNode:
+			sources.append(source_node)
+
+	# Wires are kept in the order they were drawn, which is nobody's idea of an order. What
+	# the author arranged down the canvas is what the reader is offered.
+	sources.sort_custom(InspectableNode.laid_out_before)
+
+	for source: InspectableNode in sources:
+		_external_options.append({
 			"external": true,
-			"source_node_id": source_node_id,
-			"name": _get_option_node_name(source_node),
-			"text": source_node.get_property_value("text"),
-			"enabled": source_node.get_property_value("enabled"),
-			"one_shot": source_node.get_property_value("one_shot"),
-			"condition": source_node.get_property_value("condition"),
-		}
-		_external_options.append(ext_option)
+			"source_node_id": source.get_id(),
+			"name": _get_option_node_name(source),
+			"text": source.get_property_value("text"),
+			"enabled": source.get_property_value("enabled"),
+			"one_shot": source.get_property_value("one_shot"),
+			"condition": source.get_property_value("condition"),
+		})
 
 	_watch_sources(sources)
 

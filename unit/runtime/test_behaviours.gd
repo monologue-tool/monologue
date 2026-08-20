@@ -36,15 +36,22 @@ func _node(type_name: String) -> InspectableNode:
 
 
 func _root() -> InspectableNode:
-	for node: InspectableNode in _storyline.nodes:
-		if node.get_type() == "root":
-			return node
-	return null
+	return _storyline.get_root()
 
 
 ## By each end's own flow port, which a node type names after itself.
 func _wire(from_node: InspectableNode, to_node: InspectableNode, from_port: String = "") -> void:
-	_storyline.add_connection(
+	_wire_in(_storyline, from_node, to_node, from_port)
+
+
+## The same, inside a section rather than in the storyline every case starts from.
+func _wire_in(
+	document: StorylineDocument,
+	from_node: InspectableNode,
+	to_node: InspectableNode,
+	from_port: String = ""
+) -> void:
+	document.add_connection(
 		NodeConnection.create(
 			from_node.get_id(),
 			from_port if not from_port.is_empty() else from_node.get_type(),
@@ -139,32 +146,31 @@ func test_a_variable_is_written_then_read_by_the_branch_that_follows() -> void:
 	assert_array(_player.said).is_equal(["Rich."])
 
 
-func test_a_jump_lands_on_the_waypoint_it_names() -> void:
-	var waypoint: InspectableNode = _node("waypoint")
-	waypoint.get_property("label").set_value("chapter_two")
-	var arrived: InspectableNode = _node("sentence")
-	arrived.get_property("line").set_value({"en": "Arrived."})
-	var skipped: InspectableNode = _node("sentence")
-	skipped.get_property("line").set_value({"en": "Skipped."})
+func test_a_jump_leaves_for_good_where_a_section_would_come_back() -> void:
+	# Both land at a section root. Only one leaves an address behind.
+	var elsewhere: StorylineDocument = _project.add_section(_storyline.id, "elsewhere")
+	var there: InspectableNode = elsewhere.create_node("sentence")
+	there.get_property("line").set_value({"en": "There."})
+	_wire_in(elsewhere, elsewhere.get_root(), there)
 
 	var leap: InspectableNode = _node("jump")
-	leap.get_property("waypoint").set_value("chapter_two")
-
+	leap.get_property("target").set_value(elsewhere.id)
 	_wire(_root(), leap)
-	_wire(waypoint, arrived)
-	_wire(skipped, waypoint)
 
 	var session: MonologueSession = _play()
 
 	assert_array(_player.said).override_failure_message(
-		"The jump did not land on its waypoint, or walked through the node before it."
-	).is_equal(["Arrived."])
+		"The jump did not land in the section it names."
+	).is_equal(["There."])
+	assert_array(session.state.call_stack).override_failure_message(
+		"A jump left somewhere to come back to, which only a section does."
+	).is_empty()
 	assert_bool(session.has_errors()).is_false()
 
 
 func test_a_jump_that_names_nothing_says_so_rather_than_wandering_off() -> void:
 	var leap: InspectableNode = _node("jump")
-	leap.get_property("waypoint").set_value("nowhere")
+	leap.get_property("target").set_value("storyline-GONE")
 	_wire(_root(), leap)
 
 	var session: MonologueSession = _play()
@@ -172,7 +178,36 @@ func test_a_jump_that_names_nothing_says_so_rather_than_wandering_off() -> void:
 	var codes: PackedStringArray = []
 	for problem: MonologueProblem in session.problems:
 		codes.append(String(problem.code))
-	assert_array(codes).contains(["unknown_waypoint"])
+	assert_array(codes).contains(["unknown_section"])
+
+
+func test_wired_options_reach_the_reader_in_the_order_they_are_laid_out() -> void:
+	# What the editor lists and what the reader is offered are built by different code, so
+	# both have to agree on what the order is.
+	var fork: InspectableNode = _node("choice")
+	var lower: InspectableNode = _node("option")
+	lower.get_property("text").set_value({"en": "Lower."})
+	lower.get_property("editor_position").set_value([0.0, 300.0])
+
+	var upper: InspectableNode = _node("option")
+	upper.get_property("text").set_value({"en": "Upper."})
+	upper.get_property("editor_position").set_value([0.0, 20.0])
+
+	_wire(_root(), fork)
+	for option: InspectableNode in [lower, upper]:
+		_storyline.add_connection(
+			NodeConnection.create(option.get_id(), "option", fork.get_id(), "choices")
+		)
+
+	_play()
+
+	assert_int(_player.offered.size()).is_equal(1)
+	assert_array(_player.offered[0]).override_failure_message(
+		"The reader was offered the options in wiring order rather than as they are laid out."
+	).is_equal([
+		MonologueStoryGraph.EXTERNAL_PREFIX + upper.get_id(),
+		MonologueStoryGraph.EXTERNAL_PREFIX + lower.get_id(),
+	])
 
 
 func test_the_inventory_counts_what_the_story_gave_and_took() -> void:
@@ -215,24 +250,57 @@ func test_an_action_reaches_the_game_with_what_was_written_beside_it() -> void:
 	assert_int(_player.acted.size()).is_equal(1)
 	assert_str(str(_player.acted[0]["name"])).is_equal("play_cutscene")
 	assert_array(_player.acted[0]["arguments"]).is_equal(["intro", "loud"])
+	assert_bool(_player.acted[0]["waited"]).override_failure_message(
+		"A plain action held the story instead of carrying on."
+	).is_false()
 
 
-func test_a_call_runs_a_function_and_comes_back_by_the_way_it_stopped() -> void:
-	# One exit per place the function's chain stops, keyed by the node it stopped at.
-	var entry: InspectableNode = _node("function")
-	var body: InspectableNode = _node("sentence")
+func test_an_action_can_wait_for_the_game_and_keep_what_it_answers() -> void:
+	# The shape every other tool has for reaching out of a story and getting something back.
+	var score: String = _declare_variable("score", "int", 0)
+
+	var play: InspectableNode = _node("action")
+	play.get_property("name").set_value("play_minigame")
+	play.get_property("wait").set_value(true)
+	play.get_property("result").set_value(score)
+
+	var after: InspectableNode = _node("sentence")
+	after.get_property("line").set_value({"en": "Done."})
+
+	_wire(_root(), play)
+	_wire(play, after)
+	_player.action_answers = [7]
+
+	var session: MonologueSession = _play()
+
+	assert_bool(_player.acted[0]["waited"]).override_failure_message(
+		"The action did not tell the game the story was waiting on it."
+	).is_true()
+	assert_int(int(session.state.variables[score])).override_failure_message(
+		"What the game answered was not kept."
+	).is_equal(7)
+	assert_array(_player.said).override_failure_message(
+		"The story did not carry on after the game answered."
+	).is_equal(["Done."])
+
+
+func test_a_section_runs_and_comes_back_by_the_way_it_stopped() -> void:
+	# One exit per place the section's chain stops, keyed by the node it stopped at.
+	var detour: StorylineDocument = _project.add_section(_storyline.id, "detour")
+	var body: InspectableNode = detour.create_node("sentence")
 	body.get_property("line").set_value({"en": "Inside."})
+	_wire_in(detour, detour.get_root(), body)
+
 	var after: InspectableNode = _node("sentence")
 	after.get_property("line").set_value({"en": "Back."})
 
-	var caller: InspectableNode = _node("call")
-	caller.get_property("target").set_value(entry.get_id())
+	var runs: InspectableNode = _node("section")
+	runs.get_property("target").set_value(detour.id)
 
-	_wire(_root(), caller)
-	_wire(entry, body)
+	_wire(_root(), runs)
 	_storyline.add_connection(
 		NodeConnection.create(
-			caller.get_id(),
+			runs.get_id(),
 			"exits",
 			after.get_id(),
 			"sentence",
@@ -243,11 +311,31 @@ func test_a_call_runs_a_function_and_comes_back_by_the_way_it_stopped() -> void:
 	var session: MonologueSession = _play()
 
 	assert_array(_player.said).override_failure_message(
-		"The call did not run the function, or did not come back by the exit it stopped at."
+		"The section did not run, or did not come back by the exit it stopped at."
 	).is_equal(["Inside.", "Back."])
 	assert_array(session.state.call_stack).override_failure_message(
 		"The return address was left on the stack."
 	).is_empty()
+
+
+func test_a_section_that_runs_itself_is_stopped_rather_than_left_to_spin() -> void:
+	var loop: StorylineDocument = _project.add_section(_storyline.id, "loop")
+	var again: InspectableNode = loop.create_node("section")
+	again.get_property("target").set_value(loop.id)
+	_wire_in(loop, loop.get_root(), again)
+
+	var enters: InspectableNode = _node("section")
+	enters.get_property("target").set_value(loop.id)
+	_wire(_root(), enters)
+
+	var session: MonologueSession = _play()
+
+	var codes: PackedStringArray = []
+	for problem: MonologueProblem in session.problems:
+		codes.append(String(problem.code))
+	assert_array(codes).override_failure_message(
+		"A section running itself was not stopped: %s" % str(codes)
+	).contains(["section_too_deep"])
 
 
 func test_an_event_takes_over_once_its_variable_matches() -> void:
@@ -452,41 +540,3 @@ func test_a_restored_save_comes_back_to_the_picture_it_left() -> void:
 	assert_int(reader.audio.played.size()).override_failure_message(
 		"The music that was still playing did not start again."
 	).is_equal(1)
-
-
-func test_a_location_moves_the_story_and_puts_the_place_on_screen() -> void:
-	var place: String = _add_record("locations", {
-		"name": "Tavern",
-		"variations": [
-			{"id": "variation-DAY", "name": "day", "image": "art/day.png", "is_default": true},
-			{"id": "variation-NIGHT", "name": "night", "image": "art/night.png"},
-		],
-	})
-
-	var dusk: InspectableNode = _node("location")
-	dusk.get_property("target").set_value(place)
-	dusk.get_property("variation").set_value("variation-NIGHT")
-
-	var dawn: InspectableNode = _node("location")
-	dawn.get_property("target").set_value(place)
-
-	var elsewhere: InspectableNode = _node("location")
-	elsewhere.get_property("target").set_value(place)
-	elsewhere.get_property("show_image").set_value(false)
-
-	_wire(_root(), dusk)
-	_wire(dusk, dawn)
-	_wire(dawn, elsewhere)
-
-	var session: MonologueSession = _play()
-
-	assert_array(_player.backdrop.images).override_failure_message(
-		"The named variation did not come up, the default did not stand in for the one nobody"
-		+ " named, or a node told not to show a picture showed one."
-	).is_equal(["art/night.png", "art/day.png"])
-
-	var here: Dictionary = session.state.stage["location"]
-	assert_str(str(here["location"])).is_equal(place)
-	assert_str(str(session.state.stage["background"])).override_failure_message(
-		"A place and a background node do not share the one thing behind everyone."
-	).is_equal("art/day.png")

@@ -100,6 +100,22 @@ func resume() -> void:
 		session.resume()
 
 
+## A move inside the playthrough being played, where [method start] is a new one.
+func go_to(storyline_id: String = "", node_id: String = "") -> void:
+	if session == null or not session.is_running():
+		start(storyline_id, node_id)
+		return
+	session.go_to(storyline_id, node_id)
+
+
+## False when the story has passed no checkpoint.
+func resume_at_checkpoint() -> bool:
+	if session == null or session.state.checkpoint.is_empty():
+		return false
+	session.go_to("", session.state.checkpoint)
+	return true
+
+
 func is_idle() -> bool:
 	return session == null or not session.is_running()
 
@@ -112,6 +128,49 @@ func is_paused() -> bool:
 ##         return  # the click belongs to the story, not to the map
 func activity() -> StringName:
 	return session.current_activity() if session else &""
+
+
+## By name, not by the id the story is wired with.
+func get_var(variable_name: String, fallback: Variant = null) -> Variant:
+	var variable_id: String = _variable_id(variable_name)
+	if variable_id.is_empty() or session == null:
+		return fallback
+	return session.state.variables.get(variable_id, fallback)
+
+
+## False when no variable carries that name.
+func set_var(variable_name: String, of_value: Variant) -> bool:
+	var variable_id: String = _variable_id(variable_name)
+	if variable_id.is_empty() or session == null:
+		_complain(
+			&"unknown_variable",
+			"There is no variable called '%s' to write." % variable_name
+		)
+		return false
+
+	session.state.variables[variable_id] = of_value
+	return true
+
+
+## Every variable in the playthrough, by name.
+func variables() -> Dictionary:
+	var held: Dictionary = {}
+	if session == null:
+		return held
+
+	for variable_id: String in session.state.variables:
+		var named: String = str(graph.record("variables", variable_id).get("name", ""))
+		if not named.is_empty():
+			held[named] = session.state.variables[variable_id]
+	return held
+
+
+func has_visited(node_id: String) -> bool:
+	return session != null and session.state.times_visited(node_id) > 0
+
+
+func _variable_id(variable_name: String) -> String:
+	return graph.id_of("variables", variable_name) if graph else ""
 
 
 func service(service_name: String) -> Object:

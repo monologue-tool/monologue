@@ -1,11 +1,13 @@
 extends EditorMenuButton
 
+@export var graph_container: GraphContainer
 @onready var graph: MonologueGraphEdit = %GraphEdit
 
 
 func _build_menu() -> void:
-	var is_last_storyline: bool = ProjectManager.current_project.storylines.size() <= 1
-	add_row("Delete Storyline", _on_delete_storyline, not is_last_storyline)
+	if not graph_container.is_section():
+		var is_last_storyline: bool = (ProjectManager.current_project.top_level_storylines().size() <= 1)
+		add_row("Delete Storyline", _on_delete_storyline, not is_last_storyline)
 
 
 func _get_storyline() -> StorylineDocument:
@@ -28,4 +30,6 @@ func _on_delete_storyline_dialog_callback(response: int) -> void:
 
 	var storyline: StorylineDocument = _get_storyline()
 	ProjectManager.current_project.delete_storyline(storyline)
-	EventBus.request_storyline_inspection.emit(ProjectManager.current_project.storylines[0])
+	EventBus.request_storyline_inspection.emit(
+		ProjectManager.current_project.top_level_storylines()[0]
+	)

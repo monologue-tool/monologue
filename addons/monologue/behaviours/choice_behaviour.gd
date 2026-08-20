@@ -18,8 +18,15 @@ func run(ctx: MonologueContext) -> BehaviourResult:
 ## The item id on the wire is the option's own, which is what makes an answer a route.
 func input(ctx: MonologueContext) -> BehaviourResult:
 	var picked: String = ctx.player.picked
-	if _option(ctx, picked).get("one_shot", false) == true:
+	var option: Dictionary = _option(ctx, picked)
+	if option.get("one_shot", false) == true:
 		ctx.state.consume(ctx.id, picked)
+
+	# What was chosen belongs in the backlog as much as what was said. Reading a run back
+	# without it shows the story taking turns nobody can account for.
+	var history: Object = ctx.service("history")
+	if history and history.has_method(&"record"):
+		history.call(&"record", ctx.label(option.get("text")), "", ctx.id)
 	return BehaviourResult.progress(ctx.next("choices", picked))
 
 

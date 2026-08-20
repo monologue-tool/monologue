@@ -12,10 +12,9 @@ var from_port: int
 ## Slot type of that port, or 0 when the picker was not opened from one. The tree
 ## offers only the types this can reach.
 var source_port_type_id: int = 0
-var release: Variant = null
-## Release position adjusted to the graph's scroll and zoom.
-var graph_release: Variant = null
-var center: Variant = null
+## Where the wire was let go, in the graph's own coordinates. Only meaningful when the
+## picker was dragged out of a port, which [method has_source_port] answers.
+var graph_release: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -44,14 +43,9 @@ func _on_type_highlighted(indexer: NodeIndexer) -> void:
 
 
 func _on_enable_picker_mode(
-	node: String = "",
-	port: int = -1,
-	mouse_pos: Variant = null,
-	graph_release_pos: Variant = null,
-	center_pos: Variant = null,
-	center_window: bool = false
+	node: String = "", port: int = -1, graph_release_pos: Vector2 = Vector2.ZERO
 ) -> void:
-	open_for_node(node, port, mouse_pos, graph_release_pos, center_pos, center_window)
+	open_for_node(node, port, graph_release_pos)
 
 
 func close() -> void:
@@ -62,9 +56,7 @@ func flush() -> void:
 	from_node = ""
 	from_port = -1
 	source_port_type_id = 0
-	release = null
-	graph_release = null
-	center = null
+	graph_release = Vector2.ZERO
 
 
 ## True when the picker was dragged out of a port, in which case the created node is
@@ -74,19 +66,12 @@ func has_source_port() -> bool:
 
 
 func open_for_node(
-	node: String = "",
-	port: int = -1,
-	mouse_pos: Variant = null,
-	graph_release_pos: Variant = null,
-	center_pos: Variant = null,
-	_center_window: bool = false
+	node: String = "", port: int = -1, graph_release_pos: Vector2 = Vector2.ZERO
 ) -> void:
 	flush()
 	from_node = node
 	from_port = port
-	release = mouse_pos
 	graph_release = graph_release_pos
-	center = center_pos
 	source_port_type_id = _resolve_source_port_type()
 
 	if node_tree:
