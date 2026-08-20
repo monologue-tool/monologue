@@ -53,26 +53,26 @@ func test_every_type_is_coherent_about_what_the_runtime_will_do_with_it() -> voi
 			).is_true()
 
 
-func test_a_type_declaring_no_way_out_is_where_a_call_stops_looking() -> void:
+func test_a_type_declaring_no_way_out_is_where_a_section_stops_looking() -> void:
 	# The two halves of the same fact: is_terminal_by_design reads the schema, and
 	# find_terminations is what acts on it. They have to agree for every type at once,
-	# because a call node grows one exit per disagreement.
+	# because a section node grows one exit per disagreement.
 	for indexer: NodeIndexer in _each_node():
 		var storyline: StorylineDocument = StorylineDocument.new("main", _history)
 		var node: InspectableNode = storyline.create_node(indexer.name)
 		if not _has_input_port(node):
 			continue
 
-		var function: InspectableNode = storyline.create_node("function")
+		var start: InspectableNode = storyline.create_node("root")
 		storyline.add_connection(
 			NodeConnection.create(
-				function.get_id(), "function", node.get_id(), node.get_main_property().name
+				start.get_id(), "root", node.get_id(), node.get_main_property().name
 			)
 		)
 
 		var terminal: bool = StorylineDocument.is_terminal_by_design(node)
 		var nothing_to_come_back_through: bool = (
-			storyline.find_terminations(function.get_id()).is_empty()
+			storyline.find_terminations(start.get_id()).is_empty()
 		)
 		assert_bool(nothing_to_come_back_through).override_failure_message(
 			"'%s' is %sterminal by design, and find_terminations disagrees."
@@ -80,22 +80,23 @@ func test_a_type_declaring_no_way_out_is_where_a_call_stops_looking() -> void:
 		).is_equal(terminal)
 
 
-func test_a_call_grows_one_exit_per_place_the_function_runs_out() -> void:
-	var storyline: StorylineDocument = StorylineDocument.new("main", _history)
-	var function: InspectableNode = storyline.create_node("function")
-	var sentence: InspectableNode = storyline.create_node("sentence")
-	storyline.add_connection(
-		NodeConnection.create(function.get_id(), "function", sentence.get_id(), "sentence")
+func test_a_section_grows_one_exit_per_place_its_chain_runs_out() -> void:
+	# Walked from the section's root, which is where playing one begins.
+	var section: StorylineDocument = StorylineDocument.new("detour", _history)
+	var start: InspectableNode = section.create_node("root")
+	var sentence: InspectableNode = section.create_node("sentence")
+	section.add_connection(
+		NodeConnection.create(start.get_id(), "root", sentence.get_id(), "sentence")
 	)
 
-	var exits: Array[InspectableNode] = storyline.find_terminations(function.get_id())
+	var exits: Array[InspectableNode] = section.find_terminations(start.get_id())
 	assert_int(exits.size()).is_equal(1)
 	assert_str(exits[0].get_id()).is_equal(sentence.get_id())
 
 	# An End stops the story rather than handing it back, so the chain grows no exit.
-	var ending: InspectableNode = storyline.create_node("end")
-	storyline.add_connection(
+	var ending: InspectableNode = section.create_node("end")
+	section.add_connection(
 		NodeConnection.create(sentence.get_id(), "sentence", ending.get_id(), "end")
 	)
 
-	assert_array(storyline.find_terminations(function.get_id())).is_empty()
+	assert_array(section.find_terminations(start.get_id())).is_empty()

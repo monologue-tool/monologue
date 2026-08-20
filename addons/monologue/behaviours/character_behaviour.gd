@@ -23,6 +23,25 @@ func setup(ctx: MonologueContext) -> void:
 	ctx.player.characters.restage(resolved)
 
 
+## A sentence may name a portrait for whoever is speaking. Somebody not on stage is left
+## alone: a portrait is how they are shown, and they are not.
+func step(ctx: MonologueContext) -> BehaviourResult:
+	var staged: Dictionary = ctx.state.stage.get(SLOT, {})
+	var who: String = str(ctx.value("speaker", ""))
+	var chosen: String = str(ctx.value("portrait", ""))
+	if ctx.type != "sentence" or chosen.is_empty() or not staged.has(who):
+		return BehaviourResult.wait()
+
+	var record: Dictionary = ctx.graph.record("characters", who)
+	var look: Dictionary = (staged[who] as Dictionary).duplicate()
+	look["portrait"] = ctx.pick(record.get("portraits", []), chosen)
+	staged[who] = look
+
+	if ctx.player.characters:
+		ctx.player.characters.apply(record, _resolved(ctx, look))
+	return BehaviourResult.wait()
+
+
 func run(ctx: MonologueContext) -> BehaviourResult:
 	var who: String = str(ctx.value("who", ""))
 	if who.is_empty():

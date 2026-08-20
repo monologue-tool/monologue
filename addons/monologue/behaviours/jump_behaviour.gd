@@ -1,7 +1,7 @@
-## Continues at a waypoint named somewhere else in this storyline.
+## Continues inside a section, with nowhere to come back to.
 ##
-## By name and not by id, which is what the editor stores. Renaming a waypoint rewrites every
-## jump that named it.
+## Nothing is pushed and nothing is dropped, so a jump made inside a section still unwinds
+## to whatever ran it.
 extends MonologueBehaviour
 
 
@@ -10,19 +10,14 @@ func handles() -> PackedStringArray:
 
 
 func run(ctx: MonologueContext) -> BehaviourResult:
-	var target: String = str(ctx.value("waypoint", "")).strip_edges()
+	var target: String = str(ctx.value("target", ""))
 	if target.is_empty():
-		ctx.fault(&"jump_without_target", "This jump names no waypoint.")
+		ctx.fault(&"jump_without_target", "This jump names no section.")
 		return BehaviourResult.stop()
 
-	var found: PackedStringArray = ctx.graph.find_by(ctx.storyline, "label", target)
-	if found.is_empty():
-		ctx.fault(&"unknown_waypoint", "No waypoint here is called '%s'." % target)
+	var entry: String = ctx.graph.entry_of(target)
+	if entry.is_empty():
+		ctx.fault(&"unknown_section", "The section this jumps to is gone.")
 		return BehaviourResult.stop()
 
-	if found.size() > 1:
-		ctx.note(
-			&"ambiguous_waypoint",
-			"%d waypoints are called '%s'; the first was taken." % [found.size(), target]
-		)
-	return BehaviourResult.progress(found[0])
+	return BehaviourResult.progress(entry)

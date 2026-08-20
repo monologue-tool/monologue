@@ -6,9 +6,9 @@ func initialize_properties() -> void:
 	var default_variation: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		"variations", history
 	)
-	default_variation.set_property_value("name", "default")
-	default_variation.set_property_value("protected", true)
-	default_variation.set_property_value("is_default", true)
+	default_variation.get_property("name").set_value("default")
+	default_variation.get_property("protected").set_value(true)
+	default_variation.get_property("is_default").set_value(true)
 
 	define_name_property()
 

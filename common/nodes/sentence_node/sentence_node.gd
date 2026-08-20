@@ -21,6 +21,12 @@ func initialize_properties() -> void:
 		.set_type("text")
 		.hidden_in_graph())
 
+	define_property(Property.new("speaker/portrait")
+		.set_type("reference")
+		.reference_scope("ref:speaker:portraits")
+		.hidden_in_graph()
+		.tooltip("Face to change to while saying this. Only for a speaker already on stage."))
+
 	define_property(Property.new("speaker/voiceline")
 		.set_type("file")
 		.hidden_in_graph())

@@ -136,6 +136,39 @@ func test_a_choice_shows_an_option_by_name_and_stops_when_unwired() -> void:
 	assert_bool(option.property_changed.is_connected(choice._on_source_property_changed)).is_false()
 
 
+func test_wired_options_are_listed_in_the_order_they_are_laid_out() -> void:
+	# Wires are kept in the order they were drawn, so without this the list is whatever order
+	# the author happened to connect them in.
+	var choice: InspectableNode = _node("choice")
+	var lower: InspectableNode = _node("option")
+	lower.set_property_value("text", {"en": "Lower"})
+	lower.get_property("editor_position").set_value([0.0, 200.0])
+
+	var upper: InspectableNode = _storyline.create_node("option")
+	upper.set_property_value("text", {"en": "Upper"})
+	upper.get_property("editor_position").set_value([0.0, 10.0])
+	_storyline.add_connection(
+		NodeConnection.create(upper.get_id(), "option", choice.get_id(), "choices")
+	)
+
+	assert_array(_listed(choice)).override_failure_message(
+		"The options came back in wiring order rather than the order they sit in."
+	).is_equal(["Upper", "Lower"])
+
+	upper.get_property("editor_position").set_value([0.0, 500.0])
+
+	assert_array(_listed(choice)).override_failure_message(
+		"Moving an option past another did not reorder them."
+	).is_equal(["Lower", "Upper"])
+
+
+func _listed(choice: InspectableNode) -> Array[String]:
+	var named: Array[String] = []
+	for external: Dictionary in choice.get_external_list_items("choices"):
+		named.append(str(external["name"]))
+	return named
+
+
 func test_an_empty_reroute_takes_anything_and_gives_back_anything() -> void:
 	var bend: InspectableNode = _storyline.create_node("reroute")
 
@@ -236,37 +269,3 @@ func _given_back(node: InspectableNode) -> int:
 ## The port a node takes in, which is always the one it declares.
 func _taken_in(node: InspectableNode) -> int:
 	return MonologueRegistry.get_instance().get_field_type_id(node.get_main_property().type)
-
-
-func test_two_waypoints_of_one_name_each_say_the_other_is_there() -> void:
-	# What nothing checking one property at a time can see: each of the two is perfectly fine
-	# on its own, and a jump aiming there reaches whichever comes first. The runtime notices
-	# it too, once, while playing. This is so it is known before anyone plays.
-	var first: InspectableNode = _storyline.create_node("waypoint")
-	var second: InspectableNode = _storyline.create_node("waypoint")
-	var alone: InspectableNode = _storyline.create_node("waypoint")
-	first.get_property("label").set_value("hub")
-	second.get_property("label").set_value("hub")
-	alone.get_property("label").set_value("elsewhere")
-
-	assert_array(_named_twice(first)).override_failure_message(
-		"A waypoint sharing its name with another did not say so."
-	).is_not_empty()
-	assert_array(_named_twice(second)).override_failure_message(
-		"Only one of the pair was named, so the author sees half the problem."
-	).is_not_empty()
-	assert_array(_named_twice(alone)).override_failure_message(
-		"A waypoint nobody shares a name with was complained about."
-	).is_empty()
-
-
-func _named_twice(waypoint: InspectableNode) -> Array[ValidationIssue]:
-	var context: ValidationContext = ValidationContext.new()
-	context.object = waypoint
-	context.project = _project
-	context.phase = ValidationContext.Phase.AUDIT
-
-	var result: ValidationResult = ValidationResult.ok()
-	waypoint.validate_object(result, context)
-	return result.with_code(&"waypoints_share_a_name")
-

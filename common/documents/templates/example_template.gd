@@ -26,7 +26,13 @@ func setup_collection(project: MonologueProject) -> void:
 	_build_epilogue(epilogue, cast)
 	project.storylines.append(epilogue)
 
-	_build_main(project.storylines[0], cast, gold, alarm, who, key, epilogue.id)
+	var main: StorylineDocument = project.storylines[0]
+	var detour: StorylineDocument = StorylineDocument.new("detour", project.command_manager)
+	detour.parent = main.id
+	var ran_out_at: InspectableNode = _build_detour(detour, cast)
+	project.storylines.append(detour)
+
+	_build_main(main, cast, gold, alarm, who, key, epilogue.id, detour.id, ran_out_at.get_id())
 
 
 func _build_main(
@@ -36,7 +42,9 @@ func _build_main(
 	alarm: String,
 	who: String,
 	key: String,
-	epilogue_id: String
+	epilogue_id: String,
+	detour_id: String,
+	detour_exit: String
 ) -> void:
 	var root: InspectableNode = _find(line, "root")
 
@@ -73,9 +81,6 @@ func _build_main(
 
 	var wired: InspectableNode = _say(line, cast, 6, 3, "wired branch", "[wired-in branch]")
 
-	var hub: InspectableNode = _node(line, "waypoint", 9, 0, "hub")
-	hub.get_property("label").set_value("hub")
-
 	# The three stage nodes carry no asset: a template ships no images and no sound, and each
 	# of them says so and carries on rather than stopping the run.
 	var scenery: InspectableNode = _node(line, "background", 10, 0, "a place")
@@ -86,10 +91,8 @@ func _build_main(
 	var music: InspectableNode = _node(line, "audio", 12, 0, "some music")
 	music.get_property("loop").set_value(true)
 
-	var entry: InspectableNode = _node(line, "function", 14, 3, "a function")
-	var inside: InspectableNode = _say(line, cast, 15, 3, "inside", "[inside the function]")
-	var invoke: InspectableNode = _node(line, "call", 13, 0, "call it")
-	invoke.get_property("target").set_value(entry.get_id())
+	var invoke: InspectableNode = _node(line, "section", 13, 0, "run the section")
+	invoke.get_property("target").set_value(detour_id)
 
 	var prompt: InspectableNode = _node(line, "input", 14, 0, "who are you")
 	prompt.get_property("text").set_value({"en": "[prompt]"})
@@ -115,25 +118,23 @@ func _build_main(
 
 	_wire(line, fork, take, "choices", "", stored[0])
 	_wire(line, take, bend)
-	_wire(line, bend, hub)
+	_wire(line, bend, scenery)
 
 	_wire(line, fork, ask_gold, "choices", "", stored[1])
 	_wire(line, ask_gold, rich, "pass")
 	_wire(line, ask_gold, poor, "fail")
-	_wire(line, rich, hub)
-	_wire(line, poor, hub)
+	_wire(line, rich, scenery)
+	_wire(line, poor, scenery)
 
 	_wire(line, extra, fork, "option", "choices")
 	_wire(line, fork, wired, "choices", "", MonologueStoryGraph.EXTERNAL_PREFIX + extra.get_id())
-	_wire(line, wired, hub)
+	_wire(line, wired, scenery)
 
-	_wire(line, hub, scenery)
 	_wire(line, scenery, actor)
 	_wire(line, actor, music)
 	_wire(line, music, invoke)
 
-	_wire(line, entry, inside)
-	_wire(line, invoke, prompt, "exits", "", MonologueStoryGraph.EXTERNAL_PREFIX + inside.get_id())
+	_wire(line, invoke, prompt, "exits", "", MonologueStoryGraph.EXTERNAL_PREFIX + detour_exit)
 
 	_wire(line, prompt, press)
 	_wire(line, press, tell)
@@ -141,6 +142,16 @@ func _build_main(
 
 	_wire(line, watch, alarmed)
 	_wire(line, alarmed, stop)
+
+
+## A section: a graph of its own, entered at its root and left wherever its chain runs out.
+## The node that runs it grows one exit per place that can happen, and this one stops in a
+## single place. Returns the node it stops at, which is what names that exit.
+func _build_detour(line: StorylineDocument, cast: String) -> InspectableNode:
+	var root: InspectableNode = _node(line, "root", 0, 0, "start")
+	var inside: InspectableNode = _say(line, cast, 1, 0, "inside", "[inside a section]")
+	_wire(line, root, inside)
+	return inside
 
 
 ## Somewhere real for the storyline node to go. Its line arrives down a wire from a text node

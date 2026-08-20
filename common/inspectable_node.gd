@@ -57,6 +57,25 @@ func get_id() -> String:
 	return get_property_value("id")
 
 
+## Written as a Vector2 by the editor and as a pair of numbers by a file, so both are read.
+func get_editor_position() -> Vector2:
+	var stored: Variant = get_property_value("editor_position")
+	if stored is Vector2:
+		return stored
+	if stored is Array and (stored as Array).size() >= 2:
+		return Vector2(float(stored[0]), float(stored[1]))
+	return Vector2.ZERO
+
+
+## Top to bottom, then left to right: the order somebody reading the canvas would give them.
+static func laid_out_before(first: InspectableNode, second: InspectableNode) -> bool:
+	var here: Vector2 = first.get_editor_position()
+	var there: Vector2 = second.get_editor_position()
+	if is_equal_approx(here.y, there.y):
+		return here.x < there.x
+	return here.y < there.y
+
+
 func get_main_property() -> Property:
 	if not _main_property_defined:
 		return null

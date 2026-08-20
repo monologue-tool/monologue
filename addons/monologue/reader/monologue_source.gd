@@ -1,7 +1,7 @@
 ## A project's documents, parsed and named, wherever they came from.
 ##
-## The one place that knows what a Monologue project looks like. Which four kinds of document
-## there are, where they sit, and how to read them out of an archive, a folder or memory.
+## The one place that knows what a Monologue project looks like. Which kinds of document there
+## are, where they sit, and how to read them out of an archive, a folder or memory.
 ## Everything downstream asks this and never touches a file.
 class_name MonologueSource extends RefCounted
 
@@ -13,6 +13,8 @@ const MANIFEST: String = "manifest.%s" % DOCUMENT_EXTENSION
 const SETTINGS: String = "settings.%s" % DOCUMENT_EXTENSION
 const COLLECTIONS: String = "collections"
 const STORYLINES: String = "storylines"
+## The key a storyline document lists its sections under. Flat, each naming its parent.
+const SECTIONS: String = "sections"
 const SUPPORTED_FORMAT_VERSION: int = 1
 
 var problems: Array[MonologueProblem] = []
@@ -79,6 +81,24 @@ func collections() -> Dictionary:
 
 func storylines() -> Dictionary:
 	return _under(STORYLINES)
+
+
+## The sections of every storyline, by name.
+func sections() -> Dictionary:
+	var found: Dictionary = {}
+	for document: Variant in storylines().values():
+		for section: Variant in (document as Dictionary).get(SECTIONS, []):
+			if section is Dictionary:
+				found[str((section as Dictionary).get("name", ""))] = section
+	found.erase("")
+	return found
+
+
+## Every document holding a graph, storylines and sections alike.
+func graphs() -> Dictionary:
+	var found: Dictionary = storylines()
+	found.merge(sections())
+	return found
 
 
 ## A collection document holds its records under its own name. Unwrapped here, so nothing

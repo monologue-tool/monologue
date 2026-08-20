@@ -5,7 +5,7 @@ func _init() -> void:
 	name = "exits"
 	display_name = "Exits"
 	color = MonologuePalette.FLOW
-	description = "Ways out of a called function. Computed, never written by hand."
+	description = "Ways out of a section. Computed, never written by hand."
 	item_script = preload("exit_item.gd")
 	is_project_scoped = false
 	label_property = "name"

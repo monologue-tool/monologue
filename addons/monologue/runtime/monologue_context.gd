@@ -57,6 +57,7 @@ func items(key: String) -> Array[Dictionary]:
 			if candidate is Dictionary:
 				found.append(candidate)
 
+	var wired: Array[Dictionary] = []
 	for wire: Dictionary in graph.sources(id, key):
 		var source: String = str(wire.get("node", ""))
 		if source.is_empty():
@@ -64,9 +65,29 @@ func items(key: String) -> Array[Dictionary]:
 		# Duplicated because the graph is built once and read by everything.
 		var external: Dictionary = graph.props(source).duplicate()
 		external["id"] = MonologueStoryGraph.EXTERNAL_PREFIX + source
-		found.append(external)
+		wired.append(external)
 
+	# Wires are stored in the order they were drawn. Where the author put the nodes is the
+	# order they are read in, so it is the order they are offered in.
+	wired.sort_custom(_laid_out_before)
+	found.append_array(wired)
 	return found
+
+
+## Top to bottom, then left to right.
+static func _laid_out_before(first: Dictionary, second: Dictionary) -> bool:
+	var here: Vector2 = _laid_out_at(first)
+	var there: Vector2 = _laid_out_at(second)
+	if is_equal_approx(here.y, there.y):
+		return here.x < there.x
+	return here.y < there.y
+
+
+static func _laid_out_at(props: Dictionary) -> Vector2:
+	var stored: Variant = props.get("editor_position")
+	if stored is Array and (stored as Array).size() >= 2:
+		return Vector2(float(stored[0]), float(stored[1]))
+	return Vector2.ZERO
 
 
 ## One record out of a list held inside another. The one named, the one marked as the
