@@ -181,6 +181,35 @@ func test_a_jump_that_names_nothing_says_so_rather_than_wandering_off() -> void:
 	assert_array(codes).contains(["unknown_section"])
 
 
+func test_wired_options_reach_the_reader_in_the_order_they_are_laid_out() -> void:
+	# What the editor lists and what the reader is offered are built by different code, so
+	# both have to agree on what the order is.
+	var fork: InspectableNode = _node("choice")
+	var lower: InspectableNode = _node("option")
+	lower.get_property("text").set_value({"en": "Lower."})
+	lower.get_property("editor_position").set_value([0.0, 300.0])
+
+	var upper: InspectableNode = _node("option")
+	upper.get_property("text").set_value({"en": "Upper."})
+	upper.get_property("editor_position").set_value([0.0, 20.0])
+
+	_wire(_root(), fork)
+	for option: InspectableNode in [lower, upper]:
+		_storyline.add_connection(
+			NodeConnection.create(option.get_id(), "option", fork.get_id(), "choices")
+		)
+
+	_play()
+
+	assert_int(_player.offered.size()).is_equal(1)
+	assert_array(_player.offered[0]).override_failure_message(
+		"The reader was offered the options in wiring order rather than as they are laid out."
+	).is_equal([
+		MonologueStoryGraph.EXTERNAL_PREFIX + upper.get_id(),
+		MonologueStoryGraph.EXTERNAL_PREFIX + lower.get_id(),
+	])
+
+
 func test_the_inventory_counts_what_the_story_gave_and_took() -> void:
 	# What one character is given is not in anybody else's pockets.
 	var cast: String = _first_record("characters")

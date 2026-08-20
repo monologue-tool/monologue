@@ -145,20 +145,7 @@ func _sync_position_from_property(node: InspectableNode) -> void:
 	if _pending_positions.has(node.graph_view):
 		return
 
-	var position_property: Property = node.get_property("editor_position")
-	var raw: Variant = position_property.get_value() if position_property else null
-	var desired_position: Vector2
-	if raw is Vector2:
-		desired_position = raw
-	elif raw is Array:
-		var raw_arr: Array = raw
-		if raw_arr.size() >= 2:
-			var x_val: float = raw_arr[0] if raw_arr[0] is float else 0.0
-			var y_val: float = raw_arr[1] if raw_arr[1] is float else 0.0
-			desired_position = Vector2(x_val, y_val)
-	else:
-		desired_position = Vector2.ZERO
-
+	var desired_position: Vector2 = node.get_editor_position()
 	if node.graph_view.position_offset == desired_position:
 		return
 

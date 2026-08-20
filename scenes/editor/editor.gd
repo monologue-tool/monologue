@@ -80,9 +80,11 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 	else:
 		target_position = graph_edit.scroll_offset / graph_edit.zoom
 
+	# A pair of numbers and not a Vector2, which is what every other writer stores and the only
+	# shape JSON can carry.
 	var position_property: Property = node.get_property("editor_position")
 	if position_property:
-		position_property.set_value(target_position)
+		position_property.set_value([target_position.x, target_position.y])
 
 	# One transaction, so a node dragged out of a port and its wire are undone together
 	# rather than in two steps.

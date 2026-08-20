@@ -37,7 +37,7 @@ func _read(section: StorylineDocument) -> void:
 	for node: InspectableNode in section.nodes:
 		if placed.size() >= MAX_MARKS:
 			break
-		var at: Vector2 = _position_of(node)
+		var at: Vector2 = node.get_editor_position()
 		_bounds = Rect2(at, Vector2.ZERO) if placed.is_empty() else _bounds.expand(at)
 		placed[node.get_id()] = at
 
@@ -60,15 +60,6 @@ func _read(section: StorylineDocument) -> void:
 			_wires.append(
 				PackedVector2Array([placed[wire.from_node_id], placed[wire.to_node_id]])
 			)
-
-
-static func _position_of(node: InspectableNode) -> Vector2:
-	var stored: Variant = node.get_property_value("editor_position")
-	if stored is Vector2:
-		return stored
-	if stored is Array and (stored as Array).size() >= 2:
-		return Vector2(float(stored[0]), float(stored[1]))
-	return Vector2.ZERO
 
 
 func _draw() -> void:

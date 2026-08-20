@@ -136,6 +136,39 @@ func test_a_choice_shows_an_option_by_name_and_stops_when_unwired() -> void:
 	assert_bool(option.property_changed.is_connected(choice._on_source_property_changed)).is_false()
 
 
+func test_wired_options_are_listed_in_the_order_they_are_laid_out() -> void:
+	# Wires are kept in the order they were drawn, so without this the list is whatever order
+	# the author happened to connect them in.
+	var choice: InspectableNode = _node("choice")
+	var lower: InspectableNode = _node("option")
+	lower.set_property_value("text", {"en": "Lower"})
+	lower.get_property("editor_position").set_value([0.0, 200.0])
+
+	var upper: InspectableNode = _storyline.create_node("option")
+	upper.set_property_value("text", {"en": "Upper"})
+	upper.get_property("editor_position").set_value([0.0, 10.0])
+	_storyline.add_connection(
+		NodeConnection.create(upper.get_id(), "option", choice.get_id(), "choices")
+	)
+
+	assert_array(_listed(choice)).override_failure_message(
+		"The options came back in wiring order rather than the order they sit in."
+	).is_equal(["Upper", "Lower"])
+
+	upper.get_property("editor_position").set_value([0.0, 500.0])
+
+	assert_array(_listed(choice)).override_failure_message(
+		"Moving an option past another did not reorder them."
+	).is_equal(["Lower", "Upper"])
+
+
+func _listed(choice: InspectableNode) -> Array[String]:
+	var named: Array[String] = []
+	for external: Dictionary in choice.get_external_list_items("choices"):
+		named.append(str(external["name"]))
+	return named
+
+
 func test_an_empty_reroute_takes_anything_and_gives_back_anything() -> void:
 	var bend: InspectableNode = _storyline.create_node("reroute")
 
