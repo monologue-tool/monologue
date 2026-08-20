@@ -127,7 +127,9 @@ func _document_buttons() -> Array[Button]:
 
 func _show_open_storyline() -> void:
 	var project: MonologueProject = ProjectManager.current_project
-	var top_level_storylines: Array[StorylineDocument] = project.top_level_storylines() if project else []
+	var top_level_storylines: Array[StorylineDocument] = (
+		project.top_level_storylines() if project else []
+	)
 	if top_level_storylines.is_empty():
 		return
 

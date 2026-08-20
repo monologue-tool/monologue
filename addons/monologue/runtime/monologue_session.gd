@@ -15,7 +15,6 @@ signal stepped()
 
 var graph: MonologueStoryGraph
 var state: MonologueState = MonologueState.new()
-var session_name: String = ""
 var player: MonologuePlayer
 var language: String = ""
 var problems: Array[MonologueProblem] = []

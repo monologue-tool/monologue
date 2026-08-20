@@ -5,9 +5,9 @@ func initialize_properties() -> void:
 	var default_portrait: CollectionItem = MonologueRegistry.get_instance().create_collection_item(
 		"portraits", history
 	)
-	default_portrait.set_property_value("name", "default")
-	default_portrait.set_property_value("protected", true)
-	default_portrait.set_property_value("is_default", true)
+	default_portrait.get_property("name").set_value("default")
+	default_portrait.get_property("protected").set_value(true)
+	default_portrait.get_property("is_default").set_value(true)
 
 	define_name_property(NameGenerator.generate)
 

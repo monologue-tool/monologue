@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 
-## A playthrough as something with a memory: readable, writable, and able to be put down and
-## picked up again. What makes the editor a place to prototype rather than only to replay.
+## A playthrough as something with a memory a game can read and write, which is what a hub
+## menu is built out of.
 
 var _project: MonologueProject
 var _path: String
@@ -103,8 +103,6 @@ func test_a_variable_is_reached_by_its_name_and_not_by_its_id() -> void:
 
 
 func test_changing_a_variable_mid_run_changes_the_branch_that_follows() -> void:
-	# The whole point of a session having a memory that can be written: the question "what if
-	# this were 9" is answered without playing the story again.
 	var gold: String = _declare_variable("gold", "int", 0)
 
 	var held: InspectableNode = _say("Ask.")
@@ -128,60 +126,6 @@ func test_changing_a_variable_mid_run_changes_the_branch_that_follows() -> void:
 	assert_array(_player.said).override_failure_message(
 		"Writing the variable did not change the branch taken after it."
 	).is_equal(["Ask.", "Rich."])
-
-
-func test_a_saved_session_comes_back_where_it_was_with_what_it_had() -> void:
-	var gold: String = _declare_variable("gold", "int", 0)
-	var earn: InspectableNode = _earn(gold, 7)
-	var held: InspectableNode = _say("Held.")
-	_wire(_storyline.get_root(), earn)
-	_wire(earn, held)
-
-	assert_bool(_load()).is_true()
-	_runtime.start()
-	var was: String = _runtime.session.state.current_node()
-
-	assert_bool(_runtime.save_session("chapter one")).is_true()
-	_runtime.stop()
-
-	assert_bool(_runtime.load_session("chapter one")).is_true()
-
-	assert_int(int(_runtime.get_var("gold", -1))).override_failure_message(
-		"The session came back without what it had picked up."
-	).is_equal(7)
-	assert_str(_runtime.session.state.current_node()).override_failure_message(
-		"The session came back somewhere other than where it was put down."
-	).is_equal(was)
-
-	var history: Object = _runtime.service("history")
-	assert_int((history.call(&"last", 10) as Array).size()).override_failure_message(
-		"The backlog did not come back with the session."
-	).is_greater(0)
-
-	_runtime.delete_session("chapter one")
-
-
-func test_a_session_is_listed_under_the_name_it_was_saved_with() -> void:
-	_wire(_storyline.get_root(), _say("Held."))
-	assert_bool(_load()).is_true()
-	_runtime.start()
-
-	assert_bool(_runtime.save_session("Chapter 2: the market")).is_true()
-
-	var listed: Array[Dictionary] = _runtime.list_sessions()
-	var names: PackedStringArray = []
-	for saved: Dictionary in listed:
-		names.append(str(saved.get("name", "")))
-
-	assert_array(names).override_failure_message(
-		"A session with punctuation in its name was not listed as it was written: %s"
-		% str(names)
-	).contains(["Chapter 2: the market"])
-
-	assert_bool(_runtime.delete_session("Chapter 2: the market")).is_true()
-	assert_bool(_runtime.load_session("Chapter 2: the market")).override_failure_message(
-		"A deleted session was still there."
-	).is_false()
 
 
 func test_a_move_inside_a_playthrough_keeps_what_a_new_one_would_lose() -> void:

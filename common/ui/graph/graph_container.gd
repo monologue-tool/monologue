@@ -45,7 +45,7 @@ func _on_project_loaded() -> void:
 
 func load_storyline(storyline: StorylineDocument) -> void:
 	_graph_offset[graph.storyline_id] = graph.scroll_offset
-	
+
 	_show_trail(storyline)
 	graph.storyline_id = storyline.id
 	graph.connection_manager = ConnectionManager.new(storyline)

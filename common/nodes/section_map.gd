@@ -3,13 +3,16 @@ class_name SectionMap extends Control
 
 const HEIGHT: float = 56.0
 const MARK_SIZE: Vector2 = Vector2(9.0, 5.0)
+const MARK_GAP: float = 1.0
+const MIN_MARK: float = 1.0
 const PADDING: float = 4.0
 const MAX_MARKS: int = 60
+const MIN_SCALE: float = 0.02
+const MAX_SCALE: float = 0.10
 
-## One per node: {"at": Vector2 in 0..1, "tint": Color}.
 var _marks: Array[Dictionary] = []
-## One per wire, as the two normalised points it runs between.
 var _wires: Array[PackedVector2Array] = []
+var _bounds: Rect2
 
 
 static func of(section: StorylineDocument) -> SectionMap:
@@ -24,26 +27,19 @@ static func of(section: StorylineDocument) -> SectionMap:
 
 	map.custom_minimum_size.y = HEIGHT
 	map.mouse_filter = Control.MOUSE_FILTER_PASS
+	map.clip_contents = true
 	return map
 
 
 func _read(section: StorylineDocument) -> void:
 	var placed: Dictionary[String, Vector2] = {}
-	var bounds: Rect2 = Rect2()
 
 	for node: InspectableNode in section.nodes:
 		if placed.size() >= MAX_MARKS:
 			break
 		var at: Vector2 = _position_of(node)
-		bounds = Rect2(at, Vector2.ZERO) if placed.is_empty() else bounds.expand(at)
+		_bounds = Rect2(at, Vector2.ZERO) if placed.is_empty() else _bounds.expand(at)
 		placed[node.get_id()] = at
-
-	for node_id: String in placed:
-		var at: Vector2 = placed[node_id] - bounds.position
-		placed[node_id] = Vector2(
-			at.x / bounds.size.x if bounds.size.x > 0.0 else 0.5,
-			at.y / bounds.size.y if bounds.size.y > 0.0 else 0.5
-		)
 
 	var registry: MonologueRegistry = MonologueRegistry.get_instance()
 	for node: InspectableNode in section.nodes:
@@ -82,18 +78,51 @@ func _draw() -> void:
 	if area.size.x <= 0.0 or area.size.y <= 0.0:
 		return
 
-	var middle: Vector2 = MARK_SIZE / 2.0
+	# One scale for both axes, so a chain laid out wide and flat is drawn wide and flat. An axis
+	# with no extent has nothing to fit, which is what a single node and a straight row are.
+	var fitted: float = MAX_SCALE
+	if _bounds.size.x > 0.0:
+		fitted = minf(fitted, area.size.x / _bounds.size.x)
+	if _bounds.size.y > 0.0:
+		fitted = minf(fitted, area.size.y / _bounds.size.y)
+
+	var zoom: float = maxf(fitted, MIN_SCALE)
+	var origin: Vector2 = area.position + (area.size - _bounds.size * zoom) / 2.0
+
+	var spots: PackedVector2Array = []
+	for mark: Dictionary in _marks:
+		spots.append(_spot(origin, zoom, mark["at"]))
+
+	var drawn: Vector2 = _fitted_mark(spots)
+	var middle: Vector2 = drawn / 2.0
+
 	for wire: PackedVector2Array in _wires:
 		draw_line(
-			_spot(area, wire[0]) + middle,
-			_spot(area, wire[1]) + middle,
+			_spot(origin, zoom, wire[0]) + middle,
+			_spot(origin, zoom, wire[1]) + middle,
 			Color(MonologuePalette.FLOW, 0.25),
 			1.0
 		)
 
-	for mark: Dictionary in _marks:
-		draw_rect(Rect2(_spot(area, mark["at"]), MARK_SIZE), mark["tint"])
+	for index: int in _marks.size():
+		draw_rect(Rect2(spots[index], drawn), _marks[index]["tint"])
 
 
-static func _spot(area: Rect2, at: Vector2) -> Vector2:
-	return area.position + at * area.size
+func _fitted_mark(spots: PackedVector2Array) -> Vector2:
+	var room: float = 1.0
+	for first: int in spots.size():
+		for second: int in range(first + 1, spots.size()):
+			var apart: Vector2 = (spots[first] - spots[second]).abs()
+			room = minf(
+				room,
+				maxf(
+					(apart.x - MARK_GAP) / MARK_SIZE.x,
+					(apart.y - MARK_GAP) / MARK_SIZE.y
+				)
+			)
+
+	return Vector2(maxf(MARK_SIZE.x * room, MIN_MARK), maxf(MARK_SIZE.y * room, MIN_MARK))
+
+
+func _spot(origin: Vector2, zoom: float, at: Vector2) -> Vector2:
+	return origin + (at - _bounds.position) * zoom
