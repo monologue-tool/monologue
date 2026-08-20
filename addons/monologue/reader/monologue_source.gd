@@ -56,7 +56,8 @@ static func open(project_path: String) -> MonologueSource:
 ## story play straight out of an editor, before it has ever been saved.
 static func of(documents: Dictionary) -> MonologueSource:
 	var source: MonologueSource = MonologueSource.new()
-	source._documents = documents
+	for entry_path: String in documents:
+		source._documents[entry_path] = MonologueCompactor.unpack(documents[entry_path])
 	return source._checked()
 
 
@@ -199,7 +200,7 @@ func _take(entry_path: String, raw: String) -> void:
 
 	var parsed: Variant = JSON.parse_string(raw)
 	if parsed is Dictionary:
-		_documents[entry_path] = parsed
+		_documents[entry_path] = MonologueCompactor.unpack(parsed)
 		return
 
 	if parsed == null:
