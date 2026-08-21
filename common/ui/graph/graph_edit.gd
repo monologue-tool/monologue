@@ -1,31 +1,25 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 
+const WIRE_REACH: float = 8.0
+const OFFER_EXTRACT: int = 0
+const OFFER_BRIDGE_OUT: int = 1
+
 signal node_view_selected(node: InspectableNode)
 signal selection_changed(nodes: Array[InspectableObject])
 
 var storyline_id: String
 var connection_manager: ConnectionManager
 var current_language_index: int = 0
+
 var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
 var _selected_nodes: Dictionary = {}
+var _selected_wires: Array[NodeConnection] = []
 var _copied_nodes: Array = []
 var _pending_positions: Dictionary = {}  # GraphNode -> Vector2 captured during drag
 var _is_applying_position: bool = false
-## Rebuilds asked for while a wire was being dragged, replayed once it lands.
 var _refresh_deferred: bool = false
-## True for the length of one disconnect. GraphEdit asks for it before it starts the drag
-## it belongs to, then looks the source view back up by name and only drags if it is still
-## there. Rebuilding the views inside that window pulls them out from under it, and the
-## press lands on the canvas as a box selection instead.
 var _disconnecting: bool = false
-## How near a wire a right click has to land to be aimed at it rather than at the canvas.
-const WIRE_REACH: float = 8.0
-## What the right click menu offers, by id.
-const OFFER_EXTRACT: int = 0
-const OFFER_BRIDGE_OUT: int = 1
-
 var _nodes_to_refresh: Array[InspectableObject] = []
-## Selection as it was when the settle check was armed, and as last announced.
 var _selection_snapshot: Array[StringName] = []
 var _announced_selection: Array[StringName] = []
 
@@ -50,6 +44,9 @@ func _ready() -> void:
 	EventBus.refresh_graph.connect(refresh)
 	connection_drag_ended.connect(_flush_deferred_refresh)
 	popup_request.connect(_on_popup_request)
+	gui_input.connect(_on_graph_gui_input)
+
+	add_theme_color_override("activity", ThemeLayout.accent_color)
 
 
 ## True while GraphEdit is in the middle of a gesture and its ports must stay put.
@@ -84,13 +81,19 @@ func refresh() -> void:
 
 	MonologueRegistry.get_instance().apply_connection_types(self)
 
+	# Out of the tree before the new ones go in, and not merely queued: a freeing node keeps
+	# its name until the end of the frame, so its replacement would be renamed around it. A
+	# view's name is the node's id, and everything that looks a view up by id needs that to
+	# stay true.
 	for child: GraphElement in get_all_graph_nodes():
+		remove_child(child)
 		child.queue_free()
 
 	for node: InspectableNode in storyline.nodes:
 		add_graph_node_view(node)
 
 	_reconnect_all_slots()
+	_repaint_wire_selection()
 
 
 func refresh_node(node: InspectableNode) -> void:
@@ -107,6 +110,7 @@ func refresh_node(node: InspectableNode) -> void:
 	GraphNodeViewFactory.populate(node.graph_view, node)
 	_sync_position_from_property(node)
 	_reconnect_all_slots()
+	_repaint_wire_selection()
 
 
 func add_graph_node_view(node: InspectableNode) -> GraphNode:
@@ -182,6 +186,7 @@ func _on_graph_node_position_changed(graph_node: GraphNode) -> void:
 
 
 func _on_node_selected(graph_node: Node) -> void:
+	select_wires([])
 	_selected_nodes[graph_node] = true
 	var node: InspectableNode = _node_map.get(graph_node)
 	if node:
@@ -540,7 +545,7 @@ func _finish_disconnect() -> void:
 func _on_popup_request(at_position: Vector2) -> void:
 	var wire: NodeConnection = wire_at(at_position)
 	if wire != null:
-		_cut_wire(wire)
+		_cut_wires([wire])
 		return
 
 	_offer_on_selection(at_position)
@@ -576,23 +581,137 @@ func wire_at(at_position: Vector2, reach: float = WIRE_REACH) -> NodeConnection:
 	return null
 
 
-## One wire, named by both its ends, so the one aimed at is the one that goes even when it
-## shares a port with others.
-func _cut_wire(wire: NodeConnection) -> void:
-	var storyline: StorylineDocument = get_storyline()
-	if storyline == null:
+## Wires the user picked, in the order they picked them.
+func get_selected_wires() -> Array[NodeConnection]:
+	return _selected_wires.duplicate()
+
+
+## Picks these wires and drops whatever was picked before.
+##
+## Drawn with GraphEdit's activity tint, the one per-wire colour it lets anyone set. A
+## badge or an icon would need a layer of our own, and that is a road already walked.
+func select_wires(wires: Array[NodeConnection]) -> void:
+	for wire: NodeConnection in _selected_wires:
+		_paint_wire(wire, 0.0)
+
+	_selected_wires.assign(wires)
+	for wire: NodeConnection in _selected_wires:
+		_paint_wire(wire, 1.0)
+
+
+## A left click takes the wire under it, and mnl_delete cuts whatever is taken.
+##
+## Caught on the gui_input signal, which Godot emits before GraphEdit's own handling, so
+## a taken press never reaches the box selection.
+func _on_graph_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("mnl_delete") and not _selected_wires.is_empty():
+		_cut_wires(_selected_wires)
+		accept_event()
 		return
 
-	storyline.history.execute(
-		NodeConnectionCommand.new(
-			self,
-			wire.from_node_id,
-			wire.to_node_id,
-			wire.get_from_name(),
-			wire.get_to_name(),
-			true
-		)
+	var click: InputEventMouseButton = event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
+		return
+	# Not while a wire is in flight, and not over a node: there the press means the node,
+	# whatever happens to pass behind it.
+	if views_are_busy() or _over_a_node(click.position):
+		return
+
+	var wire: NodeConnection = wire_at(click.position)
+	if wire == null:
+		select_wires([])
+		return
+
+	select_wires(_picked_with(click, wire))
+	set_selected(null)
+	accept_event()
+
+
+## What the picked set becomes. Holding the modifier adds a wire or takes it back out,
+## the way it already does for nodes.
+func _picked_with(
+	click: InputEventMouseButton, wire: NodeConnection
+) -> Array[NodeConnection]:
+	if not click.is_command_or_control_pressed():
+		return [wire]
+
+	var taken: Array[NodeConnection] = _selected_wires.duplicate()
+	if taken.has(wire):
+		taken.erase(wire)
+	else:
+		taken.append(wire)
+	return taken
+
+
+## True when a point is over a node.
+func _over_a_node(at_position: Vector2) -> bool:
+	for view: GraphNode in get_all_graph_nodes():
+		if Rect2(view.position, view.size * zoom).has_point(at_position):
+			return true
+	return false
+
+
+func _paint_wire(wire: NodeConnection, amount: float) -> void:
+	var from_port: int = get_port_index_for_property(
+		wire.from_node_id, wire.get_from_name(), true
 	)
+	var to_port: int = get_port_index_for_property(wire.to_node_id, wire.get_to_name(), false)
+	if from_port < 0 or to_port < 0:
+		Log.warn("No port answers to '%s' or '%s'." % [wire.get_from_name(), wire.get_to_name()])
+		return
+
+	# set_connection_activity walks its own list and gives up in silence when nothing
+	# matches, which looks exactly like a wire that refuses to light up.
+	if not is_node_connected(wire.from_node_id, from_port, wire.to_node_id, to_port):
+		Log.warn(
+			"The canvas holds no wire from '%s' port %d to '%s' port %d."
+			% [wire.from_node_id, from_port, wire.to_node_id, to_port]
+		)
+		return
+
+	set_connection_activity(wire.from_node_id, from_port, wire.to_node_id, to_port, amount)
+
+
+## Rebuilding the canvas makes every wire afresh, so the picked ones have to be drawn
+## again. One that went with the rebuild is not picked any more.
+func _repaint_wire_selection() -> void:
+	var storyline: StorylineDocument = get_storyline()
+	var still_here: Array[NodeConnection] = []
+	if storyline != null:
+		for wire: NodeConnection in _selected_wires:
+			if storyline.connections.has(wire):
+				still_here.append(wire)
+
+	_selected_wires.assign(still_here)
+	for wire: NodeConnection in _selected_wires:
+		_paint_wire(wire, 1.0)
+
+
+## Wires named by both their ends, so the ones aimed at are the ones that go even when
+## they share a port with others. One step for the lot.
+func _cut_wires(wires: Array[NodeConnection]) -> void:
+	var storyline: StorylineDocument = get_storyline()
+	if storyline == null or wires.is_empty():
+		return
+
+	# Copied first: dropping the picked set below empties the very array being walked.
+	var going: Array[NodeConnection] = wires.duplicate()
+	# Dropped before the cut, so the tint comes off wires that are still there to take it.
+	select_wires([])
+
+	var cut: CommandTransaction = storyline.history.begin("Cut %d wires" % going.size())
+	for wire: NodeConnection in going:
+		storyline.history.execute(
+			NodeConnectionCommand.new(
+				self,
+				wire.from_node_id,
+				wire.to_node_id,
+				wire.get_from_name(),
+				wire.get_to_name(),
+				true
+			)
+		)
+	cut.commit()
 	refresh()
 
 

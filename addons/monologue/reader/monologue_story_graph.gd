@@ -123,13 +123,12 @@ func _index(source: MonologueSource) -> void:
 		for record_data: Variant in source.records(collection_name):
 			if record_data is not Dictionary:
 				continue
-			var record: Dictionary = record_data
-			var record_id: String = str(record.get("id", ""))
+			var record_id: String = str(record_data.get("id", ""))
 			if record_id.is_empty():
 				continue
-			by_id[record_id] = record
+			by_id[record_id] = record_data
 
-			var record_name: String = str(record.get("name", ""))
+			var record_name: String = str(record_data.get("name", ""))
 			if not record_name.is_empty() and not by_name.has(record_name):
 				by_name[record_name] = record_id
 		collections[collection_name] = by_id

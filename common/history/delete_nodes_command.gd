@@ -28,14 +28,14 @@ func _init(
 ##
 ## A section node can be copied, so one section can be run from two places. One still run
 ## from a node this delete leaves standing stays where it is.
-static func sections_run_by(nodes: Array) -> Array[StorylineDocument]:
+static func sections_run_by(_nodes: Array) -> Array[StorylineDocument]:
 	var project: MonologueProject = ProjectManager.current_project
 	var going: Array[StorylineDocument] = []
 	if project == null:
 		return going
 
 	var leaving: Dictionary[String, bool] = {}
-	for node: InspectableNode in nodes:
+	for node: InspectableNode in _nodes:
 		leaving[node.get_id()] = true
 
 	var run_elsewhere: Dictionary[String, bool] = {}
@@ -44,7 +44,7 @@ static func sections_run_by(nodes: Array) -> Array[StorylineDocument]:
 			if node.get_type() == "section" and not leaving.has(node.get_id()):
 				run_elsewhere[str(node.get_property_value("target"))] = true
 
-	for node: InspectableNode in nodes:
+	for node: InspectableNode in _nodes:
 		if node.get_type() != "section":
 			continue
 
