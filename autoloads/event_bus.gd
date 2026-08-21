@@ -4,7 +4,8 @@ extends Node
 signal load_project(path: String)
 signal test_trigger
 
-signal refresh
+## The project's active language changed. Everything showing translated text redraws.
+signal language_changed(code: String)
 signal refresh_graph
 signal add_graph_node(descriptor_name: String, window: Window)
 ## Selections travel as Array[InspectableObject] everywhere, even when they only hold
@@ -40,11 +41,6 @@ signal open_files_request(
 )
 signal open_dir_request(callable: Callable, root_subdir: String, options: Array[Dictionary])
 
-signal load_languages(languages: Array, graph: MonologueGraphEdit)
-signal show_languages(can_see: bool)
-signal enable_language_switcher
-signal disable_language_switcher
-signal language_deleted
 
 signal show_welcome
 signal hide_welcome

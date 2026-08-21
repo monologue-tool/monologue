@@ -44,7 +44,7 @@ func _hide_default_scrollbars() -> void:
 				subchild.add_theme_stylebox_override(key, StyleBoxEmpty.new())
 
 
-func _on_gui_input(event: InputEvent) -> void:
+func _on_gui_input(_event: InputEvent) -> void:
 	if mouse_hovering:
 		var cursor_drag: bool = Input.is_action_pressed("Spacebar")
 		var cursor_hand_closed: bool = (
@@ -58,13 +58,6 @@ func _on_gui_input(event: InputEvent) -> void:
 			DisplayServer.cursor_set_custom_image(Cursor.HAND)
 		else:
 			DisplayServer.cursor_set_custom_image(Cursor.ARROW)
-
-	if (
-		event is InputEventMouseButton
-		and event.is_pressed()
-		and event.button_index == MOUSE_BUTTON_LEFT
-	):
-		EventBus.show_languages.emit(false)
 
 
 func _on_connection_drag_started(_from_node: StringName, _from_port: int, _is_output: bool) -> void:

@@ -14,7 +14,6 @@ var prompt_scene: PackedScene = preload("uid://bkreq3xdr7gxw")
 var _selected_nodes: Dictionary = {}
 var _graph_offset: Dictionary = {}
 var _is_applying_selection: bool = false
-var _current_lang_prop: Property = null  # tracked to disconnect on storyline switch
 
 
 func _ready() -> void:
@@ -51,17 +50,6 @@ func load_storyline(storyline: StorylineDocument) -> void:
 	graph.connection_manager = ConnectionManager.new(storyline)
 	graph.refresh()
 	graph.scroll_offset = _graph_offset.get(storyline.id, Vector2.ZERO)
-
-	if (
-		is_instance_valid(_current_lang_prop)
-		and _current_lang_prop.value_changed.is_connected(_on_languages_changed)
-	):
-		_current_lang_prop.value_changed.disconnect(_on_languages_changed)
-
-	_current_lang_prop = storyline.get_property("languages")
-	if _current_lang_prop:
-		_current_lang_prop.value_changed.connect(_on_languages_changed)
-		EventBus.load_languages.emit(storyline.get_property_value("languages"), graph)
 
 	var selection: Array[InspectableObject] = []
 	selection.assign(_selected_nodes.get(storyline.id, []))
@@ -128,10 +116,6 @@ func _path_to(document: StorylineDocument) -> Array[StorylineDocument]:
 		path.push_front(step)
 		step = project.get_storyline(step.parent) if project else null
 	return path
-
-
-func _on_languages_changed(_old: Variant, new_value: Variant) -> void:
-	EventBus.load_languages.emit(new_value, graph)
 
 
 ## Hands the whole selection to the inspector. One node is not a special case, just a

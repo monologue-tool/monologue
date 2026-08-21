@@ -1,8 +1,8 @@
-## The only text widget. `text` and `textarea` both use it, and it shows a language selector
-## exactly when the property it is bound to is translated.
+## The only text widget. `text` and `textarea` both use it.
 ##
 ## A translated property holds {language_code: text}, a plain one a String. Never guessed
-## from the value. The property says so.
+## from the value. The property says so. Which language is shown is the project's business,
+## set once in the header rather than once per field.
 class_name TextField
 extends Field
 
@@ -15,7 +15,6 @@ var _values: Dictionary = {}
 
 @onready var line_edit: LineEdit = %LineEdit
 @onready var text_edit: TextEdit = %TextEdit
-@onready var localization_option: OptionButton = %LocalizationOption
 
 
 func _ready() -> void:
@@ -25,9 +24,7 @@ func _ready() -> void:
 	line_edit.focus_exited.connect(_on_focus_exited)
 	text_edit.text_changed.connect(_on_textarea_changed)
 	text_edit.focus_exited.connect(_on_textarea_focus_exited)
-	localization_option.item_selected.connect(_on_localization_option_selected)
-	EventBus.load_languages.connect(_on_load_languages)
-	EventBus.refresh.connect(_on_language_refresh)
+	EventBus.language_changed.connect(_on_language_changed)
 
 
 func _on_initialize() -> void:
@@ -45,11 +42,6 @@ func _on_initialize() -> void:
 		line_edit.visible = not _is_multiline
 		text_edit.visible = _is_multiline
 
-	localization_option.visible = _is_translatable and not _is_preview
-	if _is_translatable:
-		var project: MonologueProject = ProjectManager.current_project
-		if project:
-			_populate_languages(project.get_collection_value("languages"))
 
 
 func _apply_textarea_height(te: TextEdit, rows: int) -> void:
@@ -85,7 +77,6 @@ func get_value() -> Variant:
 func set_editable(is_editable: bool) -> void:
 	line_edit.editable = is_editable
 	text_edit.editable = is_editable
-	localization_option.disabled = not is_editable
 
 
 func set_preview() -> void:
@@ -95,7 +86,6 @@ func set_preview() -> void:
 
 	line_edit.show()
 	text_edit.hide()
-	localization_option.hide()
 	line_edit.theme_type_variation = "LineEditListItemPreview"
 
 
@@ -136,50 +126,7 @@ func _write(text: String) -> void:
 	_values[_current_key()] = text
 
 
-func _populate_languages(languages: Array) -> void:
-	localization_option.clear()
-	for language: Variant in languages:
-		if language is not Dictionary:
-			continue
-		var code: String = str((language as Dictionary).get("code", ""))
-		if code.is_empty():
-			continue
-		localization_option.add_item(code)
-		localization_option.set_item_metadata(localization_option.item_count - 1, code)
-
-	# One language is no choice at all, so the selector stays out of the way.
-	localization_option.visible = _is_translatable and not _is_preview and languages.size() > 1
-	_select_active_language()
-
-
-func _select_active_language() -> void:
-	var active: String = _current_key()
-	for index: int in localization_option.item_count:
-		if localization_option.get_item_metadata(index) == active:
-			localization_option.select(index)
-			return
-	if localization_option.item_count > 0:
-		localization_option.select(0)
-
-
-func _on_localization_option_selected(index: int) -> void:
-	var code: String = str(localization_option.get_item_metadata(index))
-	var project: MonologueProject = ProjectManager.current_project
-	if project == null or project.active_language_code == code:
-		return
-	project.active_language_code = code
-	EventBus.refresh.emit()
-
-
-func _on_load_languages(languages: Array, _graph: MonologueGraphEdit) -> void:
-	if _is_translatable:
-		_populate_languages(languages)
-	_refresh_text()
-
-
-func _on_language_refresh() -> void:
-	if _is_translatable:
-		_select_active_language()
+func _on_language_changed(_code: String) -> void:
 	_refresh_text()
 
 

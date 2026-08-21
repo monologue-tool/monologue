@@ -9,7 +9,6 @@ signal selection_changed(nodes: Array[InspectableObject])
 
 var storyline_id: String
 var connection_manager: ConnectionManager
-var current_language_index: int = 0
 
 var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
 var _selected_nodes: Dictionary = {}
@@ -42,11 +41,18 @@ func _ready() -> void:
 	MonologueRegistry.get_instance().apply_connection_types(self)
 
 	EventBus.refresh_graph.connect(refresh)
+	# Every preview on the canvas is written in the active language, so a change of
+	# language is a change of what every node says.
+	EventBus.language_changed.connect(_on_language_changed)
 	connection_drag_ended.connect(_flush_deferred_refresh)
 	popup_request.connect(_on_popup_request)
 	gui_input.connect(_on_graph_gui_input)
 
 	add_theme_color_override("activity", ThemeLayout.accent_color)
+
+
+func _on_language_changed(_code: String) -> void:
+	refresh()
 
 
 ## True while GraphEdit is in the middle of a gesture and its ports must stay put.

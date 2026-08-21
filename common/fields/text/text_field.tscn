@@ -31,9 +31,3 @@ wrap_mode = 1
 caret_blink = true
 caret_multiple = false
 
-[node name="LocalizationOption" type="OptionButton" parent="HBox" unique_id=1666513133]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 0
