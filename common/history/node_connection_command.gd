@@ -37,16 +37,14 @@ func execute() -> void:
 				from_node_id, from_property_name, to_node_id, to_property_name
 			)
 
-		if from_port >= 0 and to_port >= 0:
-			graph_view.disconnect_node(from_node_id, from_port, to_node_id, to_port)
+		_unwire(from_port, to_port)
 	else:
 		if graph_view.connection_manager:
 			graph_view.connection_manager.register_connection_by_property(
 				from_node_id, from_property_name, to_node_id, to_property_name
 			)
 
-		if from_port >= 0 and to_port >= 0:
-			graph_view.connect_node(from_node_id, from_port, to_node_id, to_port)
+		_wire(from_port, to_port)
 
 	_notify_node_changes()
 
@@ -64,39 +62,72 @@ func undo() -> void:
 				from_node_id, from_property_name, to_node_id, to_property_name
 			)
 
-		if from_port >= 0 and to_port >= 0:
-			graph_view.disconnect_node(from_node_id, from_port, to_node_id, to_port)
+		_unwire(from_port, to_port)
 	else:
 		if graph_view.connection_manager:
 			graph_view.connection_manager.register_connection_by_property(
 				from_node_id, from_property_name, to_node_id, to_property_name
 			)
 
-		if from_port >= 0 and to_port >= 0:
-			graph_view.connect_node(from_node_id, from_port, to_node_id, to_port)
+		_wire(from_port, to_port)
 
 	_notify_node_changes()
 
 
+## Takes the wire off the canvas, and says so when it cannot.
+##
+## Both refusals mean the same thing: the ports worked out from the property names are
+## not the ports the canvas filed the wire under. The wire would then stay drawn until
+## something else rebuilt the graph, a long way from where the mistake was made.
+func _unwire(from_port: int, to_port: int) -> void:
+	if from_port < 0 or to_port < 0:
+		_complain("no port answers to", from_port, to_port)
+		return
+	if not graph_view.is_node_connected(from_node_id, from_port, to_node_id, to_port):
+		_complain("the canvas holds no wire between", from_port, to_port)
+		return
+
+	graph_view.disconnect_node(from_node_id, from_port, to_node_id, to_port)
+
+
+func _wire(from_port: int, to_port: int) -> void:
+	if from_port < 0 or to_port < 0:
+		_complain("no port answers to", from_port, to_port)
+		return
+
+	graph_view.connect_node(from_node_id, from_port, to_node_id, to_port)
+
+
+func _complain(because: String, from_port: int, to_port: int) -> void:
+	Log.warn(
+		(
+			"The canvas was left as it was: %s '%s.%s' at port %d and '%s.%s' at port %d."
+			% [
+				because,
+				from_node_id,
+				from_property_name,
+				from_port,
+				to_node_id,
+				to_property_name,
+				to_port,
+			]
+		)
+	)
+
+
+## Tells both ends their property changed, so whatever draws them redraws.
 func _notify_node_changes() -> void:
 	var storyline: StorylineDocument = ProjectManager.current_project.get_storyline(
 		graph_view.storyline_id
 	)
-	var from_nodes: Array = storyline.nodes.filter(
-		func(n: InspectableNode) -> bool: return n.get_property_value("id") == from_node_id
-	)
-	var to_nodes: Array = storyline.nodes.filter(
-		func(n: InspectableNode) -> bool: return n.get_property_value("id") == to_node_id
-	)
+	var from_node: InspectableNode = storyline.get_node(from_node_id)
+	var to_node: InspectableNode = storyline.get_node(to_node_id)
 
 	# property_changed carries a property name. The from-side used to be given the node
 	# id instead, so anything listening for a particular property never heard about it.
-	if not from_nodes.is_empty():
-		var from_node: InspectableNode = from_nodes[0]
+	if from_node != null:
 		from_node.property_changed.emit(from_property_name)
-
-	if not to_nodes.is_empty():
-		var to_node: InspectableNode = to_nodes[0]
+	if to_node != null:
 		to_node.property_changed.emit(to_property_name)
 
 

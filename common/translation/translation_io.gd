@@ -103,9 +103,6 @@ static func read(path: String, result: ValidationResult) -> Dictionary:
 	return from_csv_lines(lines, result)
 
 
-# --- CSV --------------------------------------------------------------------------
-
-
 static func to_csv_lines(
 	table: TranslationTable, languages: PackedStringArray
 ) -> Array[PackedStringArray]:
@@ -157,9 +154,6 @@ static func from_csv_lines(
 	return batch
 
 
-# --- JSON -------------------------------------------------------------------------
-
-
 ## {language: {key: text}}, the shape most translation tools expect, and the one that
 ## diffs cleanly when only one language moves.
 static func to_json(table: TranslationTable, languages: PackedStringArray) -> Dictionary:
@@ -186,9 +180,6 @@ static func _normalise(parsed: Dictionary, result: ValidationResult) -> Dictiona
 			by_key[str(key)] = str(parsed[language][key])
 		batch[str(language)] = by_key
 	return batch
-
-
-# --- Portable Object --------------------------------------------------------------
 
 
 ## The key goes in msgctxt rather than msgid: msgid holds the source text, and two

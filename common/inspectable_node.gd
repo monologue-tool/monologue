@@ -1,6 +1,9 @@
 @abstract
 class_name InspectableNode extends InspectableObject
 
+## How far a copy sits from what it was copied from.
+const COPY_OFFSET: Vector2 = Vector2(30.0, 30.0)
+
 var graph_view: GraphNode
 var storyline_id: String = ""
 var _main_property_defined: bool = false
@@ -79,6 +82,19 @@ func get_main_property() -> Property:
 	return null
 
 
+## The property the story passes through: taken in on the left and handed on from the
+## right. Null on a node it stops at, an end node for one.
+func get_pass_through_property() -> Property:
+	var main: Property = get_main_property()
+	if main != null and main.is_pass_through():
+		return main
+
+	for prop: Property in get_properties():
+		if prop.is_visible_in_graph() and prop.is_pass_through():
+			return prop
+	return null
+
+
 ## Properties visible in the graph, main property first.
 func get_visible_properties() -> Array[Property]:
 	var visible: Array[Property] = []
@@ -134,6 +150,10 @@ func refresh_preview() -> void:
 func duplicate(deep: bool = false) -> Resource:
 	var duplicated: InspectableNode = super.duplicate(deep)
 	duplicated.get_property("id").value = IDGen.generate_object_id(get_type())
-	duplicated.get_property("editor_position").value += [30, 30]
+
+	# Element by element. Adding one Array to another joins them end to end, which left the
+	# copy exactly on top of its original and the position four numbers long.
+	var beside: Vector2 = get_editor_position() + COPY_OFFSET
+	duplicated.get_property("editor_position").value = [beside.x, beside.y]
 
 	return duplicated

@@ -159,9 +159,6 @@ func _on_item_selected() -> void:
 	type_highlighted.emit(indexer)
 
 
-# --- search -----------------------------------------------------------------------
-
-
 func _on_search_bar_text_changed(new_text: String) -> void:
 	var query: String = new_text.strip_edges()
 	if query.is_empty():

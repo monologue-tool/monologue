@@ -65,9 +65,6 @@ func _apply_textarea_height(te: TextEdit, rows: int) -> void:
 		te.text = ""
 
 
-# --- value ------------------------------------------------------------------------
-
-
 func set_value(value: Variant) -> void:
 	if not is_node_ready():
 		await ready
@@ -139,9 +136,6 @@ func _write(text: String) -> void:
 	_values[_current_key()] = text
 
 
-# --- languages --------------------------------------------------------------------
-
-
 func _populate_languages(languages: Array) -> void:
 	localization_option.clear()
 	for language: Variant in languages:
@@ -187,9 +181,6 @@ func _on_language_refresh() -> void:
 	if _is_translatable:
 		_select_active_language()
 	_refresh_text()
-
-
-# --- input ------------------------------------------------------------------------
 
 
 func _on_text_changed(new_text: String) -> void:

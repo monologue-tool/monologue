@@ -17,6 +17,12 @@ func _ready() -> void:
 	connection_drag_ended.connect(_on_connection_drag_ended)
 
 
+## Where the eye is, in the graph's own coordinates. A new node belongs here, not in the
+## corner that scroll_offset alone points at.
+func middle_of_view() -> Vector2:
+	return (scroll_offset + get_rect().size / 2.0) / zoom
+
+
 func scroll_to_node(graph_node: GraphNode) -> void:
 	for child: Node in get_children():
 		if child is GraphNode:
@@ -36,11 +42,6 @@ func _hide_default_scrollbars() -> void:
 				continue
 			for key: String in SCROLLBAR_OVERRIDE_KEYS:
 				subchild.add_theme_stylebox_override(key, StyleBoxEmpty.new())
-
-
-func _on_connection_to_empty(node: String, port: int, release: Vector2) -> void:
-	var graph_release: Vector2 = (release + scroll_offset) / zoom
-	EventBus.enable_picker_mode.emit(node, port, graph_release)
 
 
 func _on_gui_input(event: InputEvent) -> void:

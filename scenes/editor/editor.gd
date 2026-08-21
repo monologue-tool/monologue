@@ -9,6 +9,10 @@ const STORYLINE_EXTENSIONS: Array = ["*.mnlg,*.json;Storyline Document"]
 @onready var graph_node_picker: GraphNodePicker = %GraphNodePicker
 @onready var inspector_panel_node: InspectorPanel = %Inspector
 
+## Roughly how far a node's first port sits below its corner. A wire is let go at the
+## cursor, so the node is placed above it by this much and the wire lands straight.
+const PORT_FROM_CORNER: Vector2 = Vector2(0.0, 28.0)
+
 var _run_window: MonologueRunWindow
 
 
@@ -74,11 +78,11 @@ func add_node_from_global(node_type: String, picker: GraphNodePicker = null) -> 
 			node.get_property("target").set_value(section.id)
 
 	var graph_edit: MonologueGraphEdit = graph_container.graph
-	var target_position: Vector2 = Vector2.ZERO
-	if picker and picker.has_source_port():
-		target_position = picker.graph_release
-	else:
-		target_position = graph_edit.scroll_offset / graph_edit.zoom
+	var target_position: Vector2 = (
+		picker.graph_release - PORT_FROM_CORNER
+		if picker and picker.has_source_port()
+		else graph_edit.middle_of_view()
+	)
 
 	# A pair of numbers and not a Vector2, which is what every other writer stores and the only
 	# shape JSON can carry.
@@ -104,14 +108,11 @@ func _connect_to_source_port(
 	if picker == null or not picker.has_source_port():
 		return
 
-	var from_property: String = graph_edit.get_property_name_at_port(
-		picker.from_node, picker.from_port, true
-	)
-	if from_property.is_empty():
-		return
-
 	var to_property: Property = _first_accepting_property(node, picker.source_port_type_id)
 	if to_property == null:
+		Log.warn(
+			"A '%s' has nothing that takes what was dragged into it." % node.get_type()
+		)
 		return
 
 	# The port has to exist before a wire can land on it. Through the object, so that
@@ -119,7 +120,11 @@ func _connect_to_source_port(
 	node.set_property_settings_value(to_property.name, PropertySettings.KEY_EXPOSED, true)
 	graph_edit.get_storyline().history.execute(
 		NodeConnectionCommand.new(
-			graph_edit, picker.from_node, node.get_id(), from_property, to_property.name
+			graph_edit,
+			picker.from_node,
+			node.get_id(),
+			picker.from_property,
+			to_property.name
 		)
 	)
 

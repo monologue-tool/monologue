@@ -13,9 +13,6 @@ const LINE_HEIGHT: float = 18.0
 const MAX_PIECE: int = 26
 
 
-# --- controls ---------------------------------------------------------------------
-
-
 ## One line of BBCode. Runs off its own edge instead of wrapping, and the view clips it.
 static func line(bbcode: String) -> RichTextLabel:
 	var label: RichTextLabel = RichTextLabel.new()
@@ -57,9 +54,6 @@ static func stage(taken: String, places: Array, tint: Color) -> Control:
 		strip.add_child(mark)
 
 	return strip
-
-
-# --- text -------------------------------------------------------------------------
 
 
 ## A line the author wrote is not markup, however many brackets are in it.
