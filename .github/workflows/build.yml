@@ -1,0 +1,90 @@
+name: build
+
+# Called by pr-build.yml and by release.yml, so a pull request and a tag build the same five
+# things the same way. Never runs on its own.
+on:
+  workflow_call:
+    inputs:
+      release:
+        description: Export without the debug server, for a build that gets published.
+        type: boolean
+        default: false
+
+env:
+  GODOT_VERSION: '4.7'
+
+jobs:
+  export:
+    name: ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # Every platform answers for itself. Stopping at the first failure hides whether the
+      # other four would have built, which is the one thing worth knowing before a release.
+      fail-fast: false
+      matrix:
+        include:
+          - label: windows-x64
+            preset: "Monologue win x64"
+            output: monologue_win_x64.exe
+          - label: windows-arm64
+            preset: "Monologue win arm64"
+            output: monologue_win_arm64.exe
+          - label: linux-x64
+            preset: "Monologue Linux/X11 x64"
+            output: monologue_linux.x86_64
+          - label: linux-arm64
+            preset: "Monologue Linux/X11 arm64"
+            output: monologue_linux.arm64
+          - label: macos
+            preset: "Monologue macOS"
+            output: monologue_macos.zip
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # rcedit runs under wine, and it is what writes the icon and the version into the .exe.
+      # Without it the export still succeeds, quietly, carrying Godot's own icon.
+      - name: Install wine
+        if: startsWith(matrix.label, 'windows')
+        id: wine
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wine64
+          echo "path=$(which wine64)" >> "$GITHUB_OUTPUT"
+
+      - name: Export ${{ matrix.preset }}
+        id: export
+        uses: firebelley/godot-export@v8.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot-builds/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot-builds/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz
+          relative_project_path: ./
+          relative_export_path: ./builds/${{ matrix.label }}
+          presets_to_export: ${{ matrix.preset }}
+          wine_path: ${{ steps.wine.outputs.path }}
+          cache: true
+          verbose: true
+          export_debug: ${{ !inputs.release }}
+
+      # Godot returns 0 even when the export produced nothing usable: the --fail-on-error
+      # flag that would change that is still unmerged, so an exit code proves nothing here.
+      # The file is the proof. Script errors are caught earlier, by the import check in
+      # lint.yml, which runs on the same push.
+      - name: Check something was actually built
+        run: |
+          set -euo pipefail
+          built=$(find "${{ steps.export.outputs.build_directory }}" \
+            -type f -name '${{ matrix.output }}' -size +4M | head -n1)
+          if [ -z "$built" ]; then
+            echo "::error::${{ matrix.preset }} exported no usable ${{ matrix.output }}."
+            find "${{ steps.export.outputs.build_directory }}" -type f -printf '%10s  %p\n' || true
+            exit 1
+          fi
+          echo "$built  $(du -h "$built" | cut -f1)"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: monologue-${{ matrix.label }}
+          path: ${{ steps.export.outputs.build_directory }}
+          if-no-files-found: error

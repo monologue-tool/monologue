@@ -1,0 +1,67 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      release: true
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Read the version out of the tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: builds/
+
+      - name: Check every platform arrived
+        run: |
+          set -euo pipefail
+          missing=0
+          for wanted in windows-x64 windows-arm64 linux-x64 linux-arm64 macos; do
+            if [ ! -d "builds/monologue-$wanted" ]; then
+              echo "::error::monologue-$wanted is missing, so nothing is published."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ]
+          find builds -type f -printf '%10s  %p\n'
+
+      - name: Create the release
+        uses: ncipollo/release-action@v1.21.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
+          name: Monologue ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
+          artifacts: builds/**/*
+          replacesArtifacts: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+
+      - name: Publish on itch.io
+        uses: Ayowel/butler-to-itch@v2
+        with:
+          butler_key: ${{ secrets.BUTLER_CREDENTIALS }}
+          itch_user: atomic-junky
+          itch_game: monologue
+          version: ${{ env.VERSION }}
+          auto_channel: false
+          files: |
+            windows       builds/monologue-windows-x64/**/monologue_win_x64.exe
+            windows-arm64 builds/monologue-windows-arm64/**/monologue_win_arm64.exe
+            linux         builds/monologue-linux-x64/**/monologue_linux.x86_64
+            linux-arm64   builds/monologue-linux-arm64/**/monologue_linux.arm64
+            osx           builds/monologue-macos/**/monologue_macos.zip
