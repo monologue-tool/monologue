@@ -484,6 +484,15 @@ func is_visible_in_graph() -> bool:
 	return visible or has_input or has_output
 
 
+## True when the story goes in one side of this property and out the other. A node with
+## one of these can be dropped into the middle of a chain.
+func is_pass_through() -> bool:
+	return (
+		get_settings_value(PropertySettings.KEY_EXPOSED, false) == true
+		and get_settings_value(PropertySettings.KEY_EXPORT, false) == true
+	)
+
+
 ## Replaces the cached views, announcing the change only when there is one. Called by
 ## [StorylineDocument], which holds the wires.
 func set_connection_views(incoming: Array, outgoing: Array) -> void:

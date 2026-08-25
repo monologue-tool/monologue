@@ -70,9 +70,6 @@ func reload() -> void:
 	rebuild()
 
 
-# --- columns ------------------------------------------------------------------
-
-
 func is_column_visible(column_id: String) -> bool:
 	return _visible_columns.get(column_id, false)
 
@@ -95,9 +92,6 @@ func _shown_columns() -> Array[Dictionary]:
 		if is_column_visible(str(column["id"])):
 			shown.append(column)
 	return shown
-
-
-# --- languages ----------------------------------------------------------------
 
 
 func _fill_language_options() -> void:
@@ -142,9 +136,6 @@ func _select_language(option: OptionButton, language: String) -> void:
 			return
 	if option.item_count > 0:
 		option.select(0)
-
-
-# --- building -----------------------------------------------------------------
 
 
 func rebuild() -> void:
@@ -309,9 +300,6 @@ static func _type_color(entry: TranslationEntry) -> Color:
 	return ThemeLayout.text_primary_color
 
 
-# --- filtering and sorting ----------------------------------------------------
-
-
 func _filtered() -> Array[TranslationEntry]:
 	var query: String = search_bar.text.strip_edges()
 	var target: String = get_target_language()
@@ -374,9 +362,6 @@ func _update_coverage(shown: int) -> void:
 	]
 
 
-# --- editing ------------------------------------------------------------------
-
-
 func _on_translation_submitted(_text: String, field: Control) -> void:
 	_commit(field)
 
@@ -404,9 +389,6 @@ func _on_filter_changed(_pressed: bool) -> void:
 
 func _on_search_changed(_text: String) -> void:
 	rebuild()
-
-
-# --- import and export --------------------------------------------------------
 
 
 func import_translations() -> void:

@@ -50,9 +50,6 @@ func _install_builtin_plugins() -> void:
 		push_error("Could not load the core plugin at %s." % CORE_PLUGIN_PATH)
 
 
-# --- plugins --------------------------------------------------------------------
-
-
 func install(plugin: MonologuePlugin) -> void:
 	if plugin == null:
 		push_warning("Attempted to install a null plugin.")
@@ -99,9 +96,6 @@ func get_installed_plugins() -> Array[MonologuePlugin]:
 	return _plugins.duplicate()
 
 
-# --- registration ---------------------------------------------------------------
-
-
 ## Adds one indexer. Returns false and warns when the indexer is invalid or its name is
 ## already taken *within its own object type*.
 func register(indexer: MonologueIndexer) -> bool:
@@ -130,9 +124,6 @@ func register(indexer: MonologueIndexer) -> bool:
 	bucket[indexer.name] = indexer
 	indexer_registered.emit(indexer)
 	return true
-
-
-# --- lookup ---------------------------------------------------------------------
 
 
 func has(object_type: StringName, indexer_name: String) -> bool:
@@ -184,9 +175,6 @@ func list_by_category(object_type: StringName, category: String) -> Array[Monolo
 	return result
 
 
-# --- factories ------------------------------------------------------------------
-
-
 func create_node(node_name: String, history: CommandManager) -> InspectableNode:
 	var indexer: NodeIndexer = get_node(node_name)
 	if indexer == null:
@@ -201,9 +189,6 @@ func create_collection_item(collection_name: String, history: CommandManager) ->
 		push_warning("No collection type registered as '%s'." % collection_name)
 		return null
 	return indexer.instantiate(history) as CollectionItem
-
-
-# --- graph ports ----------------------------------------------------------------
 
 
 func get_field_type_id(field_name: String) -> int:

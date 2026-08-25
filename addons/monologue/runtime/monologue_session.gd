@@ -71,6 +71,9 @@ func play(storyline_id: String = "", node_id: String = "") -> void:
 		return
 
 	state = MonologueState.new()
+	# Written down at the start, so a run that branched at random can be played again.
+	state.rng_seed = rng.seed
+	state.rng_state = rng.state
 	_seed_variables()
 	state.move_to(graph.storyline_of(start), start)
 	resume_here()
@@ -182,11 +185,15 @@ func restore(data: Dictionary) -> void:
 	_busy = false
 	_answered_for = ""
 	state = MonologueState.from_dict(data)
+
+	# The seed first, then the position: setting a seed rewinds the sequence.
 	rng.seed = state.rng_seed
+	rng.state = state.rng_state
 
 
 func snapshot() -> Dictionary:
 	state.rng_seed = rng.seed
+	state.rng_state = rng.state
 	return state.to_dict()
 
 

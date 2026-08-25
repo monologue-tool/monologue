@@ -76,9 +76,6 @@ func get_connected_node(node: InspectableNode, property_name: String) -> Inspect
 	return null
 
 
-# --- suspend and restore ---------------------------------------------------------
-
-
 func suspend_incoming_property_connections(node_id: String, property_name: String) -> void:
 	_suspend(node_id, property_name, true)
 

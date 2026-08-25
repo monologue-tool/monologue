@@ -20,9 +20,15 @@ func _ready() -> void:
 	if default_option and not default_option.item_selected.is_connected(set_default_item):
 		default_option.item_selected.connect(set_default_item)
 	Field.fit_dropdown(default_option)
+	# An item reads by its preview property, which is translated as often as not.
+	EventBus.language_changed.connect(_on_language_changed)
 	# Stays out of the way until there is a list behind it to name.
 	if default_container:
 		default_container.hide()
+
+
+func _on_language_changed(_code: String) -> void:
+	_rebuild_ui()
 
 
 func get_items() -> Array:

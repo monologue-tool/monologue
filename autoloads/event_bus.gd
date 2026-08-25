@@ -4,7 +4,8 @@ extends Node
 signal load_project(path: String)
 signal test_trigger
 
-signal refresh
+## The project's active language changed. Everything showing translated text redraws.
+signal language_changed(code: String)
 signal refresh_graph
 signal add_graph_node(descriptor_name: String, window: Window)
 ## Selections travel as Array[InspectableObject] everywhere, even when they only hold
@@ -40,19 +41,16 @@ signal open_files_request(
 )
 signal open_dir_request(callable: Callable, root_subdir: String, options: Array[Dictionary])
 
-signal load_languages(languages: Array, graph: MonologueGraphEdit)
-signal show_languages(can_see: bool)
-signal enable_language_switcher
-signal disable_language_switcher
-signal language_deleted
 
 signal show_welcome
 signal hide_welcome
 ## Opens the window listing every translatable line in the project.
 signal open_localization
-## Opens the node picker. [param node] is a graph view name, empty when the picker was not
-## dragged out of a port, in which case [param graph_release] means nothing.
-signal enable_picker_mode(node: String, port: int, graph_release: Vector2)
+## Opens the node picker. Everything but the first argument means nothing when
+## [param from_node_id] is empty, which is how the picker is opened from a menu.
+signal enable_picker_mode(
+	from_node_id: String, from_property: String, port_type: int, graph_release: Vector2
+)
 signal show_inspector(visible: bool)
 signal show_project_explorer(visible: bool)
 signal show_console(visible: bool)

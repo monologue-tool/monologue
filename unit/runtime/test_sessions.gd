@@ -128,6 +128,34 @@ func test_changing_a_variable_mid_run_changes_the_branch_that_follows() -> void:
 	).is_equal(["Ask.", "Rich."])
 
 
+func test_a_saved_run_carries_where_its_draws_had_got_to() -> void:
+	# Setting a seed rewinds the sequence. A save carrying only the seed would draw the same
+	# numbers all over again, so a reloaded story would branch differently from the run it
+	# came from.
+	_wire(_storyline.get_root(), _say("Held."))
+	assert_bool(_load()).is_true()
+	_runtime.start()
+
+	var rng: RandomNumberGenerator = _runtime.session.rng
+	rng.seed = 4242
+	for _draw: int in 5:
+		rng.randi()
+	var expected: int = rng.randi()
+
+	# Back to just before that draw, then saved and put back.
+	rng.seed = 4242
+	for _draw: int in 5:
+		rng.randi()
+	var saved: Dictionary = _runtime.save()
+
+	_runtime.stop()
+	_runtime.restore(saved)
+
+	assert_int(_runtime.session.rng.randi()).override_failure_message(
+		"A reloaded run drew a different number, so its sequence had been rewound."
+	).is_equal(expected)
+
+
 func test_a_move_inside_a_playthrough_keeps_what_a_new_one_would_lose() -> void:
 	# The hub: a menu, a button per section, and the story coming back to the menu.
 	var gold: String = _declare_variable("gold", "int", 0)

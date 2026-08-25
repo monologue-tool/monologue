@@ -35,9 +35,6 @@ var _prototypes: Dictionary[String, CollectionItem] = {}
 var _history: CommandManager
 
 
-# --- identity -------------------------------------------------------------------
-
-
 ## An id nothing else in the project uses. Keeps [param preferred_id] when it is free.
 func allocate_id(type_name: String, preferred_id: String = "") -> String:
 	if not preferred_id.is_empty() and not _known_ids.has(preferred_id):
@@ -107,9 +104,6 @@ func get_all_ids() -> PackedStringArray:
 	return ids
 
 
-# --- reverse index --------------------------------------------------------------
-
-
 ## Records every reference held by one live object.
 func index_object(object: InspectableObject, document_name: String = "") -> void:
 	if object == null:
@@ -145,9 +139,6 @@ func find_dangling() -> Array[ReferenceSite]:
 			continue
 		dangling.append_array(get_referrers(target_id))
 	return dangling
-
-
-# --- building -------------------------------------------------------------------
 
 
 ## Discards everything and walks the project again. Cheap enough to run on every change,

@@ -20,6 +20,10 @@ var player: MonologuePlayer:
 	get: return session.player
 var language: String:
 	get: return session.language
+## The run's own generator. A behaviour that reaches for a global one breaks the promise
+## that a save replays the same way.
+var rng: RandomNumberGenerator:
+	get: return session.rng
 
 
 func _init(p_session: MonologueSession, node_id: String) -> void:
@@ -131,12 +135,10 @@ func next(property: String = "", item: String = "") -> String:
 	if found.is_empty():
 		return ""
 
-	# TODO: Maybe redirect to a random branch. (need visual cue in the editor)
+	# A port wired several ways is a branch, not a mistake. The editor draws a die on those
+	# wires, and the draw comes from the run so a reloaded save takes the same one.
 	if found.size() > 1:
-		note(
-			&"ambiguous_flow",
-			"'%s' leads to %d places at once; the first was taken." % [port, found.size()]
-		)
+		return found[rng.randi_range(0, found.size() - 1)]
 	return found[0]
 
 

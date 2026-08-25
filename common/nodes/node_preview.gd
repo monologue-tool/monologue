@@ -13,9 +13,6 @@ const LINE_HEIGHT: float = 18.0
 const MAX_PIECE: int = 26
 
 
-# --- controls ---------------------------------------------------------------------
-
-
 ## One line of BBCode. Runs off its own edge instead of wrapping, and the view clips it.
 static func line(bbcode: String) -> RichTextLabel:
 	var label: RichTextLabel = RichTextLabel.new()
@@ -43,7 +40,7 @@ static func row(pieces: Array) -> HBoxContainer:
 
 
 ## The stage seen from above. One mark per place, the taken one lit.
-static func stage(taken: String, places: Array, tint: Color) -> Control:
+static func stage(taken: String, places: Array, mark_tint: Color) -> Control:
 	var strip: HBoxContainer = HBoxContainer.new()
 	strip.mouse_filter = Control.MOUSE_FILTER_PASS
 	strip.add_theme_constant_override("separation", 2)
@@ -53,13 +50,10 @@ static func stage(taken: String, places: Array, tint: Color) -> Control:
 		mark.mouse_filter = Control.MOUSE_FILTER_PASS
 		mark.custom_minimum_size = Vector2(8.0, LINE_HEIGHT - 8.0)
 		mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		mark.color = tint if str(place) == taken else Color(tint, 0.2)
+		mark.color = mark_tint if str(place) == taken else Color(mark_tint, 0.2)
 		strip.add_child(mark)
 
 	return strip
-
-
-# --- text -------------------------------------------------------------------------
 
 
 ## A line the author wrote is not markup, however many brackets are in it.

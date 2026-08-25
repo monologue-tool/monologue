@@ -1,20 +1,24 @@
 class_name MonologueGraphEdit extends CustomGraphEdit
 
+const WIRE_REACH: float = 8.0
+const OFFER_EXTRACT: int = 0
+const OFFER_BRIDGE_OUT: int = 1
+
 signal node_view_selected(node: InspectableNode)
 signal selection_changed(nodes: Array[InspectableObject])
 
 var storyline_id: String
 var connection_manager: ConnectionManager
-var current_language_index: int = 0
+
 var _node_map: Dictionary = {}  # Maps GraphNode -> InspectableNode
 var _selected_nodes: Dictionary = {}
+var _selected_wires: Array[NodeConnection] = []
 var _copied_nodes: Array = []
 var _pending_positions: Dictionary = {}  # GraphNode -> Vector2 captured during drag
 var _is_applying_position: bool = false
-## Rebuilds asked for while a wire was being dragged, replayed once it lands.
 var _refresh_deferred: bool = false
+var _disconnecting: bool = false
 var _nodes_to_refresh: Array[InspectableObject] = []
-## Selection as it was when the settle check was armed, and as last announced.
 var _selection_snapshot: Array[StringName] = []
 var _announced_selection: Array[StringName] = []
 
@@ -37,8 +41,28 @@ func _ready() -> void:
 	MonologueRegistry.get_instance().apply_connection_types(self)
 
 	EventBus.refresh_graph.connect(refresh)
+	# Every preview on the canvas is written in the active language, so a change of
+	# language is a change of what every node says.
+	EventBus.language_changed.connect(_on_language_changed)
 	connection_drag_ended.connect(_flush_deferred_refresh)
 	popup_request.connect(_on_popup_request)
+	gui_input.connect(_on_graph_gui_input)
+
+	add_theme_color_override("activity", ThemeLayout.accent_color)
+
+
+func _on_language_changed(_code: String) -> void:
+	refresh()
+
+
+## True while GraphEdit is in the middle of a gesture and its ports must stay put.
+##
+## Rebuilding a view now throws its rows away and builds new ones that have not been laid
+## out yet, so every port reads as being somewhere it is not. GraphEdit re-reads them the
+## instant it hands the event back, finds no port under the cursor, and takes the press for
+## a click on the canvas: a box selection, on top of the wire being dragged.
+func views_are_busy() -> bool:
+	return connecting_mode or _disconnecting
 
 
 func get_storyline() -> StorylineDocument:
@@ -46,7 +70,7 @@ func get_storyline() -> StorylineDocument:
 
 
 func refresh() -> void:
-	if connecting_mode:
+	if views_are_busy():
 		_refresh_deferred = true
 		return
 
@@ -63,20 +87,26 @@ func refresh() -> void:
 
 	MonologueRegistry.get_instance().apply_connection_types(self)
 
+	# Out of the tree before the new ones go in, and not merely queued: a freeing node keeps
+	# its name until the end of the frame, so its replacement would be renamed around it. A
+	# view's name is the node's id, and everything that looks a view up by id needs that to
+	# stay true.
 	for child: GraphElement in get_all_graph_nodes():
+		remove_child(child)
 		child.queue_free()
 
 	for node: InspectableNode in storyline.nodes:
 		add_graph_node_view(node)
 
 	_reconnect_all_slots()
+	_repaint_wire_selection()
 
 
 func refresh_node(node: InspectableNode) -> void:
 	if not node or not is_instance_valid(node.graph_view):
 		return
 
-	if connecting_mode:
+	if views_are_busy():
 		if node not in _nodes_to_refresh:
 			_nodes_to_refresh.append(node)
 		return
@@ -86,6 +116,7 @@ func refresh_node(node: InspectableNode) -> void:
 	GraphNodeViewFactory.populate(node.graph_view, node)
 	_sync_position_from_property(node)
 	_reconnect_all_slots()
+	_repaint_wire_selection()
 
 
 func add_graph_node_view(node: InspectableNode) -> GraphNode:
@@ -161,6 +192,7 @@ func _on_graph_node_position_changed(graph_node: GraphNode) -> void:
 
 
 func _on_node_selected(graph_node: Node) -> void:
+	select_wires([])
 	_selected_nodes[graph_node] = true
 	var node: InspectableNode = _node_map.get(graph_node)
 	if node:
@@ -219,6 +251,31 @@ func _selected_view_names() -> Array[StringName]:
 		if (graph_node as GraphNode).selected:
 			names.append(graph_node.name)
 	return names
+
+
+## A wire let go over nothing. The property it came from is worked out here, while the
+## view is still live: a port index only means something against the row set of the
+## moment, and a choice or a section rebuilds its rows as it is edited.
+func _on_connection_to_empty(
+	from_view_name: StringName, from_port: int, release: Vector2
+) -> void:
+	var from_node: InspectableNode = get_node_from_view_name(String(from_view_name))
+	var from_property: String = get_property_name_at_port(
+		String(from_view_name), from_port, true
+	)
+	if from_node == null or from_property.is_empty():
+		Log.warn(
+			"Nothing to wire from: port %d of '%s' names no property."
+			% [from_port, from_view_name]
+		)
+		return
+
+	EventBus.enable_picker_mode.emit(
+		from_node.get_id(),
+		from_property,
+		(from_node.graph_view as GraphNode).get_output_port_type(from_port),
+		(release + scroll_offset) / zoom
+	)
 
 
 func _on_connection_request(
@@ -381,6 +438,12 @@ func _on_end_node_move() -> void:
 	if _pending_positions.is_empty():
 		return
 
+	# One node let go on a wire joins the chain there, which a whole selection dropped at
+	# once would not say clearly enough.
+	var dropped: InspectableNode = null
+	if _pending_positions.size() == 1:
+		dropped = _node_map.get(_pending_positions.keys()[0])
+
 	_is_applying_position = true
 
 	var storyline: StorylineDocument = get_storyline()
@@ -389,6 +452,12 @@ func _on_end_node_move() -> void:
 		_is_applying_position = false
 		_pending_positions.clear()
 		return
+
+	# One step for the whole gesture. Dragging ten nodes and pressing undo once should put
+	# all ten back, not the last one.
+	var moved: CommandTransaction = history.begin(
+		"Move %d nodes" % _pending_positions.size()
+	)
 
 	for graph_node: Variant in _pending_positions.keys():
 		if not is_instance_valid(graph_node):
@@ -415,8 +484,13 @@ func _on_end_node_move() -> void:
 		)
 		history.execute(command)
 
+	moved.commit()
 	_is_applying_position = false
 	_pending_positions.clear()
+
+	# Its own step, so a first undo gives back the wires and a second the drop itself.
+	if dropped != null:
+		GraphChain.take_drop(self, dropped)
 
 
 func _on_disconnection_request(
@@ -452,23 +526,245 @@ func _on_disconnection_request(
 		to_property_name,
 		true
 	)
+
+	_disconnecting = true
 	storyline.history.execute(command)
+
+	# GraphEdit filed this wire under the very names and ports it just handed us. The
+	# command works those out again from the property names, which is what undo needs but
+	# can miss here, and a wire it misses stays drawn for the whole drag.
+	if is_node_connected(from_view_name, from_port, to_view_name, to_port):
+		disconnect_node(from_view_name, from_port, to_view_name, to_port)
+
+	_finish_disconnect.call_deferred()
+
+
+## Run once GraphEdit has had its say. Whatever the disconnect asked to redraw happens
+## now, or waits again when it started a drag, since a rebuild mid-drag has the same cost.
+func _finish_disconnect() -> void:
+	_disconnecting = false
+	_flush_deferred_refresh()
+
+
+## A right click takes the wire it is aimed at, and offers what can be done to the
+## selection when it is aimed at nothing.
+func _on_popup_request(at_position: Vector2) -> void:
+	var wire: NodeConnection = wire_at(at_position)
+	if wire != null:
+		_cut_wires([wire])
+		return
+
+	_offer_on_selection(at_position)
+
+
+## The wire under a point, or null when the point is aimed at none. GraphEdit answers in
+## view names and port numbers, which is not what a wire is stored as.
+func wire_at(at_position: Vector2, reach: float = WIRE_REACH) -> NodeConnection:
+	var found: Dictionary = get_closest_connection_at_point(at_position, reach)
+	var storyline: StorylineDocument = get_storyline()
+	if found.is_empty() or storyline == null:
+		return null
+
+	var from_node: InspectableNode = get_node_from_view_name(str(found["from_node"]))
+	var to_node: InspectableNode = get_node_from_view_name(str(found["to_node"]))
+	if from_node == null or to_node == null:
+		return null
+
+	var from_property: String = get_property_name_at_port(
+		str(found["from_node"]), int(found["from_port"]), true
+	)
+	var to_property: String = get_property_name_at_port(
+		str(found["to_node"]), int(found["to_port"]), false
+	)
+	if from_property.is_empty() or to_property.is_empty():
+		return null
+
+	for wire: NodeConnection in storyline.connections:
+		if wire.from_node_id != from_node.get_id() or wire.to_node_id != to_node.get_id():
+			continue
+		if wire.get_from_name() == from_property and wire.get_to_name() == to_property:
+			return wire
+	return null
+
+
+## Wires the user picked, in the order they picked them.
+func get_selected_wires() -> Array[NodeConnection]:
+	return _selected_wires.duplicate()
+
+
+## Picks these wires and drops whatever was picked before.
+##
+## Drawn with GraphEdit's activity tint, the one per-wire colour it lets anyone set. A
+## badge or an icon would need a layer of our own, and that is a road already walked.
+func select_wires(wires: Array[NodeConnection]) -> void:
+	for wire: NodeConnection in _selected_wires:
+		_paint_wire(wire, 0.0)
+
+	_selected_wires.assign(wires)
+	for wire: NodeConnection in _selected_wires:
+		_paint_wire(wire, 1.0)
+
+
+## A left click takes the wire under it, and mnl_delete cuts whatever is taken.
+##
+## Caught on the gui_input signal, which Godot emits before GraphEdit's own handling, so
+## a taken press never reaches the box selection.
+func _on_graph_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("mnl_delete") and not _selected_wires.is_empty():
+		_cut_wires(_selected_wires)
+		accept_event()
+		return
+
+	var click: InputEventMouseButton = event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
+		return
+	# Not while a wire is in flight, and not over a node: there the press means the node,
+	# whatever happens to pass behind it.
+	if views_are_busy() or _over_a_node(click.position):
+		return
+
+	var wire: NodeConnection = wire_at(click.position)
+	if wire == null:
+		select_wires([])
+		return
+
+	select_wires(_picked_with(click, wire))
+	set_selected(null)
+	accept_event()
+
+
+## What the picked set becomes. Holding the modifier adds a wire or takes it back out,
+## the way it already does for nodes.
+func _picked_with(
+	click: InputEventMouseButton, wire: NodeConnection
+) -> Array[NodeConnection]:
+	if not click.is_command_or_control_pressed():
+		return [wire]
+
+	var taken: Array[NodeConnection] = _selected_wires.duplicate()
+	if taken.has(wire):
+		taken.erase(wire)
+	else:
+		taken.append(wire)
+	return taken
+
+
+## True when a point is over a node.
+func _over_a_node(at_position: Vector2) -> bool:
+	for view: GraphNode in get_all_graph_nodes():
+		if Rect2(view.position, view.size * zoom).has_point(at_position):
+			return true
+	return false
+
+
+func _paint_wire(wire: NodeConnection, amount: float) -> void:
+	var from_port: int = get_port_index_for_property(
+		wire.from_node_id, wire.get_from_name(), true
+	)
+	var to_port: int = get_port_index_for_property(wire.to_node_id, wire.get_to_name(), false)
+	if from_port < 0 or to_port < 0:
+		Log.warn("No port answers to '%s' or '%s'." % [wire.get_from_name(), wire.get_to_name()])
+		return
+
+	# set_connection_activity walks its own list and gives up in silence when nothing
+	# matches, which looks exactly like a wire that refuses to light up.
+	if not is_node_connected(wire.from_node_id, from_port, wire.to_node_id, to_port):
+		Log.warn(
+			"The canvas holds no wire from '%s' port %d to '%s' port %d."
+			% [wire.from_node_id, from_port, wire.to_node_id, to_port]
+		)
+		return
+
+	set_connection_activity(wire.from_node_id, from_port, wire.to_node_id, to_port, amount)
+
+
+## Rebuilding the canvas makes every wire afresh, so the picked ones have to be drawn
+## again. One that went with the rebuild is not picked any more.
+func _repaint_wire_selection() -> void:
+	var storyline: StorylineDocument = get_storyline()
+	var still_here: Array[NodeConnection] = []
+	if storyline != null:
+		for wire: NodeConnection in _selected_wires:
+			if storyline.connections.has(wire):
+				still_here.append(wire)
+
+	_selected_wires.assign(still_here)
+	for wire: NodeConnection in _selected_wires:
+		_paint_wire(wire, 1.0)
+
+
+## Wires named by both their ends, so the ones aimed at are the ones that go even when
+## they share a port with others. One step for the lot.
+func _cut_wires(wires: Array[NodeConnection]) -> void:
+	var storyline: StorylineDocument = get_storyline()
+	if storyline == null or wires.is_empty():
+		return
+
+	# Copied first: dropping the picked set below empties the very array being walked.
+	var going: Array[NodeConnection] = wires.duplicate()
+	# Dropped before the cut, so the tint comes off wires that are still there to take it.
+	select_wires([])
+
+	var cut: CommandTransaction = storyline.history.begin("Cut %d wires" % going.size())
+	for wire: NodeConnection in going:
+		storyline.history.execute(
+			NodeConnectionCommand.new(
+				self,
+				wire.from_node_id,
+				wire.to_node_id,
+				wire.get_from_name(),
+				wire.get_to_name(),
+				true
+			)
+		)
+	cut.commit()
+	refresh()
 
 
 ## Built each time and freed with the popup, since what it offers depends on the selection.
-func _on_popup_request(at_position: Vector2) -> void:
+func _offer_on_selection(at_position: Vector2) -> void:
 	var selection: Array[InspectableNode] = _user_owned(_selected_model_nodes())
 	if selection.is_empty():
 		return
 
 	var menu: PopupMenu = PopupMenu.new()
-	menu.add_item("Extract into a Section")
-	menu.id_pressed.connect(func(_id: int) -> void: _extract_into_section(selection))
+	menu.add_item("Extract into a Section", OFFER_EXTRACT)
+	menu.add_item("Remove, Keeping the Chain", OFFER_BRIDGE_OUT)
+	menu.id_pressed.connect(_on_offer_chosen.bind(selection))
 	menu.popup_hide.connect(menu.queue_free)
 	add_child(menu)
 
 	menu.position = Vector2i(get_screen_position() + at_position)
 	menu.popup()
+
+
+func _on_offer_chosen(offer: int, selection: Array[InspectableNode]) -> void:
+	if offer == OFFER_EXTRACT:
+		_extract_into_section(selection)
+	elif offer == OFFER_BRIDGE_OUT:
+		_remove_keeping_chain(selection)
+
+
+## Takes the nodes out and joins what fed them to what they fed. Asks first when a section
+## would go with them, the same as an outright delete.
+func _remove_keeping_chain(selection: Array[InspectableNode]) -> void:
+	var going: Array[StorylineDocument] = DeleteNodesCommand.sections_run_by(selection)
+	if going.is_empty():
+		GraphChain.bridge_out(self, selection, going)
+		return
+
+	EventBus.ask_dialog.emit(
+		_on_bridge_out_confirmed.bind(selection, going),
+		"Are you sure?",
+		_what_goes_too(going)
+	)
+
+
+func _on_bridge_out_confirmed(
+	response: int, selection: Array[InspectableNode], going: Array[StorylineDocument]
+) -> void:
+	if response == Prompt.CONFIRMED:
+		GraphChain.bridge_out(self, selection, going)
 
 
 func _extract_into_section(selection: Array[InspectableNode]) -> void:
@@ -513,11 +809,20 @@ func _on_copy_nodes_request() -> void:
 		_copied_nodes.append(source_node.duplicate(true))
 
 
+## Copied again on every paste, so pasting twice makes two nodes rather than handing the
+## same one back. What was pasted becomes the clipboard, so a run of pastes walks away
+## from the original instead of stacking in one place.
 func _on_paste_nodes_request() -> void:
-	# TODO: Move nodes based on the cursor position
 	var storyline: StorylineDocument = get_storyline()
-	var command: AddNodesCommand = AddNodesCommand.new(storyline_id, _copied_nodes)
-	storyline.history.execute(command)
+	if storyline == null or _copied_nodes.is_empty():
+		return
+
+	var pasted: Array = []
+	for copied: InspectableNode in _copied_nodes:
+		pasted.append(copied.duplicate(true))
+
+	storyline.history.execute(AddNodesCommand.new(storyline_id, pasted))
+	_copied_nodes = pasted
 
 
 func _on_cut_nodes_request() -> void:
@@ -546,7 +851,45 @@ func _on_delete_nodes_request(graph_nodes: Array[StringName]) -> void:
 	if removable.is_empty():
 		return
 
-	var storyline: StorylineDocument = get_storyline()
-	storyline.history.execute(DeleteNodesCommand.new(storyline_id, removable))
+	# A section is a graph of its own, so losing one is worth a question. Anything else
+	# goes on the spot, undo being the answer to a delete one did not mean.
+	var going: Array[StorylineDocument] = DeleteNodesCommand.sections_run_by(removable)
+	if going.is_empty():
+		_delete_nodes(removable, going)
+		return
 
+	EventBus.ask_dialog.emit(
+		_on_delete_confirmed.bind(removable, going),
+		"Are you sure?",
+		_what_goes_too(going)
+	)
+
+
+func _on_delete_confirmed(
+	response: int, removable: Array[InspectableNode], going: Array[StorylineDocument]
+) -> void:
+	if response == Prompt.CONFIRMED:
+		_delete_nodes(removable, going)
+
+
+func _delete_nodes(
+	removable: Array[InspectableNode], going: Array[StorylineDocument]
+) -> void:
+	var storyline: StorylineDocument = get_storyline()
+	storyline.history.execute(DeleteNodesCommand.new(storyline_id, removable, going))
 	refresh()
+
+
+## What a delete costs beyond the nodes picked, so the question can be answered.
+static func _what_goes_too(sections: Array[StorylineDocument]) -> String:
+	var named: PackedStringArray = []
+	var held: int = 0
+	for section: StorylineDocument in sections:
+		named.append("'%s'" % section.name)
+		held += section.nodes.size()
+
+	var counted: String = "%d node%s" % [held, "" if held == 1 else "s"]
+	# TODO: Rewrite this message.
+	if named.size() == 1:
+		return "The section %s goes too, with the %s in it." % [named[0], counted]
+	return "The sections %s go too, with the %s in them." % [", ".join(named), counted]

@@ -7,10 +7,11 @@ const NO_SELECTION_HINT: String = "Pick a node type to read what it does."
 @onready var search_bar: LineEdit = %SearchBar
 @onready var description_label: RichTextLabel = %Description
 
-var from_node: String
-var from_port: int
-## Slot type of that port, or 0 when the picker was not opened from one. The tree
-## offers only the types this can reach.
+## The node a wire was dragged out of, by id, and the property it left by. Both empty
+## when the picker was opened from a menu.
+var from_node: String = ""
+var from_property: String = ""
+## Slot type of that port. The tree offers only the types it can reach.
 var source_port_type_id: int = 0
 ## Where the wire was let go, in the graph's own coordinates. Only meaningful when the
 ## picker was dragged out of a port, which [method has_source_port] answers.
@@ -43,9 +44,12 @@ func _on_type_highlighted(indexer: NodeIndexer) -> void:
 
 
 func _on_enable_picker_mode(
-	node: String = "", port: int = -1, graph_release_pos: Vector2 = Vector2.ZERO
+	from_node_id: String = "",
+	from_property_name: String = "",
+	port_type: int = 0,
+	graph_release_pos: Vector2 = Vector2.ZERO
 ) -> void:
-	open_for_node(node, port, graph_release_pos)
+	open_for_node(from_node_id, from_property_name, port_type, graph_release_pos)
 
 
 func close() -> void:
@@ -54,7 +58,7 @@ func close() -> void:
 
 func flush() -> void:
 	from_node = ""
-	from_port = -1
+	from_property = ""
 	source_port_type_id = 0
 	graph_release = Vector2.ZERO
 
@@ -62,17 +66,20 @@ func flush() -> void:
 ## True when the picker was dragged out of a port, in which case the created node is
 ## expected to come back wired.
 func has_source_port() -> bool:
-	return not from_node.is_empty() and from_port >= 0
+	return not from_node.is_empty() and not from_property.is_empty()
 
 
 func open_for_node(
-	node: String = "", port: int = -1, graph_release_pos: Vector2 = Vector2.ZERO
+	from_node_id: String = "",
+	from_property_name: String = "",
+	port_type: int = 0,
+	graph_release_pos: Vector2 = Vector2.ZERO
 ) -> void:
 	flush()
-	from_node = node
-	from_port = port
+	from_node = from_node_id
+	from_property = from_property_name
+	source_port_type_id = port_type
 	graph_release = graph_release_pos
-	source_port_type_id = _resolve_source_port_type()
 
 	if node_tree:
 		node_tree.reload_tree()
@@ -88,27 +95,6 @@ func open_for_node(
 	if search_bar:
 		search_bar.clear()
 		search_bar.grab_focus()
-
-
-## Reads the slot type of the port the wire came from, so the tree can rule out types
-## that could never accept it.
-func _resolve_source_port_type() -> int:
-	if not has_source_port():
-		return 0
-
-	var project: MonologueProject = ProjectManager.current_project
-	if project == null:
-		return 0
-
-	var source: InspectableNode = null
-	for storyline: StorylineDocument in project.storylines:
-		source = storyline.get_node(from_node)
-		if source:
-			break
-	if source == null or not is_instance_valid(source.graph_view):
-		return 0
-
-	return (source.graph_view as GraphNode).get_output_port_type(from_port)
 
 
 func _on_close_requested() -> void:

@@ -12,7 +12,7 @@ func _ready() -> void:
 
 func _shortcut_input(event: InputEvent) -> void:
 	if event.is_action_pressed("mnl_add_node"):
-		EventBus.enable_picker_mode.emit("", -1, Vector2.ZERO)
+		EventBus.enable_picker_mode.emit("", "", 0, Vector2.ZERO)
 
 
 func _on_window_size_changed() -> void:

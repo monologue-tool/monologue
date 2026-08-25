@@ -27,6 +27,9 @@ var ending: Dictionary = {}
 var step_index: int = 0
 ## Kept here and not on the session, so a save replays its coin flips the same way.
 var rng_seed: int = 0
+## How far into that sequence the run has got. Setting a seed rewinds to the start, so a
+## save carrying only the seed would draw the same numbers all over again.
+var rng_state: int = 0
 
 
 func visit(node_id: String) -> void:
@@ -82,6 +85,7 @@ func to_dict() -> Dictionary:
 		"ending": ending.duplicate(true),
 		"step_index": step_index,
 		"rng_seed": rng_seed,
+		"rng_state": rng_state,
 	}
 
 
@@ -101,6 +105,7 @@ static func from_dict(data: Dictionary) -> MonologueState:
 	state.ending = (data.get("ending", {}) as Dictionary).duplicate(true)
 	state.step_index = int(data.get("step_index", 0))
 	state.rng_seed = int(data.get("rng_seed", 0))
+	state.rng_state = int(data.get("rng_state", 0))
 	return state
 
 

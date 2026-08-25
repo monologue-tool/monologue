@@ -157,8 +157,8 @@ func _follow(document: StorylineDocument, wanted: bool) -> void:
 	if document == null:
 		return
 
-	for changed: String in ["connections_changed", "node_added", "node_removed"]:
-		var moved: Signal = document.get(changed)
+	for pchanged: String in ["connections_changed", "node_added", "node_removed"]:
+		var moved: Signal = document.get(pchanged)
 		if wanted and not moved.is_connected(rebuild_preview):
 			moved.connect(rebuild_preview)
 		elif not wanted and moved.is_connected(rebuild_preview):

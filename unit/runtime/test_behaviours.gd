@@ -106,10 +106,13 @@ func _declare_variable(variable_name: String, type_name: String, initial: Varian
 	)
 
 
-func _play() -> MonologueSession:
+## [param seed] fixes the run's draws, for a case that branches at random.
+func _play(seed: int = 0) -> MonologueSession:
 	ProjectWriter.write_project(_project, _path)
 	var graph: MonologueStoryGraph = MonologueStoryGraph.of(MonologueSource.open(_path))
 	var session: MonologueSession = auto_free(MonologueSession.new(graph, _player, "en"))
+	if seed != 0:
+		session.rng.seed = seed
 	session.play()
 	return session
 
@@ -208,6 +211,53 @@ func test_wired_options_reach_the_reader_in_the_order_they_are_laid_out() -> voi
 		MonologueStoryGraph.EXTERNAL_PREFIX + upper.get_id(),
 		MonologueStoryGraph.EXTERNAL_PREFIX + lower.get_id(),
 	])
+
+
+## A port wired several ways is a branch, not a mistake.
+func test_a_port_wired_several_ways_takes_one_of_them() -> void:
+	var fork: InspectableNode = _node("sentence")
+	fork.get_property("line").set_value({"en": "Which way."})
+	_wire(_root(), fork)
+
+	var ways: Array[String] = []
+	for index: int in 3:
+		var arrival: InspectableNode = _node("sentence")
+		arrival.get_property("line").set_value({"en": "Way %d." % index})
+		_wire(fork, arrival)
+		ways.append("Way %d." % index)
+
+	var session: MonologueSession = _play(1234)
+
+	assert_int(_player.said.size()).override_failure_message(
+		"The story did not take exactly one of the three wires: %s" % str(_player.said)
+	).is_equal(2)
+	assert_array(ways).override_failure_message(
+		"The story went somewhere none of the wires lead: %s" % _player.said[1]
+	).contains([_player.said[1]])
+	assert_bool(session.has_errors()).is_false()
+
+
+func test_two_runs_of_one_seed_take_the_same_branch() -> void:
+	# Without this the branch is a coin toss nobody can reproduce, and a save that replays
+	# differently from the run it was taken from.
+	var fork: InspectableNode = _node("sentence")
+	fork.get_property("line").set_value({"en": "Which way."})
+	_wire(_root(), fork)
+
+	for index: int in 3:
+		var arrival: InspectableNode = _node("sentence")
+		arrival.get_property("line").set_value({"en": "Way %d." % index})
+		_wire(fork, arrival)
+
+	_play(4242)
+	var first: String = _player.said[1]
+
+	_player.said.clear()
+	_play(4242)
+
+	assert_str(_player.said[1]).override_failure_message(
+		"The same seed took a different way: %s then %s" % [first, _player.said[1]]
+	).is_equal(first)
 
 
 func test_the_inventory_counts_what_the_story_gave_and_took() -> void:
