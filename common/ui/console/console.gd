@@ -14,7 +14,7 @@ func _on_event_show_console(_visible: bool) -> void:
 	visible = ConfigManager.get_config("show_console")
 
 
-func _on_log_message(_message: String, bbcode_message: String) -> void:
+func _on_log_message(_message: String, bbcode_message: String, _level: Log.Levels) -> void:
 	rtl.append_text(bbcode_message)
 	rtl.newline()
 

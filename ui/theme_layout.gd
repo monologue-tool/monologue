@@ -296,6 +296,17 @@ static func _setup_panel(theme: Theme) -> void:
 	color_panel_stylebox.set_corner_radius_all(radius_md)
 	color_panel_stylebox.set_content_margin_all(0)
 	theme.set_stylebox("panel", "ColorPanel", color_panel_stylebox)
+	
+	theme.add_type("NotificationPanel")
+	theme.set_type_variation("NotificationPanel", "PanelContainer")
+	var notification_panel_stylebox: StyleBoxFlat = StyleBoxFlat.new()
+	notification_panel_stylebox.bg_color = bg_primary_color
+	notification_panel_stylebox.set_corner_radius_all(radius_sm)
+	notification_panel_stylebox.content_margin_top = margin_sm.y
+	notification_panel_stylebox.content_margin_bottom = margin_sm.y
+	notification_panel_stylebox.content_margin_left = margin_sm.x
+	notification_panel_stylebox.content_margin_right = margin_sm.x
+	theme.set_stylebox("panel", "NotificationPanel", notification_panel_stylebox)
 
 
 static func _setup_button(theme: Theme) -> void:
@@ -821,6 +832,11 @@ static func _setup_label(theme: Theme) -> void:
 	theme.set_type_variation("TitleLabel", "Label")
 	theme.set_font_size("font_size", "TitleLabel", font_size_sm)
 	theme.set_color("font_color", "TitleLabel", text_muted_color)
+	
+	theme.add_type("NotificationLabel")
+	theme.set_type_variation("NotificationLabel", "Label")
+	theme.set_font_size("font_size", "NotificationLabel", font_size_sm)
+	theme.set_color("font_color", "NotificationLabel", text_primary_color)
 
 	theme.add_type("NoteLabel")
 	theme.set_type_variation("NoteLabel", "Label")

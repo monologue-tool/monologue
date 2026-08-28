@@ -435,11 +435,10 @@ func get_property_name_at_port(node_name: String, port_index: int, is_output: bo
 
 
 func _on_end_node_move() -> void:
-	print("1")
-	_cancel_inspection = true
-	
 	if _pending_positions.is_empty():
 		return
+	
+	_cancel_inspection = true
 
 	# One node let go on a wire joins the chain there, which a whole selection dropped at
 	# once would not say clearly enough.

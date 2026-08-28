@@ -19,6 +19,7 @@
 [ext_resource type="Script" uid="uid://cd5ku56gijql7" path="res://common/ui/status_bar/status_bar.gd" id="14_ja8tm"]
 [ext_resource type="PackedScene" uid="uid://cmpsaafag7cwl" path="res://common/ui/windows/graph_node_picker/graph_node_picker.tscn" id="15_q62vd"]
 [ext_resource type="PackedScene" uid="uid://c8k4wq2vn7xrm" path="res://common/ui/windows/localization_window/localization_window.tscn" id="16_local"]
+[ext_resource type="PackedScene" uid="uid://dwmsru0yoyk7k" path="res://common/notification/notification.tscn" id="16_svbvx"]
 
 [sub_resource type="GDScript" id="GDScript_qnluh"]
 script/source = "extends Button
@@ -192,6 +193,13 @@ layout_mode = 2
 size_flags_horizontal = 0
 theme_type_variation = &"NoteLabel"
 script = ExtResource("9_pq70c")
+
+[node name="Center" type="HBoxContainer" parent="VBox/StatusBar" unique_id=675808616]
+layout_mode = 2
+alignment = 1
+
+[node name="Notification" parent="VBox/StatusBar/Center" unique_id=1015023582 instance=ExtResource("16_svbvx")]
+layout_mode = 2
 
 [node name="Right" type="HBoxContainer" parent="VBox/StatusBar" unique_id=27361139]
 layout_mode = 2

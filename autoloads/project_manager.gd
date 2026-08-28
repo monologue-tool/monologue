@@ -40,7 +40,7 @@ func load_project(project: MonologueProject) -> void:
 	if not await close_current_project():
 		return
 
-	Log.info("Project loaded!")
+	Log.info("Project loaded.").broadcast(current_project != null)
 	current_project = project
 	project_loaded.emit.call_deferred()
 	EventBus.hide_welcome.emit()

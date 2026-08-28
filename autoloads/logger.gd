@@ -1,7 +1,8 @@
 extends Node
-# TODO save logs in files
+# TODO save logs in files and connect the logger to the godot log system.
 
-signal log_message(message: String, bbcode_message: String)
+signal log_message(message: String, bbcode_message: String, level: Levels)
+signal broadcast_message(message: String, level: Levels)
 
 enum Levels { DEBUG, INFO, WARN, ERROR, FATAL }
 
@@ -15,7 +16,7 @@ func _ready() -> void:
 
 func _log(
 	level: Levels, levelname: String, colorname: String, args: Array, bold: bool = false
-) -> void:
+) -> BroadcastPromise:
 	if level < log_level:
 		return
 
@@ -34,27 +35,28 @@ func _log(
 	var bbcode: String = "".join(bbcode_args)
 	var raw_log: String = _bbcode_to_plain(bbcode)
 
-	log_message.emit(raw_log, bbcode)
+	log_message.emit(raw_log, bbcode, level)
+	return BroadcastPromise.new(" ".join(raw_log.split(" ").slice(1)), level, broadcast_message)
 
 
 func msg(...args: Array) -> void:
 	print_rich.callv(args)
 
 
-func debug(...args: Array) -> void:
-	_log(Levels.DEBUG, "DEBUG", "#5f819d", args)
+func debug(...args: Array) -> BroadcastPromise:
+	return _log(Levels.DEBUG, "DEBUG", "#5f819d", args)
 
 
-func info(...args: Array) -> void:
-	_log(Levels.INFO, "INFO", "#8c9440", args)
+func info(...args: Array) -> BroadcastPromise:
+	return _log(Levels.INFO, "INFO", "#8c9440", args)
 
 
-func warn(...args: Array) -> void:
-	_log(Levels.WARN, "WARN", "#de935f", args)
+func warn(...args: Array) -> BroadcastPromise:
+	return _log(Levels.WARN, "WARN", "#de935f", args)
 
 
-func error(...args: Array) -> void:
-	_log(Levels.ERROR, "ERROR", "#a54242", args)
+func error(...args: Array) -> BroadcastPromise:
+	return _log(Levels.ERROR, "ERROR", "#a54242", args)
 
 
 func exception(...args: Array) -> void:
@@ -70,10 +72,24 @@ func exception(...args: Array) -> void:
 	error.callv(args)
 
 
-func fatal(...args: Array) -> void:
-	_log(Levels.FATAL, "FATAL", "#a54242", args, true)
+func fatal(...args: Array) -> BroadcastPromise:
+	return _log(Levels.FATAL, "FATAL", "#a54242", args, true)
 
 
 func _bbcode_to_plain(bbcode: String) -> String:
 	_label.text = bbcode
 	return _label.get_parsed_text()
+
+class BroadcastPromise:
+	var _message: String
+	var _level: Levels
+	var _broadcast_signal: Signal
+	
+	func _init(message: String, level: Levels, broadcast_signal: Signal) -> void:
+		_message = message
+		_level = level
+		_broadcast_signal = broadcast_signal
+	
+	func broadcast(_broadcast: bool = true) -> void:
+		if _broadcast:
+			_broadcast_signal.emit(_message, _level)

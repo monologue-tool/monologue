@@ -301,7 +301,7 @@ func save() -> void:
 		return
 
 	is_dirty = false
-	Log.info("Project saved at path '%s'" % project_path)
+	Log.info("Project '%s' saved." % name).broadcast()
 	# A project saved for the first time was opened before it had a path, so this is the
 	# only moment it can be remembered as one to reopen.
 	ProjectManager.add_path_to_history(project_path)
