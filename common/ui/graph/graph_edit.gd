@@ -21,6 +21,7 @@ var _disconnecting: bool = false
 var _nodes_to_refresh: Array[InspectableObject] = []
 var _selection_snapshot: Array[StringName] = []
 var _announced_selection: Array[StringName] = []
+var _cancel_inspection: bool = false
 
 
 func _ready() -> void:
@@ -197,7 +198,6 @@ func _on_node_selected(graph_node: Node) -> void:
 	var node: InspectableNode = _node_map.get(graph_node)
 	if node:
 		node_view_selected.emit(node)
-	_announce_selection()
 
 
 func _on_node_deselected(graph_node: Node) -> void:
@@ -435,6 +435,9 @@ func get_property_name_at_port(node_name: String, port_index: int, is_output: bo
 
 
 func _on_end_node_move() -> void:
+	print("1")
+	_cancel_inspection = true
+	
 	if _pending_positions.is_empty():
 		return
 
@@ -616,6 +619,10 @@ func _on_graph_gui_input(event: InputEvent) -> void:
 		return
 
 	var click: InputEventMouseButton = event as InputEventMouseButton
+	if click != null and click.is_released() and not click.double_click \
+	and click.button_index == MOUSE_BUTTON_LEFT:
+		_process_gui_selection.call_deferred()
+	
 	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
 		return
 	# Not while a wire is in flight, and not over a node: there the press means the node,
@@ -631,6 +638,12 @@ func _on_graph_gui_input(event: InputEvent) -> void:
 	select_wires(_picked_with(click, wire))
 	set_selected(null)
 	accept_event()
+
+
+func _process_gui_selection() -> void:
+	if not _cancel_inspection:
+		_announce_selection()
+	_cancel_inspection = false
 
 
 ## What the picked set becomes. Holding the modifier adds a wire or takes it back out,

@@ -43,5 +43,5 @@ func _build_preview(language: String = "") -> Control:
 	if line.is_empty() and speaker.is_empty():
 		return null
 	if speaker.is_empty():
-		return NodePreview.line(NodePreview.plain(line))
-	return NodePreview.line("%s  %s" % [speaker, NodePreview.plain(line)])
+		return NodePreview.line(line, 3)
+	return NodePreview.line("%s  %s" % [speaker, line], 3)

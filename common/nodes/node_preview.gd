@@ -8,24 +8,27 @@
 class_name NodePreview
 
 ## How tall one line of preview is, and the shortest the view will draw one.
-const LINE_HEIGHT: float = 18.0
+const LINE_HEIGHT: float = 16.0
 ## How much of one piece of free text survives, leaving room for what frames it.
 const MAX_PIECE: int = 26
 
 
 ## One line of BBCode. Runs off its own edge instead of wrapping, and the view clips it.
-static func line(bbcode: String) -> RichTextLabel:
+static func line(bbcode: String, line_number: int = 1) -> RichTextLabel:
 	var label: RichTextLabel = RichTextLabel.new()
 	label.bbcode_enabled = true
 	label.text = bbcode
-	label.fit_content = false
+	label.fit_content = true
+	label.threaded = true
 	label.scroll_active = false
-	label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	label.clip_contents = true
+	label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	label.clip_contents = false
 	label.mouse_filter = Control.MOUSE_FILTER_PASS
 	label.theme_type_variation = "GraphNodeViewPreviewLabel"
-	label.custom_minimum_size.y = LINE_HEIGHT
+	label.custom_minimum_size.y = LINE_HEIGHT * line_number
+	label.propagate_maximum_size = true
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	return label
 
 
@@ -109,7 +112,11 @@ static func tint(node: InspectableNode, property_name: String) -> Color:
 
 ## A translated property as the reader sees it in [param language].
 static func said(node: InspectableNode, property_name: String, language: String) -> String:
-	return trim(Util.to_label(node.get_property_value(property_name), language))
+	return Util.to_label(node.get_property_value(property_name), language)
+
+
+static func said_and_trim(node: InspectableNode, property_name: String, language: String) -> String:
+	return trim(said(node, property_name, language))
 
 
 ## A condition as it reads, such as "gold >= 3". Empty when it names no variable.
