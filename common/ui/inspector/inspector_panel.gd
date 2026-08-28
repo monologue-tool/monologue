@@ -22,10 +22,12 @@ var _watched_objects: Array[InspectableObject] = []
 func _ready() -> void:
 	EventBus.request_objects_inspection.connect(inspect)
 	EventBus.show_inspector.connect(_on_event_show_inspector)
-
 	ProjectManager.project_loaded.connect(_on_project_loaded)
 	back_button.pressed.connect(_on_back_button_pressed)
+	run_button.pressed.connect(_on_run_button_pressed)
+
 	visible = ConfigManager.get_config("show_inspector")
+	
 
 
 func _on_project_loaded() -> void:
@@ -91,7 +93,7 @@ func rebuild() -> void:
 		if obj is not InspectableNode:
 			inspecting_nodes = false
 			break
-	run_button.visible = inspecting_nodes  # TODO: Bad practice
+	run_button.visible = inspecting_nodes
 
 	for field: Control in field_container.get_children():
 		field.queue_free()
@@ -501,3 +503,9 @@ func _on_back_button_pressed() -> void:
 	var previous: Array[InspectableObject] = []
 	previous.assign(history.pop_back())
 	inspect(previous, true)
+
+func _on_run_button_pressed() -> void:
+	if current_objects.size() != 1 and current_objects[0] is not InspectableNode:
+		return
+	
+	EventBus.test_trigger.emit(current_objects[0].get_property_value("id"))

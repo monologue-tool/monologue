@@ -2,7 +2,7 @@ extends Node
 
 @warning_ignore_start("unused_signal")
 signal load_project(path: String)
-signal test_trigger
+signal test_trigger(from_node: String)
 
 ## The project's active language changed. Everything showing translated text redraws.
 signal language_changed(code: String)
